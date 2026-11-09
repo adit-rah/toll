@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "./env";
+import { adminRoutes } from "./features/admin/routes";
 import { appRoutes } from "./features/apps/routes";
 import { accountRoutes, authRoutes, sessionRoutes } from "./features/auth/routes";
 import { contactRoutes } from "./features/contacts/routes";
@@ -38,6 +39,7 @@ export function createApp() {
   v1.route("/", photoRoutes);
   v1.route("/", publicInviteRoutes);
   v1.route("/", accountRoutes);
+  v1.route("/", adminRoutes);
 
   const signedIn = new Hono<AppEnv>();
   signedIn.use(requireAuth, idempotency);
