@@ -43,6 +43,9 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A35 | Remote config in solo mode | Not fetched; solo runs on the cached or default values so it never touches the network | spec §11.2, §13 |
 | A36 | Tags on events | Events carry app refs only; the server joins tags at read time (§11.2), so a retag re-labels history | spec §4, §11.2 |
 | A37 | Times in friend rows | A friend's pass times are shown in the friend's local time (the time they lived it) | spec §10 |
+| A38 | "Remove Instagram? …" confirm | Toll cannot read app names as text (spec §6), so the confirm names the block by its user-only name, else its schedule ("Remove Nights · 11 pm – 7 am? Your friends will see this.") | spec §10 |
+| A39 | Setup step transitions | Steps are driven by launch state, so they change with a slide-and-fade (`Motion.movement`) rather than a navigation push; Email → Code inside Welcome is a real push | design §2.5 |
+| A40 | Friends' tag-share bar (I-18) | Segments use the chart's categorical styles; revisit with the identity work (C19) | insights I-18 |
 
 ## B. Open — needs a founder decision before the relevant task
 
