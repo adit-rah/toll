@@ -7,6 +7,7 @@ A free iPhone app that blocks the apps you choose. Getting past a block costs a 
 - Design: [`docs/toll-design.md`](docs/toll-design.md) · Insights: [`docs/toll-insights-spec.md`](docs/toll-insights-spec.md)
 - Decisions and deferrals: [`docs/toll-future-ledger.md`](docs/toll-future-ledger.md)
 - Working in the repo (people and agents): [`CLAUDE.md`](CLAUDE.md)
+- From here to TestFlight: [`docs/handoff.md`](docs/handoff.md)
 
 | Folder | What |
 |---|---|

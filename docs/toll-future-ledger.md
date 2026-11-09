@@ -43,6 +43,31 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A35 | Remote config in solo mode | Not fetched; solo runs on the cached or default values so it never touches the network | spec §11.2, §13 |
 | A36 | Tags on events | Events carry app refs only; the server joins tags at read time (§11.2), so a retag re-labels history | spec §4, §11.2 |
 | A37 | Times in friend rows | A friend's pass times are shown in the friend's local time (the time they lived it) | spec §10 |
+| A38 | "Remove Instagram? …" confirm | Toll cannot read app names as text (spec §6), so the confirm names the block by its user-only name, else its schedule ("Remove Nights · 11 pm – 7 am? Your friends will see this.") | spec §10 |
+| A39 | Setup step transitions | Steps are driven by launch state, so they change with a slide-and-fade (`Motion.movement`) rather than a navigation push; Email → Code inside Welcome is a real push | design §2.5 |
+| A40 | Friends' tag-share bar (I-18) | Segments use the chart's categorical styles; revisit with the identity work (C19) | insights I-18 |
+| A41 | Held and running waits | A hit while a wait is running joins the wait and is never counted as held | backend (E3–E11) |
+| A42 | Status history | The person's active days (any event) in the 28 days before today, oldest first | backend (E3–E11) |
+| A43 | Daily summary position | N-3 order: each person's week-to-date trend for the week containing their yesterday vs the full week before; "of N friends" counts you | backend (E3–E11) |
+| A44 | Summary with no friends | "N passes yesterday." alone, plus "N friend requests waiting." when there are any | backend (E3–E11) |
+| A45 | Handle cooldown | The handle chosen at sign-up does not start the cooldown; the first later change is free and starts the 30 days | backend (E3–E11) |
+| A46 | School email ownership | One school email belongs to one account at a time; verifying it again moves the membership. The most specific listed domain wins | backend (E3–E11) |
+| A47 | School numbers | From the nightly rollup only ("as of 4 a.m."); an active member has at least one active day that week; the school week uses UTC with the 04:00 reset | backend (E3–E11) |
+| A48 | School distribution | Each member's weekly pass count is stored; bins are cut at read time and small bins merged | backend (E3–E11) |
+| A49 | Same app, same hour (I-14) | Friends only (not you), from `insights.lateStart` to the reset hour, at least 3, excluding untagged and "other" | backend (E3–E11) |
+| A50 | Passes per person | Divides by people active that week | backend (E3–E11) |
+| A51 | Silence threshold | At least 2 whole days with no event of any kind while blocks are on; with no events ever, counted from the first saved block | backend (E3–E11) |
+| A52 | Late block events | An older block event arriving late never brings back a removed block; a removal keeps its apps so the pin can name them | backend (E3–E11) |
+| A53 | Silent pushes | Every due device gets one silent background push a day, even with the summary off (A34) | backend (E3–E11) |
+| A54 | Push failures | Acked without retry; tokens APNs reports as 410, BadDeviceToken or Unregistered are cleared | backend (E3–E11) |
+| A55 | Code attempts | Resending a code does not reset the five-try lock; limits key on IP + email hash for codes, user id for social and ingest | backend (E3–E11) |
+| A56 | Re-auth for deletion | Email accounts re-auth with the sign-in code; Apple accounts with a fresh Apple credential for the same subject | backend (E3–E11) |
+| A57 | Reports | Kept after either account is deleted | backend (E3–E11) |
+| A58 | Backups | Weekly NDJSON exports in R2 expire after 90 days (lifecycle rule in `api/DEPLOY.md`); the privacy draft says so | backend (E3–E11) |
+| A59 | Install count | `installs` counts registered devices; solo phones never reach the server | backend (E3–E11) |
+| A60 | Safety routes | `/v1/person-blocks/:userId` instead of `/blocks/:userId`, which collides with `PUT /blocks/:blockRef` | backend (E3–E11) |
+| A61 | API under `/v1` | Unauthenticated requests to unknown `/v1` paths get 401 (public routes are matched before auth) | backend (E3–E11) |
+| A62 | Review sign-in | `REVIEW_EMAIL` gets the fixed `REVIEW_CODE` when both are set; nobody else can | backend (E3–E11) |
 
 ## B. Open — needs a founder decision before the relevant task
 

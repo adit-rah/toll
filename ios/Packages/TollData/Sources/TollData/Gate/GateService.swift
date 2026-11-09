@@ -46,6 +46,7 @@ public actor GateService {
     #endif
     var events: [GateEvent] = []
     let ledger = await todayLedger()
+    await checkInIfNeeded(now: now)
     gateStore.update { state in
       machine.expireStalePass(state: &state, now: now)
       events += machine.tick(state: &state, now: now, monotonic: clock.monotonic)
@@ -117,6 +118,18 @@ public actor GateService {
     let day = math.day(containing: clock.now)
     let events = (try? await store.events(from: math.start(of: day), to: math.end(of: day))) ?? []
     return GateLedger(eventsOfToday: events)
+  }
+
+  /// The monitor checks in at midnight, which a phone that was off misses; Toll opening is proof too, so
+  /// friends never see a false silence (N-9).
+  func checkInIfNeeded(now: Date) async {
+    guard !gateStore.load().blocks.isEmpty else { return }
+    let day = math.day(containing: now)
+    let today = (try? await store.events(from: math.start(of: day), to: math.end(of: day))) ?? []
+    guard !today.contains(where: { $0.kind == .checkin }) else { return }
+    try? await store.record([
+      GateEvent(kind: .checkin, occurredAt: now, tzOffsetMinutes: GateEvent.offsetMinutes(at: now, in: clock.timeZone))
+    ])
   }
 
   public func setNotificationsAllowed(_ allowed: Bool) {

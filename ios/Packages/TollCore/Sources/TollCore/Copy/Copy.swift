@@ -47,12 +47,17 @@ public enum Copy {
   }
 
   public enum Home {
+    public static let tab = "Home"
     public static func passesToday(_ n: Int) -> String { "\(passes(n)) today" }
     public static func week(_ this: Int, last: Int) -> String {
       "\(this) this week\(middleDot)\(last) last week"
     }
     public static func tollOpens(_ n: Int) -> String {
       "You opened Toll \(n) \(n == 1 ? "time" : "times") today."
+    }
+    /// Follows the system app name, which Toll cannot read as text.
+    public static func sessionActiveRest(minutes: Int) -> String {
+      "is open\(middleDot)ends after \(minutes) min of use."
     }
     public static func sessionActive(_ app: String, minutes: Int) -> String {
       "\(app) is open\(middleDot)ends after \(minutes) min of use."
@@ -87,6 +92,8 @@ public enum Copy {
   public enum SessionPicker {
     public static let question = "How long?"
     public static func open(_ app: String) -> String { "Open \(app)" }
+    /// The button reads "Open" followed by the system's own app name, which Toll cannot read as text.
+    public static let openVerb = "Open"
     public static let note = "Measured in use of the app. The block returns after."
   }
 
