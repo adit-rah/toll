@@ -84,6 +84,7 @@ export const serverConfig = {
   reportTextMax: 500,
   photoCacheSeconds: 31_536_000,
   insightsWeeks: 8,
+  mutualsMax: 200,
   nightlyRecomputeDays: 2,
   nightlyUserBatch: 100,
   exportPageRows: 1000,
