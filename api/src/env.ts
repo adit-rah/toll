@@ -30,6 +30,9 @@ export interface Env {
   EMAIL_FROM: string;
   FOUNDERS_EMAIL: string;
   SENTRY_DSN: string;
+  APP_STORE_URL?: string;
+  // App Review sign-in: this one address gets REVIEW_CODE instead of a random code (both must be set).
+  REVIEW_EMAIL?: string;
 
   // Secrets (wrangler secret put).
   APPLE_PRIVATE_KEY?: string;
@@ -39,6 +42,7 @@ export interface Env {
   CONTACTS_SALT: string;
   TOKEN_ENC_KEY: string;
   ADMIN_TOKEN: string;
+  REVIEW_CODE?: string;
 }
 
 export interface AppVariables {
