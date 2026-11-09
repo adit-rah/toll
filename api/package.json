@@ -1,0 +1,35 @@
+{
+  "name": "toll-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply toll --local",
+    "schools:refresh": "node scripts/refresh-schools.mjs",
+    "check": "npm run lint && npm run typecheck && npm test"
+  },
+  "dependencies": {
+    "@cf-wasm/photon": "0.4.0",
+    "@hono/zod-validator": "0.9.1",
+    "@sentry/cloudflare": "11.11.0",
+    "drizzle-orm": "0.45.4",
+    "hono": "4.13.17",
+    "jose": "6.2.16",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.6",
+    "@cloudflare/vitest-plugin": "1.6.0",
+    "@cloudflare/workers-types": "5.20261109.1",
+    "drizzle-kit": "0.31.11",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12",
+    "wrangler": "4.158.0"
+  }
+}
