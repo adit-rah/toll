@@ -6,7 +6,7 @@ export type Level = 1 | 2 | 3;
 export const PERSONALISED_HISTORY_DAYS = 28;
 export const MINIMUM_HISTORY_DAYS = 7;
 
-function median(values: number[]): number {
+export function median(values: number[]): number {
   const sorted = [...values].sort((a, b) => a - b);
   if (sorted.length === 0) return 0;
   const mid = Math.floor(sorted.length / 2);

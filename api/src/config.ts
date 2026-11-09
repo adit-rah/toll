@@ -85,6 +85,7 @@ export const serverConfig = {
   photoCacheSeconds: 31_536_000,
   insightsWeeks: 8,
   mutualsMax: 200,
+  schoolMembersMax: 500,
   nightlyRecomputeDays: 2,
   nightlyUserBatch: 100,
   exportPageRows: 1000,
