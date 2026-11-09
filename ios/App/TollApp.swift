@@ -3,9 +3,11 @@ import TollFeatures
 
 @main
 struct TollApp: App {
+  @UIApplicationDelegateAdaptor(TollAppDelegate.self) private var delegate
+
   var body: some Scene {
     WindowGroup {
-      RootView()
+      RootView(model: delegate.model)
     }
   }
 }
