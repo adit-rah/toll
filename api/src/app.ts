@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "./env";
 import { authRoutes, sessionRoutes } from "./features/auth/routes";
-import { meRoutes } from "./features/me/routes";
+import { meRoutes, photoRoutes } from "./features/me/routes";
 import { metaRoutes } from "./features/meta/routes";
 import { requireAuth } from "./lib/auth";
 import { idempotency } from "./lib/idempotency";
@@ -23,6 +23,7 @@ export function createApp() {
   const v1 = new Hono<AppEnv>();
   v1.route("/", metaRoutes);
   v1.route("/", authRoutes);
+  v1.route("/", photoRoutes);
 
   const signedIn = new Hono<AppEnv>();
   signedIn.use(requireAuth, idempotency);
