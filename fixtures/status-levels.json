@@ -1,0 +1,363 @@
+{
+  "config": {
+    "levelBounds": [
+      2,
+      4
+    ],
+    "personalise": true
+  },
+  "cases": [
+    {
+      "name": "thresholds: 0",
+      "input": {
+        "passesToday": 0,
+        "history": []
+      },
+      "expected": 1
+    },
+    {
+      "name": "thresholds: 2",
+      "input": {
+        "passesToday": 2,
+        "history": []
+      },
+      "expected": 1
+    },
+    {
+      "name": "thresholds: 3",
+      "input": {
+        "passesToday": 3,
+        "history": []
+      },
+      "expected": 2
+    },
+    {
+      "name": "thresholds: 4",
+      "input": {
+        "passesToday": 4,
+        "history": []
+      },
+      "expected": 2
+    },
+    {
+      "name": "thresholds: 5",
+      "input": {
+        "passesToday": 5,
+        "history": []
+      },
+      "expected": 3
+    },
+    {
+      "name": "six days of history still uses thresholds",
+      "input": {
+        "passesToday": 3,
+        "history": [
+          10,
+          10,
+          10,
+          10,
+          10,
+          10
+        ]
+      },
+      "expected": 2
+    },
+    {
+      "name": "median 4: 2 is fewer",
+      "input": {
+        "passesToday": 2,
+        "history": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "expected": 1
+    },
+    {
+      "name": "median 4: 3 is usual",
+      "input": {
+        "passesToday": 3,
+        "history": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "expected": 2
+    },
+    {
+      "name": "median 4: 5 is usual",
+      "input": {
+        "passesToday": 5,
+        "history": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "expected": 2
+    },
+    {
+      "name": "median 4: 6 is more",
+      "input": {
+        "passesToday": 6,
+        "history": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "expected": 3
+    },
+    {
+      "name": "median 0: 0 is usual",
+      "input": {
+        "passesToday": 0,
+        "history": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "expected": 2
+    },
+    {
+      "name": "median 0: 1 is usual",
+      "input": {
+        "passesToday": 1,
+        "history": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "expected": 2
+    },
+    {
+      "name": "median 0: 2 is more",
+      "input": {
+        "passesToday": 2,
+        "history": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "expected": 3
+    },
+    {
+      "name": "even count median 10, band 3: 6 fewer",
+      "input": {
+        "passesToday": 6,
+        "history": [
+          8,
+          12,
+          10,
+          10,
+          9,
+          11,
+          30,
+          10
+        ]
+      },
+      "expected": 1
+    },
+    {
+      "name": "band 3: 7 usual",
+      "input": {
+        "passesToday": 7,
+        "history": [
+          8,
+          12,
+          10,
+          10,
+          9,
+          11,
+          30,
+          10
+        ]
+      },
+      "expected": 2
+    },
+    {
+      "name": "band 3: 13 usual",
+      "input": {
+        "passesToday": 13,
+        "history": [
+          8,
+          12,
+          10,
+          10,
+          9,
+          11,
+          30,
+          10
+        ]
+      },
+      "expected": 2
+    },
+    {
+      "name": "band 3: 14 more",
+      "input": {
+        "passesToday": 14,
+        "history": [
+          8,
+          12,
+          10,
+          10,
+          9,
+          11,
+          30,
+          10
+        ]
+      },
+      "expected": 3
+    },
+    {
+      "name": "only the last 28 days count",
+      "input": {
+        "passesToday": 4,
+        "history": [
+          100,
+          100,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "expected": 3
+    },
+    {
+      "name": "last 28: 3 usual",
+      "input": {
+        "passesToday": 3,
+        "history": [
+          100,
+          100,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "expected": 2
+    },
+    {
+      "name": "last 28: 0 fewer",
+      "input": {
+        "passesToday": 0,
+        "history": [
+          100,
+          100,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "expected": 1
+    }
+  ]
+}

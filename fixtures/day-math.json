@@ -1,0 +1,172 @@
+{
+  "cases": [
+    {
+      "name": "before reset belongs to yesterday",
+      "input": {
+        "instant": "2026-11-09T08:30:00Z",
+        "timeZone": "America/Toronto",
+        "offsetMinutes": -300,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-11-08",
+        "week": "2026-11-02",
+        "hour": 3
+      }
+    },
+    {
+      "name": "reset hour starts the day and Monday starts the week",
+      "input": {
+        "instant": "2026-11-09T09:00:00Z",
+        "timeZone": "America/Toronto",
+        "offsetMinutes": -300,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-11-09",
+        "week": "2026-11-09",
+        "hour": 4
+      }
+    },
+    {
+      "name": "DST end, repeated 1 a.m. hour",
+      "input": {
+        "instant": "2026-11-01T06:30:00Z",
+        "timeZone": "America/Toronto",
+        "offsetMinutes": -300,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-10-31",
+        "week": "2026-10-26",
+        "hour": 1
+      }
+    },
+    {
+      "name": "DST end, first 1 a.m. hour",
+      "input": {
+        "instant": "2026-11-01T05:30:00Z",
+        "timeZone": "America/Toronto",
+        "offsetMinutes": -240,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-10-31",
+        "week": "2026-10-26",
+        "hour": 1
+      }
+    },
+    {
+      "name": "DST end day after reset",
+      "input": {
+        "instant": "2026-11-01T09:00:00Z",
+        "timeZone": "America/Toronto",
+        "offsetMinutes": -300,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-11-01",
+        "week": "2026-10-26",
+        "hour": 4
+      }
+    },
+    {
+      "name": "DST start, 3:30 a.m. is still yesterday",
+      "input": {
+        "instant": "2026-03-08T07:30:00Z",
+        "timeZone": "America/Toronto",
+        "offsetMinutes": -240,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-03-07",
+        "week": "2026-03-02",
+        "hour": 3
+      }
+    },
+    {
+      "name": "DST start, 4 a.m.",
+      "input": {
+        "instant": "2026-03-08T08:00:00Z",
+        "timeZone": "America/Toronto",
+        "offsetMinutes": -240,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-03-08",
+        "week": "2026-03-02",
+        "hour": 4
+      }
+    },
+    {
+      "name": "New Year's 3 a.m. is still Dec 31",
+      "input": {
+        "instant": "2027-01-01T08:00:00Z",
+        "timeZone": "America/Toronto",
+        "offsetMinutes": -300,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-12-31",
+        "week": "2026-12-28",
+        "hour": 3
+      }
+    },
+    {
+      "name": "first Monday of the year",
+      "input": {
+        "instant": "2027-01-04T09:00:00Z",
+        "timeZone": "America/Toronto",
+        "offsetMinutes": -300,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2027-01-04",
+        "week": "2027-01-04",
+        "hour": 4
+      }
+    },
+    {
+      "name": "UTC",
+      "input": {
+        "instant": "2026-06-15T03:59:00Z",
+        "timeZone": "UTC",
+        "offsetMinutes": 0,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-06-14",
+        "week": "2026-06-08",
+        "hour": 3
+      }
+    },
+    {
+      "name": "half-hour zone, one minute before reset",
+      "input": {
+        "instant": "2026-11-09T22:29:00Z",
+        "timeZone": "Asia/Kolkata",
+        "offsetMinutes": 330,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-11-09",
+        "week": "2026-11-09",
+        "hour": 3
+      }
+    },
+    {
+      "name": "half-hour zone, at reset",
+      "input": {
+        "instant": "2026-11-09T22:30:00Z",
+        "timeZone": "Asia/Kolkata",
+        "offsetMinutes": 330,
+        "resetHour": 4
+      },
+      "expected": {
+        "day": "2026-11-10",
+        "week": "2026-11-09",
+        "hour": 4
+      }
+    }
+  ]
+}

@@ -16,7 +16,7 @@ Free iPhone app blocker with a social layer. Specs in `docs/` are the source of 
 - App build (macOS): `xcodebuild build -project ios/Toll.xcodeproj -scheme Toll -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO`. CI does this on every push (`.github/workflows/ios.yml`).
 
 ## Rules
-- Tunables only in `TollConfig.swift` / `api/src/config.ts`, with spec §14 defaults. User-facing strings only in `Copy.swift` (app) or `api/src/copy.ts` (push and email); match spec §10 exactly, including the middle dot `·`.
+- Tunables only in `TollConfig.swift` / `api/src/config.ts`, with spec §14 defaults. User-facing strings only in `Copy.swift` (app; the one file allowed past 300 lines) or `api/src/copy.ts` (push and email); match spec §10 exactly, including the middle dot `·`.
 - Name things by spec §4 terms: `GateEvent`, `Pass`, `Wait`, `Session`, `Block`, `AppRef`, `Tag`, `Rollup`.
 - Files under ~300 lines; split by feature. Comments say why, never what. No file headers, no commented-out code, no TODO without an issue link.
 - Tests only where spec §12 says: `TollCore` (Swift Testing) and `api/` (Vitest). No UI or snapshot tests. Gate behaviour on a phone goes in `docs/gate-checklist.md`.
