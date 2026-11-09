@@ -1,15 +1,20 @@
 import { eq } from "drizzle-orm";
-import type { z } from "zod";
-import { authIdentities } from "../../db/schema";
+import { z } from "zod";
+import { serverConfig } from "../../config";
+import { copy } from "../../copy";
+import { authIdentities, sessions } from "../../db/schema";
 import type { Env } from "../../env";
 import { createSession } from "../../lib/auth";
 import { encryptText, sha256Hex } from "../../lib/crypto";
 import type { Database } from "../../lib/db";
+import { sendEmail } from "../../lib/email";
 import { fail } from "../../lib/http";
-import { createUser, loadMe } from "../me/service";
+import { issueCode, redeemCode } from "../../lib/otp";
+import { allowed } from "../../lib/ratelimit";
+import { createUser, loadMe, normalizeEmail } from "../me/service";
 import type { AuthSession } from "../shared/contract";
 import { exchangeAuthorizationCode, verifyIdentityToken } from "./apple";
-import type { AppleSignInRequest } from "./contract";
+import type { AppleSignInRequest, EmailVerifyRequest } from "./contract";
 
 export const appleSubjectHash = (sub: string) => sha256Hex(`apple:${sub}`);
 export const emailSubjectHash = (email: string) => sha256Hex(`email:${email}`);
@@ -63,4 +68,47 @@ export async function signInWithApple(
     createdAt: Date.now(),
   });
   return startSession(db, env, userId, input.deviceId, true);
+}
+
+export function parseEmail(raw: string): string {
+  const email = normalizeEmail(raw);
+  if (!z.email().safeParse(email).success) fail(400, "invalid_email");
+  return email;
+}
+
+export const signInKey = async (email: string) => `signin:${await sha256Hex(email)}`;
+
+export async function sendSignInCode(db: Database, env: Env, email: string, ip: string): Promise<void> {
+  if (!(await allowed(env.RL_OTP, `${ip}:${await sha256Hex(email)}`))) {
+    fail(429, "rate_limited", { retryAt: Date.now() + 60_000 });
+  }
+  const review = env.REVIEW_EMAIL && env.REVIEW_CODE && normalizeEmail(env.REVIEW_EMAIL) === email;
+  const code = await issueCode(db, env, await signInKey(email), {
+    fixedCode: review ? env.REVIEW_CODE : undefined,
+  });
+  if (!review) await sendEmail(env, { to: email, ...copy.signInCode(code, serverConfig.otpTtlMinutes) });
+}
+
+export async function signInWithEmail(
+  db: Database,
+  env: Env,
+  input: z.infer<typeof EmailVerifyRequest>,
+): Promise<AuthSession> {
+  const email = parseEmail(input.email);
+  await redeemCode(db, env, await signInKey(email), input.code);
+  const subjectHash = await emailSubjectHash(email);
+  const [existing] = await db
+    .select()
+    .from(authIdentities)
+    .where(eq(authIdentities.subjectHash, subjectHash))
+    .limit(1);
+  if (existing) return startSession(db, env, existing.userId, input.deviceId, false);
+
+  const userId = await createUser(db, env, { email });
+  await db.insert(authIdentities).values({ subjectHash, userId, provider: "email", createdAt: Date.now() });
+  return startSession(db, env, userId, input.deviceId, true);
+}
+
+export async function endSession(db: Database, token: string): Promise<void> {
+  await db.delete(sessions).where(eq(sessions.tokenHash, await sha256Hex(token)));
 }

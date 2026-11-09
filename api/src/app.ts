@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "./env";
-import { authRoutes } from "./features/auth/routes";
+import { authRoutes, sessionRoutes } from "./features/auth/routes";
 import { meRoutes } from "./features/me/routes";
 import { metaRoutes } from "./features/meta/routes";
 import { requireAuth } from "./lib/auth";
@@ -26,6 +26,7 @@ export function createApp() {
 
   const signedIn = new Hono<AppEnv>();
   signedIn.use(requireAuth, idempotency);
+  signedIn.route("/", sessionRoutes);
   signedIn.route("/", meRoutes);
   v1.route("/", signedIn);
 
