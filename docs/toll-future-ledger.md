@@ -33,6 +33,16 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A25 | Worker test runner | `@cloudflare/vitest-plugin` (the renamed `@cloudflare/vitest-pool-workers`); npm `legacy-peer-deps` works around an npm resolver crash on Vitest's optional peers | spec §12 |
 | A26 | D1 tables beyond §11.2 | `email_codes` (OTP state), `idempotency_keys`, `school_domains` (one school, many domains); `blocks_meta` has no name column because §11.2's API says the name is never sent | spec §11.2 |
 | A27 | Photo resize | The app downsizes to 512 px before upload; the Worker decodes and re-encodes with `@cf-wasm/photon` so stored photos are always ≤ 512 px JPEG with metadata stripped | spec §11.2, N-16 |
+| A28 | Shield Dismiss | Recorded as a `block_hit` (`via: dismiss`) so "held" (walked away) is measurable; the gate is entered only for Open Toll | spec §4 Week stats, §11.1 |
+| A29 | Session end | Expiry = start + `gate.sessionWindowMinutes`; whichever of threshold, interval end or the next Toll run after expiry comes first re-shields. An app inside a blocked category unlocks through the category's `except` list | spec G-6 |
+| A30 | Unused pass | A granted pass waits on the session picker until used; further hits join it; it lapses at the day's reset | spec G-3, G-5 |
+| A31 | Schedule activities | One repeating DeviceActivity per scheduled block (overnight windows as one interval; Always needs none); every wake recomputes the shield from `ShieldPlan`, so day sets are enforced in code. Overnight edges are verified on the gate checklist | spec §6, G-7a |
+| A32 | Background wakes | Silent pushes and background refresh ingest the spool and sync but never enter the gate; only the user opening Toll within `gate.resumeWindow` does | spec G-3 |
+| A33 | Permission revoked with blocks on the phone | Home with "Screen Time is off · Fix", not onboarding (the §9 table over a literal reading of O-4) | spec §9 |
+| A34 | Getting check-ins to the server | One silent push per device per day plus background app refresh flush the outbox, so N-9 silence means the phone really stopped checking in | spec N-9, N-13.3 |
+| A35 | Remote config in solo mode | Not fetched; solo runs on the cached or default values so it never touches the network | spec §11.2, §13 |
+| A36 | Tags on events | Events carry app refs only; the server joins tags at read time (§11.2), so a retag re-labels history | spec §4, §11.2 |
+| A37 | Times in friend rows | A friend's pass times are shown in the friend's local time (the time they lived it) | spec §10 |
 
 ## B. Open — needs a founder decision before the relevant task
 
