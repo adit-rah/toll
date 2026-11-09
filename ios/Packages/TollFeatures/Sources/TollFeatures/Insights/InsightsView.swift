@@ -99,7 +99,7 @@ struct FriendsInsightsCards: View {
         Chart(rows, id: \.name) { row in
           BarMark(x: .value("held", row.held), y: .value("person", row.name))
             .foregroundStyle(row.me ? TollColor.accent : TollColor.neutralBar)
-            .annotation(position: .trailing) { Text(Copy.percent(row.held)).tollText(.captionNumber) }
+            .annotation(position: .trailing) { Text(Copy.percent(row.held)).tollText(.caption).monospacedDigit() }
         }
         .chartXScale(domain: 0...100)
         .chartXAxis(.hidden)
