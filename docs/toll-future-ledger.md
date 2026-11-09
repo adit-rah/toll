@@ -68,6 +68,7 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A60 | Safety routes | `/v1/person-blocks/:userId` instead of `/blocks/:userId`, which collides with `PUT /blocks/:blockRef` | backend (E3–E11) |
 | A61 | API under `/v1` | Unauthenticated requests to unknown `/v1` paths get 401 (public routes are matched before auth) | backend (E3–E11) |
 | A62 | Review sign-in | `REVIEW_EMAIL` gets the fixed `REVIEW_CODE` when both are set; nobody else can | backend (E3–E11) |
+| A63 | School list at launch | Spec §15 vendors all of CA/US/GB. Launch seeds 30 schools instead (10 Canadian, the Ivy League, 12 others in the US top 20); the full list stays in `seed/schools-all.sql` | `api/seed/schools-launch.sql` |
 
 ## B. Open — needs a founder decision before the relevant task
 

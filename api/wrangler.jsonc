@@ -3,17 +3,24 @@
   "name": "toll-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-11-01",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": true,
-  "observability": { "enabled": true },
-  "assets": { "directory": "./public", "binding": "ASSETS" },
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
   "vars": {
     "ENVIRONMENT": "production",
     "PUBLIC_BASE_URL": "https://toll.alders.dev",
     "APPLE_BUNDLE_ID": "com.advan.toll",
-    "APPLE_TEAM_ID": "",
-    "APPLE_KEY_ID": "",
-    "APNS_KEY_ID": "",
+    "APPLE_TEAM_ID": "JAFS73RCH8",
+    "APPLE_KEY_ID": "UX8ZZ6S6J5",
+    "APNS_KEY_ID": "P8D3W6H8T3",
     "APNS_HOST": "api.push.apple.com",
     "EMAIL_FROM": "Toll <code@toll.alders.dev>",
     "FOUNDERS_EMAIL": "support@toll.alders.dev",
@@ -22,20 +29,73 @@
     "REVIEW_EMAIL": "review@toll.alders.dev"
   },
   "d1_databases": [
-    { "binding": "DB", "database_name": "toll", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+    {
+      "binding": "DB",
+      "database_name": "toll",
+      "database_id": "d2b56bef-5d71-400d-be83-556ff5bbfe28",
+      "migrations_dir": "migrations"
+    }
   ],
-  "kv_namespaces": [{ "binding": "CONFIG", "id": "00000000000000000000000000000000" }],
-  "r2_buckets": [{ "binding": "STORAGE", "bucket_name": "toll" }],
+  "kv_namespaces": [
+    {
+      "binding": "CONFIG",
+      "id": "b0d5489db7704e5dad99727621c47913"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "bucket_name": "toll",
+      "binding": "STORAGE"
+    }
+  ],
   "queues": {
-    "producers": [{ "binding": "PUSH_QUEUE", "queue": "toll-push" }],
-    "consumers": [{ "queue": "toll-push", "max_batch_size": 100, "max_concurrency": 6 }]
+    "producers": [
+      {
+        "queue": "toll-push",
+        "binding": "PUSH_QUEUE"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "toll-push",
+        "max_batch_size": 100,
+        "max_concurrency": 6
+      }
+    ]
   },
   "ratelimits": [
-    { "name": "RL_OTP", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } },
-    { "name": "RL_SOCIAL", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } },
-    { "name": "RL_INGEST", "namespace_id": "1003", "simple": { "limit": 60, "period": 60 } }
+    {
+      "name": "RL_OTP",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
+    },
+    {
+      "name": "RL_SOCIAL",
+      "namespace_id": "1002",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
+    },
+    {
+      "name": "RL_INGEST",
+      "namespace_id": "1003",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    }
   ],
-  "triggers": { "crons": ["0 * * * *", "30 9 * * *", "0 11 * * 1"] },
+  "triggers": {
+    "crons": [
+      "0 * * * *",
+      "30 9 * * *",
+      "0 11 * * 1"
+    ]
+  },
   "env": {
     "preview": {
       "name": "toll-api-preview",
@@ -54,20 +114,73 @@
         "REVIEW_EMAIL": "review@toll.alders.dev"
       },
       "d1_databases": [
-        { "binding": "DB", "database_name": "toll-preview", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+        {
+          "binding": "DB",
+          "database_name": "toll-preview",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations"
+        }
       ],
-      "kv_namespaces": [{ "binding": "CONFIG", "id": "00000000000000000000000000000000" }],
-      "r2_buckets": [{ "binding": "STORAGE", "bucket_name": "toll-preview" }],
+      "kv_namespaces": [
+        {
+          "binding": "CONFIG",
+          "id": "00000000000000000000000000000000"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "STORAGE",
+          "bucket_name": "toll-preview"
+        }
+      ],
       "queues": {
-        "producers": [{ "binding": "PUSH_QUEUE", "queue": "toll-push-preview" }],
-        "consumers": [{ "queue": "toll-push-preview", "max_batch_size": 100, "max_concurrency": 6 }]
+        "producers": [
+          {
+            "binding": "PUSH_QUEUE",
+            "queue": "toll-push-preview"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "toll-push-preview",
+            "max_batch_size": 100,
+            "max_concurrency": 6
+          }
+        ]
       },
       "ratelimits": [
-        { "name": "RL_OTP", "namespace_id": "2001", "simple": { "limit": 5, "period": 60 } },
-        { "name": "RL_SOCIAL", "namespace_id": "2002", "simple": { "limit": 30, "period": 60 } },
-        { "name": "RL_INGEST", "namespace_id": "2003", "simple": { "limit": 60, "period": 60 } }
+        {
+          "name": "RL_OTP",
+          "namespace_id": "2001",
+          "simple": {
+            "limit": 5,
+            "period": 60
+          }
+        },
+        {
+          "name": "RL_SOCIAL",
+          "namespace_id": "2002",
+          "simple": {
+            "limit": 30,
+            "period": 60
+          }
+        },
+        {
+          "name": "RL_INGEST",
+          "namespace_id": "2003",
+          "simple": {
+            "limit": 60,
+            "period": 60
+          }
+        }
       ],
-      "triggers": { "crons": ["0 * * * *", "30 9 * * *", "0 11 * * 1"] }
+      "triggers": {
+        "crons": [
+          "0 * * * *",
+          "30 9 * * *",
+          "0 11 * * 1"
+        ]
+      }
     }
   }
 }
