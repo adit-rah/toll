@@ -1,4 +1,4 @@
-import DeviceActivity
+@preconcurrency import DeviceActivity
 import Foundation
 import TollCore
 import TollScreenTime

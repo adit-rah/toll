@@ -1,5 +1,5 @@
 import Foundation
-import ManagedSettings
+@preconcurrency import ManagedSettings
 import TollCore
 import TollScreenTime
 import UserNotifications

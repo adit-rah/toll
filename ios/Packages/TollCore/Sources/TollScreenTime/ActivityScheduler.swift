@@ -1,15 +1,15 @@
 #if os(iOS)
-  import DeviceActivity
+  @preconcurrency import DeviceActivity
   import Foundation
   import OSLog
   import TollCore
 
   extension DeviceActivityName {
-    public static let checkin = Self("checkin")
+    public static var checkin: Self { Self("checkin") }
   }
 
   extension DeviceActivityEvent.Name {
-    public static let sessionThreshold = Self("threshold")
+    public static var sessionThreshold: Self { Self("threshold") }
   }
 
   /// DeviceActivity monitoring for block windows, sessions and the daily check-in (spec §6, §11.1).

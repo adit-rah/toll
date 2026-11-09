@@ -1,6 +1,6 @@
 #if os(iOS)
   import Foundation
-  import ManagedSettings
+  @preconcurrency import ManagedSettings
   import OSLog
   import TollCore
 

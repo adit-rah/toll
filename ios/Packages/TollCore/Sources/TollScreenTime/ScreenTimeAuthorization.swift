@@ -1,5 +1,5 @@
 #if os(iOS)
-  import FamilyControls
+  @preconcurrency import FamilyControls
   import Foundation
 
   /// Individual (not family) authorization on this device (spec §11.1).

@@ -1,5 +1,5 @@
-import ManagedSettings
-import ManagedSettingsUI
+@preconcurrency import ManagedSettings
+@preconcurrency import ManagedSettingsUI
 import TollCore
 import TollScreenTime
 import UIKit

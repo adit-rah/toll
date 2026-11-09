@@ -1,7 +1,7 @@
 #if os(iOS)
-  import FamilyControls
+  @preconcurrency import FamilyControls
   import Foundation
-  import ManagedSettings
+  @preconcurrency import ManagedSettings
   import TollCore
 
   /// The device-only map from app refs to picker tokens (spec §4 "App ref"). Written by the app; read by
@@ -97,7 +97,7 @@
       return nil
     }
 
-    public struct Tokens: Sendable {
+    public struct Tokens {
       public var applications: Set<ApplicationToken> = []
       public var webDomains: Set<WebDomainToken> = []
       public var categories: Set<ActivityCategoryToken> = []
