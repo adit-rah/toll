@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>TollAppGroup</key>
+	<string>$(TOLL_APP_GROUP)</string>
+	<key>TollAPIBaseURL</key>
+	<string>$(TOLL_API_BASE_URL)</string>
+	<key>TollLinkHost</key>
+	<string>$(TOLL_LINK_HOST)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.advan.toll.sync</string>
+	</array>
+	<key>NSContactsUsageDescription</key>
+	<string>Toll hashes your contacts' email addresses on this phone and checks which belong to people who chose to be found. Your contacts never leave the phone.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>toll</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

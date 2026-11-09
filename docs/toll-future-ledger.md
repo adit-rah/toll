@@ -26,6 +26,13 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A10 | Donation link placement | Settings, last group | spec §3 |
 | A11 | Tag list | instagram, tiktok, youtube, snapchat, x, reddit, other | spec §14 |
 | A12 | Daily summary mechanism | Server push, not local notification | spec §11.3 |
+| A21 | Conflicting docs (resolved 9 Nov, build start) | Spec over other docs, newest decision over older: no skip on the Screen Time denied screen (§9, A20 over the stale §10 line); a stranger at school sees display name + handle (N-16 over A1); pinned copy uses "their" ("Adi removed Instagram from their blocklist."); setup bar shows 4 segments for new signed-in accounts, 2 for solo and returning; a second block hit joins the running wait and the session unlocks every app hit during it (flows §9 over G-6's "that block only"); B3 uses the §10 sentence; B4 and B5: nothing is sent | spec §9, §10, N-16, G-5/G-6 |
+| A22 | Identity values | Bundle `com.advan.toll` (+ `.ShieldConfig`, `.ShieldAction`, `.Monitor`), App Group `group.com.advan.toll`, host `toll.alders.dev` for links, legal pages and the API (`/v1`). One place each: `ios/Config/Base.xcconfig`, `api/wrangler.jsonc` | spec §11 |
+| A23 | iOS compile check | GitHub Actions macOS job builds all four targets unsigned and runs package tests on every push; Xcode Cloud keeps signing and TestFlight | spec §12 |
+| A24 | Screen Time glue shared by app and extensions | `TollScreenTime` product inside the `TollCore` package (no fifth package) | spec §11.1 |
+| A25 | Worker test runner | `@cloudflare/vitest-plugin` (the renamed `@cloudflare/vitest-pool-workers`); npm `legacy-peer-deps` works around an npm resolver crash on Vitest's optional peers | spec §12 |
+| A26 | D1 tables beyond §11.2 | `email_codes` (OTP state), `idempotency_keys`, `school_domains` (one school, many domains); `blocks_meta` has no name column because §11.2's API says the name is never sent | spec §11.2 |
+| A27 | Photo resize | The app downsizes to 512 px before upload; the Worker decodes and re-encodes with `@cf-wasm/photon` so stored photos are always ≤ 512 px JPEG with metadata stripped | spec §11.2, N-16 |
 
 ## B. Open — needs a founder decision before the relevant task
 
