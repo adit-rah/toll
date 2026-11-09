@@ -12,7 +12,6 @@ struct FindFriendsView: View {
   var body: some View {
     Group {
       if let model {
-        @Bindable var model = model
         if isSetup {
           SetupScaffold(app: app, step: 3, title: Copy.Friends.title) {
             ScrollView { groups(model) }
@@ -38,11 +37,11 @@ struct FindFriendsView: View {
 
   @ViewBuilder
   private func groups(_ model: FindFriendsModel) -> some View {
-    @Bindable var model = model
+    @Bindable var bound = model
     VStack(alignment: .leading, spacing: TollSpacing.sectionGap) {
       VStack(alignment: .leading, spacing: 8) {
         SectionHeader(Copy.Friends.inviteCode)
-        FilledField(Copy.Friends.inviteCode, text: $model.code, fill: TollColor.surface) {
+        FilledField(Copy.Friends.inviteCode, text: $bound.code, fill: TollColor.surface) {
           QuietButton(Copy.Friends.paste) { Task { await model.paste() } }
         }
         .textInputAutocapitalization(.characters)
@@ -89,19 +88,19 @@ struct FindFriendsView: View {
 
   @ViewBuilder
   private func school(_ model: FindFriendsModel) -> some View {
-    @Bindable var model = model
+    @Bindable var bound = model
     switch model.school {
     case .joined(let name):
       Text(name).tollText(.headline)
     case .entering:
-      FilledField(Copy.Friends.schoolEmail, text: $model.schoolEmail, fill: TollColor.surface) {
+      FilledField(Copy.Friends.schoolEmail, text: $bound.schoolEmail, fill: TollColor.surface) {
         QuietButton(Copy.Email.send) { Task { await model.sendSchoolCode() } }
       }
       .keyboardType(.emailAddress)
       .textInputAutocapitalization(.never)
       .autocorrectionDisabled()
     case .codeSent:
-      CodeBoxes(code: $model.schoolCode, accessibilityLabel: Copy.Code.title, fill: TollColor.surface) { _ in
+      CodeBoxes(code: $bound.schoolCode, accessibilityLabel: Copy.Code.title, fill: TollColor.surface) { _ in
         Task { await model.verifySchool() }
       }
     }

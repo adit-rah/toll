@@ -26,7 +26,7 @@ struct SettingsView: View {
   }
 
   private func list(_ model: SettingsModel) -> some View {
-    @Bindable var model = model
+    @Bindable var bound = model
     return List {
       Section(Copy.Settings.account) {
         if let me = app.me, app.isSignedIn {
@@ -57,9 +57,9 @@ struct SettingsView: View {
           }
         }
         Section(Copy.Settings.notifications) {
-          Toggle(Copy.Settings.dailySummary, isOn: $model.notifyEnabled)
+          Toggle(Copy.Settings.dailySummary, isOn: $bound.notifyEnabled)
           if model.notifyEnabled {
-            Picker(Copy.Settings.time, selection: $model.notifyHour) {
+            Picker(Copy.Settings.time, selection: $bound.notifyHour) {
               ForEach(0..<24, id: \.self) { Text(Copy.Schedules.time(ClockTime(hour: $0))).tag($0) }
             }
           }
@@ -67,7 +67,7 @@ struct SettingsView: View {
         .onChange(of: model.notifyEnabled) { Task { await model.save() } }
         .onChange(of: model.notifyHour) { Task { await model.save() } }
         Section(Copy.Settings.discoverability) {
-          Toggle(Copy.Settings.letContactsFind, isOn: $model.discoverable)
+          Toggle(Copy.Settings.letContactsFind, isOn: $bound.discoverable)
             .onChange(of: model.discoverable) { Task { await model.save() } }
         }
       }
@@ -102,26 +102,26 @@ struct SettingsView: View {
       }
       if let error = model.error { Text(error).tollText(.subhead) }
     }
-    .confirmationDialog(Copy.Settings.signOutConfirm, isPresented: $model.confirmSignOut, titleVisibility: .visible) {
+    .confirmationDialog(Copy.Settings.signOutConfirm, isPresented: $bound.confirmSignOut, titleVisibility: .visible) {
       Button(Copy.Settings.signOut, role: .destructive) { Task { await model.signOut() } }
     }
     .confirmationDialog(
-      Copy.Settings.leaveConfirm(app.me?.school?.name ?? ""), isPresented: $model.confirmLeaveSchool,
+      Copy.Settings.leaveConfirm(app.me?.school?.name ?? ""), isPresented: $bound.confirmLeaveSchool,
       titleVisibility: .visible
     ) {
       Button(Copy.Settings.leave, role: .destructive) { Task { await model.leaveSchool() } }
     }
-    .sheet(isPresented: $model.confirmDelete) { deleteSheet(model) }
+    .sheet(isPresented: $bound.confirmDelete) { deleteSheet(model) }
   }
 
   private func deleteSheet(_ model: SettingsModel) -> some View {
-    @Bindable var model = model
+    @Bindable var bound = model
     return VStack(alignment: .leading, spacing: 20) {
       Text(Copy.Settings.deleteConfirm).tollText(.title)
       if model.isEmailAccount {
         if model.deleteCodeSent {
           Text(Copy.Settings.checkEmailToDelete).tollText(.subhead)
-          CodeBoxes(code: $model.deleteCode, accessibilityLabel: Copy.Code.title) { _ in
+          CodeBoxes(code: $bound.deleteCode, accessibilityLabel: Copy.Code.title) { _ in
             Haptics.warning()
             Task { await model.deleteWithEmailCode() }
           }
@@ -172,9 +172,9 @@ struct AccountEditView: View {
   var body: some View {
     Form {
       if let model {
-        @Bindable var model = model
-        TextField(Copy.You.name, text: $model.name)
-        TextField(Copy.You.handle, text: $model.handle)
+        @Bindable var bound = model
+        TextField(Copy.You.name, text: $bound.name)
+        TextField(Copy.You.handle, text: $bound.handle)
           .textInputAutocapitalization(.never)
           .autocorrectionDisabled()
         Text(Copy.You.note).tollText(.caption)

@@ -26,7 +26,8 @@ public final class YouModel {
   }
 
   public func load() async {
-    name = app.me?.displayName ?? (try? await app.deps.store.setting("appleName", as: String.self)) ?? ""
+    let appleName = try? await app.deps.store.setting("appleName", as: String.self)
+    name = app.me?.displayName ?? appleName ?? ""
     if let existing = app.me?.handle {
       handle = existing
     } else if !name.isEmpty, let suggestion = try? await app.deps.account.suggestHandle(for: name) {

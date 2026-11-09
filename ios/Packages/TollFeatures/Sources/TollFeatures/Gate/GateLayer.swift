@@ -28,7 +28,7 @@ struct GateLayer: View {
 
   @ViewBuilder
   private func card(_ model: GateModel, ref: AppRef) -> some View {
-    @Bindable var model = model
+    @Bindable var bound = model
     let countdown: WaitCountdown? =
       if case .waiting(let remaining) = model.phase {
         WaitCountdown(
@@ -36,7 +36,7 @@ struct GateLayer: View {
           onCancel: { Task { await model.cancel() } })
       } else { nil }
     let session = SessionChoice(
-      question: Copy.SessionPicker.question, options: model.sessionChoices, selection: $model.selectedMinutes,
+      question: Copy.SessionPicker.question, options: model.sessionChoices, selection: $bound.selectedMinutes,
       note: Copy.SessionPicker.note, onOpen: { Task { await model.open() } })
     let namingSection: WaitNaming? =
       model.untaggedApp != nil && countdown != nil
