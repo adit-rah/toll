@@ -3,6 +3,7 @@ import Observation
 import TollCore
 import TollData
 import TollScreenTime
+import UIKit
 
 public enum AppTab: Hashable, Sendable {
   case home, insights, people
@@ -23,6 +24,8 @@ public final class AppModel {
   /// Kept through Welcome and setup so Find your friends opens prefilled (E6.33).
   public var pendingInviteCode: String?
   public var showsSignInSheet = false
+  /// A solo user signed into an existing account: ask before merging this phone's history (flows §20).
+  public var asksToMergeHistory = false
   private var choseSolo = false
   private var friendsStepShown = false
   private var isReturning = false
@@ -38,11 +41,20 @@ public final class AppModel {
   public func launch() async {
     choseSolo = (try? await deps.store.setting("choseSolo", as: Bool.self)) ?? false
     friendsStepShown = (try? await deps.store.setting("friendsStepShown", as: Bool.self)) ?? false
-    isReturning = (try? await deps.store.setting("isReturning", as: Bool.self)) ?? false
+    let storedReturning = try? await deps.store.setting("isReturning", as: Bool.self)
+    let hasBlocks = !((try? await deps.store.blocks()) ?? []).isEmpty
+    // A Keychain session with an empty database is a reinstall or a new phone (spec §9 paths).
+    isReturning = storedReturning ?? (isSignedIn && !hasBlocks)
     config = await deps.config.load()
     me = await deps.account.cachedMe()
-    await reroute()
-    Task { await refreshRemote() }
+    if me == nil && isSignedIn {
+      // A reinstall has a Keychain session but no cached identity; asking first avoids showing You to
+      // someone who already has a name and handle.
+      await refreshRemote()
+    } else {
+      await reroute()
+      Task { await refreshRemote() }
+    }
   }
 
   /// Recomputes the route from current facts. Every setup step calls this when it finishes.
@@ -62,6 +74,9 @@ public final class AppModel {
     let math = DayMath(timeZone: deps.clock.timeZone, resetHour: config.gate.dayResetHour)
     tollOpensToday = (try? await deps.store.incrementTollOpens(day: math.day(containing: deps.clock.now))) ?? 0
     await deps.gate.update(config: config)
+    let allowed = await NotificationPermission.isAllowed()
+    await deps.gate.setNotificationsAllowed(allowed)
+    if allowed && isSignedIn { UIApplication.shared.registerForRemoteNotifications() }
     gate = await deps.gate.foreground()
     deps.analytics.send(.appOpen)
   }
@@ -94,7 +109,19 @@ public final class AppModel {
     me = session.user
     isReturning = !session.isNew
     try? await deps.store.setSetting("isReturning", isReturning)
+    if choseSolo, ((try? await deps.store.allEvents()) ?? []).isEmpty == false {
+      if session.isNew {
+        try? await deps.account.uploadLocalHistory()
+      } else {
+        asksToMergeHistory = true
+      }
+    }
     await refreshRemote()
+  }
+
+  public func mergeHistory(_ merge: Bool) async {
+    asksToMergeHistory = false
+    if merge { try? await deps.account.uploadLocalHistory() } else { try? await deps.account.skipLocalHistory() }
   }
 
   public func updated(_ me: Me) {

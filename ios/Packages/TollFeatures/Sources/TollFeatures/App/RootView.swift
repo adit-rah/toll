@@ -38,6 +38,12 @@ public struct RootView: View {
     .sheet(isPresented: $model.showsSignInSheet) {
       WelcomeFlow(app: model, asSheet: true)
     }
+    .confirmationDialog(
+      Copy.Settings.historyQuestion, isPresented: $model.asksToMergeHistory, titleVisibility: .visible
+    ) {
+      Button(Copy.Settings.historyYes) { Task { await model.mergeHistory(true) } }
+      Button(Copy.Settings.historyNo, role: .cancel) { Task { await model.mergeHistory(false) } }
+    }
   }
 }
 
