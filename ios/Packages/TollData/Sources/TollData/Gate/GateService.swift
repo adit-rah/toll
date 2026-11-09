@@ -34,9 +34,10 @@ public actor GateService {
 
   public var state: SharedGateState { gateStore.load() }
 
-  /// Everything that must happen whenever Toll comes to the front. Returns the state to render.
+  /// Everything that must happen whenever Toll comes to the front, or wakes in the background with
+  /// `userOpened` false. Returns the state to render.
   @discardableResult
-  public func foreground() async -> SharedGateState {
+  public func foreground(userOpened: Bool = true) async -> SharedGateState {
     let now = clock.now
     let ingested = await SpoolIngester(store: store).ingest()
     #if os(iOS)
@@ -49,9 +50,16 @@ public actor GateService {
       machine.expireStalePass(state: &state, now: now)
       events += machine.tick(state: &state, now: now, monotonic: clock.monotonic)
       if let hit = ingested.latestOpenHit, let ref = hit.appRef,
-        now.timeIntervalSince(hit.occurredAt) <= TimeInterval(config.gate.resumeWindowSeconds)
+        hit.occurredAt > (state.pendingHit?.at ?? .distantPast)
       {
-        events += machine.enter(appRef: ref, ledger: ledger, state: &state, now: now, monotonic: clock.monotonic)
+        state.pendingHit = PendingHit(appRef: ref, at: hit.occurredAt)
+      }
+      if userOpened, let hit = state.pendingHit {
+        state.pendingHit = nil
+        if now.timeIntervalSince(hit.at) <= TimeInterval(config.gate.resumeWindowSeconds) {
+          events += machine.enter(
+            appRef: hit.appRef, ledger: ledger, state: &state, now: now, monotonic: clock.monotonic)
+        }
       }
     }
     try? await store.record(events)
