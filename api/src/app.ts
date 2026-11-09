@@ -7,6 +7,7 @@ import { contactRoutes } from "./features/contacts/routes";
 import { eventRoutes } from "./features/events/routes";
 import { friendRoutes, publicInviteRoutes } from "./features/friends/routes";
 import { homeRoutes } from "./features/home/routes";
+import { insightRoutes } from "./features/insights/routes";
 import { meRoutes, photoRoutes } from "./features/me/routes";
 import { metaRoutes } from "./features/meta/routes";
 import { peopleRoutes } from "./features/people/routes";
@@ -49,6 +50,7 @@ export function createApp() {
   signedIn.route("/", schoolRoutes);
   signedIn.route("/", safetyRoutes);
   signedIn.route("/", contactRoutes);
+  signedIn.route("/", insightRoutes);
   v1.route("/", signedIn);
 
   app.route("/v1", v1);
