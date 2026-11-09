@@ -10,3 +10,7 @@ CURRENT_PROJECT_VERSION = 1
 // Set DEVELOPMENT_TEAM in Signing.xcconfig (not committed); see ios/README.md.
 DEVELOPMENT_TEAM =
 #include? "Signing.xcconfig"
+
+// Observability (spec §12, §16). Empty turns each off.
+TOLL_SENTRY_DSN =
+TOLL_TELEMETRYDECK_APP_ID =
