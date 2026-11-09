@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "./env";
 import { appRoutes } from "./features/apps/routes";
 import { accountRoutes, authRoutes, sessionRoutes } from "./features/auth/routes";
+import { contactRoutes } from "./features/contacts/routes";
 import { eventRoutes } from "./features/events/routes";
 import { friendRoutes, publicInviteRoutes } from "./features/friends/routes";
 import { homeRoutes } from "./features/home/routes";
@@ -47,6 +48,7 @@ export function createApp() {
   signedIn.route("/", peopleRoutes);
   signedIn.route("/", schoolRoutes);
   signedIn.route("/", safetyRoutes);
+  signedIn.route("/", contactRoutes);
   v1.route("/", signedIn);
 
   app.route("/v1", v1);
