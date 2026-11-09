@@ -1,0 +1,741 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+/* Begin PBXBuildFile section */
+		701100000000000000000100 /* TollFeatures in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000200 /* TollFeatures */; };
+		701100000000000000000110 /* TollCore in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000210 /* TollCore */; };
+		701100000000000000000111 /* TollScreenTime in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000211 /* TollScreenTime */; };
+		701100000000000000000120 /* TollCore in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000220 /* TollCore */; };
+		701100000000000000000121 /* TollScreenTime in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000221 /* TollScreenTime */; };
+		701100000000000000000130 /* TollCore in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000230 /* TollCore */; };
+		701100000000000000000131 /* TollScreenTime in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000231 /* TollScreenTime */; };
+		701100000000000000000060 /* TollShieldConfig.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 701100000000000000000021 /* TollShieldConfig.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		701100000000000000000061 /* TollShieldAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 701100000000000000000022 /* TollShieldAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		701100000000000000000062 /* TollMonitor.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 701100000000000000000023 /* TollMonitor.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		701100000000000000000090 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 701100000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 701100000000000000000041;
+			remoteInfo = TollShieldConfig;
+		};
+		701100000000000000000091 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 701100000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 701100000000000000000042;
+			remoteInfo = TollShieldAction;
+		};
+		701100000000000000000092 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 701100000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 701100000000000000000043;
+			remoteInfo = TollMonitor;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		70110000000000000000005C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				701100000000000000000060 /* TollShieldConfig.appex in Embed Foundation Extensions */,
+				701100000000000000000061 /* TollShieldAction.appex in Embed Foundation Extensions */,
+				701100000000000000000062 /* TollMonitor.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		701100000000000000000030 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		701100000000000000000020 /* Toll.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Toll.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		701100000000000000000021 /* TollShieldConfig.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TollShieldConfig.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		701100000000000000000022 /* TollShieldAction.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TollShieldAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		701100000000000000000023 /* TollMonitor.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TollMonitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		701100000000000000000010 /* App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = App;
+			sourceTree = "<group>";
+		};
+		701100000000000000000011 /* ShieldConfig */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ShieldConfig;
+			sourceTree = "<group>";
+		};
+		701100000000000000000012 /* ShieldAction */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ShieldAction;
+			sourceTree = "<group>";
+		};
+		701100000000000000000013 /* Monitor */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Monitor;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		701100000000000000000051 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				701100000000000000000100 /* TollFeatures in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		701100000000000000000054 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				701100000000000000000110 /* TollCore in Frameworks */,
+				701100000000000000000111 /* TollScreenTime in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		701100000000000000000057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				701100000000000000000120 /* TollCore in Frameworks */,
+				701100000000000000000121 /* TollScreenTime in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		70110000000000000000005A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				701100000000000000000130 /* TollCore in Frameworks */,
+				701100000000000000000131 /* TollScreenTime in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		701100000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				701100000000000000000010 /* App */,
+				701100000000000000000011 /* ShieldConfig */,
+				701100000000000000000012 /* ShieldAction */,
+				701100000000000000000013 /* Monitor */,
+				701100000000000000000004 /* Config */,
+				701100000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		701100000000000000000004 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				701100000000000000000030 /* Base.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		701100000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				701100000000000000000020 /* Toll.app */,
+				701100000000000000000021 /* TollShieldConfig.appex */,
+				701100000000000000000022 /* TollShieldAction.appex */,
+				701100000000000000000023 /* TollMonitor.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		701100000000000000000040 /* Toll */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7011000000000000000000A1 /* Build configuration list for PBXNativeTarget "Toll" */;
+			buildPhases = (
+				701100000000000000000050 /* Sources */,
+				701100000000000000000051 /* Frameworks */,
+				701100000000000000000052 /* Resources */,
+				70110000000000000000005C /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				701100000000000000000093 /* PBXTargetDependency */,
+				701100000000000000000094 /* PBXTargetDependency */,
+				701100000000000000000095 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				701100000000000000000010 /* App */,
+			);
+			name = Toll;
+			packageProductDependencies = (
+				701100000000000000000200 /* TollFeatures */,
+			);
+			productName = Toll;
+			productReference = 701100000000000000000020 /* Toll.app */;
+			productType = "com.apple.product-type.application";
+		};
+		701100000000000000000041 /* TollShieldConfig */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7011000000000000000000A2 /* Build configuration list for PBXNativeTarget "TollShieldConfig" */;
+			buildPhases = (
+				701100000000000000000053 /* Sources */,
+				701100000000000000000054 /* Frameworks */,
+				701100000000000000000055 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				701100000000000000000011 /* ShieldConfig */,
+			);
+			name = TollShieldConfig;
+			packageProductDependencies = (
+				701100000000000000000210 /* TollCore */,
+				701100000000000000000211 /* TollScreenTime */,
+			);
+			productName = TollShieldConfig;
+			productReference = 701100000000000000000021 /* TollShieldConfig.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		701100000000000000000042 /* TollShieldAction */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7011000000000000000000A3 /* Build configuration list for PBXNativeTarget "TollShieldAction" */;
+			buildPhases = (
+				701100000000000000000056 /* Sources */,
+				701100000000000000000057 /* Frameworks */,
+				701100000000000000000058 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				701100000000000000000012 /* ShieldAction */,
+			);
+			name = TollShieldAction;
+			packageProductDependencies = (
+				701100000000000000000220 /* TollCore */,
+				701100000000000000000221 /* TollScreenTime */,
+			);
+			productName = TollShieldAction;
+			productReference = 701100000000000000000022 /* TollShieldAction.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		701100000000000000000043 /* TollMonitor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7011000000000000000000A4 /* Build configuration list for PBXNativeTarget "TollMonitor" */;
+			buildPhases = (
+				701100000000000000000059 /* Sources */,
+				70110000000000000000005A /* Frameworks */,
+				70110000000000000000005B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				701100000000000000000013 /* Monitor */,
+			);
+			name = TollMonitor;
+			packageProductDependencies = (
+				701100000000000000000230 /* TollCore */,
+				701100000000000000000231 /* TollScreenTime */,
+			);
+			productName = TollMonitor;
+			productReference = 701100000000000000000023 /* TollMonitor.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		701100000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					701100000000000000000040 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					701100000000000000000041 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					701100000000000000000042 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					701100000000000000000043 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+				};
+			};
+			buildConfigurationList = 7011000000000000000000A0 /* Build configuration list for PBXProject "Toll" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 701100000000000000000002;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */,
+				701100000000000000000081 /* XCLocalSwiftPackageReference "Packages/TollData" */,
+				701100000000000000000082 /* XCLocalSwiftPackageReference "Packages/TollUI" */,
+				701100000000000000000083 /* XCLocalSwiftPackageReference "Packages/TollFeatures" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 701100000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				701100000000000000000040 /* Toll */,
+				701100000000000000000041 /* TollShieldConfig */,
+				701100000000000000000042 /* TollShieldAction */,
+				701100000000000000000043 /* TollMonitor */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		701100000000000000000052 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		701100000000000000000055 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		701100000000000000000058 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		70110000000000000000005B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		701100000000000000000050 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		701100000000000000000053 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		701100000000000000000056 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		701100000000000000000059 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		701100000000000000000093 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 701100000000000000000041 /* TollShieldConfig */;
+			targetProxy = 701100000000000000000090 /* PBXContainerItemProxy */;
+		};
+		701100000000000000000094 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 701100000000000000000042 /* TollShieldAction */;
+			targetProxy = 701100000000000000000091 /* PBXContainerItemProxy */;
+		};
+		701100000000000000000095 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 701100000000000000000043 /* TollMonitor */;
+			targetProxy = 701100000000000000000092 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		7011000000000000000000B0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 701100000000000000000030 /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		7011000000000000000000B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 701100000000000000000030 /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7011000000000000000000B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/App.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/App-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOLL_BUNDLE_ID)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				INFOPLIST_KEY_CFBundleDisplayName = Toll;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+			};
+			name = Debug;
+		};
+		7011000000000000000000B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/App.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/App-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOLL_BUNDLE_ID)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				INFOPLIST_KEY_CFBundleDisplayName = Toll;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+			};
+			name = Release;
+		};
+		7011000000000000000000B4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Extension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/ShieldConfig-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOLL_BUNDLE_ID).ShieldConfig";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TollShieldConfig;
+				SKIP_INSTALL = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+			};
+			name = Debug;
+		};
+		7011000000000000000000B5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Extension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/ShieldConfig-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOLL_BUNDLE_ID).ShieldConfig";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TollShieldConfig;
+				SKIP_INSTALL = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+			};
+			name = Release;
+		};
+		7011000000000000000000B6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Extension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/ShieldAction-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOLL_BUNDLE_ID).ShieldAction";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TollShieldAction;
+				SKIP_INSTALL = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+			};
+			name = Debug;
+		};
+		7011000000000000000000B7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Extension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/ShieldAction-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOLL_BUNDLE_ID).ShieldAction";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TollShieldAction;
+				SKIP_INSTALL = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+			};
+			name = Release;
+		};
+		7011000000000000000000B8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Extension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Monitor-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOLL_BUNDLE_ID).Monitor";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TollMonitor;
+				SKIP_INSTALL = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+			};
+			name = Debug;
+		};
+		7011000000000000000000B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Extension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Monitor-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOLL_BUNDLE_ID).Monitor";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TollMonitor;
+				SKIP_INSTALL = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7011000000000000000000A0 /* Build configuration list for PBXProject "Toll" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7011000000000000000000B0 /* Debug */,
+				7011000000000000000000B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7011000000000000000000A1 /* Build configuration list for PBXNativeTarget "Toll" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7011000000000000000000B2 /* Debug */,
+				7011000000000000000000B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7011000000000000000000A2 /* Build configuration list for PBXNativeTarget "TollShieldConfig" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7011000000000000000000B4 /* Debug */,
+				7011000000000000000000B5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7011000000000000000000A3 /* Build configuration list for PBXNativeTarget "TollShieldAction" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7011000000000000000000B6 /* Debug */,
+				7011000000000000000000B7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7011000000000000000000A4 /* Build configuration list for PBXNativeTarget "TollMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7011000000000000000000B8 /* Debug */,
+				7011000000000000000000B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/TollCore;
+		};
+		701100000000000000000081 /* XCLocalSwiftPackageReference "Packages/TollData" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/TollData;
+		};
+		701100000000000000000082 /* XCLocalSwiftPackageReference "Packages/TollUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/TollUI;
+		};
+		701100000000000000000083 /* XCLocalSwiftPackageReference "Packages/TollFeatures" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/TollFeatures;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		701100000000000000000200 /* TollFeatures */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 701100000000000000000083 /* XCLocalSwiftPackageReference "Packages/TollFeatures" */;
+			productName = TollFeatures;
+		};
+		701100000000000000000210 /* TollCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */;
+			productName = TollCore;
+		};
+		701100000000000000000211 /* TollScreenTime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */;
+			productName = TollScreenTime;
+		};
+		701100000000000000000220 /* TollCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */;
+			productName = TollCore;
+		};
+		701100000000000000000221 /* TollScreenTime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */;
+			productName = TollScreenTime;
+		};
+		701100000000000000000230 /* TollCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */;
+			productName = TollCore;
+		};
+		701100000000000000000231 /* TollScreenTime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */;
+			productName = TollScreenTime;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 701100000000000000000001 /* Project object */;
+}

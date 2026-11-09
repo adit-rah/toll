@@ -1,0 +1,12 @@
+// Identity and endpoints live here so a rename or a new domain is one edit.
+TOLL_BUNDLE_ID = com.advan.toll
+TOLL_APP_GROUP = group.com.advan.toll
+TOLL_LINK_HOST = toll.alders.dev
+TOLL_API_BASE_URL = https:/$()/toll.alders.dev/v1
+
+MARKETING_VERSION = 0.1.0
+CURRENT_PROJECT_VERSION = 1
+
+// Set DEVELOPMENT_TEAM in Signing.xcconfig (not committed); see ios/README.md.
+DEVELOPMENT_TEAM =
+#include? "Signing.xcconfig"

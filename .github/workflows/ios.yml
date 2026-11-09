@@ -1,0 +1,40 @@
+name: ios
+
+on:
+  push:
+    paths: ["ios/**", "fixtures/**", ".github/workflows/ios.yml"]
+  pull_request:
+    paths: ["ios/**", "fixtures/**", ".github/workflows/ios.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+# Compile check and package tests on every push. Xcode Cloud owns signing and TestFlight (spec §12).
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - name: Select newest Xcode 26
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
+          xcodebuild -version
+      - name: swift-format
+        run: swift format lint --recursive --parallel ios/Packages ios/App ios/ShieldConfig ios/ShieldAction ios/Monitor
+      - name: Package tests
+        run: |
+          for pkg in TollCore TollData; do
+            if [ -d "ios/Packages/$pkg/Tests" ]; then swift test --package-path "ios/Packages/$pkg"; else swift build --package-path "ios/Packages/$pkg"; fi
+          done
+      - name: Build app and extensions
+        run: |
+          xcodebuild build -project ios/Toll.xcodeproj -scheme Toll \
+            -destination 'generic/platform=iOS Simulator' \
+            -skipPackagePluginValidation -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO > build.log 2>&1 && status=0 || status=$?
+          grep -E "(error|warning): " build.log | grep -E "/ios/(App|ShieldConfig|ShieldAction|Monitor|Packages)/" | sort -u | head -200 || true
+          tail -5 build.log
+          exit $status

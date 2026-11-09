@@ -1,0 +1,14 @@
+.DS_Store
+node_modules/
+.wrangler/
+.dev.vars
+*.log
+coverage/
+
+# Swift / Xcode
+.build/
+.swiftpm/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+ios/Config/Signing.xcconfig
