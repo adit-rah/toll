@@ -9,6 +9,7 @@ import { homeRoutes } from "./features/home/routes";
 import { meRoutes, photoRoutes } from "./features/me/routes";
 import { metaRoutes } from "./features/meta/routes";
 import { peopleRoutes } from "./features/people/routes";
+import { schoolRoutes } from "./features/school/routes";
 import { webRoutes } from "./features/web/routes";
 import { requireAuth } from "./lib/auth";
 import { idempotency } from "./lib/idempotency";
@@ -43,6 +44,7 @@ export function createApp() {
   signedIn.route("/", friendRoutes);
   signedIn.route("/", homeRoutes);
   signedIn.route("/", peopleRoutes);
+  signedIn.route("/", schoolRoutes);
   v1.route("/", signedIn);
 
   app.route("/v1", v1);

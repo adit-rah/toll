@@ -5,6 +5,10 @@ export const copy = {
     subject: `${code} is your Toll code`,
     text: `${code}\n\nEnter this code in Toll. It expires in ${ttlMinutes} minutes.\n\nIf you didn't ask for a code, ignore this email.`,
   }),
+  schoolCode: (code: string, school: string, ttlMinutes: number) => ({
+    subject: `${code} is your Toll school code`,
+    text: `${code}\n\nEnter this code in Toll to join ${school}. It expires in ${ttlMinutes} minutes.\n\nIf you didn't ask for a code, ignore this email.`,
+  }),
   invitePage: (name: string) => ({
     title: name ? `${name} invited you to Toll` : "You're invited to Toll",
     line: "Toll blocks the apps you choose. Getting past a block costs a wait. Your friends can see what you did.",
