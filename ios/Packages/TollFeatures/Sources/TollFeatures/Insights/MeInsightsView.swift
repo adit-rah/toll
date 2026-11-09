@@ -72,7 +72,7 @@ struct MeInsightsView: View {
       .audioGraph(Copy.Insights.dayByDay, labels: me.days.map { ChartLabels.day($0.day) }, values: me.days.map { Double($0.passes) })
       if let day = model.selectedDay {
         VStack(alignment: .leading, spacing: 4) {
-          Text("\(ChartLabels.day(day.day))\(Copy.middleDot)\(day.passes) \(Copy.passes(day.passes))").tollText(.subheadMedium)
+          Text("\(ChartLabels.day(day.day))\(Copy.middleDot)\(day.passes) \(Copy.passes(day.passes))").tollText(.subhead).fontWeight(.medium)
           ForEach(day.passList) { pass in
             Text(passText(pass)).tollText(.caption)
           }
@@ -117,7 +117,7 @@ struct MeInsightsView: View {
       Chart(rows, id: \.name) { row in
         BarMark(x: .value("passes", row.passes), y: .value("app", row.name))
           .foregroundStyle(TollColor.accent)
-          .annotation(position: .trailing) { Text("\(row.passes)").tollText(.captionNumber) }
+          .annotation(position: .trailing) { Text("\(row.passes)").tollText(.caption).monospacedDigit() }
       }
       .chartXAxis(.hidden)
       .frame(height: max(ChartHeight.bars / 2, CGFloat(rows.count) * 32))
