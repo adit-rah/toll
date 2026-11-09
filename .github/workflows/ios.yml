@@ -24,15 +24,28 @@ jobs:
           xcodebuild -version
       - name: swift-format
         run: swift format lint --recursive --parallel ios/Packages ios/App ios/ShieldConfig ios/ShieldAction ios/Monitor
-      - name: Package tests
+      - name: TollCore tests
+        run: swift test --package-path ios/Packages/TollCore
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: .spm
+          key: spm-${{ hashFiles('ios/Packages/*/Package.swift', 'ios/Packages/*/Package.resolved') }}
+          restore-keys: spm-
+      # Binary artifacts (Sentry) come from GitHub releases, which occasionally time out; retry before failing.
+      - name: Resolve packages
         run: |
-          for pkg in TollCore TollData; do
-            if [ -d "ios/Packages/$pkg/Tests" ]; then swift test --package-path "ios/Packages/$pkg"; else swift build --package-path "ios/Packages/$pkg"; fi
+          for attempt in 1 2 3; do
+            xcodebuild -resolvePackageDependencies -project ios/Toll.xcodeproj -scheme Toll \
+              -clonedSourcePackagesDirPath .spm && exit 0
+            sleep $((attempt * 20))
           done
+          exit 1
       - name: Build app and extensions
         run: |
           xcodebuild build -project ios/Toll.xcodeproj -scheme Toll \
             -destination 'generic/platform=iOS Simulator' \
+            -clonedSourcePackagesDirPath .spm -disableAutomaticPackageResolution \
             -skipPackagePluginValidation -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO > build.log 2>&1 && status=0 || status=$?
           grep -E "(error|warning): " build.log | grep -E "/ios/(App|ShieldConfig|ShieldAction|Monitor|Packages)/" | sort -u | head -200 || true
