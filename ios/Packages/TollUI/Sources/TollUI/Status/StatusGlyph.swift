@@ -30,8 +30,8 @@ public struct StatusGlyph: View {
   let size: Size
   let accessibilityText: String?
 
-  /// Pass `accessibilityLabel` ("about usual", "0 to 2 passes", "Toll is off") when the glyph stands
-  /// alone; leave it nil inside a row whose own label already says the level.
+  /// Pass `accessibilityLabel` (`Copy.Status.label`, or `Copy.FriendRows.silentAccessibility`) when
+  /// the glyph stands alone; leave it nil inside a row whose own label already says the level.
   public init(
     level: StatusLevel?, isSilent: Bool = false, size: Size = .row,
     accessibilityLabel: String? = nil

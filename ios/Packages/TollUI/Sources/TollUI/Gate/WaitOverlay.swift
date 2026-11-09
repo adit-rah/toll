@@ -24,15 +24,11 @@ public struct WaitOverlayBackdrop: View {
 /// with its top 180 pt from the top of the screen. Remove the overlay with
 /// `.tollTransition(Motion.waitCardExit)`.
 public struct WaitOverlay<Card: View>: View {
-  let announcesStart: Bool
   let card: Card
   @State private var backdropShown = false
   @State private var cardShown = false
 
-  /// `announcesStart` plays the `.light` haptic for a wait that has just begun, not for one Toll is
-  /// reopening into.
-  public init(announcesStart: Bool, @ViewBuilder card: () -> Card) {
-    self.announcesStart = announcesStart
+  public init(@ViewBuilder card: () -> Card) {
     self.card = card()
   }
 
@@ -59,7 +55,6 @@ public struct WaitOverlay<Card: View>: View {
     .onAppear {
       withAnimation(Motion.stateChange) { backdropShown = true }
       withAnimation(Motion.spring) { cardShown = true }
-      if announcesStart { Haptic.light.play() }
     }
   }
 }

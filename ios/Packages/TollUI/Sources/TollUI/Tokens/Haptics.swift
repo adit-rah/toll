@@ -34,6 +34,13 @@ public enum Haptic: Sendable {
   }
 }
 
+/// Imperative spellings for view models (`Haptics.light()`), so the three stay the only three.
+public enum Haptics {
+  @MainActor public static func light() { Haptic.light.play() }
+  @MainActor public static func warning() { Haptic.warning.play() }
+  @MainActor public static func selection() { Haptic.selection.play() }
+}
+
 extension View {
   public func tollHaptic(_ haptic: Haptic, trigger: some Equatable) -> some View {
     sensoryFeedback(haptic.feedback, trigger: trigger)

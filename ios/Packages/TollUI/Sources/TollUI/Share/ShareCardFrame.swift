@@ -78,7 +78,7 @@ private struct Wordmark: View {
       Circle()
         .strokeBorder(TollColor.label, lineWidth: 2)
         .frame(width: 12, height: 12)
-      Text(Copy.Welcome.name.uppercased())
+      Text(Copy.ShareCards.wordmark)
         .font(.system(size: 12, weight: .semibold))
         .tracking(1)
         .foregroundStyle(TollColor.label)
