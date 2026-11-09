@@ -61,7 +61,8 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
   public nonisolated func userNotificationCenter(
     _ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse
   ) async {
-    let hasRequests = response.notification.request.content.userInfo["requests"] != nil
+    // The daily summary carries `route: "people"` when friend requests are waiting (flows §17).
+    let hasRequests = response.notification.request.content.userInfo["route"] as? String == "people"
     await MainActor.run { if hasRequests { model.tab = .people } }
   }
 
