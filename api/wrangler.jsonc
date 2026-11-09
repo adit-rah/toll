@@ -17,7 +17,9 @@
     "APNS_HOST": "api.push.apple.com",
     "EMAIL_FROM": "Toll <code@toll.alders.dev>",
     "FOUNDERS_EMAIL": "support@toll.alders.dev",
-    "SENTRY_DSN": ""
+    "SENTRY_DSN": "",
+    "APP_STORE_URL": "",
+    "REVIEW_EMAIL": "review@toll.alders.dev"
   },
   "d1_databases": [
     { "binding": "DB", "database_name": "toll", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
@@ -47,7 +49,9 @@
         "APNS_HOST": "api.sandbox.push.apple.com",
         "EMAIL_FROM": "Toll <code@toll.alders.dev>",
         "FOUNDERS_EMAIL": "support@toll.alders.dev",
-        "SENTRY_DSN": ""
+        "SENTRY_DSN": "",
+        "APP_STORE_URL": "",
+        "REVIEW_EMAIL": "review@toll.alders.dev"
       },
       "d1_databases": [
         { "binding": "DB", "database_name": "toll-preview", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
