@@ -4,8 +4,10 @@ import type { AppEnv } from "./env";
 import { appRoutes } from "./features/apps/routes";
 import { accountRoutes, authRoutes, sessionRoutes } from "./features/auth/routes";
 import { eventRoutes } from "./features/events/routes";
+import { friendRoutes, publicInviteRoutes } from "./features/friends/routes";
 import { meRoutes, photoRoutes } from "./features/me/routes";
 import { metaRoutes } from "./features/meta/routes";
+import { webRoutes } from "./features/web/routes";
 import { requireAuth } from "./lib/auth";
 import { idempotency } from "./lib/idempotency";
 
@@ -19,6 +21,7 @@ export function createApp() {
   });
 
   app.get("/health", (c) => c.json({ ok: true }));
+  app.route("/", webRoutes);
 
   // Public routes are registered first: Hono runs handlers in registration order, so they answer before the
   // auth middleware below is reached.
@@ -26,6 +29,7 @@ export function createApp() {
   v1.route("/", metaRoutes);
   v1.route("/", authRoutes);
   v1.route("/", photoRoutes);
+  v1.route("/", publicInviteRoutes);
   v1.route("/", accountRoutes);
 
   const signedIn = new Hono<AppEnv>();
@@ -34,6 +38,7 @@ export function createApp() {
   signedIn.route("/", meRoutes);
   signedIn.route("/", appRoutes);
   signedIn.route("/", eventRoutes);
+  signedIn.route("/", friendRoutes);
   v1.route("/", signedIn);
 
   app.route("/v1", v1);
