@@ -15,7 +15,7 @@ concurrency:
 jobs:
   build:
     runs-on: macos-26
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
       - name: Select newest Xcode 26
@@ -26,21 +26,30 @@ jobs:
         run: swift format lint --recursive --parallel ios/Packages ios/App ios/ShieldConfig ios/ShieldAction ios/Monitor
       - name: TollCore tests
         run: swift test --package-path ios/Packages/TollCore
-      - name: Cache Swift packages
-        uses: actions/cache@v4
+      - name: Restore Swift packages
+        id: spm
+        uses: actions/cache/restore@v4
         with:
           path: .spm
-          key: spm-${{ hashFiles('ios/Packages/*/Package.swift', 'ios/Packages/*/Package.resolved') }}
+          key: spm-${{ hashFiles('ios/Packages/*/Package.swift') }}
           restore-keys: spm-
-      # Binary artifacts (Sentry) come from GitHub releases, which occasionally time out; retry before failing.
+      # SwiftPM fetches every Sentry binary variant (~1 GB) from GitHub releases, which intermittently
+      # return 504. Retry patiently, and save the cache as soon as resolution succeeds.
       - name: Resolve packages
         run: |
-          for attempt in 1 2 3; do
+          for attempt in 1 2 3 4 5; do
             xcodebuild -resolvePackageDependencies -project ios/Toll.xcodeproj -scheme Toll \
-              -clonedSourcePackagesDirPath .spm && exit 0
-            sleep $((attempt * 20))
+              -clonedSourcePackagesDirPath .spm > resolve.log 2>&1 && exit 0
+            grep -E "error|failed" resolve.log | tail -3
+            sleep $((attempt * 45))
           done
           exit 1
+      - name: Save Swift packages
+        if: steps.spm.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .spm
+          key: spm-${{ hashFiles('ios/Packages/*/Package.swift') }}
       - name: Build app and extensions
         run: |
           xcodebuild build -project ios/Toll.xcodeproj -scheme Toll \
