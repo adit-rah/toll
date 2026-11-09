@@ -69,8 +69,10 @@ final class ShieldActionExtension: ShieldActionDelegate {
     content.interruptionLevel = .timeSensitive
     content.userInfo = ["route": "gate"]
     let request = UNNotificationRequest(identifier: "toll.gate", content: content, trigger: nil)
+    // The system calls this handler once and expects it on any queue; it is not annotated Sendable.
+    nonisolated(unsafe) let respond = completion
     UNUserNotificationCenter.current().add(request) { _ in
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { completion(.defer) }
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { respond(.defer) }
     }
   }
 }
