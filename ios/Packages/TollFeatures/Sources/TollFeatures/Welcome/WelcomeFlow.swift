@@ -87,7 +87,7 @@ struct EmailView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       ScreenTitle(Copy.Email.title)
-      FilledField(Copy.Email.field, text: $bound.email, isFocused: $focused)
+      FilledField(Copy.Email.field, text: $model.email, isFocused: $focused)
         .textContentType(.emailAddress)
         .keyboardType(.emailAddress)
         .textInputAutocapitalization(.never)
@@ -117,7 +117,7 @@ struct CodeView: View {
     VStack(alignment: .leading, spacing: 0) {
       ScreenTitle(Copy.Code.title)
       Text(Copy.Code.sentTo(model.email)).tollText(.subhead).padding(.top, 8)
-      CodeBoxes(code: $bound.code, shakeTrigger: model.shakeCount, accessibilityLabel: Copy.Code.title) { _ in
+      CodeBoxes(code: $model.code, shakeTrigger: model.shakeCount, accessibilityLabel: Copy.Code.title) { _ in
         Task { await model.codeChanged() }
       }
       .padding(.top, TollSpacing.titleGap)
