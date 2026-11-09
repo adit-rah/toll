@@ -27,7 +27,8 @@ const domains = new Map();
 for (const u of rows) {
   const id = stableId(u.alpha_two_code, u.name);
   const existing = schools.get(id);
-  if (existing && existing.name.toLowerCase() !== u.name.toLowerCase()) throw new Error(`id collision: ${existing.name} / ${u.name}`);
+  if (existing && existing.name.toLowerCase() !== u.name.toLowerCase())
+    throw new Error(`id collision: ${existing.name} / ${u.name}`);
   schools.set(id, { name: u.name, country: u.alpha_two_code });
   for (const raw of u.domains ?? []) {
     const domain = raw.trim().toLowerCase();
