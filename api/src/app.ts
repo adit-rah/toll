@@ -5,6 +5,7 @@ import { appRoutes } from "./features/apps/routes";
 import { accountRoutes, authRoutes, sessionRoutes } from "./features/auth/routes";
 import { contactRoutes } from "./features/contacts/routes";
 import { eventRoutes } from "./features/events/routes";
+import { examRoutes } from "./features/exams/routes";
 import { friendRoutes, publicInviteRoutes } from "./features/friends/routes";
 import { homeRoutes } from "./features/home/routes";
 import { insightRoutes } from "./features/insights/routes";
@@ -51,6 +52,7 @@ export function createApp() {
   signedIn.route("/", safetyRoutes);
   signedIn.route("/", contactRoutes);
   signedIn.route("/", insightRoutes);
+  signedIn.route("/", examRoutes);
   v1.route("/", signedIn);
 
   app.route("/v1", v1);
