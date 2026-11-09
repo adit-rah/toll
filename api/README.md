@@ -21,7 +21,7 @@ One Cloudflare Worker: the JSON API under `/v1`, invite links (`/i/:code`), the 
 `GET /v1/config?v=<app version>` (public) returns `src/config.ts` defaults merged with KV key `config:v1`: `{ "overrides": {…}, "byVersion": { "1.1": {…} } }`, deep-merged in that order. Cached 5 min at the edge and in the app (`serverConfig.configCacheSeconds`). Change it with `npx wrangler kv key put --binding CONFIG config:v1 '<json>' --remote`; a malformed document is ignored.
 
 ## First deploy (founders)
-See `docs/deploy.md` for the full command list: create the D1 databases, KV namespace, R2 bucket and queue, paste their ids into `wrangler.jsonc`, set secrets, seed schools, then turn on CI deploys with the `DEPLOY_ENABLED` repository variable.
+See `DEPLOY.md` for the full command list: create the D1 databases, KV namespaces, R2 buckets and queues, paste their ids into `wrangler.jsonc`, set secrets, seed schools and the review account, then turn on CI deploys with the `DEPLOY_ENABLED` repository variable.
 
 ## Schools
 `npm run schools:refresh` rewrites `seed/schools.sql` from the Hipo list (CA/US/GB). School ids are a stable hash of country and name, so memberships survive a refresh.
