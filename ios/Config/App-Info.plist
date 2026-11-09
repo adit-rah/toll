@@ -8,6 +8,10 @@
 	<string>$(TOLL_API_BASE_URL)</string>
 	<key>TollLinkHost</key>
 	<string>$(TOLL_LINK_HOST)</string>
+	<key>TollSentryDSN</key>
+	<string>$(TOLL_SENTRY_DSN)</string>
+	<key>TollTelemetryDeckAppID</key>
+	<string>$(TOLL_TELEMETRYDECK_APP_ID)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>UIBackgroundModes</key>

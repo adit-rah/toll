@@ -16,6 +16,7 @@ let package = Package(
       name: "TollData",
       dependencies: [
         .product(name: "TollCore", package: "TollCore"),
+        .product(name: "TollScreenTime", package: "TollCore"),
         .product(name: "GRDB", package: "GRDB.swift"),
         .product(name: "Sentry", package: "sentry-cocoa"),
         .product(name: "TelemetryDeck", package: "SwiftSDK"),
