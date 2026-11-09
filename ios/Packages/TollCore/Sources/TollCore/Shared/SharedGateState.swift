@@ -7,6 +7,9 @@ public struct SharedGateState: Codable, Equatable, Sendable {
   public var blocks: [BlockDefinition] = []
   public var sessions: [ActiveSession] = []
   public var wait: Wait?
+  /// The latest "Open Toll" tap not yet acted on; Toll enters the gate for it only when opened by the
+  /// user within `gate.resumeWindow` (G-3), never from a background wake.
+  public var pendingHit: PendingHit?
   /// A pass granted but not yet turned into a session: the session picker is showing (G-3, G-6).
   public var pendingPass: PendingPass?
   public var resetHour = TollConfig.defaults.gate.dayResetHour
@@ -20,6 +23,16 @@ public struct SharedGateState: Codable, Equatable, Sendable {
 
   public func unblocks(of appRef: AppRef, on day: TollDay) -> Int {
     unblocksDay == day ? unblocks[appRef, default: 0] : 0
+  }
+}
+
+public struct PendingHit: Codable, Hashable, Sendable {
+  public var appRef: AppRef
+  public var at: Date
+
+  public init(appRef: AppRef, at: Date) {
+    self.appRef = appRef
+    self.at = at
   }
 }
 
