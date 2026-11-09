@@ -5,6 +5,7 @@ import { appRoutes } from "./features/apps/routes";
 import { accountRoutes, authRoutes, sessionRoutes } from "./features/auth/routes";
 import { eventRoutes } from "./features/events/routes";
 import { friendRoutes, publicInviteRoutes } from "./features/friends/routes";
+import { homeRoutes } from "./features/home/routes";
 import { meRoutes, photoRoutes } from "./features/me/routes";
 import { metaRoutes } from "./features/meta/routes";
 import { webRoutes } from "./features/web/routes";
@@ -39,6 +40,7 @@ export function createApp() {
   signedIn.route("/", appRoutes);
   signedIn.route("/", eventRoutes);
   signedIn.route("/", friendRoutes);
+  signedIn.route("/", homeRoutes);
   v1.route("/", signedIn);
 
   app.route("/v1", v1);

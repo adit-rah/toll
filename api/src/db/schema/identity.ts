@@ -13,6 +13,7 @@ export const users = sqliteTable("users", {
   notifyEnabled: integer("notify_enabled", { mode: "boolean" }).notNull().default(true),
   notifyHour: integer("notify_hour"),
   createdAt: integer("created_at").notNull(),
+  lastHomeAt: integer("last_home_at"),
 });
 
 export const authIdentities = sqliteTable(
