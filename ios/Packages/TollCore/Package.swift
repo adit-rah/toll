@@ -11,5 +11,6 @@ let package = Package(
   targets: [
     .target(name: "TollCore"),
     .target(name: "TollScreenTime", dependencies: ["TollCore"]),
+    .testTarget(name: "TollCoreTests", dependencies: ["TollCore"]),
   ]
 )
