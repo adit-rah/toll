@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "pretest": "node scripts/seed-review.mjs > /dev/null",
     "test": "vitest run",
+    "seed:review": "node scripts/seed-review.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "format": "biome check --write .",
