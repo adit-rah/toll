@@ -172,7 +172,7 @@ struct MeInsightsView: View {
           x: .value("weekday", day.day.weekday.rawValue), y: .value("week", day.day.weekStart.description),
           width: .ratio(0.9), height: .ratio(0.9)
         )
-        .foregroundStyle(day.active ? TollColor.heat(Double(day.passes) / Double(maxPasses)) : .clear)
+        .foregroundStyle(day.active ? TollColor.heat[min(4, day.passes * 5 / (maxPasses + 1))] : .clear)
       }
       .chartXAxis(.hidden)
       .chartYAxis(.hidden)

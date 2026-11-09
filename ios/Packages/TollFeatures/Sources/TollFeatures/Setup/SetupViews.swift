@@ -2,6 +2,7 @@ import PhotosUI
 import SwiftUI
 import TollCore
 import TollUI
+import UIKit
 
 /// The progress bar and the title at the same position on every step (design §4.3 layout rule).
 struct SetupScaffold<Content: View, Footer: View>: View {

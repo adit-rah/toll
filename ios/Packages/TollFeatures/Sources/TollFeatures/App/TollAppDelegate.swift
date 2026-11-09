@@ -36,6 +36,8 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
   ) -> Bool {
     UNUserNotificationCenter.current().delegate = self
     BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.syncTask, using: nil) { task in
+      // The system hands the task over once and completes it from wherever we finish; not Sendable.
+      nonisolated(unsafe) let task = task
       Task { @MainActor in await self.runBackgroundSync(task) }
     }
     scheduleBackgroundSync()

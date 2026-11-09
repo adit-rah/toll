@@ -26,9 +26,9 @@ public enum ContactsReader {
   }
 
   public static func read() async -> (emails: [String], phones: [String])? {
-    let store = CNContactStore()
-    guard (try? await store.requestAccess(for: .contacts)) == true else { return nil }
-    return await Task.detached {
+    guard (try? await CNContactStore().requestAccess(for: .contacts)) == true else { return nil }
+    return await Task.detached { () -> (emails: [String], phones: [String]) in
+      let store = CNContactStore()
       var emails: [String] = []
       var phones: [String] = []
       let keys = [CNContactEmailAddressesKey, CNContactPhoneNumbersKey] as [CNKeyDescriptor]
