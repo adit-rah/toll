@@ -17,6 +17,9 @@ One Cloudflare Worker: the JSON API under `/v1`, invite links (`/i/:code`), the 
 ## Develop
 `npm ci && npm run check`. Local dev: `npm run db:migrate:local && npm run dev`. APNs does not work under `wrangler dev` (no HTTP/2); test pushes on the preview Worker.
 
+## Remote config (E11.50)
+`GET /v1/config?v=<app version>` (public) returns `src/config.ts` defaults merged with KV key `config:v1`: `{ "overrides": {…}, "byVersion": { "1.1": {…} } }`, deep-merged in that order. Cached 5 min at the edge and in the app (`serverConfig.configCacheSeconds`). Change it with `npx wrangler kv key put --binding CONFIG config:v1 '<json>' --remote`; a malformed document is ignored.
+
 ## First deploy (founders)
 See `docs/deploy.md` for the full command list: create the D1 databases, KV namespace, R2 bucket and queue, paste their ids into `wrangler.jsonc`, set secrets, seed schools, then turn on CI deploys with the `DEPLOY_ENABLED` repository variable.
 

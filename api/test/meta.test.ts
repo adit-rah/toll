@@ -7,8 +7,17 @@ describe("meta", () => {
     expect((await call("/health")).status).toBe(200);
   });
 
-  it("serves the default config when KV is empty", async () => {
-    expect(await (await call("/v1/config")).json()).toEqual(defaultConfig);
+  it("serves the default config when KV is empty, cacheable for five minutes", async () => {
+    const res = await call("/v1/config");
+    expect(res.headers.get("cache-control")).toBe("public, max-age=300");
+    expect(await res.json()).toEqual(defaultConfig);
+  });
+
+  it("carries the block presets the app's When chips use", () => {
+    expect(defaultConfig.blocks.presets).toEqual({
+      nights: { start: "23:00", end: "07:00", days: [1, 2, 3, 4, 5, 6, 7] },
+      weekdays: { start: "09:00", end: "17:00", days: [1, 2, 3, 4, 5] },
+    });
   });
 
   it("applies KV overrides, then the per-version overrides", async () => {
