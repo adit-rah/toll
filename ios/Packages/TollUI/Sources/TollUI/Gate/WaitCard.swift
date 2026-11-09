@@ -58,7 +58,8 @@ public struct WaitNaming {
 
 /// The gate's card. Both halves are always laid out so the countdown-to-picker swap keeps the card's
 /// frame and only crossfades (design §2.5, §4.10). `title` and `openLabel` are views because the app's
-/// name comes from the system `Label(token)`, which Toll cannot read as text.
+/// name comes from the system `Label(token)`, which Toll cannot read as text. The card plays no
+/// haptics: `GateModel` plays `.light` at the start and end of the wait and `.selection` on naming.
 public struct WaitCard<Title: View, OpenLabel: View>: View {
   let countdown: WaitCountdown?
   let session: SessionChoice
@@ -68,8 +69,8 @@ public struct WaitCard<Title: View, OpenLabel: View>: View {
   @State private var namingCollapsed = false
   @Environment(\.displayScale) private var displayScale
 
-  /// Pass `countdown` while the wait runs and nil once it ends (or for a free pass). Keep passing
-  /// `naming` until the card goes away: the section collapses itself once a tag is chosen.
+  /// Pass `countdown` while the wait runs and nil once it ends (or for a free pass). The naming
+  /// section collapses once its selection is set, and also fades out if `naming` turns nil.
   public init(
     countdown: WaitCountdown?, session: SessionChoice, naming: WaitNaming? = nil,
     @ViewBuilder title: () -> Title, @ViewBuilder openLabel: () -> OpenLabel
@@ -118,9 +119,7 @@ public struct WaitCard<Title: View, OpenLabel: View>: View {
       RoundedRectangle(cornerRadius: TollRadius.waitCard, style: .continuous)
         .strokeBorder(TollColor.separator, lineWidth: 1 / displayScale)
     }
-    .sensoryFeedback(Haptic.light.feedback, trigger: showsCountdown) { wasCounting, isCounting in
-      wasCounting && !isCounting
-    }
+    .animation(Motion.movement, value: naming == nil)
     .onChange(of: chosenTag) { _, tag in
       guard tag != nil else { return }
       // The chosen chip fills and the others fade first; then the section closes up.
@@ -183,7 +182,7 @@ public struct WaitCard<Title: View, OpenLabel: View>: View {
       Text(naming.note)
         .tollText(.micro)
         .multilineTextAlignment(.center)
-      TagChips(tags: naming.tags, selection: naming.selection)
+      TagChips(tags: naming.tags, selection: naming.selection, playsHaptic: false)
     }
     .padding(.top, 16)
   }

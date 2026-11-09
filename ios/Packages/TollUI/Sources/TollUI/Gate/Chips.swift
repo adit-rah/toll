@@ -43,18 +43,22 @@ private struct ChipStyle: ButtonStyle {
 }
 
 /// Design §3.9. The seven tags, wrapped and centred. Once one is chosen the others fade out (200 ms) so
-/// the chosen chip is the last thing on screen before the section collapses.
+/// the chosen chip is the last thing on screen before the section collapses. Pass
+/// `playsHaptic: false` where a view model already plays `.selection` for the choice.
 public struct TagChips: View {
   let tags: [Tag]
   @Binding var selection: Tag?
   let fadesOthersOnSelect: Bool
+  let playsHaptic: Bool
 
   public init(
-    tags: [Tag] = Tag.allCases, selection: Binding<Tag?>, fadesOthersOnSelect: Bool = true
+    tags: [Tag] = Tag.allCases, selection: Binding<Tag?>, fadesOthersOnSelect: Bool = true,
+    playsHaptic: Bool = true
   ) {
     self.tags = tags
     _selection = selection
     self.fadesOthersOnSelect = fadesOthersOnSelect
+    self.playsHaptic = playsHaptic
   }
 
   public var body: some View {
@@ -70,7 +74,7 @@ public struct TagChips: View {
         .animation(Motion.stateChange, value: selection)
       }
     }
-    .tollHaptic(.selection, trigger: selection)
+    .sensoryFeedback(Haptic.selection.feedback, trigger: selection) { _, _ in playsHaptic }
   }
 }
 

@@ -1,11 +1,13 @@
 import SwiftUI
+import TollCore
 
-/// Week-on-week change in passes, as a signed whole percent (negative is fewer).
+/// Week-on-week change in passes as a fraction (-0.23 is 23% fewer), the value
+/// `Copy.FriendRows.trend` and `trendAccessibility` take.
 public struct Trend: Hashable, Sendable {
-  public var percent: Int
+  public var fraction: Double
 
-  public init(percent: Int) {
-    self.percent = percent
+  public init(fraction: Double) {
+    self.fraction = fraction
   }
 }
 
@@ -19,20 +21,9 @@ public struct TrendLabel: View {
   }
 
   public var body: some View {
-    HStack(spacing: 3) {
-      if let arrow {
-        Text(arrow)
-      }
-      Text(verbatim: "\(abs(trend.percent))%")
-    }
-    .font(TollFont.captionNumber)
-    .foregroundStyle(TollColor.label2)
-  }
-
-  private var arrow: String? {
-    if trend.percent < 0 { return "▼" }
-    if trend.percent > 0 { return "▲" }
-    return nil
+    Text(Copy.FriendRows.trend(trend.fraction) ?? "")
+      .font(TollFont.captionNumber)
+      .foregroundStyle(TollColor.label2)
   }
 }
 
