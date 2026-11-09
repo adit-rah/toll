@@ -17,6 +17,8 @@ export default defineConfig(async () => {
             CONTACTS_SALT: "test-salt",
             TOKEN_ENC_KEY: "dGVzdC1rZXktdGVzdC1rZXktdGVzdC1rZXktdGVzdC0=",
             ADMIN_TOKEN: "test-admin",
+            REVIEW_EMAIL: "review@toll.alders.dev",
+            REVIEW_CODE: "424242",
           },
         },
       }),

@@ -1,7 +1,23 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "./env";
+import { adminRoutes } from "./features/admin/routes";
+import { appRoutes } from "./features/apps/routes";
+import { accountRoutes, authRoutes, sessionRoutes } from "./features/auth/routes";
+import { contactRoutes } from "./features/contacts/routes";
+import { eventRoutes } from "./features/events/routes";
+import { examRoutes } from "./features/exams/routes";
+import { friendRoutes, publicInviteRoutes } from "./features/friends/routes";
+import { homeRoutes } from "./features/home/routes";
+import { insightRoutes } from "./features/insights/routes";
+import { meRoutes, photoRoutes } from "./features/me/routes";
 import { metaRoutes } from "./features/meta/routes";
+import { peopleRoutes } from "./features/people/routes";
+import { safetyRoutes } from "./features/safety/routes";
+import { schoolRoutes } from "./features/school/routes";
+import { webRoutes } from "./features/web/routes";
+import { requireAuth } from "./lib/auth";
+import { idempotency } from "./lib/idempotency";
 
 export function createApp() {
   const app = new Hono<AppEnv>();
@@ -13,10 +29,34 @@ export function createApp() {
   });
 
   app.get("/health", (c) => c.json({ ok: true }));
+  app.route("/", webRoutes);
 
+  // Public routes are registered first: Hono runs handlers in registration order, so they answer before the
+  // auth middleware below is reached.
   const v1 = new Hono<AppEnv>();
   v1.route("/", metaRoutes);
-  app.route("/v1", v1);
+  v1.route("/", authRoutes);
+  v1.route("/", photoRoutes);
+  v1.route("/", publicInviteRoutes);
+  v1.route("/", accountRoutes);
+  v1.route("/", adminRoutes);
 
+  const signedIn = new Hono<AppEnv>();
+  signedIn.use(requireAuth, idempotency);
+  signedIn.route("/", sessionRoutes);
+  signedIn.route("/", meRoutes);
+  signedIn.route("/", appRoutes);
+  signedIn.route("/", eventRoutes);
+  signedIn.route("/", friendRoutes);
+  signedIn.route("/", homeRoutes);
+  signedIn.route("/", peopleRoutes);
+  signedIn.route("/", schoolRoutes);
+  signedIn.route("/", safetyRoutes);
+  signedIn.route("/", contactRoutes);
+  signedIn.route("/", insightRoutes);
+  signedIn.route("/", examRoutes);
+  v1.route("/", signedIn);
+
+  app.route("/v1", v1);
   return app;
 }

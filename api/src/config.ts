@@ -37,7 +37,14 @@ export const defaultConfig = {
   },
   identity: { handleCooldownDays: 30, photoMaxPx: 512 },
   notify: { hour: 10 },
-  blocks: { maxTokens: 40, max: 8 },
+  blocks: {
+    maxTokens: 40,
+    max: 8,
+    presets: {
+      nights: { start: "23:00", end: "07:00", days: [1, 2, 3, 4, 5, 6, 7] },
+      weekdays: { start: "09:00", end: "17:00", days: [1, 2, 3, 4, 5] },
+    },
+  },
   sync: { flushIntervalSeconds: 300 },
   retention: { rawEventDays: 90 },
   insights: {
@@ -67,6 +74,22 @@ export const serverConfig = {
   configCacheSeconds: 300,
   apnsJwtTtlMinutes: 50,
   pushBatchSize: 100,
+  displayNameMin: 2,
+  displayNameMax: 24,
+  handleSuggestions: 3,
+  inviteCodeLength: 6,
+  // No 0/O, 1/I: codes are read aloud and typed by hand.
+  inviteAlphabet: "23456789ABCDEFGHJKLMNPQRSTUVWXYZ",
+  contactsMatchMax: 2000,
+  reportTextMax: 500,
+  photoCacheSeconds: 31_536_000,
+  insightsWeeks: 8,
+  mutualsMax: 200,
+  schoolMembersMax: 500,
+  nightlyRecomputeDays: 2,
+  nightlyUserBatch: 100,
+  exportPageRows: 1000,
+  appStoreUrl: "https://apps.apple.com/app/id0000000000",
 };
 
 const overrideSchema: z.ZodType<unknown> = z.record(z.string(), z.unknown());
