@@ -35,7 +35,7 @@ struct YouView: View {
   var body: some View {
     Group {
       if let model {
-        @Bindable var model = model
+        @Bindable var bound = model
         SetupScaffold(app: app, step: 0, title: Copy.You.title) {
           VStack(spacing: 12) {
             PhotosPicker(selection: $photoItem, matching: .images) {
@@ -52,12 +52,12 @@ struct YouView: View {
             .accessibilityLabel(Copy.You.addPhoto)
             .frame(maxWidth: .infinity)
             .padding(.bottom, 12)
-            FilledField(Copy.You.name, text: $model.name)
+            FilledField(Copy.You.name, text: $bound.name)
               .textContentType(.name)
               .overlay(
                 RoundedRectangle(cornerRadius: TollRadius.field)
                   .strokeBorder(TollColor.level3, lineWidth: model.nameRinged ? 2 : 0))
-            FilledField(Copy.You.handle, text: $model.handle) { handleStatus(model) }
+            FilledField(Copy.You.handle, text: $bound.handle) { handleStatus(model) }
               .textInputAutocapitalization(.never)
               .autocorrectionDisabled()
             handleNote(model)

@@ -25,10 +25,10 @@ struct BlockEditorView: View {
   var body: some View {
     Group {
       if let model {
-        @Bindable var model = model
+        @Bindable var bound = model
         content(model)
-          .familyActivityPicker(isPresented: $model.pickerPresented, selection: $model.selection)
-          .sheet(isPresented: $model.customSheetPresented) { CustomHoursSheet(schedule: $model.schedule) }
+          .familyActivityPicker(isPresented: $bound.pickerPresented, selection: $bound.selection)
+          .sheet(isPresented: $bound.customSheetPresented) { CustomHoursSheet(schedule: $bound.schedule) }
           .sheet(isPresented: $showAll) { allApps(model) }
       }
     }
@@ -79,7 +79,7 @@ struct BlockEditorView: View {
   }
 
   private func editor(_ model: BlockEditorModel) -> some View {
-    @Bindable var model = model
+    @Bindable var bound = model
     let kind = Binding(get: { model.schedule.kind }, set: { model.choose($0) })
     return VStack(alignment: .leading, spacing: 16) {
       if let summary = model.compactSummary {
@@ -101,7 +101,7 @@ struct BlockEditorView: View {
       }
       if !model.isSetup {
         VStack(alignment: .leading, spacing: 4) {
-          FilledField(Copy.BlockEditor.blockName, text: $model.name, fill: TollColor.surface)
+          FilledField(Copy.BlockEditor.blockName, text: $bound.name, fill: TollColor.surface)
           Text(Copy.BlockEditor.blockNameNote).tollText(.caption)
         }
       }

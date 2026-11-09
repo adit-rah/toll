@@ -14,9 +14,9 @@ struct InsightsView: View {
     NavigationStack {
       ScrollView {
         if let model {
-          @Bindable var model = model
+          @Bindable var bound = model
           VStack(spacing: 16) {
-            Picker(Copy.Insights.title, selection: $model.segment) {
+            Picker(Copy.Insights.title, selection: $bound.segment) {
               Text(Copy.Insights.me).tag(InsightsModel.Segment.me)
               Text(Copy.Insights.friends).tag(InsightsModel.Segment.friends)
               Text(Copy.Insights.school).tag(InsightsModel.Segment.school)
