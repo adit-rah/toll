@@ -5,7 +5,14 @@ public struct Metrics: Equatable, Sendable {
   public struct TagMetrics: Equatable, Sendable {
     public var passes = 0
     public var waitMinutes = 0
+
+    public init(passes: Int = 0, waitMinutes: Int = 0) {
+      self.passes = passes
+      self.waitMinutes = waitMinutes
+    }
   }
+
+  public init() {}
 
   public var hits = 0
   public var passes = 0
