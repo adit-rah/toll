@@ -19,6 +19,17 @@ export const copy = {
     line: "Ask your friend for a new link.",
     button: "Get Toll on the App Store",
   },
+  // To the founders' inbox, not to users.
+  report: (r: {
+    reason: string;
+    text: string | null;
+    reporter: string;
+    subject: string;
+    subjectName: string;
+  }) => ({
+    subject: `Report: ${r.reason} · ${r.subjectName}`,
+    text: `Reason: ${r.reason}\nReported user: ${r.subjectName} (${r.subject})\nReporter: ${r.reporter}\n\n${r.text ?? "(no text)"}`,
+  }),
   accountDeleted: () => ({
     subject: "Your Toll account was deleted",
     text: "Your Toll account and everything stored with it on our servers were deleted. This cannot be undone.\n\nQuestions: support@toll.alders.dev",
