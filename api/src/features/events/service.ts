@@ -50,7 +50,16 @@ async function withRemovedAppRefs(db: Database, userId: string, accepted: GateEv
     .select()
     .from(blocksMeta)
     .where(and(eq(blocksMeta.userId, userId), inArray(blocksMeta.blockRef, refs)));
-  const byRef = new Map(rows.map((r) => [r.blockRef, r]));
+  const byRef = new Map(rows.map((r) => [r.blockRef, { appRefs: r.appRefs, schedule: r.schedule }]));
+  // The block may have been added in this same batch, before its row exists.
+  for (const e of [...accepted].sort((a, b) => a.occurredAt - b.occurredAt)) {
+    if ((e.type !== "block_added" && e.type !== "block_changed") || !e.blockRef) continue;
+    const prior = byRef.get(e.blockRef);
+    byRef.set(e.blockRef, {
+      appRefs: e.appRefs ?? prior?.appRefs ?? [],
+      schedule: e.schedule ?? prior?.schedule,
+    });
+  }
   return accepted.map((e) => {
     const known = e.type === "block_removed" && !e.appRefs ? byRef.get(e.blockRef ?? "") : undefined;
     return known
