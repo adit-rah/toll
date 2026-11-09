@@ -1,7 +1,9 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv } from "./env";
+import { appRoutes } from "./features/apps/routes";
 import { accountRoutes, authRoutes, sessionRoutes } from "./features/auth/routes";
+import { eventRoutes } from "./features/events/routes";
 import { meRoutes, photoRoutes } from "./features/me/routes";
 import { metaRoutes } from "./features/meta/routes";
 import { requireAuth } from "./lib/auth";
@@ -30,6 +32,8 @@ export function createApp() {
   signedIn.use(requireAuth, idempotency);
   signedIn.route("/", sessionRoutes);
   signedIn.route("/", meRoutes);
+  signedIn.route("/", appRoutes);
+  signedIn.route("/", eventRoutes);
   v1.route("/", signedIn);
 
   app.route("/v1", v1);
