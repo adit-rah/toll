@@ -21,7 +21,7 @@ public enum TollSpacing {
   public static let rowLeadingGap: CGFloat = 12
 
   /// 4.7" and 5.4" phones are 375 pt wide; everything wider gets the full gutter.
-  public static func gutter(forWidth width: CGFloat) -> CGFloat {
+  public static func horizontalGutter(forWidth width: CGFloat) -> CGFloat {
     width <= 375 ? narrowGutter : gutter
   }
 }
@@ -49,7 +49,7 @@ private struct GutterPadding: ViewModifier {
 
   func body(content: Content) -> some View {
     content
-      .padding(.horizontal, TollSpacing.gutter(forWidth: width))
+      .padding(.horizontal, TollSpacing.horizontalGutter(forWidth: width))
       .onGeometryChange(for: CGFloat.self) { proxy in
         proxy.size.width
       } action: { newWidth in

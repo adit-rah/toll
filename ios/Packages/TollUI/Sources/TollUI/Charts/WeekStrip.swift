@@ -61,7 +61,7 @@ public struct WeekStrip: View {
       let name = index < dayNames.count ? dayNames[index] : ""
       return "\(name) \(counts[index])"
     }
-    return AccessibilitySentence.join([accessibilityTitle] + days)
+    return AccessibilitySentence.join([accessibilityTitle] + days.map { Optional($0) })
   }
 
   private static func mondayFirstWeekdays() -> [String] {
