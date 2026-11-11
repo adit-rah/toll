@@ -178,6 +178,8 @@ public final class AppModel {
 
   public func signedIn(_ session: AuthSession) async {
     readSession()
+    // The sheet over Home (flows §20) has done its job; nothing else closes it.
+    if showsSignInSheet { showsSignInSheet = false }
     me = session.user
     isReturning = !session.isNew
     try? await deps.store.setSetting("isReturning", isReturning)
