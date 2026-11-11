@@ -29,7 +29,9 @@ private struct ChipStyle: ButtonStyle {
       .monospacedDigit()
       .lineLimit(1)
       .foregroundStyle(isSelected ? TollColor.onAccent : TollColor.label)
-      .padding(.horizontal, 14)
+      // 12, not 14: the seven tags have to wrap as three and four on a 375 pt phone, and at 14 the
+      // second row is within a point of spilling "Other" onto a row of its own.
+      .padding(.horizontal, 12)
       .frame(minHeight: 34)
       .background(
         isSelected ? TollColor.accent : TollColor.surfaceRaised,
@@ -62,7 +64,7 @@ public struct TagChips: View {
   }
 
   public var body: some View {
-    FlowLayout(spacing: 8) {
+    FlowLayout(spacing: WaitCardMetrics.chipGap, lineSpacing: WaitCardMetrics.chipLineSpacing) {
       ForEach(tags, id: \.self) { tag in
         let faded = fadesOthersOnSelect && selection != nil && selection != tag
         ChoiceChip(Copy.Tags.chip(tag), isSelected: selection == tag) {

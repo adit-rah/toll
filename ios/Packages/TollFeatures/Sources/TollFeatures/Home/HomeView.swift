@@ -46,6 +46,13 @@ struct HomeView: View {
       await model?.start()
     }
     .onChange(of: app.gate) { _, _ in Task { await model?.updateDeviceState() } }
+    // Sheets present above the wait card, so one left open would hide a wait that has just started.
+    .onChange(of: app.gate.wait?.id) { _, wait in
+      if wait != nil {
+        detail = nil
+        inviteShown = false
+      }
+    }
     // Blocks are added and removed on screens pushed over Home, which never re-runs the task above;
     // without this the "Nothing blocked yet" line outlives the block that answers it.
     .task {
@@ -61,7 +68,7 @@ struct HomeView: View {
       deviceLine(model)
       if let session = model.activeSession, let ref = session.appRefs.first {
         sessionLine(ref, minutes: session.minutes)
-          .transition(Motion.pinnedLine)
+          .tollTransition(Motion.pinnedLine)
       }
       hero(model)
         .padding(.top, TollSpacing.heroTop)
@@ -71,7 +78,7 @@ struct HomeView: View {
           PinnedRow(FriendFormatting.pinned(pin))
         }
         .buttonStyle(.plain)
-        .transition(Motion.pinnedLine)
+        .tollTransition(Motion.pinnedLine)
       }
       friends(model)
     }
@@ -138,19 +145,24 @@ struct HomeView: View {
     }
   }
 
+  /// A button, not a tap gesture, so VoiceOver can open Insights from here too.
   private func hero(_ model: HomeModel) -> some View {
-    VStack(spacing: 14) {
-      HeroStat(
-        value: model.you.passesToday, mark: StatusMark(level: model.you.level),
-        unit: Copy.Home.passesToday(model.you.passesToday),
-        subhead: Copy.Home.week(model.you.thisWeek, last: model.you.lastWeek),
-        statusSpeech: model.you.level.map { Copy.Status.label($0, personalised: model.personalised) })
-      WeekStrip(
-        counts: model.you.strip, todayIndex: model.you.todayIndex, animateOnAppear: !model.hasAppeared)
+    Button {
+      app.tab = .insights
+    } label: {
+      VStack(spacing: 14) {
+        HeroStat(
+          value: model.you.passesToday, mark: StatusMark(level: model.you.level),
+          unit: Copy.Home.passesToday(model.you.passesToday),
+          subhead: Copy.Home.week(model.you.thisWeek, last: model.you.lastWeek),
+          statusSpeech: model.you.level.map { Copy.Status.label($0, personalised: model.personalised) })
+        WeekStrip(
+          counts: model.you.strip, todayIndex: model.you.todayIndex, animateOnAppear: !model.hasAppeared)
+      }
+      .frame(maxWidth: .infinity)
+      .contentShape(Rectangle())
     }
-    .frame(maxWidth: .infinity)
-    .contentShape(Rectangle())
-    .onTapGesture { app.tab = .insights }
+    .buttonStyle(.plain)
     .onAppear { model.markAppeared() }
   }
 
