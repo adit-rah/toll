@@ -191,6 +191,25 @@ struct GateMachineTests {
     #expect(state.sessions.isEmpty)
   }
 
+  @Test func aNewSessionEndsTheOnesItOverlapsAndHandsThemBack() throws {
+    var state = SharedGateState()
+    _ = machine.enter(appRef: "ig", ledger: GateLedger(), state: &state, now: t0, monotonic: boot)
+    let first = try #require(machine.startSession(minutes: 15, state: &state, now: t0))
+    #expect(first.replaced.isEmpty)
+    let apart = ActiveSession(appRefs: ["yt"], minutes: 15, startedAt: t0)
+    state.sessions.append(apart)
+    let block = BlockDefinition(id: "b1", appRefs: ["ig", "tt"], schedule: .always)
+    let later = t0.addingTimeInterval(120)
+    _ = machine.enter(
+      block: block, ledger: GateLedger(), state: &state, now: later, monotonic: boot)
+    let second = try #require(machine.startSession(minutes: 5, state: &state, now: later))
+    #expect(second.replaced == [first.session])
+    #expect(state.sessions == [apart, second.session])
+    let ended = machine.sessionEnded(second.replaced[0], at: later)
+    #expect(ended.kind == .sessionEnded && ended.occurredAt == later)
+    #expect(ended.appRefs == ["ig"] && ended.sessionMinutes == 15)
+  }
+
   @Test func stateWrittenBeforeOriginsStillDecodes() throws {
     let json = """
       {"blocks":[],"sessions":[],"resetHour":4,"notificationsAllowed":false,"unblocks":{},

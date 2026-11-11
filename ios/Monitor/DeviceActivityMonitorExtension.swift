@@ -30,10 +30,12 @@ final class DeviceActivityMonitorExtension: DeviceActivityMonitor {
   }
 
   /// A callback never ends a session by itself. Reconciling ends only those whose persisted expiry
-  /// has passed, so an early or stray callback cannot cut one short (G-6).
+  /// has passed, so an early or stray callback cannot cut one short (G-6). The monotonic reading
+  /// keeps a clock set back mid-session from holding the shield down (G-9).
   private func reconcile(_ edge: String, _ activity: DeviceActivityName) {
     let ended = reconciler.reconcile(
-      now: Date(), timeZone: .current, source: "\(edge):\(activity.rawValue)")
+      now: Date(), timeZone: .current, source: "\(edge):\(activity.rawValue)",
+      monotonic: SystemClock().monotonic)
     for session in ended {
       write(
         .sessionEnded, session: session,

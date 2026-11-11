@@ -143,15 +143,18 @@ public actor GateService {
   /// the pass, which counts from the moment it is used (G-6, G-7).
   public func startSession(minutes: Int) async -> ActiveSession? {
     let now = clock.now
-    var start: (session: ActiveSession, pass: GateEvent)?
+    var start: (session: ActiveSession, pass: GateEvent, replaced: [ActiveSession])?
     gateStore.update { state in
       machine.expireStalePass(state: &state, now: now)
-      start = machine.startSession(minutes: minutes, state: &state, now: now)
+      start = machine.startSession(
+        minutes: minutes, state: &state, now: now, monotonic: clock.monotonic)
     }
     guard let start else { return nil }
-    try? await store.record([start.pass])
+    // A session the new one took over is already out of the state, so no reconcile will end it.
+    try? await store.record(start.replaced.map { machine.sessionEnded($0, at: now) } + [start.pass])
     await reconcileShield(now: now, source: "session-start")
     #if os(iOS)
+      if !start.replaced.isEmpty { ActivityScheduler().stop(sessions: start.replaced) }
       do {
         try ActivityScheduler().start(session: start.session, calendar: math.calendar)
       } catch {
@@ -188,11 +191,13 @@ public actor GateService {
   }
 
   /// Ends sessions past their expiry, applies the shield and records `session_ended` for each (G-6).
-  /// Returns whether any ended.
+  /// Returns whether any ended. The monotonic reading keeps a clock set back from stretching one (G-9).
   @discardableResult
   private func reconcileShield(now: Date, source: String) async -> Bool {
     #if os(iOS)
-      let ended = ShieldReconciler().reconcile(now: now, timeZone: clock.timeZone, source: source)
+      let ended = ShieldReconciler().reconcile(
+        now: now, timeZone: clock.timeZone, source: source, monotonic: clock.monotonic,
+        tolerance: TimeInterval(config.gate.clockSkewToleranceSeconds))
       try? await store.record(ended.map { machine.sessionEnded($0, at: now) })
       return !ended.isEmpty
     #else

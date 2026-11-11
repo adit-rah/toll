@@ -120,15 +120,19 @@ public struct GateMachine: Sendable {
   }
 
   /// The session picker's button (G-6). The pass is used here, so this is where it is recorded
-  /// (G-7). The session cannot be extended; a new request follows it.
-  public func startSession(minutes: Int, state: inout SharedGateState, now: Date)
-    -> (session: ActiveSession, pass: GateEvent)?
-  {
+  /// (G-7). The session cannot be extended; a new request follows it. A running session that shares
+  /// an app with the new one ends here and is returned, so the caller can record `session_ended` and
+  /// stop its activity: nothing else would ever see it again.
+  public func startSession(
+    minutes: Int, state: inout SharedGateState, now: Date, monotonic: MonotonicInstant? = nil
+  ) -> (session: ActiveSession, pass: GateEvent, replaced: [ActiveSession])? {
     guard let pending = state.pendingPass else { return nil }
     state.pendingPass = nil
     let session = ActiveSession(
-      appRefs: pending.appRefs, minutes: minutes, startedAt: now, blockRef: pending.blockRef)
-    state.sessions.removeAll { !Set($0.appRefs).isDisjoint(with: session.appRefs) }
+      appRefs: pending.appRefs, minutes: minutes, startedAt: now, blockRef: pending.blockRef,
+      startedMonotonic: monotonic)
+    let replaced = state.sessions.filter { !Set($0.appRefs).isDisjoint(with: session.appRefs) }
+    state.sessions.removeAll { replaced.contains($0) }
     state.sessions.append(session)
     state.lastSessionMinutes = minutes
     var pass = event(.pass, at: now)
@@ -137,7 +141,7 @@ public struct GateMachine: Sendable {
     pass.blockRef = pending.blockRef
     pass.free = pending.free
     pass.waitMinutes = pending.waitMinutes
-    return (session, pass)
+    return (session, pass, replaced)
   }
 
   /// "Block again": the user ends a session before its time is up.
