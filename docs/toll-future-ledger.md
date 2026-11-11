@@ -69,6 +69,16 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A61 | API under `/v1` | Unauthenticated requests to unknown `/v1` paths get 401 (public routes are matched before auth) | backend (E3–E11) |
 | A62 | Review sign-in | `REVIEW_EMAIL` gets the fixed `REVIEW_CODE` when both are set; nobody else can | backend (E3–E11) |
 | A63 | School list at launch | Spec §15 vendors all of CA/US/GB. Launch seeds 30 schools instead (10 Canadian, the Ivy League, 12 others in the US top 20); the full list stays in `seed/schools-all.sql` | `api/seed/schools-launch.sql` |
+| A64 | App picker on arrival (11 Nov, owner review on device) | The picker never opens by itself: Block these, New block and Add another all arrive on the empty apps card and "Choose apps" opens it. Reverses the §9 "picker opens on arrival" | spec §9, flows §5, §14 — decided |
+| A65 | Home stack navigation | Every push in the Home stack (Settings, Blocks, New block, edit) is a value on one path with destinations at the root; a view-destination link in the middle sent Back from Blocks into New block | design §2.7 |
+| A66 | Home footer | "You opened Toll N times today." is anchored above the tab bar as a bottom safe-area inset, not the last row of the list; `label2`, because `label3` at 13 pt is under 3:1 | design §4.1, G-10 — decided (11 Nov) |
+| A67 | Fills | A card, tile or field takes the fill its page is not (`surfaceRaised` on `bg`, `surface` on `bgGrouped`); hosted controls and disabled buttons take the new translucent `fill` token. The New block mock drew `#F2F2F7` tiles on a `#F2F2F7` page | design §2.1, §2.3 |
+| A68 | Setup steps and small screens | The bar and bottom actions are pinned and the content between scrolls only when it does not fit; "never scrolls" could not hold on a 4.7-inch screen with a full apps card | design §4.3 |
+| A69 | Custom hours | Compact time pickers in two rows instead of two wheels side by side (they clip each other at phone width and overflowed the half-height sheet); the sheet is 380 pt | design §4.6 |
+| A70 | Removing an app from a block | Touch and hold the app row → Remove (or untick it in the picker). The rows are not in a List, so the swipe in flows §14 never existed | flows §5, §14 |
+| A71 | Finished blocks in setup | The compact rows above the creator are a record and do not open; blocks are edited from Settings → Blocks | design §4.3 |
+| A72 | Title when editing a block | The block's own name, else its schedule label (as A38); "New block" only for a new one | flows §14 |
+| A73 | Find your friends outside setup | People, Settings and Insights embed only the groups that belong under their heading (school under School), on `fill` | spec N-17 |
 
 ## B. Open — needs a founder decision before the relevant task
 
