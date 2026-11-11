@@ -43,17 +43,18 @@ struct WelcomeFlow: View {
       }
       .signInWithAppleButtonStyle(.black)
       .frame(height: 50)
-      .clipShape(RoundedRectangle(cornerRadius: TollRadius.button))
+      .clipShape(RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous))
       Button(Copy.Welcome.email) { model.path.append(.email) }
-        .font(TollFont.headline)
-        .frame(maxWidth: .infinity, minHeight: 50)
-        .background(TollColor.surfaceRaised, in: RoundedRectangle(cornerRadius: TollRadius.button))
-        .foregroundStyle(TollColor.label)
-        .padding(.top, 8)
+        .buttonStyle(.tollSecondary)
+        .padding(.top, TollSpacing.labelGap)
       if !asSheet {
         QuietButton(Copy.Welcome.solo, tone: .secondary) { Task { await model.continueSolo() } }
       }
-      legalLine.padding(.horizontal, 12).padding(.bottom, 28)
+      // The sheet has no quiet action above the legal line, so it needs the gap that action gives.
+      legalLine
+        .padding(.horizontal, 12)
+        .padding(.top, asSheet ? 16 : 0)
+        .padding(.bottom, TollSpacing.footerBottom)
     }
     .tollGutter()
     .background(TollColor.bg)
@@ -96,7 +97,7 @@ struct EmailView: View {
         .onSubmit { Task { await model.sendCode() } }
         .padding(.top, TollSpacing.titleGap)
       if let error = model.emailError {
-        Text(error).tollText(.subhead).padding(.top, 8)
+        Text(error).tollText(.subhead).padding(.top, TollSpacing.labelGap)
       }
       PrimaryButton(Copy.Email.send) { Task { await model.sendCode() } }
         .disabled(model.isWorking || model.email.isEmpty)
@@ -116,7 +117,7 @@ struct CodeView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       ScreenTitle(Copy.Code.title)
-      Text(Copy.Code.sentTo(model.email)).tollText(.subhead).padding(.top, 8)
+      Text(Copy.Code.sentTo(model.email)).tollText(.subhead).padding(.top, TollSpacing.labelGap)
       CodeBoxes(code: $model.code, shakeTrigger: model.shakeCount, accessibilityLabel: Copy.Code.title) { _ in
         Task { await model.codeChanged() }
       }
