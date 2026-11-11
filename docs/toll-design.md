@@ -241,11 +241,11 @@ Toll controls: title, subtitle, primary and secondary button labels, background 
 
 ### 4.4 People
 
-Grouped list. Sections: **Requests** (if any; `Avatar` without badge, name, "friends with Maya", Accept · Decline) · **Friends** (`FriendRow`s with avatars, `@handle` in `caption` after the name, week numbers, in the same improvement order as Home) · **Mutuals** (`MutualRow`s) · **In your contacts** (if contacts matching is built; `MutualRow` geometry with "Add") · **School** (one row: school name, member count, "held 71% this week" + "Find people at Waterloo" → mutuals filtered by school) · **Invite** (one row showing the user's code and a "Share invite link" `PrimaryButton`). Trailing nav item: person.badge.plus → Invite sheet.
+Grouped list, inline title. Rows sit on the system's inset-grouped cards with the row's own 60 pt height (no list padding on top of it). Sections: **Requests** (if any; `Avatar` without badge, name, "friends with Maya", Accept · Decline; stacked from the largest standard text size up) · **Friends** (`FriendRow`s with avatars, `@handle` in `caption` after the name, "14 this week · 18 last week" beneath and the trend trailing, in the same improvement order as Home) · **Mutuals** (`MutualRow`s) · **In your contacts** (if contacts matching is built; `MutualRow` geometry with "Add") · **School** (one two-line row with a chevron: school name; member count and "held 71% this week"; it opens the members list, and "Find people at Waterloo" is its VoiceOver hint; with no school, the school email field) · **Find friends** (invite code field and contacts row, the setup groups, N-17) · **Invite** (the user's code, with the "Share invite link" `PrimaryButton` beneath the card). A mutual already asked shows "Requested" as a note, not a button. Trailing nav item: person.badge.plus → Invite sheet.
 
 ### 4.5 Friend detail (sheet)
 
-A large detent sheet over Home (top at ~96 pt, grabber). Header: 44 pt `Avatar`, name `title`, `caption` "@handle · friends since Oct 12"; today's count at 40 pt + glyph; a 4-up `MetricPair` row (this week, held %, waited, clean days, each with last week beside); "Today" and "Yesterday" lists of pass lines (`subhead`, 36 pt rows, hairlines); their tagged blocks as chips. Bottom: three quiet actions in `label2`, centred: Remove friend · Block · Report. Nothing older than yesterday.
+A large detent sheet over Home (top at ~96 pt, grabber). Header: 44 pt `Avatar`, name `title`, `caption` "@handle · friends since Oct 12"; today's count at 40 pt + glyph; a 4-up `MetricPair` row (this week, held %, waited, clean days, each with last week beside); "Today" and "Yesterday" lists of pass lines (`subhead`, 36 pt rows, hairlines); their tagged blocks as chips (`fill` with `label` text: they are not actions, and accent text on the accent tint is under 4.5:1). The four metrics are equal columns (2×2 at accessibility sizes); only "this week" carries a last-week value, because the API has no others. Bottom: three quiet actions in `label2`, centred, resting on the sheet's bottom edge when the content is short: Remove friend · Block · Report. Nothing older than yesterday.
 
 ### 4.6 Blocks
 
@@ -267,7 +267,7 @@ Grouped list. Account (40 pt `Avatar`, name, `@handle`, Edit; sign out) · Schoo
 
 ### 4.9 Invite sheet
 
-A half-height sheet over People: "Your code" `caption`, the code at 44 pt semibold letter-spaced 6 pt, `PrimaryButton` "Share link" (`ShareLink`), caption "Friends who install from this link are added when they accept."
+A half-height sheet over People with a grabber: "Your code" `caption` and the code at 44 pt semibold letter-spaced 6 pt, centred in the space above; `PrimaryButton` "Share link" (`ShareLink`) and the caption "Friends who install from this link are added when they accept." on the bottom edge. The code shows at once; the button holds its place, disabled, while the link loads.
 
 ### 4.10 Session picker (wait card state)
 

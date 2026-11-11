@@ -79,6 +79,10 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A71 | Finished blocks in setup | The compact rows above the creator are a record and do not open; blocks are edited from Settings → Blocks | design §4.3 |
 | A72 | Title when editing a block | The block's own name, else its schedule label (as A38); "New block" only for a new one | flows §14 |
 | A73 | Find your friends outside setup | People, Settings and Insights embed only the groups that belong under their heading (school under School), on `fill` | spec N-17 |
+| A74 | People friend rows | The existing week line ("14 this week · 18 last week") under the name with the trend trailing; the mock's lone "14 this week" has no §10 string | design §4.4 |
+| A75 | Friend detail | "Waited" shows minutes; only "this week" has a last-week value (the API returns no others); block chips are neutral, not accent-tinted | design §4.5 |
+| A76 | Invite sheet | Code centred, action on the bottom edge (the mock stacked everything at the top and left the lower 40% blank) | design §4.9 |
+| A77 | Avatar photos | Fetched once into an in-memory thumbnail cache at the drawn size, decoded off the main actor; no disk cache beyond URLSession's | design §3.17 |
 
 ## B. Open — needs a founder decision before the relevant task
 
