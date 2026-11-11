@@ -33,7 +33,7 @@ Record the four request ids here when filed:
 
 - **APNs key** (Keys → +, Apple Push Notifications service): download the `.p8` once. Its key id → `APNS_KEY_ID` in `api/wrangler.jsonc`; the file contents → `wrangler secret put APNS_PRIVATE_KEY`.
 - **Sign in with Apple key** (Keys → +, Sign in with Apple, primary App ID `com.advan.toll`): key id → `APPLE_KEY_ID`; contents → `wrangler secret put APPLE_PRIVATE_KEY`. The Worker uses it to exchange the authorization code and to revoke tokens on account deletion (spec §13).
-- **Team id** → `APPLE_TEAM_ID` in `api/wrangler.jsonc` (both environments) and `DEVELOPMENT_TEAM` in `ios/Config/Signing.xcconfig` (git-ignored; create it).
+- **Team id** → `APPLE_TEAM_ID` in `api/wrangler.jsonc` (both environments) and `DEVELOPMENT_TEAM` in `ios/Config/Base.xcconfig` (committed, because Xcode Cloud reads only committed files).
 
 ## 4. Associated domains
 
