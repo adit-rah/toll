@@ -49,6 +49,10 @@ struct BlockAppsCard: View {
       }
     }
     .frame(minHeight: TollSpacing.rowMinHeight)
+    .contentShape(Rectangle())
+    .contextMenu {
+      Button(Copy.Blocks.remove, role: .destructive) { model.remove(ref) }
+    }
   }
 
   private func moreRow(_ hidden: Int) -> some View {

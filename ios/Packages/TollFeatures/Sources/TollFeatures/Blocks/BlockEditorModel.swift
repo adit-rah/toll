@@ -5,8 +5,9 @@ import TollCore
 import TollData
 import TollScreenTime
 
-/// One editor for setup's "Block these" and for New block / edit (flows §5, §14). The picker opens on
-/// arrival; apps are listed with their friends-facing tag; When chips; optional name; Done.
+/// One editor for setup's "Block these" and for New block / edit (flows §5, §14). Apps are listed with
+/// their friends-facing tag; When chips; optional name; Done. The picker opens only when asked for:
+/// arriving on a system sheet nobody requested hid the screen it belonged to.
 @MainActor
 @Observable
 public final class BlockEditorModel {
@@ -52,7 +53,7 @@ public final class BlockEditorModel {
   public var canFinish: Bool { !refs.isEmpty && !overLimit && !isSaving }
   public var hasChanges: Bool {
     guard let original else { return !refs.isEmpty }
-    return original.appRefs != refs || original.schedule != schedule || (original.name ?? "") != name
+    return Set(original.appRefs) != Set(refs) || original.schedule != schedule || (original.name ?? "") != name
   }
 
   public func load() async {
@@ -61,8 +62,6 @@ public final class BlockEditorModel {
       schedule = block.schedule
       name = block.name ?? ""
       selection = TokenRegistry().selection(for: block.appRefs)
-    } else {
-      pickerPresented = true
     }
     otherTokens = await app.deps.blocks.tokenCount(excluding: original?.id)
     await loadTags()
@@ -70,7 +69,12 @@ public final class BlockEditorModel {
 
   private func selectionChanged() async {
     let result = app.deps.blocks.refs(for: selection)
-    refs = result.refs
+    // The picker hands back sets, so its order is arbitrary. Keeping the order already on screen stops
+    // rows reshuffling after "Choose more" and stops an untouched block from looking edited.
+    let chosen = Set(result.refs)
+    let known = (refs.isEmpty ? original?.appRefs ?? [] : refs).filter(chosen.contains)
+    let seen = Set(known)
+    refs = known + result.refs.filter { !seen.contains($0) }
     kinds = result.kinds
     await loadTags()
   }
@@ -109,27 +113,31 @@ public final class BlockEditorModel {
   /// Saves and records the change; the shield applies on Done (flows §5).
   @discardableResult
   public func done() async -> Bool {
-    guard canFinish else { return false }
+    await save() != nil
+  }
+
+  private func save() async -> StoredBlock? {
+    guard canFinish else { return nil }
     isSaving = true
     defer { isSaving = false }
+    let saved = block()
     do {
-      try await app.deps.blocks.save(block(), kinds: kinds)
-      return true
+      try await app.deps.blocks.save(saved, kinds: kinds)
+      return saved
     } catch {
-      return false
+      return nil
     }
   }
 
-  /// "Add another block": the finished block becomes a compact row above, the picker opens again.
+  /// "Add another block": the finished block becomes a compact row above and the creator empties.
   public func addAnother() async {
-    guard await done() else { return }
-    finished.append(block())
+    guard let saved = await save() else { return }
+    finished.append(saved)
     original = nil
     selection = FamilyActivitySelection()
     schedule = .always
     name = ""
     otherTokens = await app.deps.blocks.tokenCount(excluding: nil)
-    pickerPresented = true
   }
 
   /// Compact rows collapse into one line on a second Add another (design §4.3).

@@ -85,7 +85,7 @@ Motion in Toll explains where things came from and where they went. It never cel
 | Any step push | The system navigation transition. The progress segment fills left to right over 250 ms as the new screen lands, not before. |
 | Returning from the app picker | The apps card is already in place; its rows fade in and rise 6 pt with a 40 ms stagger, once. A second return adds only the new rows the same way. |
 | Selecting a When tile | Fill crossfades 200 ms; the tile scales 0.98 → 1 on release. The previously selected tile fades out its fill, nothing else moves. |
-| Add another block | The creator's apps card shrinks into the compact row above (`matchedGeometryEffect` on the icon cluster and names), 300 ms; the picker rises as that lands. |
+| Add another block | The creator's apps card shrinks into the compact row above (`matchedGeometryEffect` on the icon cluster and names), 300 ms, leaving the card empty. The picker does not open by itself. |
 | Welcome → sign-in sheet | System sheet. On success the sheet drops and the next step pushes in one motion; no intermediate blank. |
 | Code boxes | The active ring moves to the next box 150 ms; a wrong code shakes the row ±6 pt twice over 300 ms and the boxes clear on the way back; a correct sixth digit pushes the next screen with no button. |
 | Handle availability | The check mark fades in 200 ms after the server answers; never a spinner for under 300 ms. |
@@ -251,7 +251,7 @@ A large detent sheet over Home (top at ~96 pt, grabber). Header: 44 pt `Avatar`,
 
 Grouped background, inline title. One grouped card of `BlockRow`s (one chevron per row; an empty list says "Nothing blocked yet"); caption beneath "Removing a block is shown to your friends." `PrimaryButton` "Add a block" on a bottom bar (§2.1).
 
-**New block** — pushed; the picker opens at once; on return: the chosen apps card (system `Label(token)` icon + name, and on the right the friends-facing tag in `caption`, tappable → tag chips), a "Choose more" row, a `micro` line ("Names on the right are what friends see. Tap to change."), `WhenChips`, a "Block name" row (caption "Optional. Only you see it."), Done. Editing an existing block opens the same screen prefilled.
+**New block** — pushed, inline title, arriving on the empty apps card ("+ Choose apps"); the picker opens only from that row. Back from the picker: the chosen apps card (system `Label(token)` icon + name, and on the right the friends-facing tag in `caption`, tappable → tag chips), a "Choose more" row, a `micro` line ("Names on the right are what friends see. Tap to change."), `WhenChips`, a "Block name" row (caption "Optional. Only you see it."), Done. Editing an existing block opens the same screen prefilled.
 
 **Custom hours** — a 380 pt sheet over New block (full height at accessibility text sizes): "Custom" `title`; From and Until as two rows in one card, each with the system's compact time picker (two wheels side by side clip each other at phone width); a day row of seven equal tiles across the full width (44 pt tall, selected = `accent`); Done at the bottom. Choosing Custom in `WhenChips` opens it; Done returns with the Custom tile showing the chosen window.
 

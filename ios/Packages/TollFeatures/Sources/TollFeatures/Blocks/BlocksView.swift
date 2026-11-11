@@ -17,7 +17,7 @@ struct BlocksView: View {
           Text(Copy.Home.nothingBlocked).font(TollFont.body).foregroundStyle(TollColor.label2)
         }
         ForEach(blocks ?? []) { block in
-          NavigationLink(value: BlockRoute.edit(block.id)) {
+          NavigationLink(value: HomeRoute.editBlock(block.id)) {
             // The link draws the chevron.
             BlockRow(schedule: Copy.Schedules.label(block.schedule), showsChevron: false) {
               AppIconCluster(block.appRefs)
@@ -35,25 +35,21 @@ struct BlocksView: View {
     }
     .navigationTitle(Copy.Blocks.title)
     .navigationBarTitleDisplayMode(.inline)
-    .navigationDestination(for: BlockRoute.self) { route in
-      switch route {
-      case .new: BlockEditorView(app: app, mode: .new)
-      case .edit(let id): BlockEditorView(app: app, mode: .edit(id))
-      }
-    }
     .tollBottomBar {
-      NavigationLink(value: BlockRoute.new) {
+      NavigationLink(value: HomeRoute.newBlock) {
         Text(Copy.Blocks.add)
       }
       .buttonStyle(.tollPrimary)
       .disabled(!BlockLimits.canAddBlock(existing: blocks?.count ?? 0, config: app.config.blocks))
     }
+    // `presenting` hands the block to the button; reading `removing` there is too late, because the
+    // dialog clears it as it closes.
     .confirmationDialog(
-      removing.map { Copy.Blocks.removeConfirm(name(of: $0)) } ?? "", isPresented: .init(
-        get: { removing != nil }, set: { if !$0 { removing = nil } }), titleVisibility: .visible
-    ) {
+      removing.map { Copy.Blocks.removeConfirm(name(of: $0)) } ?? "",
+      isPresented: .init(get: { removing != nil }, set: { if !$0 { removing = nil } }),
+      titleVisibility: .visible, presenting: removing
+    ) { block in
       Button(Copy.Blocks.remove, role: .destructive) {
-        guard let block = removing else { return }
         Haptics.warning()
         Task { try? await app.deps.blocks.remove(block.id) }
       }
@@ -79,7 +75,12 @@ struct BlocksView: View {
   }
 }
 
-enum BlockRoute: Hashable {
-  case new
-  case edit(BlockRef)
+/// Every push in the Home stack is a value on its path, declared once at the stack's root. A
+/// view-destination link in the middle (Settings to Blocks used one) left the path a screen short of
+/// what was showing, so popping New block and then going back opened New block again.
+enum HomeRoute: Hashable {
+  case settings
+  case blocks
+  case newBlock
+  case editBlock(BlockRef)
 }

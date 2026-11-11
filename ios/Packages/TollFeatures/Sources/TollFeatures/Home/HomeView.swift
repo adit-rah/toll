@@ -13,8 +13,6 @@ struct HomeView: View {
   @State private var inviteShown = false
   @State private var personAction: (PersonAction, PersonRef)?
 
-  enum Destination: Hashable { case settings, newBlock }
-
   var body: some View {
     NavigationStack(path: $path) {
       ScrollView {
@@ -25,14 +23,16 @@ struct HomeView: View {
       .safeAreaInset(edge: .bottom, spacing: 0) { opensFooter }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
-          Button { path.append(Destination.settings) } label: { Image(systemName: "gearshape") }
+          Button { path.append(HomeRoute.settings) } label: { Image(systemName: "gearshape") }
             .accessibilityLabel(Copy.Settings.title)
         }
       }
-      .navigationDestination(for: Destination.self) { destination in
-        switch destination {
+      .navigationDestination(for: HomeRoute.self) { route in
+        switch route {
         case .settings: SettingsView(app: app)
+        case .blocks: BlocksView(app: app)
         case .newBlock: BlockEditorView(app: app, mode: .new)
+        case .editBlock(let id): BlockEditorView(app: app, mode: .edit(id))
         }
       }
       .sheet(item: $detail) { friend in FriendDetailView(app: app, friend: friend) }
@@ -44,6 +44,13 @@ struct HomeView: View {
       await model?.start()
     }
     .onChange(of: app.gate) { _, _ in Task { await model?.updateDeviceState() } }
+    // Blocks are added and removed on screens pushed over Home, which never re-runs the task above;
+    // without this the "Nothing blocked yet" line outlives the block that answers it.
+    .task {
+      do {
+        for try await _ in app.deps.store.observeBlocks() { await model?.updateDeviceState() }
+      } catch {}
+    }
   }
 
   @ViewBuilder
@@ -121,9 +128,9 @@ struct HomeView: View {
     case .screenTimeOff:
       PinnedRow(Copy.Home.screenTimeOff, actionTitle: Copy.Home.fix) { Task { await model.fixScreenTime() } }
     case .blocksNeedRepicking:
-      PinnedRow(Copy.Home.blocksNeedRepicking, actionTitle: Copy.Home.fix) { path.append(Destination.settings) }
+      PinnedRow(Copy.Home.blocksNeedRepicking, actionTitle: Copy.Home.fix) { path.append(HomeRoute.blocks) }
     case .nothingBlocked:
-      PinnedRow(Copy.Home.nothingBlocked, actionTitle: Copy.Home.addApps) { path.append(Destination.newBlock) }
+      PinnedRow(Copy.Home.nothingBlocked, actionTitle: Copy.Home.addApps) { path.append(HomeRoute.newBlock) }
     case .none:
       EmptyView()
     }

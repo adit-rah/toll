@@ -97,12 +97,12 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  S0([Arrive with no block]) -. picker opens at once .-> PK[[Apple app picker]]
+  S0([Arrive with no block]) --> B0[Block these, empty<br>Done disabled · 'Choose apps']
+  B0 -- Choose apps --> PK[[Apple app picker]]
   PK -- chose apps / categories --> B[Block these<br>apps card · When tiles · Done · Add another block]
-  PK -- cancelled, nothing chosen --> B0[Block these, empty<br>Done disabled · 'Choose apps']
-  B0 -- Choose apps --> PK
+  PK -- cancelled, nothing chosen --> B0
   B -- Choose more --> PK
-  B -- remove an app, swipe --> B
+  B -- remove an app, touch and hold --> B
   B -- tap a When tile: Always / Nights / Weekdays --> B
   B -- tap Custom --> CU[Custom hours sheet<br>From · Until · days · Done]
   CU -- Done --> B
@@ -111,7 +111,7 @@ flowchart TD
   B -- Done --> D{Signed in, no friends,<br>no school?}
   D -- yes --> P4[Set up 4 · Find your friends]
   D -- no --> H[Home]
-  B -- Add another block --> SV[Block saved · appears as a compact row above] -. picker opens .-> PK
+  B -- Add another block --> SV[Block saved · appears as a compact row above] --> B0
   B -- tap a saved compact row --> BE[Edit that block] --> B
   B -. shield applies on Done .-> H
 ```
@@ -267,7 +267,7 @@ flowchart TD
 ```mermaid
 flowchart TD
   BL[Blocks<br>rows · Add a block]
-  BL -- Add a block -. picker opens .-> NB[New block<br>apps · tags · When · name · Done]
+  BL -- Add a block --> NB[New block<br>apps · tags · When · name · Done]
   BL -- tap a row --> NB
   BL -- swipe a row: Remove --> RM{'Remove Instagram? Your friends will see this.'}
   RM -- Remove -. block_removed · pinned for friends .-> BL
@@ -275,7 +275,7 @@ flowchart TD
   BL -- 8 blocks reached --> BL1[Add a block disabled] 
   NB -- Choose more --> PK[[App picker]] --> NB
   NB -- tap an app's tag --> TC[Tag chips] -- choose --> NB
-  NB -- swipe an app: remove from block --> NB
+  NB -- touch and hold an app: remove from block --> NB
   NB -- When tile --> NB
   NB -- Custom --> CU[Custom hours sheet] -- Done --> NB
   NB -- Block name --> NM[Text field · Done] --> NB
