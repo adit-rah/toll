@@ -3,8 +3,8 @@ import TollCore
 import TollData
 import TollUI
 
-/// Home (design §4.1): you, centred; then pinned lines; then friends by improvement; the Toll-opens
-/// footer last and quietest.
+/// Home (design §4.1): you, centred; then pinned lines; then friends by improvement. The Toll-opens
+/// footer is the quietest thing on the screen and sits on the tab bar, wherever the list has scrolled.
 struct HomeView: View {
   let app: AppModel
   @State private var model: HomeModel?
@@ -22,6 +22,7 @@ struct HomeView: View {
       }
       .background(TollColor.bg)
       .refreshable { await model?.refresh() }
+      .safeAreaInset(edge: .bottom, spacing: 0) { opensFooter }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
           Button { path.append(Destination.settings) } label: { Image(systemName: "gearshape") }
@@ -50,19 +51,13 @@ struct HomeView: View {
     VStack(spacing: 0) {
       deviceLine(model)
       if let session = model.activeSession, let ref = session.appRefs.first {
-        HStack(spacing: 4) {
-          AppLabel(ref)
-          Text(Copy.Home.sessionActiveRest(minutes: session.minutes))
-        }
-        .tollText(.bodyMedium)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 12)
-        .transition(Motion.pinnedLine)
+        sessionLine(ref, minutes: session.minutes)
+          .transition(Motion.pinnedLine)
       }
       hero(model)
         .padding(.top, TollSpacing.heroTop)
         .padding(.bottom, TollSpacing.heroToList)
-      ForEach(Array((model.home?.pinned ?? []).enumerated()), id: \.offset) { _, pin in
+      ForEach(model.home?.pinned ?? [], id: \.self) { pin in
         Button { detail = model.home?.friends.first { $0.user.id == pin.user.id } } label: {
           PinnedRow(FriendFormatting.pinned(pin))
         }
@@ -70,14 +65,54 @@ struct HomeView: View {
         .transition(Motion.pinnedLine)
       }
       friends(model)
-      Spacer(minLength: 32)
-      Text(Copy.Home.tollOpens(app.tollOpensToday))
-        .tollText(.caption)
-        .foregroundStyle(TollColor.label3)
-        .padding(.bottom, 24)
     }
+    .padding(.bottom, TollSpacing.sectionGap)
     .tollGutter()
     .animation(Motion.movement, value: model.home)
+  }
+
+  /// Anchored to the bottom safe area instead of the end of the list, so it is in the same place with
+  /// no friends and with forty. Rows fade out under its top edge rather than colliding with the text.
+  private var opensFooter: some View {
+    Text(Copy.Home.tollOpens(app.tollOpensToday))
+      .tollText(.caption)
+      .monospacedDigit()
+      .multilineTextAlignment(.center)
+      .frame(maxWidth: .infinity)
+      .padding(.top, Self.footerFade + 4)
+      .padding(.bottom, TollSpacing.labelGap)
+      .tollGutter()
+      .background {
+        VStack(spacing: 0) {
+          LinearGradient(
+            colors: [TollColor.bg.opacity(0), TollColor.bg], startPoint: .top, endPoint: .bottom
+          )
+          .frame(height: Self.footerFade)
+          TollColor.bg
+        }
+        .ignoresSafeArea(edges: .bottom)
+      }
+      .allowsHitTesting(false)
+  }
+
+  private static let footerFade: CGFloat = 20
+
+  /// The session line shares the pinned rows' geometry: the accent dot in the avatar's slot.
+  private func sessionLine(_ ref: AppRef, minutes: Int) -> some View {
+    HStack(spacing: TollSpacing.rowLeadingGap) {
+      Circle()
+        .fill(TollColor.accent)
+        .frame(width: 8, height: 8)
+        .frame(width: TollSpacing.rowLeadingSlot)
+        .accessibilityHidden(true)
+      HStack(spacing: 4) {
+        AppLabel(ref)
+        Text(Copy.Home.sessionActiveRest(minutes: minutes))
+      }
+      .tollText(.bodyMedium)
+    }
+    .frame(maxWidth: .infinity, minHeight: TollSpacing.rowMinHeight, alignment: .leading)
+    .accessibilityElement(children: .combine)
   }
 
   @ViewBuilder
@@ -114,6 +149,7 @@ struct HomeView: View {
   private func friends(_ model: HomeModel) -> some View {
     if app.isSignedIn {
       SectionHeader(Copy.Home.friendsHeader, trailing: model.home?.friendsHeldPercent.map(Copy.Home.friendsHeldShort))
+        .padding(.bottom, 4)
       if let stale = model.staleSince {
         Text(Copy.Home.lastSynced(stale.formatted(.relative(presentation: .named))))
           .tollText(.caption)
