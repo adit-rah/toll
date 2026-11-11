@@ -24,36 +24,59 @@ public struct GateMachine: Sendable {
     appRef: AppRef, ledger: GateLedger, state: inout SharedGateState, now: Date,
     monotonic: MonotonicInstant?
   ) -> [GateEvent] {
+    let blockRef = state.blocks.first { $0.appRefs.contains(appRef) }?.id
+    return request(
+      [appRef], origin: .shield, blockRef: blockRef, ledger: ledger, state: &state, now: now,
+      monotonic: monotonic)
+  }
+
+  /// Unblock inside Toll (G-3): the same gate as a shield hit, for every app in the block at once.
+  /// The caller records no `block_hit`, because nothing was hit.
+  public func enter(
+    block: BlockDefinition, ledger: GateLedger, state: inout SharedGateState, now: Date,
+    monotonic: MonotonicInstant?
+  ) -> [GateEvent] {
+    request(
+      block.appRefs, origin: .app, blockRef: block.id, ledger: ledger, state: &state, now: now,
+      monotonic: monotonic)
+  }
+
+  /// Granting a pass records nothing: it becomes a `pass` event only when it is used
+  /// (`startSession`), so one that is discarded or lapses costs neither a free pass nor a step on
+  /// the wait ladder.
+  private func request(
+    _ refs: [AppRef], origin: PendingPass.Origin, blockRef: BlockRef?, ledger: GateLedger,
+    state: inout SharedGateState, now: Date, monotonic: MonotonicInstant?
+  ) -> [GateEvent] {
+    guard let primary = refs.first else { return [] }
     if var pending = state.pendingPass {
-      if !pending.appRefs.contains(appRef) { pending.appRefs.append(appRef) }
+      for ref in refs where !pending.appRefs.contains(ref) { pending.appRefs.append(ref) }
+      pending.deferred = false
       state.pendingPass = pending
       return []
     }
     switch GateRules.entry(ledger: ledger, runningWait: state.wait, config: config) {
     case .joinWait:
-      state.wait?.join(appRef)
+      state.wait?.join(refs)
       return []
     case .freePass:
-      state.pendingPass = PendingPass(appRefs: [appRef], free: true, waitMinutes: 0, grantedAt: now)
-      var pass = event(.pass, at: now)
-      pass.appRef = appRef
-      pass.appRefs = [appRef]
-      pass.free = true
-      pass.waitMinutes = 0
-      return [pass]
+      state.pendingPass = PendingPass(
+        appRefs: refs, free: true, waitMinutes: 0, grantedAt: now, origin: origin,
+        blockRef: blockRef)
+      return []
     case .startWait(let minutes, let number):
       state.wait = Wait(
-        appRef: appRef, number: number, minutes: minutes, startedAt: now,
-        startedMonotonic: monotonic)
+        appRefs: refs, number: number, minutes: minutes, startedAt: now,
+        startedMonotonic: monotonic, origin: origin, blockRef: blockRef)
       var started = event(.waitStarted, at: now)
-      started.appRef = appRef
+      started.appRef = primary
       started.waitMinutes = minutes
       return [started]
     }
   }
 
-  /// Turns a finished wait into a waited pass. Called whenever Toll is in front (G-4: the user comes back
-  /// when they come back; nothing notifies them).
+  /// Turns a finished wait into a pending waited pass. Called whenever Toll is in front (G-4: the user
+  /// comes back when they come back; nothing notifies them).
   public func tick(state: inout SharedGateState, now: Date, monotonic: MonotonicInstant?)
     -> [GateEvent]
   {
@@ -64,16 +87,12 @@ public struct GateMachine: Sendable {
     }
     state.wait = nil
     state.pendingPass = PendingPass(
-      appRefs: wait.appRefs, free: false, waitMinutes: wait.minutes, grantedAt: now)
+      appRefs: wait.appRefs, free: false, waitMinutes: wait.minutes, grantedAt: now,
+      origin: wait.origin ?? .shield, blockRef: wait.blockRef)
     var completed = event(.waitCompleted, at: now)
     completed.appRef = wait.primaryApp
     completed.waitMinutes = wait.minutes
-    var pass = event(.pass, at: now)
-    pass.appRef = wait.primaryApp
-    pass.appRefs = wait.appRefs
-    pass.free = false
-    pass.waitMinutes = wait.minutes
-    return [completed, pass]
+    return [completed]
   }
 
   /// Only the user's Cancel abandons a wait (G-5).
@@ -86,18 +105,45 @@ public struct GateMachine: Sendable {
     return [abandoned]
   }
 
-  /// The session picker's Open (G-6). The session cannot be extended; a new request follows it.
-  public func startSession(minutes: Int, state: inout SharedGateState, now: Date) -> ActiveSession?
+  /// "Not now" on a pass that came from a shield: kept for the day, with the picker out of the way.
+  public func deferPass(state: inout SharedGateState) {
+    state.pendingPass?.deferred = true
+  }
+
+  public func resumePass(state: inout SharedGateState) {
+    state.pendingPass?.deferred = false
+  }
+
+  /// "Not now" on a pass asked for inside Toll: dropped. Nothing was recorded for it.
+  public func discardPass(state: inout SharedGateState) {
+    state.pendingPass = nil
+  }
+
+  /// The session picker's button (G-6). The pass is used here, so this is where it is recorded
+  /// (G-7). The session cannot be extended; a new request follows it.
+  public func startSession(minutes: Int, state: inout SharedGateState, now: Date)
+    -> (session: ActiveSession, pass: GateEvent)?
   {
     guard let pending = state.pendingPass else { return nil }
     state.pendingPass = nil
     let session = ActiveSession(
-      appRefs: pending.appRefs, minutes: minutes, startedAt: now,
-      windowMinutes: config.sessionWindowMinutes)
+      appRefs: pending.appRefs, minutes: minutes, startedAt: now, blockRef: pending.blockRef)
     state.sessions.removeAll { !Set($0.appRefs).isDisjoint(with: session.appRefs) }
     state.sessions.append(session)
     state.lastSessionMinutes = minutes
-    return session
+    var pass = event(.pass, at: now)
+    pass.appRef = pending.appRefs.first
+    pass.appRefs = pending.appRefs
+    pass.blockRef = pending.blockRef
+    pass.free = pending.free
+    pass.waitMinutes = pending.waitMinutes
+    return (session, pass)
+  }
+
+  /// "Block again": the user ends a session before its time is up.
+  public func endSession(_ id: UUID, state: inout SharedGateState) -> ActiveSession? {
+    guard let index = state.sessions.firstIndex(where: { $0.id == id }) else { return nil }
+    return state.sessions.remove(at: index)
   }
 
   public func sessionEnded(_ session: ActiveSession, at date: Date) -> GateEvent {

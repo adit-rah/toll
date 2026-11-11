@@ -50,7 +50,7 @@ public final class GateModel {
       guard let current = app.gate.wait, current.id == wait.id else { return }
       showWait(current)
       startTicking()
-    } else if app.gate.pendingPass != nil {
+    } else if let pending = app.gate.pendingPass, !pending.deferred {
       if phase != .choosing {
         if case .waiting = phase { Haptics.light() }
         // Only on arrival: a later sync must not undo the length the user has just picked.
@@ -163,6 +163,17 @@ public final class GateModel {
   public func open() async {
     _ = await app.deps.gate.startSession(minutes: selectedMinutes)
     app.setGate(await app.deps.gate.state)
+    await sync()
+  }
+
+  /// A pass that came from a shield is kept for the day; one asked for inside Toll is dropped. Neither
+  /// was recorded, so neither costs anything (G-6).
+  public func notNow() async {
+    guard let pending = app.gate.pendingPass else { return }
+    switch pending.origin {
+    case .shield: app.setGate(await app.deps.gate.deferPendingPass())
+    case .app: app.setGate(await app.deps.gate.discardPendingPass())
+    }
     await sync()
   }
 }

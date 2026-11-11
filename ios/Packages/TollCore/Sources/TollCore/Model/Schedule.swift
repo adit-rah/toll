@@ -54,4 +54,32 @@ public struct Schedule: Codable, Hashable, Sendable {
     return (days.contains(weekday) && minute >= start.minuteOfDay)
       || (days.contains(weekday.previous) && minute < end.minuteOfDay)
   }
+
+  /// The next instant after `date` at which `isActive` changes, or nil when it never does (always
+  /// on, no days, or every day all day). Candidates are the window's clock times and midnight on each
+  /// coming day, plus the zone's own clock change: on a DST day a clock time can be missing or come
+  /// twice, and `isActive` reads the local clock, so the edge is wherever its answer actually flips.
+  public func nextTransition(after date: Date, in math: DayMath) -> Date? {
+    if kind == .always || days.isEmpty || (start == end && days == Weekday.all) { return nil }
+    let calendar = math.calendar
+    let clockTimes = Set([start, end, ClockTime(hour: 0)]).map {
+      DateComponents(hour: $0.hour, minute: $0.minute, second: 0)
+    }
+    let active = isActive(at: date, in: math)
+    // A single-day block is at most seven days from its next start.
+    guard let horizon = calendar.date(byAdding: .day, value: 8, to: date) else { return nil }
+    var cursor = date
+    while cursor < horizon {
+      var candidates = clockTimes.compactMap {
+        calendar.nextDate(after: cursor, matching: $0, matchingPolicy: .nextTime)
+      }
+      if let shift = calendar.timeZone.nextDaylightSavingTimeTransition(after: cursor) {
+        candidates.append(shift)
+      }
+      guard let next = candidates.min() else { return nil }
+      if isActive(at: next, in: math) != active { return next }
+      cursor = next
+    }
+    return nil
+  }
 }

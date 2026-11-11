@@ -67,8 +67,13 @@ struct HomeView: View {
     VStack(spacing: 0) {
       deviceLine(model)
       if let session = model.activeSession, let ref = session.appRefs.first {
-        sessionLine(ref, minutes: session.minutes)
-          .tollTransition(Motion.pinnedLine)
+        // Ticks on the session's own minutes, so the number changes exactly when a minute is used up.
+        TimelineView(.periodic(from: session.startedAt, by: 60)) { context in
+          if !session.isExpired(at: context.date) {
+            sessionLine(ref, minutesLeft: session.minutesLeft(at: context.date))
+          }
+        }
+        .tollTransition(Motion.pinnedLine)
       }
       hero(model)
         .padding(.top, TollSpacing.heroTop)
@@ -114,7 +119,7 @@ struct HomeView: View {
   private static let footerFade: CGFloat = 20
 
   /// The session line shares the pinned rows' geometry: the accent dot in the avatar's slot.
-  private func sessionLine(_ ref: AppRef, minutes: Int) -> some View {
+  private func sessionLine(_ ref: AppRef, minutesLeft: Int) -> some View {
     HStack(spacing: TollSpacing.rowLeadingGap) {
       Circle()
         .fill(TollColor.accent)
@@ -123,7 +128,7 @@ struct HomeView: View {
         .accessibilityHidden(true)
       HStack(spacing: 4) {
         AppLabel(ref)
-        Text(Copy.Home.sessionActiveRest(minutes: minutes))
+        Text(Copy.Home.sessionActiveRest(minutesLeft: minutesLeft))
       }
       .tollText(.bodyMedium)
     }

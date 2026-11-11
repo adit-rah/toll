@@ -10,7 +10,8 @@ public struct SharedGateState: Codable, Equatable, Sendable {
   /// The latest "Open Toll" tap not yet acted on; Toll enters the gate for it only when opened by the
   /// user within `gate.resumeWindow` (G-3), never from a background wake.
   public var pendingHit: PendingHit?
-  /// A pass granted but not yet turned into a session: the session picker is showing (G-3, G-6).
+  /// A pass granted but not yet used: the session picker is showing, or the pass was set aside. It
+  /// becomes a `pass` event only when a session starts (G-6, G-7).
   public var pendingPass: PendingPass?
   public var resetHour = TollConfig.defaults.gate.dayResetHour
   public var notificationsAllowed = false
@@ -37,16 +38,44 @@ public struct PendingHit: Codable, Hashable, Sendable {
 }
 
 public struct PendingPass: Codable, Hashable, Sendable {
+  /// Where the request came from: a shield hit, or Unblock inside Toll.
+  public enum Origin: String, Codable, Sendable {
+    case shield, app
+  }
+
   public var appRefs: [AppRef]
   public var free: Bool
   public var waitMinutes: Int
   public var grantedAt: Date
+  public var origin: Origin
+  public var blockRef: BlockRef?
+  /// Set aside with "Not now": kept for the day, but the session picker stays off screen until the
+  /// next shield hit or an explicit resume.
+  public var deferred: Bool
 
-  public init(appRefs: [AppRef], free: Bool, waitMinutes: Int, grantedAt: Date) {
+  public init(
+    appRefs: [AppRef], free: Bool, waitMinutes: Int, grantedAt: Date, origin: Origin = .shield,
+    blockRef: BlockRef? = nil, deferred: Bool = false
+  ) {
     self.appRefs = appRefs
     self.free = free
     self.waitMinutes = waitMinutes
     self.grantedAt = grantedAt
+    self.origin = origin
+    self.blockRef = blockRef
+    self.deferred = deferred
+  }
+
+  // State written before passes had an origin has neither key; such a pass came from a shield.
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    appRefs = try container.decode([AppRef].self, forKey: .appRefs)
+    free = try container.decode(Bool.self, forKey: .free)
+    waitMinutes = try container.decode(Int.self, forKey: .waitMinutes)
+    grantedAt = try container.decode(Date.self, forKey: .grantedAt)
+    origin = try container.decodeIfPresent(Origin.self, forKey: .origin) ?? .shield
+    blockRef = try container.decodeIfPresent(BlockRef.self, forKey: .blockRef)
+    deferred = try container.decodeIfPresent(Bool.self, forKey: .deferred) ?? false
   }
 }
 

@@ -17,26 +17,33 @@ public struct BlockDefinition: Codable, Hashable, Sendable, Identifiable {
   public var activityName: String { "block.\(id.rawValue)" }
 }
 
-/// A session after a pass (G-6): the unlocked apps, the minutes chosen, and the hard expiry that is the
-/// truth when callbacks are late or missing.
+/// A session after a pass (G-6): the unlocked apps and the minutes chosen. It runs on the wall clock
+/// from `startedAt`; the persisted expiry is the truth when callbacks are late or missing.
 public struct ActiveSession: Codable, Hashable, Sendable, Identifiable {
   public var id: UUID
   public var appRefs: [AppRef]
   public var minutes: Int
   public var startedAt: Date
   public var expiresAt: Date
+  public var blockRef: BlockRef?
 
   public init(
-    id: UUID = UUID(), appRefs: [AppRef], minutes: Int, startedAt: Date, windowMinutes: Int
+    id: UUID = UUID(), appRefs: [AppRef], minutes: Int, startedAt: Date, blockRef: BlockRef? = nil
   ) {
     self.id = id
     self.appRefs = appRefs
     self.minutes = minutes
     self.startedAt = startedAt
-    expiresAt = startedAt.addingTimeInterval(TimeInterval(windowMinutes * 60))
+    expiresAt = startedAt.addingTimeInterval(TimeInterval(minutes * 60))
+    self.blockRef = blockRef
   }
 
   public var activityName: String { "session.\(id.uuidString.lowercased())" }
 
   public func isExpired(at date: Date) -> Bool { date >= expiresAt }
+
+  /// Whole minutes left, rounded up, so the line reads "1 min left" until the session is over.
+  public func minutesLeft(at date: Date) -> Int {
+    max(0, Int((expiresAt.timeIntervalSince(date) / 60).rounded(.up)))
+  }
 }

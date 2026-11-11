@@ -9,17 +9,33 @@ public struct Wait: Codable, Hashable, Sendable, Identifiable {
   public var minutes: Int
   public var startedAt: Date
   public var startedMonotonic: MonotonicInstant?
+  /// Carried into the pass the wait turns into. Absent in state written before Unblock existed,
+  /// when every wait came from a shield.
+  public var origin: PendingPass.Origin?
+  public var blockRef: BlockRef?
+
+  public init(
+    id: UUID = UUID(), appRefs: [AppRef], number: Int, minutes: Int, startedAt: Date,
+    startedMonotonic: MonotonicInstant?, origin: PendingPass.Origin? = nil,
+    blockRef: BlockRef? = nil
+  ) {
+    self.id = id
+    self.appRefs = appRefs
+    self.number = number
+    self.minutes = minutes
+    self.startedAt = startedAt
+    self.startedMonotonic = startedMonotonic
+    self.origin = origin
+    self.blockRef = blockRef
+  }
 
   public init(
     id: UUID = UUID(), appRef: AppRef, number: Int, minutes: Int, startedAt: Date,
     startedMonotonic: MonotonicInstant?
   ) {
-    self.id = id
-    appRefs = [appRef]
-    self.number = number
-    self.minutes = minutes
-    self.startedAt = startedAt
-    self.startedMonotonic = startedMonotonic
+    self.init(
+      id: id, appRefs: [appRef], number: number, minutes: minutes, startedAt: startedAt,
+      startedMonotonic: startedMonotonic)
   }
 
   public var duration: TimeInterval { TimeInterval(minutes * 60) }
@@ -28,6 +44,10 @@ public struct Wait: Codable, Hashable, Sendable, Identifiable {
 
   public mutating func join(_ appRef: AppRef) {
     if !appRefs.contains(appRef) { appRefs.append(appRef) }
+  }
+
+  public mutating func join(_ refs: [AppRef]) {
+    for ref in refs { join(ref) }
   }
 
   /// G-9: within one boot, the monotonic clock wins whenever the wall clock disagrees by more than the

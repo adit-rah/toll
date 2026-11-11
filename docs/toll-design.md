@@ -219,7 +219,7 @@ Device-state line: when Screen Time is off, tokens have expired, or nothing is b
 
 The tab bar floats over the bottom; content scrolls under it.
 
-Wait running: `WaitOverlay` over all of the above. Session active: a thin `PinnedRow`-styled line at the top of Home: "Instagram is open · ends after 10 min of use." (fact; no countdown).
+Wait running: `WaitOverlay` over all of the above. Session active: a thin `PinnedRow`-styled line at the top of Home: "Instagram is open · 7 min left" (fact; whole minutes, no ticking seconds).
 
 Refresh: pull-to-refresh syncs. Last-synced timestamp is shown only if older than 1 hour (`caption` under Friends header).
 

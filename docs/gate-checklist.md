@@ -70,7 +70,10 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] Outside a Nights block's window the app opens normally and nothing is recorded.
 
 ## 8. The gate (flows §9, §10; spec G-3…G-10)
-- [ ] First two opens of the day: free pass → session picker at once ("How long?"), no wait card.
+- [ ] First two opens of the day: free pass → session picker at once ("How long?", "From now. The block returns after."), no wait card.
+- [ ] Free pass → picker → "Not now": the card leaves, Home's count does not move, friends see nothing. Tap the same app again → shield → Open Toll → the picker is back, still a free pass. Open it → now "1 pass today".
+- [ ] "Not now", then leave the pass until after 4 am → it is gone: the next open is a fresh free pass, not a third one.
+- [ ] Insights → Gates: a free pass declined with "Not now" and never used counts as a gate held.
 - [ ] Third open: wait card "<App>", countdown from 3:00, "Wait 1 of today · next wait 5 min", Cancel. A light haptic as it starts.
 - [ ] First wait for an untagged app asks "Which app is this?" with the seven chips; choosing one collapses the section; the countdown never pauses. Ignoring it still lets the pass through.
 - [ ] Leave Toll (home button) for a minute, come back → the countdown has continued.
@@ -80,11 +83,21 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] While a wait runs, open a second blocked app → its shield → Open Toll → the same card, the same countdown (not reset, not extended).
 - [ ] Cancel → back to Home; next open starts a new wait of the next length.
 - [ ] Countdown reaches 0 with Toll open → the card becomes the picker (crossfade, light haptic). Coming back after it ended → the picker directly.
-- [ ] Choose 5 min → "Open <App>" → the app opens unshielded. Home shows "<App> is open · ends after 5 min of use."
-- [ ] Use the app ~5 minutes → it re-shields (threshold). Note how late it was.
-- [ ] Choose 15 min, don't use the app, wait 60 minutes → it re-shields (window end).
-- [ ] With threshold delivery disrupted (reboot mid-session), open Toll after the window → the app re-shields on foreground.
+- [ ] Choose 5 min → "Open <App>" → the app opens unshielded. Home shows "<App> is open · 5 min left" and counts down by the minute. The pass appears in the day's count now, not before.
+- [ ] **5 min, the short-session workaround (spec G-6, §6):** start a 5 min session, stay in the app with Toll in the background → it re-shields at 5:00 by the wall clock. This is the end warning of a 15-minute interval; note how late it was. If it re-shields only at 15:00, the warning did not arrive or arrived before the expiry: file it in the fix list with the Console line `reconcile source=warning:session.…`.
+- [ ] **10 min:** the same → re-shields at 10:00 (warning 5 minutes before a 15-minute interval).
+- [ ] **15 min:** re-shields at 15:00 (interval end, no warning involved).
+- [ ] A 5 min session where the app is never opened → still re-shields at 5:00: time is flat, use does not matter.
+- [ ] Console, category `activity`: starting a 5 or 10 min session logs no "session activity failed" (that would be `intervalTooShort`).
+- [ ] No early re-shield: during a 10 min session, lock the phone for 3 minutes and come back → the app is still open; the shield does not return before 10:00.
+- [ ] With the monitor disrupted (reboot mid-session), open Toll after the session's time → the app re-shields on foreground and the session line is gone.
+- [ ] Set the clock forward during a session → it ends when Toll or the monitor next runs. Set it back → it does not end early by real time; it ends when the clock reaches the expiry (known: this lengthens the session; record what happens).
+- [ ] A session started 5 minutes before a Nights block ends → the app simply stays open after the window; nothing odd at the session's expiry.
 - [ ] Both apps hit during one wait both unlock for the session.
+- [ ] **Unblock from inside Toll** (once the screen exists): Unblock on a block with a free pass left → the picker at once, for every app in the block; "Not now" → the pass is gone and nothing was counted. With no free pass → the wait card named for the block's first app; at zero the picker; choosing a length unlocks every app in the block. No block hit is added to Insights → Gates.
+- [ ] Unblock while a wait is already running → the same card and countdown; that block's apps unlock with the rest.
+- [ ] **Block again** (once the screen exists): during a session, Block again → the app is shielded at once, the session line leaves Home, and the pass still counts.
+- [ ] Update over a build from before 11 Nov with a wait running → the wait continues and completes normally (old state decodes).
 - [ ] The wait shows nowhere else: no lock-screen countdown, no notification at the end.
 - [ ] Home footer: "You opened Toll N times today." increments on each open.
 

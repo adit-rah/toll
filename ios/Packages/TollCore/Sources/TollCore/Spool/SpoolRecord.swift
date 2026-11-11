@@ -10,6 +10,7 @@ public struct SpoolRecord: Codable, Hashable, Sendable {
   }
 
   public enum SessionEndReason: String, Codable, Sendable {
+    /// No longer written (sessions run on the wall clock); kept so lines from an older build decode.
     case threshold
     case intervalEnd = "interval_end"
     case expiry

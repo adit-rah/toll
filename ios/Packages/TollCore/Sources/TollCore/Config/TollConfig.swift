@@ -10,7 +10,6 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var sessionMinutes = [5, 10, 15]
     public var resumeWindowSeconds = 120
     public var clockSkewToleranceSeconds = 60
-    public var sessionWindowMinutes = 60
   }
 
   public struct Status: Codable, Sendable, Equatable {

@@ -120,8 +120,8 @@ public final class HomeModel {
 
   /// Home calls this whenever the gate's state changes.
   public func updateDeviceState() async {
-    // A session starts and ends in the gate's state without writing an event, so the session line
-    // cannot wait for the event log to speak.
+    // A session starts and ends in the gate's state before, or without, an event reaching the log,
+    // so the session line cannot wait for the event log to speak.
     showActiveSession(at: app.deps.clock.now)
     let blocks = (try? await app.deps.store.blocks()) ?? []
     let state: DeviceState?

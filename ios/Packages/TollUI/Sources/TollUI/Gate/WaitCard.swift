@@ -27,16 +27,19 @@ public struct SessionChoice {
   public var selection: Binding<Int>
   public var note: String
   public var onOpen: () -> Void
+  /// When set, "Not now" sits under the primary button, where Cancel is on the countdown half.
+  public var onNotNow: (() -> Void)?
 
   public init(
     question: String, options: [Int], selection: Binding<Int>, note: String,
-    onOpen: @escaping () -> Void
+    onOpen: @escaping () -> Void, onNotNow: (() -> Void)? = nil
   ) {
     self.question = question
     self.options = options
     self.selection = selection
     self.note = note
     self.onOpen = onOpen
+    self.onNotNow = onNotNow
   }
 }
 
@@ -177,6 +180,10 @@ public struct WaitCard<Title: View, OpenLabel: View>: View {
         .padding(.top, WaitCardMetrics.noteGap)
       Spacer(minLength: WaitCardMetrics.noteToButton)
       PrimaryButton(action: session.onOpen) { openLabel }
+      if let onNotNow = session.onNotNow {
+        QuietButton(Copy.SessionPicker.notNow, action: onNotNow)
+          .padding(.top, WaitCardMetrics.noteGap)
+      }
     }
     .frame(maxWidth: .infinity)
   }
@@ -227,7 +234,7 @@ private struct SentenceText: View {
         cancelTitle: Copy.Wait.cancel, onCancel: {}),
       session: SessionChoice(
         question: Copy.SessionPicker.question, options: [5, 10, 15], selection: .constant(10),
-        note: Copy.SessionPicker.note, onOpen: {}),
+        note: Copy.SessionPicker.note, onOpen: {}, onNotNow: {}),
       naming: WaitNaming(
         question: Copy.Wait.namingQuestion, note: Copy.Wait.namingNote, selection: .constant(nil))
     ) {

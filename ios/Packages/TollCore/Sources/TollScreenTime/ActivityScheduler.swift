@@ -8,10 +8,6 @@
     public static var checkin: Self { Self("checkin") }
   }
 
-  extension DeviceActivityEvent.Name {
-    public static var sessionThreshold: Self { Self("threshold") }
-  }
-
   /// DeviceActivity monitoring for block windows, sessions and the daily check-in (spec §6, §11.1).
   /// Activities only wake the monitor; what is shielded is always decided by `ShieldPlan`.
   public struct ActivityScheduler: Sendable {
@@ -44,22 +40,18 @@
       }
     }
 
-    /// A one-off interval of `gate.sessionWindowMinutes` with a usage threshold of the chosen minutes (G-6).
-    public func start(session: ActiveSession, tokens: TokenRegistry.Tokens, calendar: Calendar)
-      throws
-    {
+    /// Wakes the monitor when the session's time is up (G-6). A session shorter than the platform's
+    /// minimum interval rides a longer one and ends on its end warning (`SessionInterval`).
+    public func start(session: ActiveSession, calendar: Calendar) throws {
+      let interval = SessionInterval(session: session)
       let parts: Set<Calendar.Component> = [.year, .month, .day, .hour, .minute, .second]
       let schedule = DeviceActivitySchedule(
-        intervalStart: calendar.dateComponents(parts, from: session.startedAt),
-        intervalEnd: calendar.dateComponents(parts, from: session.expiresAt),
-        repeats: false)
-      let event = DeviceActivityEvent(
-        applications: tokens.applications, categories: tokens.categories,
-        webDomains: tokens.webDomains,
-        threshold: DateComponents(minute: session.minutes))
+        intervalStart: calendar.dateComponents(parts, from: interval.start),
+        intervalEnd: calendar.dateComponents(parts, from: interval.end),
+        repeats: false,
+        warningTime: interval.warningMinutes.map { DateComponents(minute: $0) })
       try DeviceActivityCenter().startMonitoring(
-        DeviceActivityName(session.activityName), during: schedule,
-        events: [.sessionThreshold: event])
+        DeviceActivityName(session.activityName), during: schedule)
     }
 
     public func stop(sessions: [ActiveSession]) {

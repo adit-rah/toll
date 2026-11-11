@@ -42,19 +42,6 @@
       return ended
     }
 
-    /// Ends one session now (threshold or interval end) and re-shields its apps.
-    public func end(sessionNamed activityName: String, now: Date, timeZone: TimeZone)
-      -> ActiveSession?
-    {
-      var ended: ActiveSession?
-      gateStore.update { state in
-        ended = state.sessions.first { $0.activityName == activityName }
-        state.sessions.removeAll { $0.activityName == activityName }
-      }
-      reconcile(now: now, timeZone: timeZone, source: "session-end")
-      return ended
-    }
-
     public func apply(_ plan: ShieldPlan) {
       let store = ManagedSettingsStore(named: .blocks)
       let shielded = registry.tokens(for: plan.shielded)
