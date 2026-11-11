@@ -45,7 +45,7 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A37 | Times in friend rows | A friend's pass times are shown in the friend's local time (the time they lived it) | spec §10 |
 | A38 | "Remove Instagram? …" confirm | Toll cannot read app names as text (spec §6), so the confirm names the block by its user-only name, else its schedule ("Remove Nights · 11 pm – 7 am? Your friends will see this.") | spec §10 |
 | A39 | Setup step transitions | Steps are driven by launch state, so they change with a slide-and-fade (`Motion.movement`) rather than a navigation push; Email → Code inside Welcome is a real push | design §2.5 |
-| A40 | Friends' tag-share bar (I-18) | Segments use the chart's categorical styles; revisit with the identity work (C19) | insights I-18 |
+| A40 | Friends' tag-share bar (I-18) | One segmented bar on the sequential ramp by rank (11 Nov; was the chart's categorical styles), so the screen keeps one accent; revisit with the identity work (C19) | insights I-18 |
 | A41 | Held and running waits | A hit while a wait is running joins the wait and is never counted as held | backend (E3–E11) |
 | A42 | Status history | The person's active days (any event) in the 28 days before today, oldest first | backend (E3–E11) |
 | A43 | Daily summary position | N-3 order: each person's week-to-date trend for the week containing their yesterday vs the full week before; "of N friends" counts you | backend (E3–E11) |
@@ -88,6 +88,10 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A80 | Hero alignment | The numeral is centred and the glyph hangs beside it, rather than the pair being centred | design §3.2 |
 | A81 | Dark wait card | Still `bg` (black) on the dark material, with only a hairline under Reduce Transparency; needs a look on a phone before deciding on a raised tier | design §3.7 — open |
 | A82 | "Open <App>" | Starting a session unlocks the app and the card leaves, but iOS has no way to launch an app from its Screen Time token, so the person switches to it themselves | spec G-6 — open |
+| A83 | Hand-drawn insight cards | I-2, I-5, I-11 and I-18 are SwiftUI shapes, not Swift Charts (no bar outline or track there); audio graphs and spoken values kept | insights §4 |
+| A84 | Insights refresh | Me numbers come from the last eight weeks of events, computed off the main actor; remote insights refetch on pull, week change, account change, or after `sync.flushIntervalSeconds` | insights §3 |
+| A85 | Share card | Rendered only when a share target asks for it; canvas is white / `#0F1115` in both preview and export; the square format drops the metric row | design §3.14 |
+| A86 | Insight chart motion | The first-appearance bar growth in design §2.5 is not built yet | design §2.5 — open |
 
 ## B. Open — needs a founder decision before the relevant task
 

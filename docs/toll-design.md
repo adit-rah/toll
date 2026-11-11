@@ -259,11 +259,11 @@ At `blocks.maxTokens` the picker's Done is disabled and the limit line from spec
 
 ### 4.7 Insights
 
-Segmented control (Me · Friends · School) under the nav bar; vertical stack of `ChartCard`s per `toll-insights-spec.md` §3. Trailing nav item: square.and.arrow.up → share sheet with card thumbnails (3.14).
+Inline title; segmented control (Me · Friends · School) under the nav bar; a lazy vertical stack of `ChartCard`s per `toll-insights-spec.md` §3, 16 pt apart. Trailing nav item: square.and.arrow.up → the share sheet: a chip row to choose the card, the preview scaled to the space that is left, and Share on a bottom bar (3.14). Friends and School each tell loading, failed, signed out and "not enough yet" apart with one line; a new user sees empty charts with their axes, never a blank page.
 
 ### 4.8 Settings
 
-Grouped list. Account (40 pt `Avatar`, name, `@handle`, Edit; sign out) · School (status, change, leave) · Notifications (daily summary toggle, time) · Discoverability (contacts matching toggle) · Blocks shortcut · Data (export my data, delete account) · About (privacy policy, terms, support address, version) · **Support Toll** (donation link; last group, below the fold). Delete account is `DestructiveQuiet` with a two-step confirm.
+Inset-grouped list, inline title. Account (40 pt `Avatar`, name, `@handle`, Edit trailing; sign out) · School (status, change, leave) · Notifications (daily summary toggle, time) · Discoverability (contacts matching toggle) · Blocks shortcut · Data (export my data, delete account) · About (privacy policy, terms, support address, version) · **Support Toll** (donation link; last group, below the fold). Delete account is `DestructiveQuiet` with a two-step confirm.
 
 ### 4.9 Invite sheet
 
