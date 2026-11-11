@@ -44,7 +44,10 @@ public final class BlockEditorModel {
   public var title: String {
     switch mode {
     case .setup(let returning): returning ? Copy.BlockEditor.returningTitle : Copy.BlockEditor.setupTitle
-    case .new, .edit: Copy.BlockEditor.newTitle
+    case .new: Copy.BlockEditor.newTitle
+    // An existing block is not a "New block": it goes by its own name, else its schedule, the way the
+    // remove confirmation names it (ledger A38). Empty until the block has loaded.
+    case .edit: original.map { $0.name ?? Copy.Schedules.label($0.schedule) } ?? ""
     }
   }
 
