@@ -45,7 +45,7 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A37 | Times in friend rows | A friend's pass times are shown in the friend's local time (the time they lived it) | spec §10 |
 | A38 | "Remove Instagram? …" confirm | Toll cannot read app names as text (spec §6), so the confirm names the block by its user-only name, else its schedule ("Remove Nights · 11 pm – 7 am? Your friends will see this.") | spec §10 |
 | A39 | Setup step transitions | Steps are driven by launch state, so they change with a slide-and-fade (`Motion.movement`) rather than a navigation push; Email → Code inside Welcome is a real push | design §2.5 |
-| A40 | Friends' tag-share bar (I-18) | Segments use the chart's categorical styles; revisit with the identity work (C19) | insights I-18 |
+| A40 | Friends' tag-share bar (I-18) | One segmented bar on the sequential ramp by rank (11 Nov; was the chart's categorical styles), so the screen keeps one accent; revisit with the identity work (C19) | insights I-18 |
 | A41 | Held and running waits | A hit while a wait is running joins the wait and is never counted as held | backend (E3–E11) |
 | A42 | Status history | The person's active days (any event) in the 28 days before today, oldest first | backend (E3–E11) |
 | A43 | Daily summary position | N-3 order: each person's week-to-date trend for the week containing their yesterday vs the full week before; "of N friends" counts you | backend (E3–E11) |
@@ -69,6 +69,33 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A61 | API under `/v1` | Unauthenticated requests to unknown `/v1` paths get 401 (public routes are matched before auth) | backend (E3–E11) |
 | A62 | Review sign-in | `REVIEW_EMAIL` gets the fixed `REVIEW_CODE` when both are set; nobody else can | backend (E3–E11) |
 | A63 | School list at launch | Spec §15 vendors all of CA/US/GB. Launch seeds 30 schools instead (10 Canadian, the Ivy League, 12 others in the US top 20); the full list stays in `seed/schools-all.sql` | `api/seed/schools-launch.sql` |
+| A64 | App picker on arrival (11 Nov, owner review on device) | The picker never opens by itself: Block these, New block and Add another all arrive on the empty apps card and "Choose apps" opens it. Reverses the §9 "picker opens on arrival" | spec §9, flows §5, §14 — decided |
+| A65 | Home stack navigation | Every push in the Home stack (Settings, Blocks, New block, edit) is a value on one path with destinations at the root; a view-destination link in the middle sent Back from Blocks into New block | design §2.7 |
+| A66 | Home footer | "You opened Toll N times today." is anchored above the tab bar as a bottom safe-area inset, not the last row of the list; `label2`, because `label3` at 13 pt is under 3:1 | design §4.1, G-10 — decided (11 Nov) |
+| A67 | Fills | A card, tile or field takes the fill its page is not (`surfaceRaised` on `bg`, `surface` on `bgGrouped`); hosted controls and disabled buttons take the new translucent `fill` token. The New block mock drew `#F2F2F7` tiles on a `#F2F2F7` page | design §2.1, §2.3 |
+| A68 | Setup steps and small screens | The bar and bottom actions are pinned and the content between scrolls only when it does not fit; "never scrolls" could not hold on a 4.7-inch screen with a full apps card | design §4.3 |
+| A69 | Custom hours | Compact time pickers in two rows instead of two wheels side by side (they clip each other at phone width and overflowed the half-height sheet); the sheet is 380 pt | design §4.6 |
+| A70 | Removing an app from a block | Touch and hold the app row → Remove (or untick it in the picker). The rows are not in a List, so the swipe in flows §14 never existed | flows §5, §14 |
+| A71 | Finished blocks in setup | The compact rows above the creator are a record and do not open; blocks are edited from Settings → Blocks | design §4.3 |
+| A72 | Title when editing a block | The block's own name, else its schedule label (as A38); "New block" only for a new one | flows §14 |
+| A73 | Find your friends outside setup | People, Settings and Insights embed only the groups that belong under their heading (school under School), on `fill` | spec N-17 |
+| A74 | People friend rows | The existing week line ("14 this week · 18 last week") under the name with the trend trailing; the mock's lone "14 this week" has no §10 string | design §4.4 |
+| A75 | Friend detail | "Waited" shows minutes; only "this week" has a last-week value (the API returns no others); block chips are neutral, not accent-tinted | design §4.5 |
+| A76 | Invite sheet | Code centred, action on the bottom edge (the mock stacked everything at the top and left the lower 40% blank) | design §4.9 |
+| A77 | Avatar photos | Fetched once into an in-memory thumbnail cache at the drawn size, decoded off the main actor; no disk cache beyond URLSession's | design §3.17 |
+| A78 | Wait card geometry | Top at 180 pt only when the card fits, else centred, else scrolling; insets 32/20/20 from the artboards; wait and session picker share one frame | design §3.7, §4.10 |
+| A79 | Wait ticking | The card's clock is a leaf timeline and the gate is asked only once `Wait.isComplete` reads true (at most one second apart), instead of a coordinated pass over the shared state every second. Same completion test and events | spec G-4 |
+| A80 | Hero alignment | The numeral is centred and the glyph hangs beside it, rather than the pair being centred | design §3.2 |
+| A81 | Dark wait card | Still `bg` (black) on the dark material, with only a hairline under Reduce Transparency; needs a look on a phone before deciding on a raised tier | design §3.7 — open |
+| A82 | "Open <App>" | Starting a session unlocks the app and the card leaves, but iOS has no way to launch an app from its Screen Time token, so the person switches to it themselves | spec G-6 — open |
+| A83 | Hand-drawn insight cards | I-2, I-5, I-11 and I-18 are SwiftUI shapes, not Swift Charts (no bar outline or track there); audio graphs and spoken values kept | insights §4 |
+| A84 | Insights refresh | Me numbers come from the last eight weeks of events, computed off the main actor; remote insights refetch on pull, week change, account change, or after `sync.flushIntervalSeconds` | insights §3 |
+| A85 | Share card | Rendered only when a share target asks for it; canvas is white / `#0F1115` in both preview and export; the square format drops the metric row | design §3.14 |
+| A86 | Insight chart motion | The first-appearance bar growth in design §2.5 is not built yet | design §2.5 — open |
+| A87 | Uploads never hold the screen | A flush started by the user opening Toll, saving a block or tagging an app runs after the state is returned; background wakes still wait for it. A user-opened flush may therefore be cut off by suspension and goes out on the next trigger (events are idempotent) | spec §11.1, G-4 |
+| A88 | Launch and foreground | Foreground waits for launch, and a foreground arriving during one is run after it rather than dropped; `GET /home` at launch is skipped once Find your friends has been shown, since Home fetches its own | spec §9 |
+| A89 | Still slow, not fixed | `Dependencies.live()` opens the database and starts Sentry before the first frame; Home refreshes on every tab return (throttling needs a §14 tunable); the periodic `sync.flushIntervalSeconds` trigger is not implemented | spec §11, §14 — open |
+| A90 | Cutting a build | Merge to `main`, then publish a GitHub release with a new `v*` tag on `main`; the automation builds it and uploads to TestFlight. No version edit first. A cloud agent session can merge the pull request but cannot push tags, so the person cuts the release. Written into `CLAUDE.md` (Releasing) so nobody has to rediscover it (11 Nov) | spec §12, `ios/README.md` — decided |
 
 ## B. Open — needs a founder decision before the relevant task
 

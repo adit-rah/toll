@@ -48,7 +48,7 @@ public actor BlockService {
     }
     await sync.enqueue("PUT", "blocks/\(block.id.rawValue)", json: BlockMetaBody(block))
     await applyBlocks()
-    await sync.flush(force: true)
+    flushSoon(force: true)
   }
 
   /// Removal is always possible and always visible to friends (G-8, principle 6).
@@ -58,13 +58,19 @@ public actor BlockService {
     try await store.record([event(.blockRemoved, block: block)])
     analytics.send(.blockRemoved)
     await applyBlocks()
-    await sync.flush(force: true)
+    flushSoon(force: true)
   }
 
   public func setTag(_ tag: Tag, for ref: AppRef) async throws {
     try await store.setTag(tag, for: ref)
     await sync.enqueue("PUT", "apps/\(ref.rawValue)", json: ["tag": tag.rawValue])
-    await sync.flush()
+    flushSoon(force: false)
+  }
+
+  /// The change is already saved and shielded on the phone; Done and the tag chips must not wait for the
+  /// upload, which can take a full timeout with no signal.
+  private func flushSoon(force: Bool) {
+    Task { [sync] in await sync.flush(force: force) }
   }
 
   /// Pushes block definitions to the extensions, schedules their windows and applies the shield.

@@ -37,15 +37,16 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] Both already granted (reinstall) → the step passes straight to Block these.
 
 ## 5. Block these (flows §5)
-- [ ] The app picker opens on arrival. Cancel with nothing chosen → empty state, Done disabled, "Choose apps".
+- [ ] The screen arrives empty: Done disabled, "Choose apps" in the card. The picker opens only from that row; Cancel with nothing chosen returns to the same empty state.
 - [ ] Pick 3 apps → apps card lists them (system names and icons); Always is preselected.
 - [ ] Pick 5 apps → card shows 3 rows and "+2 more"; tapping it shows the full list.
 - [ ] Choose more → picker with the current apps selected.
 - [ ] Nights / Weekdays tiles select with a fill crossfade and a selection haptic.
 - [ ] Custom → sheet with From / Until and days → Done → the Custom tile shows the window. Drag down also returns.
 - [ ] More than 40 apps across blocks → Done disabled, "40 apps is the most this phone allows."
-- [ ] Add another block → the block shrinks into a compact row above; the picker rises again. A second Add another collapses the rows into one line ("2 blocks · Always, Weekdays"). Fits a 4.7-inch screen without scrolling.
-- [ ] Tap a compact row → edits that block.
+- [ ] Add another block → the block shrinks into a compact row above and the card empties; the picker stays closed until Choose apps. A second Add another collapses the rows into one line ("2 blocks · Always, Weekdays"). Fits a 4.7-inch screen without scrolling.
+- [ ] A compact row is a record of what was just made and does not open; blocks are edited from Settings → Blocks.
+- [ ] Touch and hold an app row → Remove takes it out of the block.
 - [ ] Done → the shield is up immediately for an Always block (open a blocked app to check).
 
 ## 6. Find your friends (flows §6, §13)
@@ -89,6 +90,10 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 
 ## 9. Blocks (flows §14)
 - [ ] Settings → Blocks lists each block with icons, names and schedule; caption "Removing a block is shown to your friends."
+- [ ] Navigation holds: Blocks → Add a block → pick apps → Done lands on Blocks; Back from Blocks lands on Settings; Back again lands on Home. The same after editing a row, and after Discard.
+- [ ] Add a block arrives on the empty card; nothing opens until Choose apps.
+- [ ] Open a block and leave it untouched → the system Back button shows (no discard prompt); Done records no change.
+- [ ] Home's "Nothing blocked yet · Add apps" → New block → Done → Home, and the line is gone without leaving the app.
 - [ ] Swipe → Remove → "Remove <App>? Your friends will see this." → Remove: the shield drops; a friend's Home pins "<Name> removed <App> from their blocklist."
 - [ ] Change Always → Nights: a friend sees "<Name>'s <App> block is now nights only." pinned.
 - [ ] Tap an app's tag in New block → chips → choose → friends' lines re-label past passes too.

@@ -3,6 +3,7 @@
   import Foundation
   @preconcurrency import ManagedSettings
   import TollCore
+  import os
 
   /// The device-only map from app refs to picker tokens (spec §4 "App ref"). Written by the app; read by
   /// the app and the extensions. Tokens are opaque and never leave this phone.
@@ -18,9 +19,46 @@
       self.url = url
     }
 
+    /// What identifies one written version of the file: every write replaces it atomically, so a new
+    /// version always differs in at least one of these.
+    private struct Stamp: Equatable, Sendable {
+      var modified: Date
+      var size: Int
+      var fileNumber: Int
+    }
+
+    private struct Snapshot: Sendable {
+      var url: URL
+      var stamp: Stamp
+      var entries: [AppRef: Entry]
+    }
+
+    /// The decoded file, kept per process until the file changes. Labels and the shield ask for tokens
+    /// on every draw; a coordinated read and a full decode each time is main-thread I/O.
+    private static let snapshot = OSAllocatedUnfairLock<Snapshot?>(initialState: nil)
+
+    private func currentStamp() -> Stamp? {
+      guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path),
+        let modified = attributes[.modificationDate] as? Date,
+        let size = attributes[.size] as? NSNumber,
+        let fileNumber = attributes[.systemFileNumber] as? NSNumber
+      else { return nil }
+      return Stamp(modified: modified, size: size.intValue, fileNumber: fileNumber.intValue)
+    }
+
     private func load() -> [AppRef: Entry] {
+      // Stamped before reading: a write that lands in between leaves an older stamp on newer entries,
+      // which the next call sees as a change and reads again.
+      let stamp = currentStamp()
+      let cached = Self.snapshot.withLock { $0 }
+      if let stamp, let cached, cached.url == url, cached.stamp == stamp { return cached.entries }
       guard let data = CoordinatedFile.read(url) else { return [:] }
-      return (try? JSONDecoder().decode([AppRef: Entry].self, from: data)) ?? [:]
+      let entries = (try? JSONDecoder().decode([AppRef: Entry].self, from: data)) ?? [:]
+      if let stamp {
+        let fresh = Snapshot(url: url, stamp: stamp, entries: entries)
+        Self.snapshot.withLock { $0 = fresh }
+      }
+      return entries
     }
 
     /// Returns the app refs for a picker selection, reusing a ref for any token already registered.

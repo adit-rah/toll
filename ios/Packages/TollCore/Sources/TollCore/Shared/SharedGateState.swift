@@ -91,11 +91,13 @@ public struct SharedGateStore: Sendable {
   public func update(_ change: (inout SharedGateState) -> Void) -> SharedGateState {
     var result = SharedGateState()
     CoordinatedFile.update(url) { data in
-      var state =
-        data.flatMap { try? Self.decoder.decode(SharedGateState.self, from: $0) }
-        ?? SharedGateState()
+      let stored = data.flatMap { try? Self.decoder.decode(SharedGateState.self, from: $0) }
+      var state = stored ?? SharedGateState()
       change(&state)
       result = state
+      // Most calls find nothing to change (every second of a wait, every reconcile); the file is left
+      // alone then instead of being rewritten under coordination each time.
+      if state == stored { return nil }
       return try? Self.encoder.encode(state)
     }
     return result

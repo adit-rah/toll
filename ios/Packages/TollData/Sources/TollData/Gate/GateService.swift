@@ -70,19 +70,29 @@ public actor GateService {
       analytics.send(.gateEntered(free: false))
     }
     await refreshShieldCounts()
-    if events.contains(where: { $0.kind == .pass }) { await sync.flush(force: true) } else { await sync.flush() }
+    let force = events.contains(where: { $0.kind == .pass })
+    if userOpened {
+      // The wait card is drawn from the state returned here, so it must not sit behind a network round
+      // trip. Background wakes still wait: they are suspended as soon as this returns.
+      Task { [sync] in await sync.flush(force: force) }
+    } else {
+      await sync.flush(force: force)
+    }
     return gateStore.load()
   }
 
   /// Called every second while the wait card is up so it turns into the session picker at zero (G-4).
   public func tick() async -> SharedGateState {
     var events: [GateEvent] = []
-    gateStore.update { state in events = machine.tick(state: &state, now: clock.now, monotonic: clock.monotonic) }
-    if !events.isEmpty {
-      try? await store.record(events)
-      await refreshShieldCounts()
-      await sync.flush(force: true)
+    let current = gateStore.update { state in
+      events = machine.tick(state: &state, now: clock.now, monotonic: clock.monotonic)
     }
+    // A wait that is still running changed nothing, so the state just read is the answer.
+    guard !events.isEmpty else { return current }
+    try? await store.record(events)
+    await refreshShieldCounts()
+    // Not awaited: the card turns into the session picker on this return, not when the upload lands.
+    Task { [sync] in await sync.flush(force: true) }
     return gateStore.load()
   }
 

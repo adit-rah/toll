@@ -25,18 +25,18 @@ public struct HeroStat: View {
   }
 
   public var body: some View {
-    VStack(spacing: 4) {
-      HStack(alignment: .center, spacing: 12) {
-        HeroNumber(value.map { "\($0)" } ?? "--")
-        StatusGlyph(mark, size: .hero)
-          .opacity(value == nil ? 0 : 1)
-      }
+    VStack(spacing: 0) {
+      HeroNumeral(text: value.map { "\($0)" } ?? "--", mark: mark, showsGlyph: value != nil)
+        // The same cap `HeroNumber` puts on itself, so the trim below scales with the numeral.
+        .dynamicTypeSize(...DynamicTypeSize.accessibility2)
       Text(unit).font(TollFont.bodyMedium).foregroundStyle(TollColor.label)
       if let subhead {
         Text(subhead).tollText(.subhead).monospacedDigit()
+          .padding(.top, 10)
       }
       if let caption {
         Text(caption).tollText(.caption).monospacedDigit()
+          .padding(.top, 2)
       }
     }
     .multilineTextAlignment(.center)
@@ -46,6 +46,30 @@ public struct HeroStat: View {
       AccessibilitySentence.join([
         value.map { "\($0) \(unit)" }, value == nil ? nil : statusSpeech, subhead, caption,
       ]))
+  }
+}
+
+/// The numeral on the screen's centre line with the glyph hung off its trailing side. Centring the
+/// pair instead would push the numeral 15 pt off the axis that the unit line and the week strip
+/// beneath it are centred on.
+private struct HeroNumeral: View {
+  let text: String
+  let mark: StatusMark
+  let showsGlyph: Bool
+  // A 72 pt line box leaves 17 pt under the baseline for descenders that digits do not have;
+  // without the trim the unit line reads as detached from its number.
+  @ScaledMetric(relativeTo: .largeTitle) private var descenderTrim: CGFloat = 8
+
+  private static let glyphGap: CGFloat = 10
+
+  var body: some View {
+    HeroNumber(text)
+      .overlay(alignment: .trailing) {
+        StatusGlyph(mark, size: .hero)
+          .opacity(showsGlyph ? 1 : 0)
+          .alignmentGuide(.trailing) { _ in -Self.glyphGap }
+      }
+      .padding(.bottom, -descenderTrim)
   }
 }
 

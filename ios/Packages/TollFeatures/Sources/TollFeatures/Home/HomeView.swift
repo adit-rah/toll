@@ -3,8 +3,8 @@ import TollCore
 import TollData
 import TollUI
 
-/// Home (design §4.1): you, centred; then pinned lines; then friends by improvement; the Toll-opens
-/// footer last and quietest.
+/// Home (design §4.1): you, centred; then pinned lines; then friends by improvement. The Toll-opens
+/// footer is the quietest thing on the screen and sits on the tab bar, wherever the list has scrolled.
 struct HomeView: View {
   let app: AppModel
   @State private var model: HomeModel?
@@ -13,8 +13,6 @@ struct HomeView: View {
   @State private var inviteShown = false
   @State private var personAction: (PersonAction, PersonRef)?
 
-  enum Destination: Hashable { case settings, newBlock }
-
   var body: some View {
     NavigationStack(path: $path) {
       ScrollView {
@@ -22,19 +20,24 @@ struct HomeView: View {
       }
       .background(TollColor.bg)
       .refreshable { await model?.refresh() }
+      .safeAreaInset(edge: .bottom, spacing: 0) { opensFooter }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
-          Button { path.append(Destination.settings) } label: { Image(systemName: "gearshape") }
+          Button { path.append(HomeRoute.settings) } label: { Image(systemName: "gearshape") }
             .accessibilityLabel(Copy.Settings.title)
         }
       }
-      .navigationDestination(for: Destination.self) { destination in
-        switch destination {
+      .navigationDestination(for: HomeRoute.self) { route in
+        switch route {
         case .settings: SettingsView(app: app)
+        case .blocks: BlocksView(app: app)
         case .newBlock: BlockEditorView(app: app, mode: .new)
+        case .editBlock(let id): BlockEditorView(app: app, mode: .edit(id))
         }
       }
-      .sheet(item: $detail) { friend in FriendDetailView(app: app, friend: friend) }
+      .sheet(item: $detail) { friend in
+        FriendDetailView(app: app, friend: friend) { Task { await model?.refresh() } }
+      }
       .sheet(isPresented: $inviteShown) { InviteSheet(app: app) }
       .personActions(app: app, pending: $personAction) { Task { await model?.refresh() } }
     }
@@ -43,6 +46,20 @@ struct HomeView: View {
       await model?.start()
     }
     .onChange(of: app.gate) { _, _ in Task { await model?.updateDeviceState() } }
+    // Sheets present above the wait card, so one left open would hide a wait that has just started.
+    .onChange(of: app.gate.wait?.id) { _, wait in
+      if wait != nil {
+        detail = nil
+        inviteShown = false
+      }
+    }
+    // Blocks are added and removed on screens pushed over Home, which never re-runs the task above;
+    // without this the "Nothing blocked yet" line outlives the block that answers it.
+    .task {
+      do {
+        for try await _ in app.deps.store.observeBlocks() { await model?.updateDeviceState() }
+      } catch {}
+    }
   }
 
   @ViewBuilder
@@ -50,34 +67,68 @@ struct HomeView: View {
     VStack(spacing: 0) {
       deviceLine(model)
       if let session = model.activeSession, let ref = session.appRefs.first {
-        HStack(spacing: 4) {
-          AppLabel(ref)
-          Text(Copy.Home.sessionActiveRest(minutes: session.minutes))
-        }
-        .tollText(.bodyMedium)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 12)
-        .transition(Motion.pinnedLine)
+        sessionLine(ref, minutes: session.minutes)
+          .tollTransition(Motion.pinnedLine)
       }
       hero(model)
         .padding(.top, TollSpacing.heroTop)
         .padding(.bottom, TollSpacing.heroToList)
-      ForEach(Array((model.home?.pinned ?? []).enumerated()), id: \.offset) { _, pin in
+      ForEach(model.home?.pinned ?? [], id: \.self) { pin in
         Button { detail = model.home?.friends.first { $0.user.id == pin.user.id } } label: {
           PinnedRow(FriendFormatting.pinned(pin))
         }
         .buttonStyle(.plain)
-        .transition(Motion.pinnedLine)
+        .tollTransition(Motion.pinnedLine)
       }
       friends(model)
-      Spacer(minLength: 32)
-      Text(Copy.Home.tollOpens(app.tollOpensToday))
-        .tollText(.caption)
-        .foregroundStyle(TollColor.label3)
-        .padding(.bottom, 24)
     }
+    .padding(.bottom, TollSpacing.sectionGap)
     .tollGutter()
     .animation(Motion.movement, value: model.home)
+  }
+
+  /// Anchored to the bottom safe area instead of the end of the list, so it is in the same place with
+  /// no friends and with forty. Rows fade out under its top edge rather than colliding with the text.
+  private var opensFooter: some View {
+    Text(Copy.Home.tollOpens(app.tollOpensToday))
+      .tollText(.caption)
+      .monospacedDigit()
+      .multilineTextAlignment(.center)
+      .frame(maxWidth: .infinity)
+      .padding(.top, Self.footerFade + 4)
+      .padding(.bottom, TollSpacing.labelGap)
+      .tollGutter()
+      .background {
+        VStack(spacing: 0) {
+          LinearGradient(
+            colors: [TollColor.bg.opacity(0), TollColor.bg], startPoint: .top, endPoint: .bottom
+          )
+          .frame(height: Self.footerFade)
+          TollColor.bg
+        }
+        .ignoresSafeArea(edges: .bottom)
+      }
+      .allowsHitTesting(false)
+  }
+
+  private static let footerFade: CGFloat = 20
+
+  /// The session line shares the pinned rows' geometry: the accent dot in the avatar's slot.
+  private func sessionLine(_ ref: AppRef, minutes: Int) -> some View {
+    HStack(spacing: TollSpacing.rowLeadingGap) {
+      Circle()
+        .fill(TollColor.accent)
+        .frame(width: 8, height: 8)
+        .frame(width: TollSpacing.rowLeadingSlot)
+        .accessibilityHidden(true)
+      HStack(spacing: 4) {
+        AppLabel(ref)
+        Text(Copy.Home.sessionActiveRest(minutes: minutes))
+      }
+      .tollText(.bodyMedium)
+    }
+    .frame(maxWidth: .infinity, minHeight: TollSpacing.rowMinHeight, alignment: .leading)
+    .accessibilityElement(children: .combine)
   }
 
   @ViewBuilder
@@ -86,27 +137,32 @@ struct HomeView: View {
     case .screenTimeOff:
       PinnedRow(Copy.Home.screenTimeOff, actionTitle: Copy.Home.fix) { Task { await model.fixScreenTime() } }
     case .blocksNeedRepicking:
-      PinnedRow(Copy.Home.blocksNeedRepicking, actionTitle: Copy.Home.fix) { path.append(Destination.settings) }
+      PinnedRow(Copy.Home.blocksNeedRepicking, actionTitle: Copy.Home.fix) { path.append(HomeRoute.blocks) }
     case .nothingBlocked:
-      PinnedRow(Copy.Home.nothingBlocked, actionTitle: Copy.Home.addApps) { path.append(Destination.newBlock) }
+      PinnedRow(Copy.Home.nothingBlocked, actionTitle: Copy.Home.addApps) { path.append(HomeRoute.newBlock) }
     case .none:
       EmptyView()
     }
   }
 
+  /// A button, not a tap gesture, so VoiceOver can open Insights from here too.
   private func hero(_ model: HomeModel) -> some View {
-    VStack(spacing: 14) {
-      HeroStat(
-        value: model.you.passesToday, mark: StatusMark(level: model.you.level),
-        unit: Copy.Home.passesToday(model.you.passesToday),
-        subhead: Copy.Home.week(model.you.thisWeek, last: model.you.lastWeek),
-        statusSpeech: model.you.level.map { Copy.Status.label($0, personalised: model.personalised) })
-      WeekStrip(
-        counts: model.you.strip, todayIndex: model.you.todayIndex, animateOnAppear: !model.hasAppeared)
+    Button {
+      app.tab = .insights
+    } label: {
+      VStack(spacing: 14) {
+        HeroStat(
+          value: model.you.passesToday, mark: StatusMark(level: model.you.level),
+          unit: Copy.Home.passesToday(model.you.passesToday),
+          subhead: Copy.Home.week(model.you.thisWeek, last: model.you.lastWeek),
+          statusSpeech: model.you.level.map { Copy.Status.label($0, personalised: model.personalised) })
+        WeekStrip(
+          counts: model.you.strip, todayIndex: model.you.todayIndex, animateOnAppear: !model.hasAppeared)
+      }
+      .frame(maxWidth: .infinity)
+      .contentShape(Rectangle())
     }
-    .frame(maxWidth: .infinity)
-    .contentShape(Rectangle())
-    .onTapGesture { app.tab = .insights }
+    .buttonStyle(.plain)
     .onAppear { model.markAppeared() }
   }
 
@@ -114,6 +170,7 @@ struct HomeView: View {
   private func friends(_ model: HomeModel) -> some View {
     if app.isSignedIn {
       SectionHeader(Copy.Home.friendsHeader, trailing: model.home?.friendsHeldPercent.map(Copy.Home.friendsHeldShort))
+        .padding(.bottom, 4)
       if let stale = model.staleSince {
         Text(Copy.Home.lastSynced(stale.formatted(.relative(presentation: .named))))
           .tollText(.caption)

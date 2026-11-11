@@ -62,6 +62,13 @@ public struct StatusGlyph: View {
 
   private var lineWidth: CGFloat { max(1.5, size.rawValue / 9) }
 
+  /// About 2 pt, adjusted so a whole number of dashes goes round and the ring has no short seam.
+  private var dashLength: CGFloat {
+    let circumference = CGFloat.pi * (size.rawValue - lineWidth)
+    let dashes = max(4, (circumference / 4).rounded())
+    return circumference / (dashes * 2)
+  }
+
   @ViewBuilder
   private func shape(for level: StatusLevel?) -> some View {
     switch level {
@@ -69,11 +76,11 @@ public struct StatusGlyph: View {
       Circle().fill(TollColor.level1)
     case .some(.usual):
       ZStack {
+        // A circle's path starts at three o'clock, so the middle half of it is the left half.
+        // Trimmed rather than masked: a mask costs an offscreen pass for every row's glyph.
         Circle()
+          .trim(from: 0.25, to: 0.75)
           .fill(TollColor.level2)
-          .mask(alignment: .leading) {
-            Rectangle().frame(width: size.rawValue / 2)
-          }
         Circle().strokeBorder(TollColor.level2, lineWidth: lineWidth)
       }
     case .some(.more):
@@ -87,7 +94,7 @@ public struct StatusGlyph: View {
       Circle()
         .strokeBorder(
           TollColor.label3,
-          style: StrokeStyle(lineWidth: lineWidth, dash: [2, 2]))
+          style: StrokeStyle(lineWidth: lineWidth, dash: [dashLength, dashLength]))
     }
   }
 }

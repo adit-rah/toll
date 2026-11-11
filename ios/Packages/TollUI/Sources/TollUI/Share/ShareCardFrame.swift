@@ -42,15 +42,19 @@ public struct ShareCardFrame<Content: View>: View {
 
   public var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      if let displayName {
-        Text(displayName).tollText(.caption).lineLimit(1)
-      }
+      // The line keeps its height with the name off, so the toggle never moves the numeral.
+      Text(displayName ?? Copy.ShareCards.wordmark)
+        .tollText(.caption)
+        .lineLimit(1)
+        .opacity(displayName == nil ? 0 : 1)
+        .accessibilityHidden(displayName == nil)
       Spacer(minLength: 16)
       content
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
       Spacer(minLength: 16)
       HStack(alignment: .bottom) {
         Wordmark()
+          .fixedSize()
         Spacer(minLength: 12)
         VStack(alignment: .trailing, spacing: 2) {
           Text(dateRange).monospacedDigit()
@@ -59,15 +63,23 @@ public struct ShareCardFrame<Content: View>: View {
         .font(TollFont.caption)
         .foregroundStyle(TollColor.label2)
         .lineLimit(1)
+        .minimumScaleFactor(0.8)
       }
     }
     .padding(.horizontal, 24)
     .padding(.top, format.safeTop)
     .padding(.bottom, format.safeBottom)
     .frame(width: format.size.width, height: format.size.height)
-    .background(TollColor.bg)
+    .background(canvas)
+    .clipped()
     .environment(\.colorScheme, colorScheme)
     .dynamicTypeSize(.large)
+  }
+
+  /// Fixed, not `bg`: inside a sheet the system background resolves to its raised grey, so the
+  /// preview and the exported image would differ, and pure black is harsher than the app ever is.
+  private var canvas: Color {
+    colorScheme == .dark ? Color(red: 15 / 255, green: 17 / 255, blue: 21 / 255) : Color.white
   }
 }
 

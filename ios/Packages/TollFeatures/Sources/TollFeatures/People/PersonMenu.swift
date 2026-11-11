@@ -38,7 +38,10 @@ struct PersonActionsModifier: ViewModifier {
         Copy.FriendDetail.removeConfirm(pending?.1.displayName ?? ""), isPresented: binding(.remove),
         titleVisibility: .visible
       ) {
-        Button(Copy.FriendDetail.remove, role: .destructive) { run { try await app.deps.network.removeFriend($0.id) } }
+        Button(Copy.FriendDetail.remove, role: .destructive) {
+          Haptics.warning()
+          run { try await app.deps.network.removeFriend($0.id) }
+        }
         Button(Copy.FriendDetail.cancel, role: .cancel) {}
       }
       .confirmationDialog(
@@ -87,46 +90,70 @@ struct ReportSheet: View {
   @Environment(\.dismiss) private var dismiss
   @State private var reason: ReportReason = .name
   @State private var text = ""
+  @State private var isSending = false
   @State private var sent = false
+  @State private var failed = false
+  @State private var asksToBlock = false
 
   var body: some View {
     NavigationStack {
       Form {
-        Picker(Copy.Report.title, selection: $reason) {
-          ForEach(ReportReason.allCases, id: \.self) { Text(Copy.Report.reason($0.rawValue)).tag($0) }
+        Section {
+          Picker(Copy.Report.title, selection: $reason) {
+            ForEach(ReportReason.allCases, id: \.self) { Text(Copy.Report.reason($0.rawValue)).tag($0) }
+          }
+          .pickerStyle(.inline)
+          .labelsHidden()
         }
-        .pickerStyle(.inline)
-        .labelsHidden()
-        TextField(Copy.Report.details, text: $text, axis: .vertical)
-          .lineLimit(3...6)
-        if sent { Text(Copy.Report.thanks).tollText(.subhead) }
+        Section {
+          TextField(Copy.Report.details, text: $text, axis: .vertical)
+            .lineLimit(3...6)
+        } footer: {
+          // "Sent" only once the server has it; a failed send says so and leaves Send enabled.
+          if sent {
+            Text(Copy.Report.thanks)
+          } else if failed {
+            Text(Copy.Errors.generic)
+          }
+        }
       }
       .navigationTitle(Copy.Report.title)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) { Button(Copy.FriendDetail.cancel) { dismiss() } }
         ToolbarItem(placement: .confirmationAction) {
-          Button(Copy.Report.send) {
-            Task {
-              let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-              try? await app.deps.network.report(person.id, reason: reason, text: trimmed.isEmpty ? nil : trimmed)
-              sent = true
-            }
-          }
-          .disabled(sent)
+          Button(Copy.Report.send) { Task { await send() } }
+            .disabled(sent || isSending)
         }
       }
-      .confirmationDialog(Copy.Report.alsoBlock, isPresented: $sent, titleVisibility: .visible) {
-        Button(Copy.FriendDetail.block, role: .destructive) {
-          Haptics.warning()
-          Task {
-            try? await app.deps.network.block(person.id)
-            done()
-            dismiss()
-          }
-        }
+      .confirmationDialog(Copy.Report.alsoBlock, isPresented: $asksToBlock, titleVisibility: .visible) {
+        Button(Copy.FriendDetail.block, role: .destructive) { blockToo() }
         Button(Copy.Report.notNow, role: .cancel) { dismiss() }
       }
+    }
+  }
+
+  private func send() async {
+    isSending = true
+    defer { isSending = false }
+    let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    do {
+      try await app.deps.network.report(person.id, reason: reason, text: trimmed.isEmpty ? nil : trimmed)
+      failed = false
+      sent = true
+      asksToBlock = true
+    } catch {
+      failed = true
+    }
+  }
+
+  private func blockToo() {
+    Haptics.warning()
+    Task {
+      try? await app.deps.network.block(person.id)
+      _ = try? await app.deps.network.refreshHome()
+      done()
+      dismiss()
     }
   }
 }

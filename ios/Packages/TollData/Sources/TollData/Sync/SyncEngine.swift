@@ -11,6 +11,10 @@ public actor SyncEngine {
   private var failures = 0
   private var nextAttempt = Date.distantPast
   private var running = false
+  /// A flush was asked for while one was running. The gate and the block editor do not wait for the
+  /// upload, so requests overlap; without this, what was recorded after the running one read the outbox
+  /// would stay behind until the next trigger.
+  private var askedAgain = false
 
   public init(store: LocalStore, api: APIClient, keychain: Keychain) {
     self.store = store
@@ -23,9 +27,22 @@ public actor SyncEngine {
   /// Returns whether everything pending was sent.
   @discardableResult
   public func flush(now: Date = Date(), force: Bool = false) async -> Bool {
-    guard isSignedIn, !running, force || now >= nextAttempt else { return false }
+    guard isSignedIn, force || now >= nextAttempt else { return false }
+    guard !running else {
+      askedAgain = true
+      return false
+    }
     running = true
     defer { running = false }
+    var sent = false
+    repeat {
+      askedAgain = false
+      sent = await attempt(now: now)
+    } while sent && askedAgain
+    return sent
+  }
+
+  private func attempt(now: Date) async -> Bool {
     do {
       try await sendEvents(now: now)
       try await sendWrites()

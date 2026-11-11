@@ -26,6 +26,9 @@ Companion to `toll-mvp-spec.md`. Covers foundations, components, every screen, a
 - **Hierarchy by position:** top-leading is most important. Secondary facts sit directly beneath the hero in a single line, never beside it.
 - **Containment:** group with whitespace first, separators second, cards third. Home uses whitespace + a single card (friends). Settings uses standard grouped lists.
 - **Density:** max one chart per card; max ~7 rows visible before a scroll; never two accents on screen.
+- **A fill must differ from its page.** `surface` is the page colour on `bg` and `surfaceRaised` is the page colour on `bgGrouped` (light mode), so a card, tile, chip or field takes `surfaceRaised` on `bg` and `surface` on `bgGrouped`. A control that can be hosted on either (a field inside a list row, a disabled button) takes `fill`, which is translucent and reads on all three.
+- **Nothing stretches to fill.** Tiles, cards and sheets take their content's height; spare room on a tall phone becomes space above the bottom action, never taller tiles.
+- **Bottom actions** sit 12 pt above the bottom safe area, on a bar of the page's own colour, so scrolled content ends at the bar instead of showing around the button.
 
 ### 2.2 Type
 
@@ -53,7 +56,8 @@ Semantic first. Custom tokens are defined in one asset catalog with light / dark
 | `bg` | systemBackground `#FFFFFF` | `#000000` (system) | Screen background |
 | `bgGrouped` | systemGroupedBackground `#F2F2F7` | `#000000` | Settings, People lists |
 | `surface` | secondarySystemGroupedBackground `#FFFFFF` | `#1C1C1E` | Cards, rows |
-| `surfaceRaised` | tertiarySystemGroupedBackground `#F2F2F7` | `#2C2C2E` | Chips, selected rows |
+| `surfaceRaised` | tertiarySystemGroupedBackground `#F2F2F7` | `#2C2C2E` | Chips, tiles and cards on `bg` |
+| `fill` | tertiarySystemFill (translucent) | tertiarySystemFill | Disabled buttons; fields and tiles whose host colour varies |
 | `label` / `label2` / `label3` | system label tiers | system label tiers | Text |
 | `separator` | system | system | Hairlines |
 | `accent` | `#3A6EA5` | `#8FB4E3` | Primary action, "you" in charts, selected state. **Placeholder; swaps when identity exists.** |
@@ -81,7 +85,7 @@ Motion in Toll explains where things came from and where they went. It never cel
 | Any step push | The system navigation transition. The progress segment fills left to right over 250 ms as the new screen lands, not before. |
 | Returning from the app picker | The apps card is already in place; its rows fade in and rise 6 pt with a 40 ms stagger, once. A second return adds only the new rows the same way. |
 | Selecting a When tile | Fill crossfades 200 ms; the tile scales 0.98 → 1 on release. The previously selected tile fades out its fill, nothing else moves. |
-| Add another block | The creator's apps card shrinks into the compact row above (`matchedGeometryEffect` on the icon cluster and names), 300 ms; the picker rises as that lands. |
+| Add another block | The creator's apps card shrinks into the compact row above (`matchedGeometryEffect` on the icon cluster and names), 300 ms, leaving the card empty. The picker does not open by itself. |
 | Welcome → sign-in sheet | System sheet. On success the sheet drops and the next step pushes in one motion; no intermediate blank. |
 | Code boxes | The active ring moves to the next box 150 ms; a wrong code shakes the row ±6 pt twice over 300 ms and the boxes clear on the way back; a correct sixth digit pushes the next screen with no button. |
 | Handle availability | The check mark fades in 200 ms after the server answers; never a spinner for under 300 ms. |
@@ -128,7 +132,7 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.2 `HeroStat`
 
-- Centred column: numeral `hero` with the `StatusGlyph` (20 pt) beside it, vertically centred on the numeral; beneath, the unit line `body` medium ("passes today"); beneath, the subhead line (`subhead`); optional second line (`caption`).
+- Centred column: numeral `hero` on the screen's centre axis, with the `StatusGlyph` (20 pt) hung 10 pt off its trailing side, vertically centred on the numeral (centring the pair instead pushes the numeral off the axis the lines beneath share); beneath, closed up to the numeral, the unit line `body` medium ("passes today"); 10 pt beneath, the subhead line (`subhead`); optional second line (`caption`).
 - States: normal; zero ("0 passes" is a fact and looks identical); loading (numeral placeholder shimmer-free: `--`).
 
 ### 3.3 `MetricPair`
@@ -153,7 +157,7 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 - Full-screen `.regular` material backdrop over Home including the tab bar (Home stays visible beneath, dimmed; tabs are not tappable while the card is up). Centred card (`bg`, hairline border, radius 20, width = screen − 2×gutter): tag name `title` ("Instagram"), countdown `hero` ("2:41"), line beneath `subhead` ("Wait 3 of today · next wait 8 min"), bottom: `QuietButton` "Cancel". Nothing else. No ring, no progress bar: the number is the progress.
 - When the wait ends while in app: the card swaps to `SessionPicker` (3.8) with a `.light` haptic. A free pass shows `SessionPicker` in the same card with no countdown.
-- The card sits with its top at 180 pt; the countdown is centred in it with 28 pt above and 12 pt below.
+- The card sits with its top at 180 pt from the top of the screen when it fits; a taller card (naming on a 4.7" screen, large text) centres instead and scrolls only if it cannot fit at all. Insets are 32 pt top, 20 pt sides and bottom. The countdown is centred with 24 pt above and 8 pt below (its own line box adds the rest). The wait and the session picker share one frame, Cancel and Open on the same bottom edge, so the swap is a crossfade and nothing resizes. The clock owns its own tick: a second passing redraws the digits only.
 
 ### 3.8 `SessionPicker`
 
@@ -161,7 +165,7 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.9 `TagChips` (first-wait naming)
 
-- Inside the wait card, beneath a hairline: "Which app is this?" `subhead` medium, one `micro` line ("Friends see the name. Change it any time from Blocks."), then the seven tag chips (display forms: Instagram, TikTok, YouTube, Snapchat, X, Reddit, Other) wrapped and centred (34 pt, `surface`; selected = `accent` fill). Shown only when the token has no tag; the countdown keeps running above it. Tapping a chip stores the tag and the section fades out.
+- Inside the wait card, between the wait line and Cancel, beneath a hairline: "Which app is this?" `subhead` medium, one 12 pt `label2` line ("Friends see the name. Change it any time from Blocks."), then the seven tag chips (display forms: Instagram, TikTok, YouTube, Snapchat, X, Reddit, Other) wrapped and centred (34 pt, `surfaceRaised`, because the card is `bg`; selected = `accent` fill). Shown only when the token has no tag; the countdown keeps running above it. Tapping a chip stores the tag and the section fades out.
 
 ### 3.10 `BlockRow`
 
@@ -173,7 +177,8 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.12 Buttons
 
-- `PrimaryButton`: full-width, 50 pt, `accent` fill, label `headline` in white (light) or `#0F1115` (dark, where the accent is light and white would fail contrast). One per screen max.
+- `PrimaryButton`: full-width, 50 pt, `accent` fill, label `headline` in white (light) or `#0F1115` (dark, where the accent is light and white would fail contrast). One per screen max. Disabled: `fill` with a `label3` title, so it still reads as a button on any page.
+- `SecondaryButton`: the same shape in `fill` with a `label` title, for the second of two equal choices (Continue with email). The whole shape is the tap target.
 - `QuietButton`: text-only, `accent` label, `body` medium. Used for Cancel, Skip, Add.
 - `DestructiveQuiet`: text-only, systemRed. Remove, Delete account.
 - No icon buttons in content; nav bar uses standard bar items.
@@ -188,12 +193,12 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.15 `WeekStrip`
 
-- Seven 12 pt-wide bars, 6 pt apart, 28 pt tall at the week's maximum, Monday to Sunday, passes per day; today in `accent`, other days `neutralBar`, zero days a 2 pt stub. No axis, no labels, no values: it is texture that rewards a second look, not a chart. Tapping it opens Insights. Accessibility label reads the seven numbers.
+- Seven 12 pt-wide bars, 6 pt apart, 28 pt tall at the week's maximum, Monday to Sunday, passes per day; today in `accent`, other days `neutralBar`, zero days a 2 pt stub; tops rounded 2 pt, feet square on a shared baseline. No axis, no labels, no values: it is texture that rewards a second look, not a chart. Tapping it opens Insights. Accessibility label reads the seven numbers.
 
 
 ### 3.16 `WhenChips`
 
-- A 2×2 grid of 88 pt tiles, 10 pt apart: icon (infinity, moon, sun, clock), label `subhead` semibold, one `micro` line ("every day", "11 pm – 7 am", "9 am – 5 pm", "pick times"). Selected = `accent` fill with white text; others `surface`. Always is preselected. Custom opens the Custom hours screen.
+- A 2×2 grid of tiles, 10 pt apart, radius 14, 88 pt tall at standard text sizes (taller only when larger text needs it; a pair in a row always matches; the grid never grows to fill spare height): icon (infinity, moon, sun, clock) at the top, label `subhead` semibold, one 12 pt line ("every day", "11 pm – 7 am", "9 am – 5 pm", "pick times"). Selected = `accent` fill with white text; others take the fill that differs from the page (§2.1): `surfaceRaised` in setup, `surface` on New block. Always is preselected. Custom opens the Custom hours screen.
 
 ### 3.17 `Avatar`
 
@@ -208,7 +213,7 @@ Home tab. Nav bar: no title (the hero is the title). Bar items: trailing `gear` 
 1. **You** (centred, no card, 12 pt below the toolbar): `HeroStat` "3" + glyph, "passes today", "11 this week · 17 last week", then `WeekStrip`. 36 pt below it the left-aligned content begins.
 2. **Pinned** (if any): `PinnedRow`s.
 3. **Friends** section: header row with `micro`-style uppercase label "FRIENDS" (`caption` weight medium, `label2`) and trailing `caption` "held 83% this week"; then `FriendRow`s ordered by improvement, hairlines between. Empty: `EmptyState` "No friends yet." + "Send an invite".
-4. **Footer**: one centred `caption` in `label3`, "You opened Toll 14 times today.", above the tab bar. It is the last thing on the screen and the quietest.
+4. **Footer**: one centred `caption` in `label2`, "You opened Toll 14 times today.", anchored 8 pt above the tab bar. It belongs to the screen, not to the list: it is in the same place with no friends and with forty, and rows fade out over 20 pt as they pass under it. It is the last thing on the screen and the quietest.
 
 Device-state line: when Screen Time is off, tokens have expired, or nothing is blocked, a `PinnedRow`-style line sits above everything else ("Screen Time is off · Fix"); "Fix" is the accent word and opens the system sheet or the picker. It outranks a removed-block pin because the gate does not work until it is cleared.
 
@@ -224,45 +229,45 @@ Toll controls: title, subtitle, primary and secondary button labels, background 
 
 ### 4.3 Welcome, sign in, set up
 
-**Title position.** Every screen after Welcome places its title 28 pt below the 44 pt bar (back button, or the progress segments), at 34 pt semibold. Fields, rows and tiles start 28 pt under the title. Primary button at the bottom; the quiet action, when there is one, directly beneath it. Steps push and pop with the system transition; the progress bar persists across the setup steps; sheets rise over the current screen.
+**Title position.** Every screen after Welcome places its title 28 pt below the 44 pt bar (back button, or the progress segments), at 34 pt semibold. Fields, rows and tiles start 28 pt under the title, once: the title owns the gap above it and the content owns the gap below. Primary button at the bottom, 12 pt above the safe area; the quiet action, when there is one, directly beneath it. The bar and the bottom actions stay put; the title and content between them scroll only when they do not fit (a 4.7" screen, large text, the keyboard) and do not bounce when they do. Steps push and pop with the system transition; the progress bar persists across the setup steps; sheets rise over the current screen.
 
 - **Welcome** — vertically centred: the mark (placeholder ring, 56 pt) and the name at 40 pt semibold, nothing else. Bottom: Continue with Apple (system black button), Continue with email (`surface` fill), Continue without an account (quiet), and the 11 pt legal line in `label3` with Terms and Privacy Policy as links.
 - **Email** — back button; "What's your email?"; a 56 pt filled field (`surface`, radius 14, 17 pt text, accent caret); the `PrimaryButton` "Send code" 12 pt beneath it, where the keyboard leaves it, never at the bottom of the screen; one `caption` beneath, centred. Keyboard is up on arrival.
 - **Code** — back; "Enter the code"; `subhead` "Sent to …"; six 60 pt boxes (`surface`, radius 14, 28 pt digits, the active box ringed in `accent` with a caret); "Resend code" centred beneath. Autofills from Mail; advances on the sixth digit without a button.
-- **Set up 1 · You** (signed-in, new accounts only) — "You"; 96 pt `Avatar` with an accent "+" badge to add a photo; Name field (prefilled from Apple); Handle field with a live "available" check in `level1`; `caption` "Friends find you by handle. Both can be changed in Settings."; Continue.
+- **Set up 1 · You** (signed-in, new accounts only) — "You"; 96 pt `Avatar` with an accent "+" badge to add a photo; Name field (prefilled from Apple) and Handle field, each a 56 pt filled field with its `caption` label above it, so a prefilled screen still says which is which; the handle shows a live check mark and "available" in `level1`; `caption` "Friends find you by handle. Both can be changed in Settings."; Continue.
 - **Set up 2 · Permissions** — "Toll needs two things"; two icon rows (44 pt `surface` tile with the symbol, label `headline`); one `PrimaryButton` Allow runs both system sheets. No skip. Denied state: the Screen Time row's trailing text reads Denied in `level3`, Notifications reads Allowed with a check, one `subhead` line explains, the button reads Try again.
-- **Set up 3 · Block these** — the fast creator, and it never scrolls: the apps card shows at most three app rows, then a 44 pt "+N more" row (opens the full list), then Choose more; the "WHEN" label, `WhenChips` with Always preselected, Done, "Add another block" quiet beneath Done. With one compact row from Add another, everything still fits a 4.7" screen; on a second Add another the compact rows collapse to one line ("2 blocks · Always, Weekdays"). After Add another, each finished block becomes a 48 pt compact row (icon cluster, names · schedule, chevron) stacked above the creator. Returning users: title "Block these again", bar of two.
-- **Set up 4 · Find your friends** — a full step on `bgGrouped`, bar of four: three groups: Invite code (field + Paste), Contacts (one row), School (field + Send code); Done; Skip quiet directly beneath it.
+- **Set up 3 · Block these** — the fast creator: the apps card (`surfaceRaised`, hairlines between rows) shows at most three app rows, then a 44 pt "+N more" row with a chevron (opens the full list), then "+ Choose more"; empty, the card is one centred "+ Choose apps" row. Then the "WHEN" label, `WhenChips` with Always preselected, and at the bottom Done with "Add another block" quiet beneath it. It fits without scrolling on 6.1" and up; on a 4.7" screen with a full card the content scrolls under the pinned buttons. With one compact row from Add another, everything still fits a 4.7" screen; on a second Add another the compact rows collapse to one line ("2 blocks · Always, Weekdays"). After Add another, each finished block becomes a 48 pt compact row (icon cluster, names · schedule, chevron) stacked above the creator. Returning users: title "Block these again", bar of two.
+- **Set up 4 · Find your friends** — a full step on `bgGrouped`, bar of four: three groups, 24 pt apart, each a header and one 56 pt `surface` row: Invite code (field + Paste), Contacts (one row with a chevron), School (field + Send code); Done; Skip quiet directly beneath it. People, Settings and Insights embed the same groups, on `fill` because their host colour varies.
 
 ### 4.4 People
 
-Grouped list. Sections: **Requests** (if any; `Avatar` without badge, name, "friends with Maya", Accept · Decline) · **Friends** (`FriendRow`s with avatars, `@handle` in `caption` after the name, week numbers, in the same improvement order as Home) · **Mutuals** (`MutualRow`s) · **In your contacts** (if contacts matching is built; `MutualRow` geometry with "Add") · **School** (one row: school name, member count, "held 71% this week" + "Find people at Waterloo" → mutuals filtered by school) · **Invite** (one row showing the user's code and a "Share invite link" `PrimaryButton`). Trailing nav item: person.badge.plus → Invite sheet.
+Grouped list, inline title. Rows sit on the system's inset-grouped cards with the row's own 60 pt height (no list padding on top of it). Sections: **Requests** (if any; `Avatar` without badge, name, "friends with Maya", Accept · Decline; stacked from the largest standard text size up) · **Friends** (`FriendRow`s with avatars, `@handle` in `caption` after the name, "14 this week · 18 last week" beneath and the trend trailing, in the same improvement order as Home) · **Mutuals** (`MutualRow`s) · **In your contacts** (if contacts matching is built; `MutualRow` geometry with "Add") · **School** (one two-line row with a chevron: school name; member count and "held 71% this week"; it opens the members list, and "Find people at Waterloo" is its VoiceOver hint; with no school, the school email field) · **Find friends** (invite code field and contacts row, the setup groups, N-17) · **Invite** (the user's code, with the "Share invite link" `PrimaryButton` beneath the card). A mutual already asked shows "Requested" as a note, not a button. Trailing nav item: person.badge.plus → Invite sheet.
 
 ### 4.5 Friend detail (sheet)
 
-A large detent sheet over Home (top at ~96 pt, grabber). Header: 44 pt `Avatar`, name `title`, `caption` "@handle · friends since Oct 12"; today's count at 40 pt + glyph; a 4-up `MetricPair` row (this week, held %, waited, clean days, each with last week beside); "Today" and "Yesterday" lists of pass lines (`subhead`, 36 pt rows, hairlines); their tagged blocks as chips. Bottom: three quiet actions in `label2`, centred: Remove friend · Block · Report. Nothing older than yesterday.
+A large detent sheet over Home (top at ~96 pt, grabber). Header: 44 pt `Avatar`, name `title`, `caption` "@handle · friends since Oct 12"; today's count at 40 pt + glyph; a 4-up `MetricPair` row (this week, held %, waited, clean days, each with last week beside); "Today" and "Yesterday" lists of pass lines (`subhead`, 36 pt rows, hairlines); their tagged blocks as chips (`fill` with `label` text: they are not actions, and accent text on the accent tint is under 4.5:1). The four metrics are equal columns (2×2 at accessibility sizes); only "this week" carries a last-week value, because the API has no others. Bottom: three quiet actions in `label2`, centred, resting on the sheet's bottom edge when the content is short: Remove friend · Block · Report. Nothing older than yesterday.
 
 ### 4.6 Blocks
 
-Grouped background. One grouped card of `BlockRow`s; caption beneath "Removing a block is shown to your friends." `PrimaryButton` "Add a block" sticky above the safe area.
+Grouped background, inline title. One grouped card of `BlockRow`s (one chevron per row; an empty list says "Nothing blocked yet"); caption beneath "Removing a block is shown to your friends." `PrimaryButton` "Add a block" on a bottom bar (§2.1).
 
-**New block** — pushed; the picker opens at once; on return: the chosen apps card (system `Label(token)` icon + name, and on the right the friends-facing tag in `caption`, tappable → tag chips), a "Choose more" row, a `micro` line ("Names on the right are what friends see. Tap to change."), `WhenChips`, a "Block name" row (caption "Optional. Only you see it."), Done. Editing an existing block opens the same screen prefilled.
+**New block** — pushed, inline title, arriving on the empty apps card ("+ Choose apps"); the picker opens only from that row. Back from the picker: the chosen apps card (system `Label(token)` icon + name, and on the right the friends-facing tag in `caption`, tappable → tag chips), a "Choose more" row, a `micro` line ("Names on the right are what friends see. Tap to change."), `WhenChips`, a "Block name" row (caption "Optional. Only you see it."), Done. Editing an existing block opens the same screen prefilled.
 
-**Custom hours** — a sheet over New block (top at ~300 pt): "Custom" `title`, From / Until as two inline wheel pickers side by side, a 7-tile day row (40 pt tiles, selected = `accent`), Done. Choosing Custom in `WhenChips` opens it; Done returns with the Custom tile showing the chosen window.
+**Custom hours** — a 380 pt sheet over New block (full height at accessibility text sizes): "Custom" `title`; From and Until as two rows in one card, each with the system's compact time picker (two wheels side by side clip each other at phone width); a day row of seven equal tiles across the full width (44 pt tall, selected = `accent`); Done at the bottom. Choosing Custom in `WhenChips` opens it; Done returns with the Custom tile showing the chosen window.
 
 At `blocks.maxTokens` the picker's Done is disabled and the limit line from spec §10 shows; at `blocks.max` the "Add a block" button is disabled.
 
 ### 4.7 Insights
 
-Segmented control (Me · Friends · School) under the nav bar; vertical stack of `ChartCard`s per `toll-insights-spec.md` §3. Trailing nav item: square.and.arrow.up → share sheet with card thumbnails (3.14).
+Inline title; segmented control (Me · Friends · School) under the nav bar; a lazy vertical stack of `ChartCard`s per `toll-insights-spec.md` §3, 16 pt apart. Trailing nav item: square.and.arrow.up → the share sheet: a chip row to choose the card, the preview scaled to the space that is left, and Share on a bottom bar (3.14). Friends and School each tell loading, failed, signed out and "not enough yet" apart with one line; a new user sees empty charts with their axes, never a blank page.
 
 ### 4.8 Settings
 
-Grouped list. Account (40 pt `Avatar`, name, `@handle`, Edit; sign out) · School (status, change, leave) · Notifications (daily summary toggle, time) · Discoverability (contacts matching toggle) · Blocks shortcut · Data (export my data, delete account) · About (privacy policy, terms, support address, version) · **Support Toll** (donation link; last group, below the fold). Delete account is `DestructiveQuiet` with a two-step confirm.
+Inset-grouped list, inline title. Account (40 pt `Avatar`, name, `@handle`, Edit trailing; sign out) · School (status, change, leave) · Notifications (daily summary toggle, time) · Discoverability (contacts matching toggle) · Blocks shortcut · Data (export my data, delete account) · About (privacy policy, terms, support address, version) · **Support Toll** (donation link; last group, below the fold). Delete account is `DestructiveQuiet` with a two-step confirm.
 
 ### 4.9 Invite sheet
 
-A half-height sheet over People: "Your code" `caption`, the code at 44 pt semibold letter-spaced 6 pt, `PrimaryButton` "Share link" (`ShareLink`), caption "Friends who install from this link are added when they accept."
+A half-height sheet over People with a grabber: "Your code" `caption` and the code at 44 pt semibold letter-spaced 6 pt, centred in the space above; `PrimaryButton` "Share link" (`ShareLink`) and the caption "Friends who install from this link are added when they accept." on the bottom edge. The code shows at once; the button holds its place, disabled, while the link loads.
 
 ### 4.10 Session picker (wait card state)
 

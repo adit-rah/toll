@@ -24,10 +24,32 @@ private struct PrimaryButtonBody<Label: View>: View {
       .padding(.vertical, 8)
       .frame(maxWidth: .infinity, minHeight: 50)
       .background(
-        isEnabled ? TollColor.accent : TollColor.surfaceRaised,
+        isEnabled ? TollColor.accent : TollColor.fill,
         in: RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous)
       )
       .opacity(isPressed ? 0.85 : 1)
+      .contentShape(RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous))
+  }
+}
+
+/// The primary button's shape in a neutral fill, for the second of two equal choices ("Continue with
+/// email" under the Apple button). The fill belongs to the label so the whole shape takes the tap.
+public struct SecondaryButtonStyle: ButtonStyle {
+  public init() {}
+
+  public func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .font(TollFont.headline)
+      .foregroundStyle(TollColor.label)
+      .lineLimit(2)
+      .multilineTextAlignment(.center)
+      .padding(.horizontal, 16)
+      .padding(.vertical, 8)
+      .frame(maxWidth: .infinity, minHeight: 50)
+      .background(
+        TollColor.fill, in: RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous)
+      )
+      .opacity(configuration.isPressed ? 0.6 : 1)
       .contentShape(RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous))
   }
 }
@@ -78,6 +100,10 @@ private struct QuietButtonBody<Label: View>: View {
 
 extension ButtonStyle where Self == PrimaryButtonStyle {
   public static var tollPrimary: PrimaryButtonStyle { PrimaryButtonStyle() }
+}
+
+extension ButtonStyle where Self == SecondaryButtonStyle {
+  public static var tollSecondary: SecondaryButtonStyle { SecondaryButtonStyle() }
 }
 
 extension ButtonStyle where Self == QuietButtonStyle {

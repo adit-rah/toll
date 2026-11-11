@@ -97,7 +97,7 @@ Shown only when verified and the school meets `network.schoolMinMembers`; otherw
 
 ## 4. Charts
 
-- Swift Charts throughout. One accent colour (you), one neutral (others), one sequential ramp (heatmap), one light shade (late hours). Charts never use the three level colours; the status glyph in `toll-design.md` carries level, charts carry counts.
+- Swift Charts for the line, histogram and heatmap cards. Four cards are drawn by hand because Swift Charts cannot outline a bar or draw a track: day by day (I-2: seven weekday pairs, last week beside this week, today outlined, 2 pt stubs for zero), gates held (I-11: name, track, value), by app (I-5) and the tag-share bar (I-18: one segmented bar on the sequential ramp by rank, with a wrapping legend). Each still exposes an audio graph and spoken values. One accent colour (you), one neutral (others), one sequential ramp (heatmap), one light shade (late hours). Charts never use the three level colours; the status glyph in `toll-design.md` carries level, charts carry counts.
 - Bars for counts, lines for trends over weeks, binned bars for distributions, `RectangleMark` grid for the heatmap. No pies, no donuts, no gauges, no 3D.
 - Tabular (monospaced-digit) numerals for every number. Axis labels minimal: first and last, plus the hour or weekday ticks that matter. Gridlines light; no chart borders; no legends when colour is explained by the caption.
 - Fixed heights per chart type (design doc). Charts never scroll horizontally in 0.1.

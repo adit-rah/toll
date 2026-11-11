@@ -5,21 +5,22 @@ public enum AppGroup {
   public static let fallbackIdentifier = "group.com.advan.toll"
 
   /// Read from Info.plist so a rename is one build setting (`TOLL_APP_GROUP`), not a code change.
-  public static var identifier: String {
+  public static let identifier: String =
     Bundle.main.object(forInfoDictionaryKey: "TollAppGroup") as? String ?? fallbackIdentifier
-  }
 
-  public static var containerURL: URL {
+  /// Resolved once per process: every gate store, spool and registry value starts from this lookup, and
+  /// the container cannot move while the process lives.
+  public static let containerURL: URL = {
     #if canImport(Darwin)
       if let url = FileManager.default.containerURL(
-        forSecurityApplicationGroupIdentifier: identifier)
+        forSecurityApplicationGroupIdentifier: AppGroup.identifier)
       {
         return url
       }
     #endif
     return FileManager.default.temporaryDirectory.appending(
-      path: identifier, directoryHint: .isDirectory)
-  }
+      path: AppGroup.identifier, directoryHint: .isDirectory)
+  }()
 
   public static func file(_ name: String) -> URL {
     containerURL.appending(path: name, directoryHint: .notDirectory)

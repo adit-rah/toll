@@ -7,47 +7,64 @@ import TollUI
 struct GateLayer: View {
   let app: AppModel
   @State private var model: GateModel?
-  @State private var naming: Tag?
 
   var body: some View {
-    ZStack {
-      if let model, model.phase != .hidden, let ref = model.primaryApp {
-        WaitOverlay { card(model, ref: ref) }
-          .transition(.opacity)
+    WaitOverlay(isPresented: isShown) {
+      if let model, let ref = model.primaryApp {
+        GateCard(model: model, ref: ref)
       }
     }
-    .animation(Motion.stateChange, value: model?.phase)
     .task(id: app.gate) {
       if model == nil { model = GateModel(app: app) }
       await model?.sync()
     }
-    .onChange(of: naming) { _, tag in
-      if let tag, let model { Task { await model.name(tag) } }
-    }
   }
 
-  @ViewBuilder
-  private func card(_ model: GateModel, ref: AppRef) -> some View {
-    @Bindable var bound = model
-    let countdown: WaitCountdown? =
-      if case .waiting(let remaining) = model.phase {
-        WaitCountdown(
-          remaining: remaining, line: model.waitLine ?? "", cancelTitle: Copy.Wait.cancel,
-          onCancel: { Task { await model.cancel() } })
-      } else { nil }
-    let session = SessionChoice(
-      question: Copy.SessionPicker.question, options: model.sessionChoices, selection: $bound.selectedMinutes,
-      note: Copy.SessionPicker.note, onOpen: { Task { await model.open() } })
-    let namingSection: WaitNaming? =
-      model.untaggedApp != nil && countdown != nil
-      ? WaitNaming(question: Copy.Wait.namingQuestion, note: Copy.Wait.namingNote, selection: $naming) : nil
-    WaitCard(countdown: countdown, session: session, naming: namingSection) {
-      AppLabel(ref).tollText(.title)
+  private var isShown: Bool {
+    guard let model else { return false }
+    return model.phase != .hidden && model.primaryApp != nil
+  }
+}
+
+/// Its own view so that the card, not the whole layer, is what the model's changes redraw. The
+/// countdown is not one of them: the card's clock ticks by itself.
+private struct GateCard: View {
+  @Bindable var model: GateModel
+  let ref: AppRef
+
+  var body: some View {
+    WaitCard(countdown: countdown, session: session, naming: naming) {
+      AppLabel(ref)
     } openLabel: {
       HStack(spacing: 4) {
         Text(Copy.SessionPicker.openVerb)
         AppLabel(ref)
       }
     }
+  }
+
+  private var countdown: WaitCountdown? {
+    let gate = self.model
+    guard case .waiting(let endsAt) = gate.phase else { return nil }
+    return WaitCountdown(
+      endsAt: endsAt, line: gate.waitLine ?? "", cancelTitle: Copy.Wait.cancel,
+      onCancel: { Task { await gate.cancel() } })
+  }
+
+  private var session: SessionChoice {
+    let gate = self.model
+    return SessionChoice(
+      question: Copy.SessionPicker.question, options: gate.sessionChoices, selection: $model.selectedMinutes,
+      note: Copy.SessionPicker.note, onOpen: { Task { await gate.open() } })
+  }
+
+  /// Offered only while the wait runs. It stays up after a tag is chosen (`untaggedApp` is kept) so
+  /// the card can fill the chip and close the section itself.
+  private var naming: WaitNaming? {
+    let gate = self.model
+    guard gate.untaggedApp != nil, case .waiting = gate.phase else { return nil }
+    return WaitNaming(
+      question: Copy.Wait.namingQuestion, note: Copy.Wait.namingNote,
+      selection: Binding(get: { gate.chosenTag }, set: { tag in if let tag { gate.name(tag) } }))
   }
 }

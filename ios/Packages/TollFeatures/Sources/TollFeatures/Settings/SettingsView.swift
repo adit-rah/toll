@@ -1,26 +1,28 @@
-import AuthenticationServices
 import SwiftUI
 import TollCore
 import TollData
 import TollUI
 
-/// Settings (design §4.8, flows §16). Delete account is a two-step confirm with re-authentication.
+/// Settings (design §4.8, flows §16): a standard grouped list. Delete account is a two-step confirm
+/// with re-authentication.
 struct SettingsView: View {
   let app: AppModel
   @State private var model: SettingsModel?
   @State private var legal: URL?
-  @State private var nonce = AppleNonce()
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
     ZStack {
       if let model { list(model) }
     }
+    // The model arrives a frame after the push; without this the page is white for that frame.
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(TollColor.bgGrouped)
     .navigationTitle(Copy.Settings.title)
+    .navigationBarTitleDisplayMode(.inline)
     .task {
-      if model == nil {
-        model = SettingsModel(app: app)
-        await model?.loadBlockedPeople()
-      }
+      if model == nil { model = SettingsModel(app: app) }
+      await model?.refresh()
     }
     .sheet(item: $legal) { SafariView(url: $0).ignoresSafeArea() }
   }
@@ -28,34 +30,9 @@ struct SettingsView: View {
   private func list(_ model: SettingsModel) -> some View {
     @Bindable var bound = model
     return List {
-      Section(Copy.Settings.account) {
-        if let me = app.me, app.isSignedIn {
-          NavigationLink { AccountEditView(app: app) } label: {
-            HStack(spacing: 12) {
-              Avatar(name: me.displayName ?? "", handle: me.handle ?? "", photoURL: me.photoUrl.flatMap(URL.init(string:)), size: .settings)
-              VStack(alignment: .leading) {
-                Text(me.displayName ?? "").tollText(.headline)
-                Text("@\(me.handle ?? "")").tollText(.caption)
-              }
-            }
-          }
-          Button(Copy.Settings.signOut) { model.confirmSignOut = true }
-        } else {
-          Button(Copy.Settings.signIn) { app.showsSignInSheet = true }
-        }
-      }
+      account(model)
       if app.isSignedIn {
-        Section(Copy.Settings.school) {
-          if let school = app.me?.school {
-            HStack {
-              Text(school.name)
-              Spacer()
-              Button(Copy.Settings.leave, role: .destructive) { model.confirmLeaveSchool = true }
-            }
-          } else {
-            FindFriendsView(app: app, isSetup: false)
-          }
-        }
+        school(model)
         Section(Copy.Settings.notifications) {
           Toggle(Copy.Settings.dailySummary, isOn: $bound.notifyEnabled)
           if model.notifyEnabled {
@@ -64,27 +41,34 @@ struct SettingsView: View {
             }
           }
         }
-        .onChange(of: model.notifyEnabled) { Task { await model.save() } }
-        .onChange(of: model.notifyHour) { Task { await model.save() } }
-        Section(Copy.Settings.discoverability) {
+        Section {
           Toggle(Copy.Settings.letContactsFind, isOn: $bound.discoverable)
-            .onChange(of: model.discoverable) { Task { await model.save() } }
+        } header: {
+          Text(Copy.Settings.discoverability)
+        } footer: {
+          // Under the switches that just went back, which is where the eye is.
+          if let error = model.saveError { Text(error) }
         }
       }
-      Section {
-        NavigationLink(Copy.Settings.blockedApps) { BlocksView(app: app) }
+      Section(Copy.Blocks.title) {
+        // A value, not a destination: every push in Home's stack goes through its path.
+        NavigationLink(value: HomeRoute.blocks) {
+          if let count = model.blockedAppCount {
+            LabeledContent(Copy.Settings.blockedApps, value: "\(count)")
+          } else {
+            Text(Copy.Settings.blockedApps)
+          }
+        }
         if !model.blockedPeople.isEmpty {
           NavigationLink(Copy.Settings.blockedPeople) { BlockedPeopleView(model: model) }
         }
       }
       Section(Copy.Settings.data) {
-        if let url = model.exportURL {
-          ShareLink(Copy.Settings.export, item: url)
-        } else {
-          Button(Copy.Settings.export) { Task { await model.prepareExport() } }
+        ShareLink(item: model.export, preview: SharePreview(Copy.Settings.export)) {
+          Text(Copy.Settings.export)
         }
         if app.isSignedIn {
-          Button(Copy.Settings.delete, role: .destructive) { model.confirmDelete = true }
+          Button(Copy.Settings.delete, role: .destructive) { model.beginDelete() }
         }
       }
       Section(Copy.Settings.about) {
@@ -100,8 +84,11 @@ struct SettingsView: View {
           Link(Copy.Settings.donate, destination: donation)
         }
       }
-      if let error = model.error { Text(error).tollText(.subhead) }
     }
+    .listStyle(.insetGrouped)
+    .onChange(of: model.notifyEnabled) { Task { await model.save() } }
+    .onChange(of: model.notifyHour) { Task { await model.save() } }
+    .onChange(of: model.discoverable) { Task { await model.save() } }
     .confirmationDialog(Copy.Settings.signOutConfirm, isPresented: $bound.confirmSignOut, titleVisibility: .visible) {
       Button(Copy.Settings.signOut, role: .destructive) { Task { await model.signOut() } }
     }
@@ -111,85 +98,51 @@ struct SettingsView: View {
     ) {
       Button(Copy.Settings.leave, role: .destructive) { Task { await model.leaveSchool() } }
     }
-    .sheet(isPresented: $bound.confirmDelete) { deleteSheet(model) }
+    .sheet(isPresented: $bound.confirmDelete) { DeleteAccountSheet(model: model) }
   }
 
-  private func deleteSheet(_ model: SettingsModel) -> some View {
-    @Bindable var bound = model
-    return VStack(alignment: .leading, spacing: 20) {
-      Text(Copy.Settings.deleteConfirm).tollText(.title)
-      if model.isEmailAccount {
-        if model.deleteCodeSent {
-          Text(Copy.Settings.checkEmailToDelete).tollText(.subhead)
-          CodeBoxes(code: $bound.deleteCode, accessibilityLabel: Copy.Code.title) { _ in
-            Haptics.warning()
-            Task { await model.deleteWithEmailCode() }
+  private func account(_ model: SettingsModel) -> some View {
+    Section(Copy.Settings.account) {
+      if let me = app.me, app.isSignedIn {
+        NavigationLink {
+          AccountEditView(app: app)
+        } label: {
+          HStack(spacing: TollSpacing.rowLeadingGap) {
+            Avatar(
+              name: me.displayName ?? "", handle: me.handle ?? "", photoURL: me.photoUrl.flatMap(URL.init(string:)),
+              size: .settings)
+            VStack(alignment: .leading, spacing: 2) {
+              Text(me.displayName ?? "").tollText(.headline)
+              Text("@\(me.handle ?? "")").tollText(.caption)
+            }
+            Spacer(minLength: TollSpacing.labelGap)
+            // At accessibility sizes the name needs the width more than the chevron needs a caption.
+            if !typeSize.isAccessibilitySize {
+              Text(Copy.Settings.edit).tollText(.subhead)
+            }
           }
-        } else {
-          Button(Copy.Settings.continue) { Task { await model.sendDeleteCode() } }.buttonStyle(.tollDestructiveQuiet)
+          .padding(.vertical, 4)
+          .accessibilityElement(children: .combine)
+        }
+        Button(Copy.Settings.signOut) { model.confirmSignOut = true }
+      } else {
+        Button(Copy.Settings.signIn) { app.showsSignInSheet = true }
+      }
+    }
+  }
+
+  private func school(_ model: SettingsModel) -> some View {
+    Section(Copy.Settings.school) {
+      if let school = app.me?.school {
+        HStack(spacing: TollSpacing.labelGap) {
+          Text(school.name).tollText(.body)
+          Spacer(minLength: 0)
+          // Borderless, or the whole row becomes the button and a tap on the name asks to leave.
+          Button(Copy.Settings.leave, role: .destructive) { model.confirmLeaveSchool = true }
+            .buttonStyle(.borderless)
         }
       } else {
-        SignInWithAppleButton(.continue) { request in
-          nonce = AppleNonce()
-          request.nonce = nonce.hashed
-        } onCompletion: { result in
-          guard case .success(let auth) = result, let credential = AppleCredential(auth) else { return }
-          Haptics.warning()
-          Task { await model.deleteWithApple(credential, nonce: nonce) }
-        }
-        .frame(height: 50)
-      }
-      if let error = model.error { Text(error).tollText(.subhead) }
-      QuietButton(Copy.FriendDetail.cancel, tone: .secondary) { model.confirmDelete = false }
-    }
-    .tollGutter()
-    .padding(.top, 24)
-    .presentationDetents([.medium])
-  }
-}
-
-struct BlockedPeopleView: View {
-  let model: SettingsModel
-
-  var body: some View {
-    List(model.blockedPeople) { person in
-      HStack {
-        Text(person.displayName)
-        Spacer()
-        QuietButton(Copy.Settings.unblock) { Task { await model.unblock(person) } }
-      }
-    }
-    .navigationTitle(Copy.Settings.blockedPeople)
-  }
-}
-
-/// Edit name, handle and photo (flows §16); reuses the You step's model.
-struct AccountEditView: View {
-  let app: AppModel
-  @State private var model: YouModel?
-  @Environment(\.dismiss) private var dismiss
-
-  var body: some View {
-    Form {
-      if let model {
-        @Bindable var bound = model
-        TextField(Copy.You.name, text: $bound.name)
-        TextField(Copy.You.handle, text: $bound.handle)
-          .textInputAutocapitalization(.never)
-          .autocorrectionDisabled()
-        Text(Copy.You.note).tollText(.caption)
-      }
-    }
-    .navigationTitle(Copy.Settings.account)
-    .toolbar {
-      ToolbarItem(placement: .confirmationAction) {
-        Button(Copy.Settings.save) { Task { await model?.save(); dismiss() } }
-      }
-    }
-    .task {
-      if model == nil {
-        model = YouModel(app: app)
-        await model?.load()
+        FindFriendsView(app: app, isSetup: false, parts: [.school], showsHeaders: false)
       }
     }
   }

@@ -60,8 +60,8 @@ public struct ProgressSegments: View {
   }
 }
 
-/// A setup or sign-in title: 34 pt semibold, 28 pt under the 44 pt bar, with 28 pt before the content
-/// (design §4.3).
+/// A setup or sign-in title: 34 pt semibold, 28 pt under the 44 pt bar (design §4.3). The gap beneath
+/// belongs to the caller, so a subtitle can sit closer than a field does.
 public struct ScreenTitle: View {
   let text: String
 
@@ -73,9 +73,27 @@ public struct ScreenTitle: View {
     Text(text)
       .font(TollFont.screenTitle)
       .foregroundStyle(TollColor.label)
+      .fixedSize(horizontal: false, vertical: true)
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(.top, TollSpacing.titleGap)
-      .padding(.bottom, TollSpacing.titleGap)
       .accessibilityAddTraits(.isHeader)
+  }
+}
+
+extension View {
+  /// A bottom action pinned above the safe area, on the page's own colour so scrolled content ends
+  /// cleanly at it instead of showing through around the button.
+  public func tollBottomBar<Bar: View>(
+    background: Color = TollColor.bgGrouped, @ViewBuilder content: () -> Bar
+  ) -> some View {
+    let bar = content()
+    return safeAreaInset(edge: .bottom, spacing: 0) {
+      bar
+        .tollGutter()
+        .padding(.top, TollSpacing.labelGap)
+        .padding(.bottom, TollSpacing.footerBottom)
+        .frame(maxWidth: .infinity)
+        .background(background)
+    }
   }
 }

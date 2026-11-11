@@ -72,6 +72,9 @@ public actor LocalStore {
       )
       .fetchAll(db).compactMap(\.event)
     }
+    // Every flush stamps `uploadedAt` on rows of this table, which is not part of an event; without
+    // this each upload would hand Home the same list to recompute and redraw.
+    .removeDuplicates()
     .values(in: writer)
   }
 
