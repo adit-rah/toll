@@ -71,7 +71,8 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 
 ## 8. The gate (flows §9, §10; spec G-3…G-10)
 - [ ] First two opens of the day: free pass → session picker at once ("How long?", "From now. The block returns after."), no wait card.
-- [ ] Free pass → picker → "Not now": the card leaves, Home's count does not move, friends see nothing. Tap the same app again → shield → Open Toll → the picker is back, still a free pass. Open it → now "1 pass today".
+- [ ] Free pass → picker → "Not now" (it sits where Cancel sits on the wait card): the card leaves, Home's count does not move, friends see nothing, and the block bar reads "Pass ready". Tap the same app again → shield → Open Toll → the picker is back, still a free pass. Unblock → now "1 pass today".
+- [ ] "Not now", keep vs discard: after a shield hit the pass is kept (bar: "Pass ready"; tap the bar → card → Unblock → the picker returns with no new wait). After Unblock inside Toll, "Not now" drops it (bar back to "Always" or "Until …"; Unblock again starts over, free pass or wait as before). Neither moves the day's count.
 - [ ] "Not now", then leave the pass until after 4 am → it is gone: the next open is a fresh free pass, not a third one.
 - [ ] Insights → Gates: a free pass declined with "Not now" and never used counts as a gate held.
 - [ ] Third open: wait card "<App>", countdown from 3:00, "Wait 1 of today · next wait 5 min", Cancel. A light haptic as it starts.
@@ -83,23 +84,38 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] While a wait runs, open a second blocked app → its shield → Open Toll → the same card, the same countdown (not reset, not extended).
 - [ ] Cancel → back to Home; next open starts a new wait of the next length.
 - [ ] Countdown reaches 0 with Toll open → the card becomes the picker (crossfade, light haptic). Coming back after it ended → the picker directly.
-- [ ] Choose 5 min → "Open <App>" → the app opens unshielded. Home shows "<App> is open · 5 min left" and counts down by the minute. The pass appears in the day's count now, not before.
+- [ ] Choose 5 min → the button reads "Unblock for 5 min" and follows the chip → tap it: the card drops away and Toll stays on Home (it does not switch apps); the block bar reads "Open · 4:59 left" and counts down by the second. The app opens unshielded from the home screen. The pass appears in the day's count now, not before.
+- [ ] The wait card and the picker are the same size: when a wait reaches zero nothing jumps, and "Not now" lands exactly where "Cancel" was. Check on a 4.7-inch screen and at the largest standard text size.
 - [ ] **5 min, the short-session workaround (spec G-6, §6):** start a 5 min session, stay in the app with Toll in the background → it re-shields at 5:00 by the wall clock. This is the end warning of a 15-minute interval; note how late it was. If it re-shields only at 15:00, the warning did not arrive or arrived before the expiry: file it in the fix list with the Console line `reconcile source=warning:session.…`.
 - [ ] **10 min:** the same → re-shields at 10:00 (warning 5 minutes before a 15-minute interval).
 - [ ] **15 min:** re-shields at 15:00 (interval end, no warning involved).
 - [ ] A 5 min session where the app is never opened → still re-shields at 5:00: time is flat, use does not matter.
 - [ ] Console, category `activity`: starting a 5 or 10 min session logs no "session activity failed" (that would be `intervalTooShort`).
 - [ ] No early re-shield: during a 10 min session, lock the phone for 3 minutes and come back → the app is still open; the shield does not return before 10:00.
-- [ ] With the monitor disrupted (reboot mid-session), open Toll after the session's time → the app re-shields on foreground and the session line is gone.
+- [ ] With the monitor disrupted (reboot mid-session), open Toll after the session's time → the app re-shields on foreground and the block bar is back to "Always" / "Until …".
 - [ ] Set the clock forward during a session → it ends when Toll or the monitor next runs. Set it back → it does not end early by real time; it ends when the clock reaches the expiry (known: this lengthens the session; record what happens).
 - [ ] A session started 5 minutes before a Nights block ends → the app simply stays open after the window; nothing odd at the session's expiry.
 - [ ] Both apps hit during one wait both unlock for the session.
-- [ ] **Unblock from inside Toll** (once the screen exists): Unblock on a block with a free pass left → the picker at once, for every app in the block; "Not now" → the pass is gone and nothing was counted. With no free pass → the wait card named for the block's first app; at zero the picker; choosing a length unlocks every app in the block. No block hit is added to Insights → Gates.
+- [ ] **Unblock from Home:** tap the block bar → the card → Unblock: the sheet closes first, then, with a free pass left, the picker at once, for every app in the block; "Not now" → the pass is gone and nothing was counted. With no free pass → the wait card titled with the block's apps on one line (a shield hit still names only the app that was tapped); at zero the picker; choosing a length unlocks every app in the block. No block hit is added to Insights → Gates.
 - [ ] Unblock while a wait is already running → the same card and countdown; that block's apps unlock with the rest.
-- [ ] **Block again** (once the screen exists): during a session, Block again → the app is shielded at once, the session line leaves Home, and the pass still counts.
+- [ ] **Block again:** during a session, tap the bar → the card shows the countdown large and "Block again" → tap: a light haptic, the app is shielded at once, the card stays open and now offers Unblock, the bar reads "Always" / "Until …", and the pass still counts.
 - [ ] Update over a build from before 11 Nov with a wait running → the wait continues and completes normally (old state decodes).
 - [ ] The wait shows nowhere else: no lock-screen countdown, no notification at the end.
 - [ ] Home footer: "You opened Toll N times today." increments on each open.
+
+## 8a. The block bar on Home (design §3.18, §4.1)
+- [ ] With an Always block: a bar sits at the very bottom of Home, 8 pt above the tab bar, under "You opened Toll N times today.": icons, the apps' names (or the block's own name), "Always", and "Unblock" on the right. It is there with no friends and with a long list; rows fade out above the caption and never show beside the bar.
+- [ ] **iOS 26:** the bar is glass and reads in light and dark, on the plain page and with Reduce Transparency on. Scroll the list so the tab bar minimises: the bar follows it down and nothing overlaps. **iOS 18:** the bar is a raised fill with a hairline.
+- [ ] A Nights block inside its window reads "Until 7 am"; outside it, with nothing else on, the bar is quiet: "Starts 11 pm", no "Unblock". At 23:00 with Home open the bar changes by itself; at 07:00 it changes back.
+- [ ] No blocks → no bar; the caption is where it always was. Add a block from the `+` beside the gear → Done → the bar appears without leaving Home. At 8 blocks the `+` is disabled.
+- [ ] **Enlarge:** tap the bar → the sheet grows out of the bar (zoom), half height with a grabber, and drags to full height; drag down → it shrinks back into the bar. With Reduce Motion on it crossfades. Note whether the half-height detent survives the zoom on iOS 18 and on iOS 26.
+- [ ] The card: icons and names, the schedule, the state line (none for an Always block), up to five apps and "+N more", Unblock, Edit. Edit → the sheet closes and the block's editor is pushed; Back returns to Home. "Blocks" at the foot → the Blocks screen.
+- [ ] **Countdown reaching zero:** start a 5 min session and keep Home open → the bar counts 0:02, 0:01, then turns back to "Always" / "Until …" within a second, without touching anything, and the app is shielded again. The same with the card open: its large countdown gives way to Unblock.
+- [ ] A session running when Toll is opened cold → the bar shows the right time left on the first frame.
+- [ ] **Several blocks on:** two blocks on → the title reads "2 blocks on" with an icon from each; the sheet has a card for each, each with its own Unblock. Unblock one → the bar leads with that block's countdown and "Block again"; the other card still offers Unblock. A block outside its window is listed last as a plain row with "Starts …".
+- [ ] A wait or a picker arriving while the card sheet is open (leave Toll with the sheet up, hit a shield, Open Toll) → the sheet closes and the gate's card is visible.
+- [ ] VoiceOver: the bar is one button read as one sentence (block, state, action); during a session it reads the time left in 30 s steps and does not interrupt by itself. In the card, the countdown reads the same way.
+- [ ] Largest accessibility text size: the action word moves under the state line, the bar grows, nothing clips; the card sheet scrolls.
 
 ## 9. Blocks (flows §14)
 - [ ] Settings → Blocks lists each block with icons, names and schedule; caption "Removing a block is shown to your friends."

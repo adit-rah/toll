@@ -95,7 +95,7 @@ Ads of any kind. Payments. Groups. Anything that asks a friend to act: approvals
 - If a free pass remains today → a free pass is granted and the session picker (G-6) is shown at once. No wait screen. Nothing is recorded yet (G-7).
 - Else → start a wait (G-4).
 
-The gate can also be entered from inside Toll: "Unblock" on a block that is on. It behaves exactly like a shield hit, for every app in the block at once (the first is the one named on the card), and records no `block_hit`. The pass it leads to remembers that it was asked for inside Toll (G-6).
+The gate can also be entered from inside Toll: "Unblock" on a block that is on. It behaves exactly like a shield hit, for every app in the block at once (the card names the block's apps), and records no `block_hit`. The pass it leads to remembers that it was asked for inside Toll (G-6).
 
 **G-3a. Naming.** If the app ref has no tag, the wait card asks "Which app is this?" with the tag chips above Cancel, once. The wait runs meanwhile; answering is not required to pass. The device never needs the tag for its own display: the system renders real names and icons via `Label(token)` everywhere in Toll and on the shield. The tag exists only for what friends see, and because tags are stored by app ref (§4), a wrong or skipped tag is fixed from the block editor and the fix applies to history.
 
@@ -182,7 +182,7 @@ Nothing else, ever: no friend-request alert, no wait-ended alert, no removed-blo
 
 Detail in `toll-design.md`. Summary:
 
-- **Home** — top: you (today's count + glyph, week vs last week, a 7-day strip). Then pinned items, then friends ordered per N-3, scrollable. Footer: the Toll-opens count. Device-state lines at the very top when needed: "Screen Time is off · Fix", "Blocks need re-picking · Fix", or (no blocks yet) "Nothing blocked yet · Add apps". When a session is active, one line at the top states it. When a wait is running, an overlay card sits above Home content: block tag, time remaining, Cancel; when the wait ends in-app the card becomes the session picker.
+- **Home** — top: you (today's count + glyph, week vs last week, a 7-day strip). Then pinned items, then friends ordered per N-3, scrollable. Footer: the Toll-opens count. Device-state lines at the very top when needed: "Screen Time is off · Fix", "Blocks need re-picking · Fix", or (no blocks yet) "Nothing blocked yet · Add apps". A bar pinned above the tab bar shows the block in effect ("Always", "Until 7 am", or "Open · 6:42 left" while it is unblocked); tapping it enlarges into the block's card, which carries Unblock or Block again. A `+` beside the Settings gear opens New block. When a wait is running, an overlay card sits above Home content: block tag, time remaining, Cancel; when the wait ends in-app the card becomes the session picker.
 - **People** — requests, friends (same N-3 order as Home), mutuals, school, "In your contacts" (if built), invite. Reached from Home.
 - **Friend detail** (sheet) — the friend's week, today and yesterday, tagged blocks; remove / block / report.
 - **Invite** (sheet) — the user's code and a share link.
@@ -234,9 +234,9 @@ Every line is a fact, a number, or a question. No adjectives about the user. No 
 | Shield | "Instagram is blocked." Subtitle: "You've unblocked this 2 times today." Buttons: "Open Toll" · "Dismiss". If notifications are off: "Open Toll from your home screen." |
 | Home, you | "3 passes today" with the glyph. Beneath: "11 this week · 17 last week". |
 | Home, footer | "You opened Toll 14 times today." |
-| Home, session active | "Instagram is open · 7 min left" (minutes rounded up). |
+| Home, block bar | "Always" · "Until 7 am" · "Starts 11 pm" · "Open · 6:42 left" · "Pass ready"; actions "Unblock", "Block again"; several on: "3 blocks on". |
 | Wait overlay | Title "Instagram". Countdown "2:41". Beneath: "Wait 3 of today · next wait 8 min". Button: "Cancel". |
-| Session picker | "How long?" Chips: "5 min · 10 min · 15 min". Beneath: "From now. The block returns after." Button: "Open Instagram"; for a pass asked for inside Toll: "Unblock for 10 min". Quiet button: "Not now". |
+| Session picker | "How long?" Chips: "5 min · 10 min · 15 min". Beneath: "From now. The block returns after." Button, for every pass, with the chosen length: "Unblock for 10 min" (Toll cannot switch to the app, so it never says "Open"). Quiet button: "Not now". |
 | Active block | Buttons: "Unblock" · "Block again". Status: "Always" · "Until 7 am" · "Starts 11 pm" · "Open" · "6:42 left" · "Pass ready". Count: "1 block on" / "3 blocks on". |
 | Friend row, pass | "Opened Instagram at 11:40 p.m. after a 5-minute wait" |
 | Friend row, free | "Opened Instagram at 9:10 a.m. (free pass)" |

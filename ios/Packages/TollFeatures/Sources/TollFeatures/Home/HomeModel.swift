@@ -5,7 +5,7 @@ import TollData
 import TollScreenTime
 
 /// Home (E5.30, design §4.1): you from the local event log, friends from the cached `/home`, the device
-/// state line, the session line, and the Toll-opens footer.
+/// state line, and what each block is doing for the block bar.
 @MainActor
 @Observable
 public final class HomeModel {
@@ -26,10 +26,15 @@ public final class HomeModel {
   public private(set) var you = You()
   public private(set) var home: HomeResponse?
   public private(set) var deviceState: DeviceState?
-  public private(set) var activeSession: ActiveSession?
+  /// One per stored block, in the block list's order (design §3.18).
+  private(set) var blockStates: [BlockState] = []
   public private(set) var isRefreshing = false
   public private(set) var hasAppeared = false
   private var observation: Task<Void, Never>?
+  @ObservationIgnored private var blocks: [StoredBlock] = []
+  @ObservationIgnored private var blocksObservation: Task<Void, Never>?
+  @ObservationIgnored private var blockClock: Task<Void, Never>?
+  @ObservationIgnored private var blockClockTarget: Date?
   /// When the server last answered. Apart from `home` so an answer with the same rows can move it
   /// without redrawing them.
   @ObservationIgnored private var syncedAt: Millis?
@@ -46,6 +51,7 @@ public final class HomeModel {
     show(await app.deps.network.cachedHome())
     await updateDeviceState()
     observe()
+    observeBlocks()
     if app.isSignedIn { await refresh() }
   }
 
@@ -102,12 +108,73 @@ public final class HomeModel {
     let history = all.filter { $0.day >= historyStart && $0.day < today && $0.active }.map(\.passes)
     you.level = StatusRules.level(passesToday: you.passesToday, history: history, config: app.config.status)
     if self.you != you { self.you = you }
-    showActiveSession(at: now)
   }
 
-  private func showActiveSession(at now: Date) {
-    let session = app.gate.sessions.first { !$0.isExpired(at: now) }
-    if activeSession != session { activeSession = session }
+  /// Blocks are added and removed on screens pushed over Home, which never restart Home's own task;
+  /// without this the bar and the "Nothing blocked yet" line would outlive what they describe.
+  private func observeBlocks() {
+    blocksObservation?.cancel()
+    blocksObservation = Task { [weak self] in
+      guard let stream = self?.app.deps.store.observeBlocks() else { return }
+      do {
+        for try await stored in stream { await self?.showBlocks(stored) }
+      } catch {}
+    }
+  }
+
+  private func showBlocks(_ stored: [StoredBlock]) async {
+    blocks = stored
+    updateBlockStates()
+    await updateDeviceState()
+  }
+
+  /// Recomputed when the blocks or the gate change, and again at the next moment anything changes
+  /// by itself. Published only when different: Observation notifies on every assignment.
+  func updateBlockStates() {
+    let math = DayMath(timeZone: app.deps.clock.timeZone, resetHour: app.config.gate.dayResetHour)
+    let now = app.deps.clock.now
+    let states = BlockStates.resolve(blocks: blocks, gate: app.gate, at: now, math: math)
+    if blockStates != states { blockStates = states }
+    wake(at: BlockStates.nextChange(states, gate: app.gate, after: now, math: math))
+  }
+
+  /// A window's edge moves nothing in the gate's state and a session's end reaches it only once
+  /// something reconciles, so Home sleeps until the moment and asks.
+  private func wake(at moment: Date?) {
+    if moment == blockClockTarget, blockClock != nil || moment == nil { return }
+    blockClock?.cancel()
+    blockClock = nil
+    blockClockTarget = moment
+    guard let moment else { return }
+    let pause = max(0.05, moment.timeIntervalSince(app.deps.clock.now))
+    blockClock = Task { [weak self] in
+      try? await Task.sleep(for: .seconds(pause))
+      guard !Task.isCancelled, let self else { return }
+      self.blockClock = nil
+      self.app.setGate(await self.app.deps.gate.expireSessions())
+      self.updateBlockStates()
+    }
+  }
+
+  /// "Unblock" on a block's card (G-3). A pass set aside for the block is picked up again; if the
+  /// day reset has taken it since, this is an ordinary request.
+  func unblock(_ state: BlockState) async {
+    if state.passReady {
+      let resumed = await app.deps.gate.resumePendingPass()
+      if resumed.pendingPass != nil {
+        app.setGate(resumed)
+        return
+      }
+    }
+    app.setGate(await app.deps.gate.requestUnblock(block: state.id))
+  }
+
+  /// "Block again" (G-6): the shield goes back up now; the pass that was used still counts.
+  func blockAgain(_ state: BlockState) async {
+    for id in state.sessionIDs {
+      app.setGate(await app.deps.gate.endSession(id))
+    }
+    updateBlockStates()
   }
 
   public func refresh() async {
@@ -119,10 +186,12 @@ public final class HomeModel {
   }
 
   /// Home calls this whenever the gate's state changes.
+  public func gateChanged() async {
+    updateBlockStates()
+    await updateDeviceState()
+  }
+
   public func updateDeviceState() async {
-    // A session starts and ends in the gate's state before, or without, an event reaching the log,
-    // so the session line cannot wait for the event log to speak.
-    showActiveSession(at: app.deps.clock.now)
     let blocks = (try? await app.deps.store.blocks()) ?? []
     let state: DeviceState?
     if ScreenTimeAuthorization.state != .approved {

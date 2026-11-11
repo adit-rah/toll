@@ -4,7 +4,13 @@ import SwiftUI
 /// artboards). Gaps beside the hero numeral are 4 pt under the design's 28 and 12 because the
 /// numeral's own line box already carries about 5 pt of air above the digits and below the
 /// baseline; gaps beside chips are 5 pt under the drawn ones because a 34 pt chip sits in a 44 pt
-/// hit area.
+/// hit area, and gaps beside a quiet button are 11 pt under because its 22 pt line sits in one too.
+///
+/// The picker half ends in the same 44 pt quiet button as the countdown half ("Not now" where
+/// Cancel is), so the two share a bottom edge. Its gaps are sized so that, at standard text sizes,
+/// it stands within a few points of the countdown half (8 + 20 + 12 + 44 + 8 + 18 + 16 + 50 + 4 +
+/// 44 = 224 against 24 + 86 + 8 + 20 + 28 + 44 = 210); the difference opens between the wait line
+/// and Cancel.
 enum WaitCardMetrics {
   static let top: CGFloat = 32
   static let inset: CGFloat = 20
@@ -14,10 +20,12 @@ enum WaitCardMetrics {
   static let lineToNaming: CGFloat = 24
   static let hairlineToQuestion: CGFloat = 16
   static let titleToQuestion: CGFloat = 8
-  static let questionToChips: CGFloat = 20
+  static let questionToChips: CGFloat = 12
   static let noteGap: CGFloat = 8
   static let chipsToAction: CGFloat = 16
-  static let noteToButton: CGFloat = 24
+  static let noteToButton: CGFloat = 16
+  /// Drawn 15 pt from the primary button to the quiet label beneath it.
+  static let buttonToQuiet: CGFloat = 4
   static let chipGap: CGFloat = 8
   /// Pulls wrapped rows of 44 pt hit areas together until the chips themselves are `chipGap` apart.
   static let chipLineSpacing: CGFloat = -2

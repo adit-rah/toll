@@ -74,7 +74,7 @@ Level colours are Okabe-Ito derived (bluish green / orange / vermillion), desatu
 
 - Corner radii: card 16, row-in-card 12 (concentric: inner = outer − padding, via `ConcentricRectangle` on iOS 26+, fixed values below), sheet 20+ matching device corners, chip 8, button 12.
 - Elevation: none in light mode (flat surfaces on grouped background). Dark mode: surface tiers by lightness, no shadows.
-- Materials: `.regular` material only for the wait overlay's backdrop and system bars. No glass in content.
+- Materials: `.regular` material only for the wait overlay's backdrop and system bars. No glass in content. The one floating control of Toll's own, Home's block bar (3.18), is `.regular` glass on iOS 26+ and a `surfaceRaised` fill with a hairline before it.
 
 ### 2.5 Motion and haptics
 
@@ -97,8 +97,9 @@ Motion in Toll explains where things came from and where they went. It never cel
 | Wait overlay appears | Backdrop blur ramps 200 ms; the card rises 24 pt into place with the spring. Countdown digits use `numericText`; the colon never blinks. |
 | Naming chips at the first wait | Appear with the card; on a tap the chosen chip fills, the others fade 200 ms, the section's height collapses 300 ms and the hairline goes with it. |
 | Wait reaches 0 in app | The card keeps its frame; the countdown crossfades into "How long?" and the chips fade in beneath, 300 ms; `.light` haptic once. |
-| Open the app from the session picker | The card drops 24 pt and fades 200 ms while the system switches apps. |
-| Session line on Home | Appears and leaves like a pinned line. |
+| Unblock on the session picker, or Not now | The card drops 24 pt and fades 200 ms. Nothing else confirms it: the block bar beneath is already counting down. |
+| Block bar → block card | The system zoom transition from the bar (the sheet grows out of it and shrinks back into it). Reduce Motion gets the system's crossfade. The bar itself arrives and leaves with no motion. |
+| Block bar and block card, state line changes | `contentTransition(.numericText())`, 300 ms: the countdown's digits each second, and one line of words becoming another ("Until 7 am" to "Pass ready"). The countdown taking a line's place, or giving it back, is a plain swap. |
 | Shield (system) | No Toll motion; Apple animates the shield. |
 | Friend detail, Invite, Custom hours | System sheets with their own detents and spring. |
 | Insights charts, first appearance | Bars grow from the baseline 450 ms with a 20 ms stagger; lines draw left to right 450 ms; the heatmap fades in by row. Only on first appearance per session; segment switches crossfade 200 ms. |
@@ -108,7 +109,7 @@ Motion in Toll explains where things came from and where they went. It never cel
 | Pull to refresh | System. New data applies with the row-move animation above. |
 | Removing a block or friend | The row collapses 300 ms after the confirmation; the pin that results for friends is their motion, not yours. |
 
-Haptics: `.light` when a wait starts and again when it ends; `.warning` on confirming a removal or a block of a person; `.selection` on When tiles and tag chips. Nothing else. No haptic on a pass being granted.
+Haptics: `.light` when a wait starts and again when it ends, and on Block again (the shield going back up is the same kind of moment as a wait starting); `.warning` on confirming a removal or a block of a person; `.selection` on When tiles and tag chips. Nothing else. No haptic on a pass being granted.
 
 Never: confetti, pulsing, looping, parallax, bouncing rings, progress rings that fill, typewriter text, skeleton shimmer longer than 300 ms, or any motion on the shield.
 
@@ -118,7 +119,7 @@ SF Symbols, monochrome, `.secondary` weight regular. Used only for navigation af
 
 ### 2.7 Navigation
 
-A standard `TabView` with three tabs: **Home · Insights · People**, `.tabBarMinimizeBehavior(.onScrollDown)` on iOS 26+, the system floating glass bar. Settings is the trailing bar item on Home; Blocks is reached from Settings, from Home's empty state, and from the gate. Every destination is one tap from every other. The tab bar is the only glass element in the app besides the wait overlay backdrop.
+A standard `TabView` with three tabs: **Home · Insights · People**, `.tabBarMinimizeBehavior(.onScrollDown)` on iOS 26+, the system floating glass bar. Settings is the trailing bar item on Home, with `plus` (New block) beside it; Blocks is reached from Settings, from Home's empty state, from the block cards (3.18) and from the gate. Every destination is one tap from every other. The tab bar and Home's block bar (3.18) are the only glass elements in the app besides the wait overlay backdrop.
 
 ## 3. Components
 
@@ -155,13 +156,13 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.7 `WaitOverlay`
 
-- Full-screen `.regular` material backdrop over Home including the tab bar (Home stays visible beneath, dimmed; tabs are not tappable while the card is up). Centred card (`bg`, hairline border, radius 20, width = screen − 2×gutter): tag name `title` ("Instagram"), countdown `hero` ("2:41"), line beneath `subhead` ("Wait 3 of today · next wait 8 min"), bottom: `QuietButton` "Cancel". Nothing else. No ring, no progress bar: the number is the progress.
+- Full-screen `.regular` material backdrop over Home including the tab bar (Home stays visible beneath, dimmed; tabs are not tappable while the card is up). Centred card (`bg`, hairline border, radius 20, width = screen − 2×gutter): the app's name `title` ("Instagram"; for a request made with Unblock inside Toll, the block's apps on one line, "Instagram, TikTok, YouTube"), countdown `hero` ("2:41"), line beneath `subhead` ("Wait 3 of today · next wait 8 min"), bottom: `QuietButton` "Cancel". Nothing else. No ring, no progress bar: the number is the progress.
 - When the wait ends while in app: the card swaps to `SessionPicker` (3.8) with a `.light` haptic. A free pass shows `SessionPicker` in the same card with no countdown.
-- The card sits with its top at 180 pt from the top of the screen when it fits; a taller card (naming on a 4.7" screen, large text) centres instead and scrolls only if it cannot fit at all. Insets are 32 pt top, 20 pt sides and bottom. The countdown is centred with 24 pt above and 8 pt below (its own line box adds the rest). The wait and the session picker share one frame, Cancel and Open on the same bottom edge, so the swap is a crossfade and nothing resizes. The clock owns its own tick: a second passing redraws the digits only.
+- The card sits with its top at 180 pt from the top of the screen when it fits; a taller card (naming on a 4.7" screen, large text) centres instead and scrolls only if it cannot fit at all. Insets are 32 pt top, 20 pt sides and bottom. The countdown is centred with 24 pt above and 8 pt below (its own line box adds the rest). The wait and the session picker share one frame, Cancel and Not now on the same bottom edge (both the same 44 pt quiet button), so the swap is a crossfade and nothing resizes. The clock owns its own tick: a second passing redraws the digits only.
 
 ### 3.8 `SessionPicker`
 
-- Title `title` "How long?", three `ChoiceChip`s (5 min · 10 min · 15 min), `PrimaryButton` "Open Instagram". Tapping chips selects; button confirms. Default selection: the user's last choice.
+- "How long?" `subhead`, three `ChoiceChip`s (5 min · 10 min · 15 min), `PrimaryButton` "Unblock for 10 min" (the chosen length; the same words for a pass from a shield and one asked for inside Toll, because Toll cannot switch to the app and must not say "Open"), `QuietButton` "Not now" beneath it. Tapping chips selects and the button's number follows; the button confirms. Default selection: the user's last choice.
 
 ### 3.9 `TagChips` (first-wait naming)
 
@@ -204,22 +205,34 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 - Circle, 32 pt in rows, 40 pt in Settings, 44 pt in Friend detail, 96 pt on the You step. Photo if set, else the first letter of the name at 42% of the size, semibold, `#3A3A3C` on a muted pastel chosen by hashing the handle (six fixed tones; no saturated colours). The status badge sits at bottom-right when the row has a status. Never a coloured ring, never an online dot.
 
+### 3.18 `ActiveBlockBar` and `ActiveBlockCard`
+
+The block bar is how a block in effect stays in view on Home, and the way to unblock without going through a shield. It is the one floating control of Toll's own (§1.7).
+
+- **Bar.** Full width inside the gutter, 56 pt minimum (60 pt with its two lines at standard sizes), radius 16, 16 pt side padding. Glass on iOS 26+, `surfaceRaised` with a hairline before (§2.4). Leading: the `BlockRow` icon cluster (3.10). Then two lines: the block's own name if it has one, else its apps' names (`body` medium, one line); beneath, the state line (`subhead`, `label2`, tabular). Trailing: the action as a word in `accent`, `body` medium: "Unblock", or "Block again" while a session is open. The whole bar is one button; the word says what the card will offer, it is not a second target.
+- **State line.** On, always: "Always". On, in a window: "Until 7 am". Session open: "Open · 6:42 left", ticking once a second in a leaf view so only the digits redraw. A pass set aside with Not now: "Pass ready". Not in its window: "Starts 11 pm".
+- **Which block.** Priority: a session that is open, then a pass that is ready, then a block that is on; ties by the block list's order. With more than one block on or open the title is the count ("3 blocks on"), the cluster takes one icon from each block, and the state line and action are the first block's by that priority. With no block on or open, the next block to start is shown in `label2` with "Starts 11 pm" and no action word. With no blocks at all, or only blocks with no days, there is no bar.
+- **Enlarging.** Tapping the bar presents a sheet that zooms out of it (§2.5): medium and large detents, grabber. The sheet is `bg`; it scrolls.
+- **Card.** One per block that is on or open, in the bar's priority order, `surfaceRaised`, radius 16, 16 pt padding: icon cluster; names `headline`; the schedule beneath in `caption` ("Nights · 11 pm – 7 am"); the state line (omitted when it would only repeat "Always"); while a session is open, "Open" `subhead` above the countdown as a 40 pt hero-style numeral, centred; a hairline; up to five app rows (system `Label(token)`, 36 pt) and "+3 more" in `caption`; then the action. On: `PrimaryButton` "Unblock" (the sheet closes, then the wait card or the session picker arrives, 3.7). Pass ready: the same button brings the picker back. Open: `SecondaryButton` "Block again" (the shield returns at once; the card stays and now offers Unblock). Beneath, quiet in `label2`: "Edit" (the block's editor). Several blocks on means several cards and so several primary buttons on one sheet: each card is its own unit, and the one-primary rule (3.12) is read per card here.
+- **The rest.** Blocks outside their window follow as plain `BlockRow`s with "Starts 11 pm" in place of the schedule, no action. Last, one quiet "Blocks" in `label2` opens the Blocks screen.
+- States: on; open; pass ready; several on; next to start; none (no bar). While the gate's card is up the sheet is closed, since sheets sit above it.
+
 ## 4. Screens
 
 ### 4.1 Home
 
-Home tab. Nav bar: no title (the hero is the title). Bar items: trailing `gear` (Settings). Content, top to bottom, on the page background:
+Home tab. Nav bar: no title (the hero is the title). Bar items, trailing: `plus` (New block; disabled at `blocks.max`), then `gear` (Settings). Content, top to bottom, on the page background:
 
 1. **You** (centred, no card, 12 pt below the toolbar): `HeroStat` "3" + glyph, "passes today", "11 this week · 17 last week", then `WeekStrip`. 36 pt below it the left-aligned content begins.
 2. **Pinned** (if any): `PinnedRow`s.
 3. **Friends** section: header row with `micro`-style uppercase label "FRIENDS" (`caption` weight medium, `label2`) and trailing `caption` "held 83% this week"; then `FriendRow`s ordered by improvement, hairlines between. Empty: `EmptyState` "No friends yet." + "Send an invite".
-4. **Footer**: one centred `caption` in `label2`, "You opened Toll 14 times today.", anchored 8 pt above the tab bar. It belongs to the screen, not to the list: it is in the same place with no friends and with forty, and rows fade out over 20 pt as they pass under it. It is the last thing on the screen and the quietest.
+4. **Dock**: pinned to the bottom, above the tab bar. It belongs to the screen, not to the list: it is in the same place with no friends and with forty, and rows fade out over 20 pt as they pass under it. Top to bottom: one centred `caption` in `label2`, "You opened Toll 14 times today.", the quietest thing on the screen; then, 8 pt beneath it and 8 pt above the tab bar, the block bar (3.18). With no blocks there is no bar and the caption sits 8 pt above the tab bar by itself.
 
 Device-state line: when Screen Time is off, tokens have expired, or nothing is blocked, a `PinnedRow`-style line sits above everything else ("Screen Time is off · Fix"); "Fix" is the accent word and opens the system sheet or the picker. It outranks a removed-block pin because the gate does not work until it is cleared.
 
 The tab bar floats over the bottom; content scrolls under it.
 
-Wait running: `WaitOverlay` over all of the above. Session active: a thin `PinnedRow`-styled line at the top of Home: "Instagram is open · 7 min left" (fact; whole minutes, no ticking seconds).
+Wait running: `WaitOverlay` over all of the above. Session active: the block bar reads "Open · 6:42 left" and its card offers Block again. There is no session line at the top of Home any more: the bar says the same thing in a place that does not move the list, and to the second, because a session is now flat time from its start.
 
 Refresh: pull-to-refresh syncs. Last-synced timestamp is shown only if older than 1 hour (`caption` under Friends header).
 
@@ -271,12 +284,15 @@ A half-height sheet over People with a grabber: "Your code" `caption` and the co
 
 ### 4.10 Session picker (wait card state)
 
-The wait card swaps its countdown for: tag name, "How long?" `subhead`, three `ChoiceChip`s (last choice selected), one `caption` "Measured in use of the app. The block returns after.", `PrimaryButton` "Open Instagram". Same card geometry as the wait so nothing jumps.
+The wait card swaps its countdown for: the title as it was, "How long?" `subhead`, three `ChoiceChip`s (last choice selected), one `caption` "From now. The block returns after.", `PrimaryButton` "Unblock for 10 min" with the chosen length, and `QuietButton` "Not now" on the bottom edge, where Cancel was. Same card geometry as the wait so nothing jumps: both halves end in the same 44 pt quiet button, and the picker's gaps (12 pt question to chips, 16 pt note to button, 4 pt button to Not now, each less the air its neighbour's hit area already carries) keep it within a few points of the countdown's height.
+
+Unblock starts the session and the card leaves; Toll stays where it is (it cannot open the app) and the block bar takes over with the countdown. Not now also just closes the card: a pass that came from a shield is kept for the day ("Pass ready" on the bar, and the next shield hit brings the picker back); one asked for inside Toll is dropped. Neither was counted.
 
 ## 5. Accessibility
 
 - Dynamic Type through AX5: rows stack vertically (glyph+name on one line, detail and number beneath) at ≥ AX1; hero capped at AX2 size.
-- VoiceOver: every row reads "Adi, about usual, 3 passes today, down 23 percent on last week." Charts expose audio graphs. Countdown announces every 30 s, not every second.
+- VoiceOver: every row reads "Adi, about usual, 3 passes today, down 23 percent on last week." Charts expose audio graphs. Countdown announces every 30 s, not every second. The block bar is one button read as one sentence: block, state, action ("Instagram, TikTok. Until 7 am. Unblock."). Its countdown is marked as updating frequently and is spoken in 30 s steps; unlike the wait card it announces nothing by itself, because it is on Home for the whole session.
+- The block bar at accessibility sizes: the action word moves under the state line and the bar grows; the block cards scroll.
 - Colour: nothing conveyed by colour alone (glyph shape; arrows for trend). Verified in grayscale.
 - Contrast and Increase Contrast variants for all tokens. Reduce Transparency: overlay backdrop becomes opaque `bg` at 94%.
 - Touch targets ≥ 44 pt. Hit areas on chips and chart bars padded.

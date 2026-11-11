@@ -26,8 +26,10 @@ public struct SessionChoice {
   public var options: [Int]
   public var selection: Binding<Int>
   public var note: String
+  /// The primary button, "Unblock for 10 min": starts the session.
   public var onOpen: () -> Void
-  /// When set, "Not now" sits under the primary button, where Cancel is on the countdown half.
+  /// When set, "Not now" takes the bottom edge of the shared frame, where Cancel is on the
+  /// countdown half.
   public var onNotNow: (() -> Void)?
 
   public init(
@@ -61,15 +63,14 @@ public struct WaitNaming {
 
 /// The gate's card. Both halves are always laid out in one shared frame, each with its action on
 /// the bottom edge, so the countdown-to-picker swap keeps the card's size and only crossfades
-/// (design §2.5, §4.10). `title` and `openLabel` are views because the app's name comes from the
-/// system `Label(token)`, which Toll cannot read as text. The card plays no haptics: `GateModel`
-/// plays `.light` at the start and end of the wait and `.selection` on naming.
-public struct WaitCard<Title: View, OpenLabel: View>: View {
+/// (design §2.5, §4.10). `title` is a view because the app's name comes from the system
+/// `Label(token)`, which Toll cannot read as text. The card plays no haptics: `GateModel` plays
+/// `.light` at the start and end of the wait and `.selection` on naming.
+public struct WaitCard<Title: View>: View {
   let countdown: WaitCountdown?
   let session: SessionChoice
   let naming: WaitNaming?
   let title: Title
-  let openLabel: OpenLabel
   @State private var namingCollapsed = false
   @State private var lastLine = " "
   @Environment(\.displayScale) private var displayScale
@@ -78,13 +79,12 @@ public struct WaitCard<Title: View, OpenLabel: View>: View {
   /// section collapses once its selection is set, and also fades out if `naming` turns nil.
   public init(
     countdown: WaitCountdown?, session: SessionChoice, naming: WaitNaming? = nil,
-    @ViewBuilder title: () -> Title, @ViewBuilder openLabel: () -> OpenLabel
+    @ViewBuilder title: () -> Title
   ) {
     self.countdown = countdown
     self.session = session
     self.naming = naming
     self.title = title()
-    self.openLabel = openLabel()
   }
 
   private var showsCountdown: Bool { countdown != nil }
@@ -179,10 +179,15 @@ public struct WaitCard<Title: View, OpenLabel: View>: View {
         .tollText(.caption)
         .padding(.top, WaitCardMetrics.noteGap)
       Spacer(minLength: WaitCardMetrics.noteToButton)
-      PrimaryButton(action: session.onOpen) { openLabel }
+      // The same words for every pass. Toll cannot switch to the app, so "Open <App>" promised
+      // something that never happened.
+      PrimaryButton(
+        Copy.SessionPicker.unblock(minutes: session.selection.wrappedValue), action: session.onOpen
+      )
+      .monospacedDigit()
       if let onNotNow = session.onNotNow {
         QuietButton(Copy.SessionPicker.notNow, action: onNotNow)
-          .padding(.top, WaitCardMetrics.noteGap)
+          .padding(.top, WaitCardMetrics.buttonToQuiet)
       }
     }
     .frame(maxWidth: .infinity)
@@ -239,8 +244,6 @@ private struct SentenceText: View {
         question: Copy.Wait.namingQuestion, note: Copy.Wait.namingNote, selection: .constant(nil))
     ) {
       Text(Copy.Tags.display(.instagram))
-    } openLabel: {
-      Text(Copy.SessionPicker.open(Copy.Tags.display(.instagram)))
     }
     .padding(TollSpacing.gutter)
   }

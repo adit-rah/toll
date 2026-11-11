@@ -3,15 +3,17 @@ import TollCore
 import TollData
 import TollUI
 
-/// Home (design §4.1): you, centred; then pinned lines; then friends by improvement. The Toll-opens
-/// footer is the quietest thing on the screen and sits on the tab bar, wherever the list has scrolled.
+/// Home (design §4.1): you, centred; then pinned lines; then friends by improvement. The dock (the
+/// Toll-opens caption and the block bar) sits on the tab bar, wherever the list has scrolled.
 struct HomeView: View {
   let app: AppModel
   @State private var model: HomeModel?
   @State private var path = NavigationPath()
   @State private var detail: FriendSummary?
   @State private var inviteShown = false
+  @State private var blocksShown = false
   @State private var personAction: (PersonAction, PersonRef)?
+  @Namespace private var barSpace
 
   var body: some View {
     NavigationStack(path: $path) {
@@ -20,9 +22,14 @@ struct HomeView: View {
       }
       .background(TollColor.bg)
       .refreshable { await model?.refresh() }
-      .safeAreaInset(edge: .bottom, spacing: 0) { opensFooter }
+      .safeAreaInset(edge: .bottom, spacing: 0) {
+        HomeDock(app: app, model: model, barSpace: barSpace) { blocksShown = true }
+      }
       .toolbar {
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItemGroup(placement: .topBarTrailing) {
+          Button { path.append(HomeRoute.newBlock) } label: { Image(systemName: "plus") }
+            .accessibilityLabel(Copy.Blocks.add)
+            .disabled(!canAddBlock)
           Button { path.append(HomeRoute.settings) } label: { Image(systemName: "gearshape") }
             .accessibilityLabel(Copy.Settings.title)
         }
@@ -39,42 +46,68 @@ struct HomeView: View {
         FriendDetailView(app: app, friend: friend) { Task { await model?.refresh() } }
       }
       .sheet(isPresented: $inviteShown) { InviteSheet(app: app) }
+      .sheet(isPresented: $blocksShown) {
+        blockCards.navigationTransition(.zoom(sourceID: HomeDock.barID, in: barSpace))
+      }
       .personActions(app: app, pending: $personAction) { Task { await model?.refresh() } }
     }
     .task {
       if model == nil { model = HomeModel(app: app) }
       await model?.start()
     }
-    .onChange(of: app.gate) { _, _ in Task { await model?.updateDeviceState() } }
-    // Sheets present above the wait card, so one left open would hide a wait that has just started.
-    .onChange(of: app.gate.wait?.id) { _, wait in
-      if wait != nil {
+    .onChange(of: app.gate) { _, _ in Task { await model?.gateChanged() } }
+    // Sheets present above the gate's card, so one left open would hide a wait that has just
+    // started, or the session picker of a free pass.
+    .onChange(of: gateCardIsUp) { _, isUp in
+      if isUp {
         detail = nil
         inviteShown = false
+        blocksShown = false
       }
     }
-    // Blocks are added and removed on screens pushed over Home, which never re-runs the task above;
-    // without this the "Nothing blocked yet" line outlives the block that answers it.
-    .task {
-      do {
-        for try await _ in app.deps.store.observeBlocks() { await model?.updateDeviceState() }
-      } catch {}
+  }
+
+  private var gateCardIsUp: Bool {
+    app.gate.wait != nil || app.gate.pendingPass?.deferred == false
+  }
+
+  private var canAddBlock: Bool {
+    BlockLimits.canAddBlock(existing: model?.blockStates.count ?? 0, config: app.config.blocks)
+  }
+
+  @ViewBuilder
+  private var blockCards: some View {
+    if let model {
+      BlockCardsSheet(
+        model: model, onUnblock: { unblock($0) }, onBlockAgain: { blockAgain($0) },
+        onEdit: { edit($0) },
+        onBlocks: {
+          blocksShown = false
+          path.append(HomeRoute.blocks)
+        })
     }
+  }
+
+  /// The gate's card arrives beneath any sheet, so this one closes before the request is made.
+  private func unblock(_ state: BlockState) {
+    blocksShown = false
+    Task { await model?.unblock(state) }
+  }
+
+  private func blockAgain(_ state: BlockState) {
+    Haptics.light()
+    Task { await model?.blockAgain(state) }
+  }
+
+  private func edit(_ block: BlockRef) {
+    blocksShown = false
+    path.append(HomeRoute.editBlock(block))
   }
 
   @ViewBuilder
   private func content(_ model: HomeModel) -> some View {
     VStack(spacing: 0) {
       deviceLine(model)
-      if let session = model.activeSession, let ref = session.appRefs.first {
-        // Ticks on the session's own minutes, so the number changes exactly when a minute is used up.
-        TimelineView(.periodic(from: session.startedAt, by: 60)) { context in
-          if !session.isExpired(at: context.date) {
-            sessionLine(ref, minutesLeft: session.minutesLeft(at: context.date))
-          }
-        }
-        .tollTransition(Motion.pinnedLine)
-      }
       hero(model)
         .padding(.top, TollSpacing.heroTop)
         .padding(.bottom, TollSpacing.heroToList)
@@ -90,50 +123,6 @@ struct HomeView: View {
     .padding(.bottom, TollSpacing.sectionGap)
     .tollGutter()
     .animation(Motion.movement, value: model.home)
-  }
-
-  /// Anchored to the bottom safe area instead of the end of the list, so it is in the same place with
-  /// no friends and with forty. Rows fade out under its top edge rather than colliding with the text.
-  private var opensFooter: some View {
-    Text(Copy.Home.tollOpens(app.tollOpensToday))
-      .tollText(.caption)
-      .monospacedDigit()
-      .multilineTextAlignment(.center)
-      .frame(maxWidth: .infinity)
-      .padding(.top, Self.footerFade + 4)
-      .padding(.bottom, TollSpacing.labelGap)
-      .tollGutter()
-      .background {
-        VStack(spacing: 0) {
-          LinearGradient(
-            colors: [TollColor.bg.opacity(0), TollColor.bg], startPoint: .top, endPoint: .bottom
-          )
-          .frame(height: Self.footerFade)
-          TollColor.bg
-        }
-        .ignoresSafeArea(edges: .bottom)
-      }
-      .allowsHitTesting(false)
-  }
-
-  private static let footerFade: CGFloat = 20
-
-  /// The session line shares the pinned rows' geometry: the accent dot in the avatar's slot.
-  private func sessionLine(_ ref: AppRef, minutesLeft: Int) -> some View {
-    HStack(spacing: TollSpacing.rowLeadingGap) {
-      Circle()
-        .fill(TollColor.accent)
-        .frame(width: 8, height: 8)
-        .frame(width: TollSpacing.rowLeadingSlot)
-        .accessibilityHidden(true)
-      HStack(spacing: 4) {
-        AppLabel(ref)
-        Text(Copy.Home.sessionActiveRest(minutesLeft: minutesLeft))
-      }
-      .tollText(.bodyMedium)
-    }
-    .frame(maxWidth: .infinity, minHeight: TollSpacing.rowMinHeight, alignment: .leading)
-    .accessibilityElement(children: .combine)
   }
 
   @ViewBuilder
