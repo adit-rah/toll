@@ -54,6 +54,40 @@ enum FriendFormatting {
   }
 
   static func photo(_ person: PersonRef) -> URL? { person.photoUrl.flatMap(URL.init(string:)) }
+
+  // MARK: People and Friend detail
+
+  /// The roster line (design §4.4): the week beside last week, where Home has the latest pass.
+  static func weekLine(_ friend: FriendSummary) -> String {
+    if let day = silentDay(friend.silentSince) { return Copy.FriendRows.silent(since: day) }
+    return Copy.Home.week(friend.week.passes, last: friend.week.lastWeek)
+  }
+
+  static func weekTrend(_ friend: FriendSummary) -> FriendRow.Trailing {
+    .trend(friend.silentSince != nil ? nil : friend.week.trend.map(Trend.init(fraction:)))
+  }
+
+  static func friendsSince(_ friend: FriendSummary) -> String {
+    Copy.FriendDetail.since(
+      handle: friend.user.handle,
+      date: Date(millis: friend.friendsSince).formatted(.dateTime.month(.abbreviated).day()))
+  }
+
+  /// One chip per tag ("Instagram · nights", spec N-2). Untagged apps in a block share one chip, and a
+  /// label is never repeated, so the strings can identify their own chips.
+  static func blockChips(_ friend: FriendSummary) -> [String] {
+    var seen = Set<String>()
+    var chips: [String] = []
+    for block in friend.blocks {
+      let schedule = Copy.Schedules.inline(block.schedule)
+      let tags: [Tag?] = block.tags.isEmpty ? [nil] : block.tags
+      for tag in tags {
+        let chip = Copy.Tags.display(tag) + Copy.middleDot + schedule
+        if seen.insert(chip).inserted { chips.append(chip) }
+      }
+    }
+    return chips
+  }
 }
 
 extension TollDay {

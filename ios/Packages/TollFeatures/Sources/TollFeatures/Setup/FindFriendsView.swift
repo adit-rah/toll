@@ -34,7 +34,8 @@ struct FindFriendsView: View {
     .task {
       if model == nil {
         model = FindFriendsModel(app: app)
-        await model?.start()
+        // A screen can embed two of these; only the one holding the code field sends a pending code.
+        if parts.contains(.inviteCode) { await model?.start() }
       }
     }
   }

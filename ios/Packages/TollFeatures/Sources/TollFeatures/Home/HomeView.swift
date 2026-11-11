@@ -35,7 +35,9 @@ struct HomeView: View {
         case .editBlock(let id): BlockEditorView(app: app, mode: .edit(id))
         }
       }
-      .sheet(item: $detail) { friend in FriendDetailView(app: app, friend: friend) }
+      .sheet(item: $detail) { friend in
+        FriendDetailView(app: app, friend: friend) { Task { await model?.refresh() } }
+      }
       .sheet(isPresented: $inviteShown) { InviteSheet(app: app) }
       .personActions(app: app, pending: $personAction) { Task { await model?.refresh() } }
     }
