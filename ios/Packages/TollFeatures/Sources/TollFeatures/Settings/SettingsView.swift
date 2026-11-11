@@ -12,7 +12,7 @@ struct SettingsView: View {
   @State private var nonce = AppleNonce()
 
   var body: some View {
-    Group {
+    ZStack {
       if let model { list(model) }
     }
     .navigationTitle(Copy.Settings.title)

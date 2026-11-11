@@ -23,7 +23,7 @@ struct BlockEditorView: View {
   @Environment(\.dismiss) private var dismiss
 
   var body: some View {
-    Group {
+    ZStack {
       if let model {
         @Bindable var bound = model
         content(model)

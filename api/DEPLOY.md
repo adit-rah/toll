@@ -39,7 +39,7 @@ The rate-limit `namespace_id`s are arbitrary numbers already set; nothing to cre
 ## 5. Database
 ```sh
 npx wrangler d1 migrations apply toll --remote
-npx wrangler d1 execute toll --remote --file seed/schools.sql
+npx wrangler d1 execute toll --remote --file seed/schools-launch.sql
 ```
 
 ## 6. Deploy and the domain

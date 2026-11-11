@@ -1,5 +1,6 @@
-// Rebuilds seed/schools.sql from the Hipo university domains list, filtered to CA/US/GB (spec §11.2).
-// Apply with: npx wrangler d1 execute toll --remote --file seed/schools.sql
+// Rebuilds seed/schools-all.sql from the Hipo university domains list, filtered to CA/US/GB (spec §11.2).
+// Launch uses the short list in seed/schools-launch.sql instead (ledger A63).
+// Apply with: npx wrangler d1 execute toll --remote --file seed/schools-all.sql
 import { writeFileSync } from "node:fs";
 
 const SOURCE =
@@ -46,5 +47,5 @@ for (const [domain, id] of [...domains].sort()) {
   lines.push(`INSERT INTO school_domains (domain, school_id) VALUES (${sql(domain)}, ${id});`);
 }
 
-writeFileSync(new URL("../seed/schools.sql", import.meta.url), `${lines.join("\n")}\n`);
+writeFileSync(new URL("../seed/schools-all.sql", import.meta.url), `${lines.join("\n")}\n`);
 console.log(`${schools.size} schools, ${domains.size} domains`);

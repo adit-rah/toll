@@ -12,7 +12,7 @@ struct WelcomeFlow: View {
   @State private var legal: URL?
 
   var body: some View {
-    Group {
+    ZStack {
       if let model {
         @Bindable var bound = model
         NavigationStack(path: $bound.path) {

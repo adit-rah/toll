@@ -24,4 +24,4 @@ One Cloudflare Worker: the JSON API under `/v1`, invite links (`/i/:code`), the 
 See `DEPLOY.md` for the full command list: create the D1 databases, KV namespaces, R2 buckets and queues, paste their ids into `wrangler.jsonc`, set secrets, seed schools and the review account, then turn on CI deploys with the `DEPLOY_ENABLED` repository variable.
 
 ## Schools
-`npm run schools:refresh` rewrites `seed/schools.sql` from the Hipo list (CA/US/GB). School ids are a stable hash of country and name, so memberships survive a refresh.
+Launch uses `seed/schools-launch.sql` (30 schools, ledger A63). To add one, copy its `schools` and `school_domains` lines from `seed/schools-all.sql` and apply the file again. `npm run schools:refresh` rewrites `seed/schools-all.sql` from the Hipo list (CA/US/GB). School ids are a stable hash of country and name, so memberships survive a refresh or a switch to the full list.
