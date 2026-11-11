@@ -33,7 +33,7 @@ struct YouView: View {
   @State private var photoItem: PhotosPickerItem?
 
   var body: some View {
-    Group {
+    ZStack {
       if let model {
         @Bindable var bound = model
         SetupScaffold(app: app, step: 0, title: Copy.You.title) {
@@ -110,7 +110,7 @@ struct PermissionsView: View {
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
-    Group {
+    ZStack {
       if let model {
         SetupScaffold(app: app, step: app.setupSteps == 4 ? 1 : 0, title: Copy.Permissions.title) {
           VStack(alignment: .leading, spacing: 16) {

@@ -10,7 +10,7 @@ struct FindFriendsView: View {
   @State private var model: FindFriendsModel?
 
   var body: some View {
-    Group {
+    ZStack {
       if let model {
         if isSetup {
           SetupScaffold(app: app, step: 3, title: Copy.Friends.title) {
