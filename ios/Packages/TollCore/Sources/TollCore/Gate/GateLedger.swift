@@ -49,9 +49,9 @@ public enum GateRules {
   }
 
   /// A block hit is held when neither a wait start nor a free pass follows within the resume window.
-  public static func isHeld(hit: GateEvent, following events: [GateEvent], window: TimeInterval)
-    -> Bool
-  {
+  public static func isHeld(
+    hit: GateEvent, following events: some Sequence<GateEvent>, window: TimeInterval
+  ) -> Bool {
     let deadline = hit.occurredAt.addingTimeInterval(window)
     return !events.contains { event in
       guard event.occurredAt >= hit.occurredAt, event.occurredAt <= deadline else { return false }

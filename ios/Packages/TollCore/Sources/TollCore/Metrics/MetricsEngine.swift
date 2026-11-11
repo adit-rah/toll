@@ -54,19 +54,24 @@ public struct MetricsEngine: Sendable {
   /// Metrics for the days `from` through `through`, inclusive. `events` may extend past the range: held
   /// looks a little past each hit.
   public func metrics(_ events: [GateEvent], from: TollDay, through: TollDay, tags: [AppRef: Tag] = [:]) -> Metrics {
-    let sorted = events.sorted { $0.occurredAt < $1.occurredAt }
+    let sorted = Self.chronological(events)
     let window = TimeInterval(config.gate.resumeWindowSeconds)
+    var cursor = DayCursor(math: math)
     var m = Metrics()
     var activeDays = Set<TollDay>()
     var passDays = Set<TollDay>()
     for (index, event) in sorted.enumerated() {
-      let day = math.day(containing: event.occurredAt)
+      let day = cursor.day(containing: event.occurredAt)
       guard day >= from, day <= through else { continue }
       activeDays.insert(day)
       switch event.kind {
       case .blockHit:
         m.hits += 1
-        if GateRules.isHeld(hit: event, following: Array(sorted[(index + 1)...]), window: window) { m.held += 1 }
+        // In time order nothing past the resume window can change the answer, so the rest of the log is
+        // never walked or copied for each hit.
+        let deadline = event.occurredAt.addingTimeInterval(window)
+        let following = sorted[(index + 1)...].prefix(while: { $0.occurredAt <= deadline })
+        if GateRules.isHeld(hit: event, following: following, window: window) { m.held += 1 }
       case .pass:
         record(pass: event, day: day, tags: tags, into: &m)
         passDays.insert(day)
@@ -81,6 +86,16 @@ public struct MetricsEngine: Sendable {
     m.activeDays = activeDays.count
     m.cleanDays = activeDays.subtracting(passDays).count
     return m
+  }
+
+  /// The store hands events over in time order already, so the usual call skips the sort.
+  private static func chronological(_ events: [GateEvent]) -> [GateEvent] {
+    var previous = Date.distantPast
+    for event in events {
+      if event.occurredAt < previous { return events.sorted { $0.occurredAt < $1.occurredAt } }
+      previous = event.occurredAt
+    }
+    return events
   }
 
   private func record(pass event: GateEvent, day: TollDay, tags: [AppRef: Tag], into m: inout Metrics) {
@@ -100,10 +115,13 @@ public struct MetricsEngine: Sendable {
   /// One entry per day, in order, for day-by-day bars, the week strip and the term heatmap.
   public func days(_ events: [GateEvent], from: TollDay, through: TollDay) -> [DayMetrics] {
     var byDay: [TollDay: DayMetrics] = [:]
+    var cursor = DayCursor(math: math)
     for event in events {
-      let day = math.day(containing: event.occurredAt)
+      let day = cursor.day(containing: event.occurredAt)
       guard day >= from, day <= through else { continue }
-      var entry = byDay[day] ?? DayMetrics(day: day, passes: 0, active: false, passList: [])
+      // Taken out rather than copied, so the pass list has one owner while it grows.
+      let blank = DayMetrics(day: day, passes: 0, active: false, passList: [])
+      var entry = byDay.removeValue(forKey: day) ?? blank
       entry.active = true
       if event.kind == .pass {
         entry.passes += 1
@@ -134,5 +152,38 @@ public struct MetricsEngine: Sendable {
   /// Personalised status needs a history of daily pass counts on days blocks were on (spec §14).
   public func dailyHistory(_ events: [GateEvent], before day: TollDay, days count: Int) -> [Int] {
     days(events, from: day.adding(days: -count), through: day.adding(days: -1)).filter(\.active).map(\.passes)
+  }
+}
+
+/// Events mostly share a Toll day with the one before them, so the last day's bounds answer most
+/// lookups without asking the calendar again.
+private struct DayCursor {
+  let math: DayMath
+  private var current: TollDay?
+  private var start = Date.distantPast
+  private var end = Date.distantPast
+
+  init(math: DayMath) {
+    self.math = math
+  }
+
+  mutating func day(containing date: Date) -> TollDay {
+    if let current, date >= start, date < end { return current }
+    let found = math.day(containing: date)
+    let foundStart = math.start(of: found)
+    let foundEnd = math.end(of: found)
+    // The bounds stand in for the calendar only on a day the clock runs straight through. Around a
+    // clock change (or a zone skipping a date) local hours can repeat or vanish inside them, so those
+    // days ask the calendar for every event, as before.
+    let change = math.calendar.timeZone.nextDaylightSavingTimeTransition(after: foundStart)
+    let runsStraight = change.map { $0 >= foundEnd } ?? true
+    if runsStraight, foundStart <= date, date < foundEnd {
+      current = found
+      start = foundStart
+      end = foundEnd
+    } else {
+      current = nil
+    }
+    return found
   }
 }

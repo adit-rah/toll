@@ -73,9 +73,13 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
   }
 
   func scheduleBackgroundSync() {
-    let request = BGAppRefreshTaskRequest(identifier: Self.syncTask)
-    request.earliestBeginDate = Date(timeIntervalSinceNow: 4 * 3600)
-    try? BGTaskScheduler.shared.submit(request)
+    let identifier = Self.syncTask
+    // `submit` is a blocking call to another process; made from launch it would hold the first frame.
+    Task.detached(priority: .utility) {
+      let request = BGAppRefreshTaskRequest(identifier: identifier)
+      request.earliestBeginDate = Date(timeIntervalSinceNow: 4 * 3600)
+      try? BGTaskScheduler.shared.submit(request)
+    }
   }
 
   private func runBackgroundSync(_ task: BGTask) async {
