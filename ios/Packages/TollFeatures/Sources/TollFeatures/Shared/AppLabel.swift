@@ -11,21 +11,21 @@ public struct AppLabel: View {
 
   let ref: AppRef
   let style: Style
-  let tokens: TokenRegistry.Tokens
+  let tokens: TokenRegistry.Tokens?
 
   public init(_ ref: AppRef, style: Style = .title) {
     self.ref = ref
     self.style = style
-    tokens = TokenRegistry().tokens(for: [ref])
+    tokens = AppTokenCache.tokens(for: ref)
   }
 
   public var body: some View {
     Group {
-      if let token = tokens.applications.first {
+      if let token = tokens?.applications.first {
         styled(Label(token))
-      } else if let token = tokens.webDomains.first {
+      } else if let token = tokens?.webDomains.first {
         styled(Label(token))
-      } else if let token = tokens.categories.first {
+      } else if let token = tokens?.categories.first {
         styled(Label(token))
       } else {
         Text(Copy.Shield.fallbackApp)
@@ -40,6 +40,35 @@ public struct AppLabel: View {
     case .icon: label.labelStyle(.iconOnly)
     case .both: label
     }
+  }
+}
+
+/// A label is rebuilt whenever its screen re-renders, and resolving its token means a coordinated read
+/// of the registry file plus a JSON decode. A ref keeps its token for life, so each is resolved once.
+/// Refs the registry does not know are retried only after the file changes.
+@MainActor
+enum AppTokenCache {
+  private static var resolved: [AppRef: TokenRegistry.Tokens] = [:]
+  private static var unknown: Set<AppRef> = []
+  private static var unknownAsOf: Date?
+
+  static func tokens(for ref: AppRef) -> TokenRegistry.Tokens? {
+    if let hit = resolved[ref] { return hit }
+    let registry = TokenRegistry()
+    let modified = (try? registry.url.resourceValues(forKeys: [.contentModificationDateKey]))?
+      .contentModificationDate
+    if modified != unknownAsOf {
+      unknown.removeAll()
+      unknownAsOf = modified
+    }
+    if unknown.contains(ref) { return nil }
+    let tokens = registry.tokens(for: [ref])
+    if tokens.isEmpty {
+      unknown.insert(ref)
+      return nil
+    }
+    resolved[ref] = tokens
+    return tokens
   }
 }
 

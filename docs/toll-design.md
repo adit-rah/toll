@@ -26,6 +26,9 @@ Companion to `toll-mvp-spec.md`. Covers foundations, components, every screen, a
 - **Hierarchy by position:** top-leading is most important. Secondary facts sit directly beneath the hero in a single line, never beside it.
 - **Containment:** group with whitespace first, separators second, cards third. Home uses whitespace + a single card (friends). Settings uses standard grouped lists.
 - **Density:** max one chart per card; max ~7 rows visible before a scroll; never two accents on screen.
+- **A fill must differ from its page.** `surface` is the page colour on `bg` and `surfaceRaised` is the page colour on `bgGrouped` (light mode), so a card, tile, chip or field takes `surfaceRaised` on `bg` and `surface` on `bgGrouped`. A control that can be hosted on either (a field inside a list row, a disabled button) takes `fill`, which is translucent and reads on all three.
+- **Nothing stretches to fill.** Tiles, cards and sheets take their content's height; spare room on a tall phone becomes space above the bottom action, never taller tiles.
+- **Bottom actions** sit 12 pt above the bottom safe area, on a bar of the page's own colour, so scrolled content ends at the bar instead of showing around the button.
 
 ### 2.2 Type
 
@@ -53,7 +56,8 @@ Semantic first. Custom tokens are defined in one asset catalog with light / dark
 | `bg` | systemBackground `#FFFFFF` | `#000000` (system) | Screen background |
 | `bgGrouped` | systemGroupedBackground `#F2F2F7` | `#000000` | Settings, People lists |
 | `surface` | secondarySystemGroupedBackground `#FFFFFF` | `#1C1C1E` | Cards, rows |
-| `surfaceRaised` | tertiarySystemGroupedBackground `#F2F2F7` | `#2C2C2E` | Chips, selected rows |
+| `surfaceRaised` | tertiarySystemGroupedBackground `#F2F2F7` | `#2C2C2E` | Chips, tiles and cards on `bg` |
+| `fill` | tertiarySystemFill (translucent) | tertiarySystemFill | Disabled buttons; fields and tiles whose host colour varies |
 | `label` / `label2` / `label3` | system label tiers | system label tiers | Text |
 | `separator` | system | system | Hairlines |
 | `accent` | `#3A6EA5` | `#8FB4E3` | Primary action, "you" in charts, selected state. **Placeholder; swaps when identity exists.** |
@@ -173,7 +177,8 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.12 Buttons
 
-- `PrimaryButton`: full-width, 50 pt, `accent` fill, label `headline` in white (light) or `#0F1115` (dark, where the accent is light and white would fail contrast). One per screen max.
+- `PrimaryButton`: full-width, 50 pt, `accent` fill, label `headline` in white (light) or `#0F1115` (dark, where the accent is light and white would fail contrast). One per screen max. Disabled: `fill` with a `label3` title, so it still reads as a button on any page.
+- `SecondaryButton`: the same shape in `fill` with a `label` title, for the second of two equal choices (Continue with email). The whole shape is the tap target.
 - `QuietButton`: text-only, `accent` label, `body` medium. Used for Cancel, Skip, Add.
 - `DestructiveQuiet`: text-only, systemRed. Remove, Delete account.
 - No icon buttons in content; nav bar uses standard bar items.
@@ -193,7 +198,7 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.16 `WhenChips`
 
-- A 2×2 grid of 88 pt tiles, 10 pt apart: icon (infinity, moon, sun, clock), label `subhead` semibold, one `micro` line ("every day", "11 pm – 7 am", "9 am – 5 pm", "pick times"). Selected = `accent` fill with white text; others `surface`. Always is preselected. Custom opens the Custom hours screen.
+- A 2×2 grid of tiles, 10 pt apart, radius 14, 88 pt tall at standard text sizes (taller only when larger text needs it; a pair in a row always matches; the grid never grows to fill spare height): icon (infinity, moon, sun, clock) at the top, label `subhead` semibold, one 12 pt line ("every day", "11 pm – 7 am", "9 am – 5 pm", "pick times"). Selected = `accent` fill with white text; others take the fill that differs from the page (§2.1): `surfaceRaised` in setup, `surface` on New block. Always is preselected. Custom opens the Custom hours screen.
 
 ### 3.17 `Avatar`
 
@@ -208,7 +213,7 @@ Home tab. Nav bar: no title (the hero is the title). Bar items: trailing `gear` 
 1. **You** (centred, no card, 12 pt below the toolbar): `HeroStat` "3" + glyph, "passes today", "11 this week · 17 last week", then `WeekStrip`. 36 pt below it the left-aligned content begins.
 2. **Pinned** (if any): `PinnedRow`s.
 3. **Friends** section: header row with `micro`-style uppercase label "FRIENDS" (`caption` weight medium, `label2`) and trailing `caption` "held 83% this week"; then `FriendRow`s ordered by improvement, hairlines between. Empty: `EmptyState` "No friends yet." + "Send an invite".
-4. **Footer**: one centred `caption` in `label3`, "You opened Toll 14 times today.", above the tab bar. It is the last thing on the screen and the quietest.
+4. **Footer**: one centred `caption` in `label2`, "You opened Toll 14 times today.", anchored 8 pt above the tab bar. It belongs to the screen, not to the list: it is in the same place with no friends and with forty, and rows fade out over 20 pt as they pass under it. It is the last thing on the screen and the quietest.
 
 Device-state line: when Screen Time is off, tokens have expired, or nothing is blocked, a `PinnedRow`-style line sits above everything else ("Screen Time is off · Fix"); "Fix" is the accent word and opens the system sheet or the picker. It outranks a removed-block pin because the gate does not work until it is cleared.
 
@@ -224,15 +229,15 @@ Toll controls: title, subtitle, primary and secondary button labels, background 
 
 ### 4.3 Welcome, sign in, set up
 
-**Title position.** Every screen after Welcome places its title 28 pt below the 44 pt bar (back button, or the progress segments), at 34 pt semibold. Fields, rows and tiles start 28 pt under the title. Primary button at the bottom; the quiet action, when there is one, directly beneath it. Steps push and pop with the system transition; the progress bar persists across the setup steps; sheets rise over the current screen.
+**Title position.** Every screen after Welcome places its title 28 pt below the 44 pt bar (back button, or the progress segments), at 34 pt semibold. Fields, rows and tiles start 28 pt under the title, once: the title owns the gap above it and the content owns the gap below. Primary button at the bottom, 12 pt above the safe area; the quiet action, when there is one, directly beneath it. The bar and the bottom actions stay put; the title and content between them scroll only when they do not fit (a 4.7" screen, large text, the keyboard) and do not bounce when they do. Steps push and pop with the system transition; the progress bar persists across the setup steps; sheets rise over the current screen.
 
 - **Welcome** — vertically centred: the mark (placeholder ring, 56 pt) and the name at 40 pt semibold, nothing else. Bottom: Continue with Apple (system black button), Continue with email (`surface` fill), Continue without an account (quiet), and the 11 pt legal line in `label3` with Terms and Privacy Policy as links.
 - **Email** — back button; "What's your email?"; a 56 pt filled field (`surface`, radius 14, 17 pt text, accent caret); the `PrimaryButton` "Send code" 12 pt beneath it, where the keyboard leaves it, never at the bottom of the screen; one `caption` beneath, centred. Keyboard is up on arrival.
 - **Code** — back; "Enter the code"; `subhead` "Sent to …"; six 60 pt boxes (`surface`, radius 14, 28 pt digits, the active box ringed in `accent` with a caret); "Resend code" centred beneath. Autofills from Mail; advances on the sixth digit without a button.
-- **Set up 1 · You** (signed-in, new accounts only) — "You"; 96 pt `Avatar` with an accent "+" badge to add a photo; Name field (prefilled from Apple); Handle field with a live "available" check in `level1`; `caption` "Friends find you by handle. Both can be changed in Settings."; Continue.
+- **Set up 1 · You** (signed-in, new accounts only) — "You"; 96 pt `Avatar` with an accent "+" badge to add a photo; Name field (prefilled from Apple) and Handle field, each a 56 pt filled field with its `caption` label above it, so a prefilled screen still says which is which; the handle shows a live check mark and "available" in `level1`; `caption` "Friends find you by handle. Both can be changed in Settings."; Continue.
 - **Set up 2 · Permissions** — "Toll needs two things"; two icon rows (44 pt `surface` tile with the symbol, label `headline`); one `PrimaryButton` Allow runs both system sheets. No skip. Denied state: the Screen Time row's trailing text reads Denied in `level3`, Notifications reads Allowed with a check, one `subhead` line explains, the button reads Try again.
-- **Set up 3 · Block these** — the fast creator, and it never scrolls: the apps card shows at most three app rows, then a 44 pt "+N more" row (opens the full list), then Choose more; the "WHEN" label, `WhenChips` with Always preselected, Done, "Add another block" quiet beneath Done. With one compact row from Add another, everything still fits a 4.7" screen; on a second Add another the compact rows collapse to one line ("2 blocks · Always, Weekdays"). After Add another, each finished block becomes a 48 pt compact row (icon cluster, names · schedule, chevron) stacked above the creator. Returning users: title "Block these again", bar of two.
-- **Set up 4 · Find your friends** — a full step on `bgGrouped`, bar of four: three groups: Invite code (field + Paste), Contacts (one row), School (field + Send code); Done; Skip quiet directly beneath it.
+- **Set up 3 · Block these** — the fast creator: the apps card (`surfaceRaised`, hairlines between rows) shows at most three app rows, then a 44 pt "+N more" row with a chevron (opens the full list), then "+ Choose more"; empty, the card is one centred "+ Choose apps" row. Then the "WHEN" label, `WhenChips` with Always preselected, and at the bottom Done with "Add another block" quiet beneath it. It fits without scrolling on 6.1" and up; on a 4.7" screen with a full card the content scrolls under the pinned buttons. With one compact row from Add another, everything still fits a 4.7" screen; on a second Add another the compact rows collapse to one line ("2 blocks · Always, Weekdays"). After Add another, each finished block becomes a 48 pt compact row (icon cluster, names · schedule, chevron) stacked above the creator. Returning users: title "Block these again", bar of two.
+- **Set up 4 · Find your friends** — a full step on `bgGrouped`, bar of four: three groups, 24 pt apart, each a header and one 56 pt `surface` row: Invite code (field + Paste), Contacts (one row with a chevron), School (field + Send code); Done; Skip quiet directly beneath it. People, Settings and Insights embed the same groups, on `fill` because their host colour varies.
 
 ### 4.4 People
 
@@ -244,11 +249,11 @@ A large detent sheet over Home (top at ~96 pt, grabber). Header: 44 pt `Avatar`,
 
 ### 4.6 Blocks
 
-Grouped background. One grouped card of `BlockRow`s; caption beneath "Removing a block is shown to your friends." `PrimaryButton` "Add a block" sticky above the safe area.
+Grouped background, inline title. One grouped card of `BlockRow`s (one chevron per row; an empty list says "Nothing blocked yet"); caption beneath "Removing a block is shown to your friends." `PrimaryButton` "Add a block" on a bottom bar (§2.1).
 
 **New block** — pushed; the picker opens at once; on return: the chosen apps card (system `Label(token)` icon + name, and on the right the friends-facing tag in `caption`, tappable → tag chips), a "Choose more" row, a `micro` line ("Names on the right are what friends see. Tap to change."), `WhenChips`, a "Block name" row (caption "Optional. Only you see it."), Done. Editing an existing block opens the same screen prefilled.
 
-**Custom hours** — a sheet over New block (top at ~300 pt): "Custom" `title`, From / Until as two inline wheel pickers side by side, a 7-tile day row (40 pt tiles, selected = `accent`), Done. Choosing Custom in `WhenChips` opens it; Done returns with the Custom tile showing the chosen window.
+**Custom hours** — a 380 pt sheet over New block (full height at accessibility text sizes): "Custom" `title`; From and Until as two rows in one card, each with the system's compact time picker (two wheels side by side clip each other at phone width); a day row of seven equal tiles across the full width (44 pt tall, selected = `accent`); Done at the bottom. Choosing Custom in `WhenChips` opens it; Done returns with the Custom tile showing the chosen window.
 
 At `blocks.maxTokens` the picker's Done is disabled and the limit line from spec §10 shows; at `blocks.max` the "Add a block" button is disabled.
 
