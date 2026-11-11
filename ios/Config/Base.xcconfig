@@ -7,8 +7,9 @@ TOLL_API_BASE_URL = https:/$()/toll.alders.dev/v1
 MARKETING_VERSION = 0.1.0
 CURRENT_PROJECT_VERSION = 1
 
-// Set DEVELOPMENT_TEAM in Signing.xcconfig (not committed); see ios/README.md.
-DEVELOPMENT_TEAM =
+// Committed because Xcode Cloud signs from committed files only; the team id is in every signed build anyway.
+// A git-ignored Signing.xcconfig can override it to sign with another team locally.
+DEVELOPMENT_TEAM = JAFS73RCH8
 #include? "Signing.xcconfig"
 
 // Observability (spec §12, §16). Empty turns each off.

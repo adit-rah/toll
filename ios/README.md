@@ -12,7 +12,7 @@
 Logic lives in `Packages/` (see each package README). Targets use synchronized folders: add a file to the folder, never to `project.pbxproj`.
 
 ## Configuration
-`Config/Base.xcconfig` holds the bundle id, App Group, link host and API URL. Signing: create `Config/Signing.xcconfig` (git-ignored) containing `DEVELOPMENT_TEAM = <team id>`.
+`Config/Base.xcconfig` holds the bundle id, App Group, link host, API URL and team id. To sign with a different team locally, put `DEVELOPMENT_TEAM = <team id>` in `Config/Signing.xcconfig` (git-ignored).
 
 ## Xcode Cloud (founders, once)
 In Xcode: Product → Xcode Cloud → Create Workflow, on `main`. Actions: Test → `swift test` is covered by GitHub Actions, so use Build + Archive (iOS) and a TestFlight post-action on tags `v*`. Xcode Cloud needs the four Family Controls (Distribution) entitlements approved before the first TestFlight upload.
