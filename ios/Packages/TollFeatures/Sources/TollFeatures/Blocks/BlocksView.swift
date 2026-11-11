@@ -6,15 +6,20 @@ import TollUI
 /// Blocks (design §4.6): one row per block; removing one is shown to friends.
 struct BlocksView: View {
   let app: AppModel
-  @State private var blocks: [StoredBlock] = []
+  // Nil until the store answers, so the empty line never flashes before the rows arrive.
+  @State private var blocks: [StoredBlock]?
   @State private var removing: StoredBlock?
 
   var body: some View {
     List {
       Section {
-        ForEach(blocks) { block in
+        if let blocks, blocks.isEmpty {
+          Text(Copy.Home.nothingBlocked).font(TollFont.body).foregroundStyle(TollColor.label2)
+        }
+        ForEach(blocks ?? []) { block in
           NavigationLink(value: BlockRoute.edit(block.id)) {
-            BlockRow(schedule: Copy.Schedules.label(block.schedule)) {
+            // The link draws the chevron.
+            BlockRow(schedule: Copy.Schedules.label(block.schedule), showsChevron: false) {
               AppIconCluster(block.appRefs)
             } names: {
               AppNames(block.appRefs)
@@ -29,20 +34,19 @@ struct BlocksView: View {
       }
     }
     .navigationTitle(Copy.Blocks.title)
+    .navigationBarTitleDisplayMode(.inline)
     .navigationDestination(for: BlockRoute.self) { route in
       switch route {
       case .new: BlockEditorView(app: app, mode: .new)
       case .edit(let id): BlockEditorView(app: app, mode: .edit(id))
       }
     }
-    .safeAreaInset(edge: .bottom) {
+    .tollBottomBar {
       NavigationLink(value: BlockRoute.new) {
         Text(Copy.Blocks.add)
       }
       .buttonStyle(.tollPrimary)
-      .disabled(!BlockLimits.canAddBlock(existing: blocks.count, config: app.config.blocks))
-      .tollGutter()
-      .padding(.bottom, 8)
+      .disabled(!BlockLimits.canAddBlock(existing: blocks?.count ?? 0, config: app.config.blocks))
     }
     .confirmationDialog(
       removing.map { Copy.Blocks.removeConfirm(name(of: $0)) } ?? "", isPresented: .init(
@@ -58,7 +62,11 @@ struct BlocksView: View {
     .task {
       do {
         for try await value in app.deps.store.observeBlocks() {
-          withAnimation(Motion.movement) { blocks = value }
+          if blocks == nil {
+            blocks = value
+          } else {
+            withAnimation(Motion.movement) { blocks = value }
+          }
         }
       } catch {}
     }
@@ -74,71 +82,4 @@ struct BlocksView: View {
 enum BlockRoute: Hashable {
   case new
   case edit(BlockRef)
-}
-
-/// Custom hours (design §4.6): From / Until wheels and a day row.
-struct CustomHoursSheet: View {
-  @Binding var schedule: Schedule
-  @Environment(\.dismiss) private var dismiss
-  @State private var from = Date()
-  @State private var until = Date()
-  @State private var days: Set<Weekday> = Weekday.all
-
-  private let calendar = Calendar.current
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 20) {
-      Text(Copy.Schedules.custom).tollText(.title)
-      HStack {
-        picker(Copy.Schedules.from, $from)
-        picker(Copy.Schedules.until, $until)
-      }
-      HStack(spacing: 6) {
-        ForEach(Weekday.allCases, id: \.self) { day in
-          let on = days.contains(day)
-          Button {
-            Haptics.selection()
-            if on { days.remove(day) } else { days.insert(day) }
-          } label: {
-            Text(calendar.veryShortStandaloneWeekdaySymbols[day.rawValue % 7])
-              .frame(width: 40, height: 40)
-              .background(on ? TollColor.accent : TollColor.surfaceRaised, in: RoundedRectangle(cornerRadius: TollRadius.chip))
-              .foregroundStyle(on ? TollColor.onAccent : TollColor.label)
-          }
-          .accessibilityLabel(calendar.standaloneWeekdaySymbols[day.rawValue % 7])
-          .accessibilityAddTraits(on ? .isSelected : [])
-        }
-      }
-      PrimaryButton(Copy.BlockEditor.done) {
-        schedule = .custom(start: clock(from), end: clock(until), days: days.isEmpty ? Weekday.all : days)
-        dismiss()
-      }
-    }
-    .tollGutter()
-    .padding(.top, 24)
-    .presentationDetents([.medium])
-    .onAppear {
-      from = date(schedule.kind == .custom ? schedule.start : ClockTime(hour: 22))
-      until = date(schedule.kind == .custom ? schedule.end : ClockTime(hour: 7))
-      if schedule.kind == .custom { days = schedule.days }
-    }
-  }
-
-  private func picker(_ title: String, _ value: Binding<Date>) -> some View {
-    VStack(spacing: 0) {
-      Text(title).tollText(.caption)
-      DatePicker(title, selection: value, displayedComponents: .hourAndMinute)
-        .datePickerStyle(.wheel)
-        .labelsHidden()
-    }
-  }
-
-  private func clock(_ date: Date) -> ClockTime {
-    let c = calendar.dateComponents([.hour, .minute], from: date)
-    return ClockTime(hour: c.hour ?? 0, minute: c.minute ?? 0)
-  }
-
-  private func date(_ time: ClockTime) -> Date {
-    calendar.date(bySettingHour: time.hour, minute: time.minute, second: 0, of: Date()) ?? Date()
-  }
 }

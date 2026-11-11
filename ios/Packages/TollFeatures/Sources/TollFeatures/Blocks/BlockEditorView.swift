@@ -54,9 +54,10 @@ struct BlockEditorView: View {
         }
       }
     } else {
-      ScrollView { editor(model).tollGutter() }
+      ScrollView { editor(model).tollGutter().padding(.vertical, TollSpacing.cardPadding) }
         .background(TollColor.bgGrouped)
         .navigationTitle(model.title)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(model.hasChanges)
         .toolbar {
           if model.hasChanges {
@@ -65,11 +66,9 @@ struct BlockEditorView: View {
             }
           }
         }
-        .safeAreaInset(edge: .bottom) {
+        .tollBottomBar {
           PrimaryButton(Copy.BlockEditor.done) { Task { if await model.done() { dismiss() } } }
             .disabled(!model.canFinish)
-            .tollGutter()
-            .padding(.bottom, 8)
         }
         .confirmationDialog(Copy.BlockEditor.discardTitle, isPresented: $confirmDiscard) {
           Button(Copy.BlockEditor.discard, role: .destructive) { dismiss() }
@@ -81,77 +80,61 @@ struct BlockEditorView: View {
   private func editor(_ model: BlockEditorModel) -> some View {
     @Bindable var bound = model
     let kind = Binding(get: { model.schedule.kind }, set: { model.choose($0) })
-    return VStack(alignment: .leading, spacing: 16) {
-      if let summary = model.compactSummary {
-        BlockRow(schedule: summary, style: .compact) { EmptyView() } names: { EmptyView() }
-      } else {
-        ForEach(model.finished) { block in
-          BlockRow(schedule: Copy.Schedules.label(block.schedule), style: .compact) {
-            AppIconCluster(block.appRefs)
-          } names: {
-            AppNames(block.appRefs)
-          }
-        }
+    // Cards need a fill the page does not have: `surface` is the page colour in setup, and
+    // `surfaceRaised` is the page colour on the grouped background.
+    let fill = model.isSetup ? TollColor.surfaceRaised : TollColor.surface
+    return VStack(alignment: .leading, spacing: 0) {
+      finishedBlocks(model, fill: fill)
+      BlockAppsCard(model: model, fill: fill, showAll: $showAll)
+      if model.overLimit {
+        Text(Copy.BlockEditor.limit).tollText(.subhead).padding(.top, TollSpacing.labelGap)
       }
-      appsCard(model)
-      if model.overLimit { Text(Copy.BlockEditor.limit).tollText(.subhead) }
+      if !model.isSetup && !model.refs.isEmpty {
+        Text(Copy.BlockEditor.tagNote).tollText(.detail).padding(.top, TollSpacing.labelGap)
+      }
       SectionHeader(Copy.Schedules.when)
-      WhenChips(selection: kind, customSchedule: model.schedule.kind == .custom ? model.schedule : nil) {
+        .padding(.top, TollSpacing.groupGap)
+        .padding(.bottom, TollSpacing.tileGap)
+      WhenChips(
+        selection: kind, customSchedule: model.schedule.kind == .custom ? model.schedule : nil,
+        tileFill: fill
+      ) {
         model.customSheetPresented = true
       }
       if !model.isSetup {
-        VStack(alignment: .leading, spacing: 4) {
-          FilledField(Copy.BlockEditor.blockName, text: $bound.name, fill: TollColor.surface)
-          Text(Copy.BlockEditor.blockNameNote).tollText(.caption)
-        }
+        FilledField(Copy.BlockEditor.blockName, text: $bound.name, fill: TollColor.surface)
+          .padding(.top, TollSpacing.groupGap)
+        Text(Copy.BlockEditor.blockNameNote).tollText(.caption).padding(.top, TollSpacing.labelGap)
       }
     }
   }
 
-  private func appsCard(_ model: BlockEditorModel) -> some View {
-    let visible = model.isSetup ? Array(model.refs.prefix(3)) : model.refs
-    return VStack(alignment: .leading, spacing: 0) {
-      if model.refs.isEmpty {
-        QuietButton(Copy.BlockEditor.chooseApps) { model.pickerPresented = true }
-          .frame(maxWidth: .infinity, minHeight: 52)
-      }
-      ForEach(Array(visible.enumerated()), id: \.element) { index, ref in
-        appRow(model, ref: ref)
-          .staggeredAppearance(index: index, step: Motion.Stagger.pickerRows, rise: 6, isActive: true)
-      }
-      if model.isSetup && model.refs.count > 3 {
-        Button(Copy.BlockEditor.more(model.refs.count - 3)) { showAll = true }
-          .tollText(.bodyMedium)
-          .frame(minHeight: 44)
-      }
-      if !model.refs.isEmpty {
-        QuietButton(Copy.BlockEditor.chooseMore) { model.pickerPresented = true }
-          .frame(minHeight: 44)
-      }
-      if !model.isSetup && !model.refs.isEmpty {
-        Text(Copy.BlockEditor.tagNote).tollText(.micro).padding(.bottom, 8)
-      }
-    }
-    .padding(.horizontal, TollSpacing.cardPadding)
-    .background(TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card))
-  }
-
-  private func appRow(_ model: BlockEditorModel, ref: AppRef) -> some View {
-    HStack(spacing: 12) {
-      AppLabel(ref, style: .both).tollText(.body)
-      Spacer()
-      if !model.isSetup {
-        Menu {
-          ForEach(Tag.allCases, id: \.self) { tag in
-            Button(Copy.Tags.chip(tag)) { Task { await model.setTag(tag, for: ref) } }
+  /// Blocks already made with "Add another block", above the creator. They are a record, not a way
+  /// back in, so they carry no chevron.
+  @ViewBuilder
+  private func finishedBlocks(_ model: BlockEditorModel, fill: Color) -> some View {
+    if !model.finished.isEmpty {
+      VStack(alignment: .leading, spacing: 0) {
+        if let summary = model.compactSummary {
+          Text(summary)
+            .tollText(.body)
+            .monospacedDigit()
+            .lineLimit(1)
+            .frame(maxWidth: .infinity, minHeight: TollSpacing.compactBlockRowHeight, alignment: .leading)
+        } else {
+          ForEach(model.finished) { block in
+            BlockRow(schedule: Copy.Schedules.label(block.schedule), style: .compact, showsChevron: false) {
+              AppIconCluster(block.appRefs)
+            } names: {
+              AppNames(block.appRefs)
+            }
           }
-        } label: {
-          Text(model.tags[ref].map(Copy.Tags.chip) ?? Copy.Tags.display(nil)).tollText(.caption)
         }
       }
+      .padding(.horizontal, TollSpacing.cardPadding)
+      .background(fill, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
+      .padding(.bottom, 12)
     }
-    .frame(minHeight: 44)
-    .swipeActions { Button(Copy.Blocks.remove, role: .destructive) { model.remove(ref) } }
   }
 
   private func allApps(_ model: BlockEditorModel) -> some View {
