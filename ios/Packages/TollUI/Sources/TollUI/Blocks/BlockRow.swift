@@ -13,16 +13,19 @@ public enum BlockRowStyle: Sendable {
 public struct BlockRow<Icons: View, Names: View>: View {
   let schedule: String
   let style: BlockRowStyle
+  let showsChevron: Bool
   let icons: Icons
   let names: Names
 
-  /// `schedule` is `Copy.Schedules.label(_:)`.
+  /// `schedule` is `Copy.Schedules.label(_:)`. Pass `showsChevron: false` where the row does not open
+  /// anything, or where a `NavigationLink` already draws the chevron.
   public init(
-    schedule: String, style: BlockRowStyle = .regular, @ViewBuilder icons: () -> Icons,
-    @ViewBuilder names: () -> Names
+    schedule: String, style: BlockRowStyle = .regular, showsChevron: Bool = true,
+    @ViewBuilder icons: () -> Icons, @ViewBuilder names: () -> Names
   ) {
     self.schedule = schedule
     self.style = style
+    self.showsChevron = showsChevron
     self.icons = icons()
     self.names = names()
   }
@@ -55,10 +58,12 @@ public struct BlockRow<Icons: View, Names: View>: View {
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
-      Image(systemName: "chevron.right")
-        .font(TollFont.captionMedium)
-        .foregroundStyle(TollColor.label3)
-        .accessibilityHidden(true)
+      if showsChevron {
+        Image(systemName: "chevron.right")
+          .font(TollFont.captionMedium)
+          .foregroundStyle(TollColor.label3)
+          .accessibilityHidden(true)
+      }
     }
     .frame(
       minHeight: style == .regular ? TollSpacing.blockRowHeight : TollSpacing.compactBlockRowHeight

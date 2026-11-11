@@ -8,6 +8,9 @@ public enum TollColor {
   public static let bgGrouped = Color(uiColor: .systemGroupedBackground)
   public static let surface = Color(uiColor: .secondarySystemGroupedBackground)
   public static let surfaceRaised = Color(uiColor: .tertiarySystemGroupedBackground)
+  /// Translucent, so it reads on `bg`, `bgGrouped` and `surface` alike. For controls that can sit on
+  /// any of them: a disabled button, a field inside a list row.
+  public static let fill = Color(uiColor: .tertiarySystemFill)
 
   public static let label = Color(uiColor: .label)
   public static let label2 = Color(uiColor: .secondaryLabel)

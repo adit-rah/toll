@@ -1,9 +1,9 @@
 import SwiftUI
 import TollCore
 
-/// Design §3.16. Four 88 pt tiles in a 2×2 grid. The caller preselects Always. Custom calls `onCustom`
-/// (which opens Custom hours) instead of selecting; set the selection to `.custom` when that sheet's
-/// Done returns, and pass the chosen schedule so the tile shows its window.
+/// Design §3.16. Four tiles in a 2×2 grid, 88 pt at standard text sizes. The caller preselects Always.
+/// Custom calls `onCustom` (which opens Custom hours) instead of selecting; set the selection to
+/// `.custom` when that sheet's Done returns, and pass the chosen schedule so the tile shows its window.
 public struct WhenChips: View {
   @Binding var selection: Schedule.Kind
   let customSchedule: Schedule?
@@ -11,7 +11,7 @@ public struct WhenChips: View {
   let onCustom: (() -> Void)?
 
   /// `tileFill` is the unselected fill. The default reads on `bg` (white `surface` would vanish there);
-  /// pass `surface` on grouped backgrounds.
+  /// pass `surface` on grouped backgrounds, where the default would vanish instead.
   public init(
     selection: Binding<Schedule.Kind>, customSchedule: Schedule? = nil,
     tileFill: Color = TollColor.surfaceRaised, onCustom: (() -> Void)? = nil
@@ -23,7 +23,7 @@ public struct WhenChips: View {
   }
 
   public var body: some View {
-    Grid(horizontalSpacing: 10, verticalSpacing: 10) {
+    Grid(horizontalSpacing: TollSpacing.tileGap, verticalSpacing: TollSpacing.tileGap) {
       GridRow {
         tile(.always)
         tile(.nights)
@@ -33,6 +33,9 @@ public struct WhenChips: View {
         tile(.custom)
       }
     }
+    // Tiles fill their row so a pair stays the same height, which would also let the grid take every
+    // spare point on the screen; its ideal height is the size the design means.
+    .fixedSize(horizontal: false, vertical: true)
     .tollHaptic(.selection, trigger: selection)
   }
 
@@ -46,24 +49,36 @@ public struct WhenChips: View {
         selection = kind
       }
     } label: {
-      VStack(alignment: .leading, spacing: 2) {
+      VStack(alignment: .leading, spacing: 8) {
         Image(systemName: Self.symbol(for: kind))
           .font(TollFont.body)
+          .frame(height: 24)
           .accessibilityHidden(true)
-        Spacer(minLength: 8)
-        Text(text.title).font(TollFont.subheadSemibold)
-        Text(text.detail)
-          .font(TollFont.micro)
-          .monospacedDigit()
-          .foregroundStyle(isSelected ? TollColor.onAccent : TollColor.label2)
+        VStack(alignment: .leading, spacing: 0) {
+          Text(text.title)
+            .font(TollFont.subheadSemibold)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+          Text(text.detail)
+            .font(TollFont.detail)
+            .monospacedDigit()
+            .foregroundStyle(isSelected ? TollColor.onAccent.opacity(0.8) : TollColor.label2)
+            .lineLimit(2)
+            .multilineTextAlignment(.leading)
+        }
       }
       .foregroundStyle(isSelected ? TollColor.onAccent : TollColor.label)
-      .padding(12)
-      .frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
+      .padding(.horizontal, 12)
+      .padding(.vertical, 14)
+      .frame(
+        maxWidth: .infinity, minHeight: TollSpacing.tileHeight, maxHeight: .infinity,
+        alignment: .topLeading
+      )
       .background(
         isSelected ? TollColor.accent : tileFill,
-        in: RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous)
+        in: RoundedRectangle(cornerRadius: TollRadius.tile, style: .continuous)
       )
+      .contentShape(RoundedRectangle(cornerRadius: TollRadius.tile, style: .continuous))
       .animation(Motion.stateChange, value: isSelected)
       .accessibilityElement(children: .combine)
     }

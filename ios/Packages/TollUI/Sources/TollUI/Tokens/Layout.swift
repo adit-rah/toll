@@ -16,6 +16,11 @@ public enum TollSpacing {
   public static let heroToList: CGFloat = 36
   public static let barHeight: CGFloat = 44
   public static let titleGap: CGFloat = 28
+  public static let groupGap: CGFloat = 24
+  public static let labelGap: CGFloat = 8
+  public static let tileHeight: CGFloat = 88
+  public static let tileGap: CGFloat = 10
+  public static let footerBottom: CGFloat = 12
   public static let waitCardTop: CGFloat = 180
   public static let rowLeadingSlot: CGFloat = 32
   public static let rowLeadingGap: CGFloat = 12
@@ -35,6 +40,7 @@ public enum TollRadius {
   public static let chip: CGFloat = 8
   public static let button: CGFloat = 12
   public static let field: CGFloat = 14
+  public static let tile: CGFloat = 14
 }
 
 extension View {
@@ -45,16 +51,36 @@ extension View {
 }
 
 private struct GutterPadding: ViewModifier {
-  @State private var width: CGFloat = 390
-
   func body(content: Content) -> some View {
-    content
-      .padding(.horizontal, TollSpacing.horizontalGutter(forWidth: width))
-      .onGeometryChange(for: CGFloat.self) { proxy in
-        proxy.size.width
-      } action: { newWidth in
-        width = newWidth
-      }
+    GutterLayout { content }
+  }
+}
+
+/// A layout rather than state fed by a geometry reader: the gutter is right on the first frame, so
+/// nothing shifts 4 pt after appearing on a narrow phone and no screen lays out twice.
+private struct GutterLayout: Layout {
+  func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+    let gutter = TollSpacing.horizontalGutter(forWidth: proposal.width ?? .infinity)
+    let inner = ProposedViewSize(
+      width: proposal.width.map { max(0, $0 - 2 * gutter) }, height: proposal.height)
+    var size = CGSize.zero
+    for subview in subviews {
+      let fit = subview.sizeThatFits(inner)
+      size.width = max(size.width, fit.width)
+      size.height = max(size.height, fit.height)
+    }
+    return CGSize(width: size.width + 2 * gutter, height: size.height)
+  }
+
+  func placeSubviews(
+    in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()
+  ) {
+    let gutter = TollSpacing.horizontalGutter(forWidth: bounds.width)
+    let inner = ProposedViewSize(width: max(0, bounds.width - 2 * gutter), height: bounds.height)
+    for subview in subviews {
+      subview.place(
+        at: CGPoint(x: bounds.midX, y: bounds.midY), anchor: .center, proposal: inner)
+    }
   }
 }
 
