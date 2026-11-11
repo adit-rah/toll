@@ -95,7 +95,7 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A87 | Uploads never hold the screen | A flush started by the user opening Toll, saving a block or tagging an app runs after the state is returned; background wakes still wait for it. A user-opened flush may therefore be cut off by suspension and goes out on the next trigger (events are idempotent) | spec §11.1, G-4 |
 | A88 | Launch and foreground | Foreground waits for launch, and a foreground arriving during one is run after it rather than dropped; `GET /home` at launch is skipped once Find your friends has been shown, since Home fetches its own | spec §9 |
 | A89 | Still slow, not fixed | `Dependencies.live()` opens the database and starts Sentry before the first frame; Home refreshes on every tab return (throttling needs a §14 tunable); the periodic `sync.flushIntervalSeconds` trigger is not implemented | spec §11, §14 — open |
-| A90 | Cutting a build | Push a new `v*` tag on the commit to ship; the automation builds it and uploads to TestFlight. No merge or version edit first. Written into `CLAUDE.md` (Releasing) so nobody has to rediscover it (11 Nov) | spec §12, `ios/README.md` — decided |
+| A90 | Cutting a build | Publish a GitHub release with a new `v*` tag on the commit to ship; the automation builds it and uploads to TestFlight. No merge or version edit first. A cloud agent session cannot push tags, so the person cuts it. Written into `CLAUDE.md` (Releasing) so nobody has to rediscover it (11 Nov) | spec §12, `ios/README.md` — decided |
 
 ## B. Open — needs a founder decision before the relevant task
 
