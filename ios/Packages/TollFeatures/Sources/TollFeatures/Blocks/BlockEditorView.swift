@@ -85,6 +85,12 @@ struct BlockEditorView: View {
     let fill = model.isSetup ? TollColor.surfaceRaised : TollColor.surface
     return VStack(alignment: .leading, spacing: 0) {
       finishedBlocks(model, fill: fill)
+      if model.needsRepicking {
+        Text(Copy.BlockEditor.needsRepicking)
+          .tollText(.subhead)
+          .fixedSize(horizontal: false, vertical: true)
+          .padding(.bottom, TollSpacing.labelGap)
+      }
       BlockAppsCard(model: model, fill: fill, showAll: $showAll)
       if model.overLimit {
         Text(Copy.BlockEditor.limit).tollText(.subhead).padding(.top, TollSpacing.labelGap)

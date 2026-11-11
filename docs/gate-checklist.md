@@ -93,7 +93,12 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] Console, category `activity`: starting a 5 or 10 min session logs no "session activity failed" (that would be `intervalTooShort`).
 - [ ] No early re-shield: during a 10 min session, lock the phone for 3 minutes and come back → the app is still open; the shield does not return before 10:00.
 - [ ] With the monitor disrupted (reboot mid-session), open Toll after the session's time → the app re-shields on foreground and the block bar is back to "Always" / "Until …".
-- [ ] Set the clock forward during a session → it ends when Toll or the monitor next runs. Set it back → it does not end early by real time; it ends when the clock reaches the expiry (known: this lengthens the session; record what happens).
+- [ ] **Clock set back mid-session, Toll open (spec G-9):** start a 5 min session, note the real time, then in Settings turn off Set Automatically and set the clock back an hour. No reboot. Open Toll after 5 real minutes → the app is shielded again and the bar is back to "Always" / "Until …". Before that the bar's countdown may read about an hour; that is known and only the shield matters. Console, category `shield`: a `reconcile source=foreground` line with `ended=1`.
+- [ ] **The same with Toll force-quit before the clock change:** open Toll after 5 real minutes → still re-shields. If it does not, the boot id Toll reads changed with the clock (`SystemClock.bootID` reads `kern.boottime`): file it in the fix list, because the same would let a clock change shorten a wait after a relaunch.
+- [ ] **The same without opening Toll at all:** stay in the unblocked app and record when the shield returns. The monitor is woken by a wall-clock interval, so it may come only at the next schedule edge or when the set-back clock reaches the expiry; note which, with the Console `reconcile source=…` line.
+- [ ] Set the clock forward an hour during a 10 min session → it ends when Toll or the monitor next runs (unchanged: the earlier of the two clocks ends a session).
+- [ ] Set the clock back during a session, then reboot → only the wall clock is left: the session ends when the clock reaches the expiry (known: this lengthens it; record what happens).
+- [ ] **A second unblock over a running session:** start a 15 min session from a shield hit on one app, then Unblock the whole block from Home for 5 min → the first session is gone (one countdown, 5 min), everything re-shields at 5:00, and nothing happens at 15:00.
 - [ ] A session started 5 minutes before a Nights block ends → the app simply stays open after the window; nothing odd at the session's expiry.
 - [ ] Both apps hit during one wait both unlock for the session.
 - [ ] **Unblock from Home:** tap the block bar → the card → Unblock: the sheet closes first, then, with a free pass left, the picker at once, for every app in the block; "Not now" → the pass is gone and nothing was counted. With no free pass → the wait card titled with the block's apps on one line (a shield hit still names only the app that was tapped); at zero the picker; choosing a length unlocks every app in the block. No block hit is added to Insights → Gates.
@@ -127,11 +132,14 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] Change Always → Nights: a friend sees "<Name>'s <App> block is now nights only." pinned.
 - [ ] Tap an app's tag in New block → chips → choose → friends' lines re-label past passes too.
 - [ ] Back without Done → "Discard changes?"
-- [ ] 8 blocks → Add a block disabled.
+- [ ] 8 blocks → Add a block disabled, and "8 blocks is the most." shows beneath the list; remove one → the caption goes.
 - [ ] A Nights block shields at 23:00 and lifts at 07:00 (leave the phone overnight; check both edges). **Verifies one overnight DeviceActivity schedule per block (ledger A31).**
 
 ## 10. Device state on Home (flows §7, §19)
 - [ ] Turn Toll off in Settings → Screen Time → reopen Toll → "Screen Time is off · Fix" at the top; Fix → sheet → approved → the line collapses.
+- [ ] Fix → Don't Allow on the sheet (or no sheet at all) → the Settings app opens; turn Screen Time on there → back in Toll the line collapses and blocked apps are shielded again without another tap.
+- [ ] One block with an expired app (iOS 26.5 `tokensDidExpire`, or a registry entry removed in a debug build) → "Blocks need re-picking · Fix" although the block's other apps still work; Fix opens that block with its remaining apps, the line "Some apps are missing from this block. Choose them again." and the system Back button (no discard prompt). Choose more → the line goes → Done → Home's line collapses.
+- [ ] Two blocks affected → Fix opens Blocks; each affected row reads "Needs re-picking" beneath its names (VoiceOver reads it); the others show their schedule.
 - [ ] After two days with Toll's permission off, a friend sees "Toll has been off on <Name>'s phone since <day>." pinned; one check-in clears it.
 - [ ] Delete every block → "Nothing blocked yet · Add apps" → New block.
 
@@ -141,16 +149,21 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] Long-press a row → Remove, Block, Report. Block → "Block <Name>? You won't see each other anywhere." → gone from Home, People, mutuals, school.
 - [ ] Report → reasons + text → Send → "Also block this person?"
 - [ ] Pull to refresh syncs; rows move without bouncing.
+- [ ] Sign in on a fresh install in airplane mode (or with the API unreachable) → Home's Friends section reads "No connection.", not "No friends yet."; pull to refresh online → friends, or the empty line. With friends already cached, airplane mode keeps the rows.
+- [ ] People → Accept or Decline in airplane mode → the row stays and a line at the top says "No connection." or "That didn't work. Try again."; online again, pull to refresh clears it.
 - [ ] VoiceOver reads a row as one sentence ("Adi, about usual, 3 passes today, down 23 percent on last week").
 - [ ] Largest accessibility text size: rows stack, nothing clips; the hero stops growing at AX2.
 
 ## 12. Notifications (flows §17)
 - [ ] Daily summary at 10:00 local: "N passes yesterday. Kth of M friends." Tap → Home. With a pending request the sentence ends "1 friend request waiting." and the tap opens People.
 - [ ] Nothing else ever appears on the lock screen.
+- [ ] Below iOS 26.5: with Toll in front, pull down Notification Center and tap a waiting "Open Toll" notification from a shield → the wait card appears; the Toll-opens count on Home rises by at most one.
+- [ ] Notifications off for Toll in the Settings app → Toll's Settings shows "Notifications are off" and "Open Settings" in place of the summary switch and time; Open Settings → the Settings app → allow → back in Toll the switch and time are there without leaving the screen.
 
 ## 13. Account (flows §16, §20)
 - [ ] Settings → Delete account → confirm → re-authenticate → Welcome; Screen Time shields are gone; reinstalling shows no history.
 - [ ] Solo user signs in from People → new account → You → history uploads (Insights unchanged) → Find your friends.
+- [ ] Settings → Account → change the handle to one in use → Save → "taken" beside the field, still on the screen. Change it twice within a month → "Handles change once a month." beneath the fields. Change only the name → Save returns to Settings with the new name.
 
 ## Fix list
 

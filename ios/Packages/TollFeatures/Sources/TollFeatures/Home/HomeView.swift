@@ -14,6 +14,7 @@ struct HomeView: View {
   @State private var blocksShown = false
   @State private var personAction: (PersonAction, PersonRef)?
   @Namespace private var barSpace
+  @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
     NavigationStack(path: $path) {
@@ -56,6 +57,10 @@ struct HomeView: View {
       await model?.start()
     }
     .onChange(of: app.gate) { _, _ in Task { await model?.gateChanged() } }
+    // Fix can send the person to the Settings app; the device line is read again when they return.
+    .onChange(of: scenePhase) { _, phase in
+      if phase == .active { Task { await model?.cameToFront() } }
+    }
     // Sheets present above the gate's card, so one left open would hide a wait that has just
     // started, or the session picker of a free pass.
     .onChange(of: gateCardIsUp) { _, isUp in
@@ -130,8 +135,15 @@ struct HomeView: View {
     switch model.deviceState {
     case .screenTimeOff:
       PinnedRow(Copy.Home.screenTimeOff, actionTitle: Copy.Home.fix) { Task { await model.fixScreenTime() } }
-    case .blocksNeedRepicking:
-      PinnedRow(Copy.Home.blocksNeedRepicking, actionTitle: Copy.Home.fix) { path.append(HomeRoute.blocks) }
+    case .blocksNeedRepicking(let only)?:
+      PinnedRow(Copy.Home.blocksNeedRepicking, actionTitle: Copy.Home.fix) {
+        // One block: straight to its apps. Several: the list, where each one is marked.
+        if let only {
+          path.append(HomeRoute.editBlock(only))
+        } else {
+          path.append(HomeRoute.blocks)
+        }
+      }
     case .nothingBlocked:
       PinnedRow(Copy.Home.nothingBlocked, actionTitle: Copy.Home.addApps) { path.append(HomeRoute.newBlock) }
     case .none:
@@ -172,8 +184,13 @@ struct HomeView: View {
       }
       let friends = model.home?.friends ?? []
       if friends.isEmpty {
-        EmptyState(Copy.Home.noFriends, actionTitle: Copy.Home.sendInvite) { inviteShown = true }
-          .padding(.vertical, 24)
+        if model.friendsUnavailable {
+          // Same place and size as the empty line it stands in for.
+          EmptyState(Copy.Errors.offline).padding(.vertical, 24)
+        } else {
+          EmptyState(Copy.Home.noFriends, actionTitle: Copy.Home.sendInvite) { inviteShown = true }
+            .padding(.vertical, 24)
+        }
       }
       ForEach(Array(friends.enumerated()), id: \.element.id) { index, friend in
         Button { detail = friend } label: {

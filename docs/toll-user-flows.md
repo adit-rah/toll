@@ -161,8 +161,10 @@ flowchart TD
   PR -- tap --> G
   H -. Screen Time off / tokens expired / no blocks .-> DS[Device-state line · Fix]
   DS -- Fix: Screen Time off --> SA[[Authorization sheet]] --> H
-  DS -- Fix: tokens expired --> PK[[App picker]] --> H
+  DS -- Fix: tokens expired --> RP[The block that lost apps · Blocks if several §19] --> H
   DS -- Add apps --> NB[New block]
+  H -. signed in, never synced, fetch failed .-> OF[Friends: 'No connection.' · no invite button]
+  OF -- pull to refresh --> H
 ```
 
 ## 8. Shield (system-rendered, Toll copy)
@@ -248,6 +250,7 @@ flowchart TD
   PE[People<br>Requests · Friends · Mutuals · In your contacts · School · Invite]
   PE -- Accept a request -. mutual friendship .-> PE
   PE -- Decline --> PE
+  PE -. Accept or Decline did not land .-> PF[Row stays · line at the top: 'That didn't work. Try again.'] --> PE
   PE -- tap a friend --> FD[Friend detail §11]
   PE -- Add a mutual --> PE1[Row shows 'Requested'] --> PE
   PE -- Add from contacts --> PE1
@@ -286,7 +289,11 @@ flowchart TD
   BL -- swipe a row: Remove --> RM{'Remove Instagram? Your friends will see this.'}
   RM -- Remove -. block_removed · pinned for friends .-> BL
   RM -- Keep --> BL
-  BL -- 8 blocks reached --> BL1[Add a block disabled] 
+  BL -- 8 blocks reached --> BL1[Add a block disabled · caption '8 blocks is the most.']
+  BL -. a block lost apps §19 .-> BL2[Its row reads 'Needs re-picking' in place of the schedule]
+  BL2 -- tap the row --> NB
+  NB -. opened on a block that lost apps .-> NB1['Some apps are missing from this block. Choose them again.' above the apps · Back needs no discard until something changes]
+  NB1 -- Choose more --> PK
   NB -- Choose more --> PK[[App picker]] --> NB
   NB -- tap an app's tag --> TC[Tag chips] -- choose --> NB
   NB -- touch and hold an app: remove from block --> NB
@@ -328,10 +335,14 @@ flowchart TD
 flowchart TD
   ST[Settings]
   ST -- Account row --> AC[Edit name · handle · photo · Save] --> ST
+  AC -. handle taken, or changed within the month: the reason stays on screen .-> AC
   ST -- Sign out --> SO{Sign out? Blocks stay on this phone.} -- Sign out --> W[Welcome]
   ST -- School: Leave --> LS{Leave Waterloo?} -- Leave --> ST
   ST -- School: none --> SE[School email → code §6] --> ST
   ST -- One summary a day toggle --> ST
+  ST -. notifications off in iOS .-> NO['Notifications are off' · Open Settings, in place of the toggle and time]
+  NO -- Open Settings, never asked --> NP[[Notification permission]] --> ST
+  NO -- Open Settings, asked before --> NS[[Settings app]] -. back in Toll: rechecked .-> ST
   ST -- Time --> TP[Time picker] --> ST
   ST -- Let contacts find me toggle --> ST
   ST -- Blocked apps --> BL[Blocks §14]
@@ -356,6 +367,7 @@ flowchart TD
   DS -- ignored --> N([Nothing])
   SN[[Shield-route notification 'Open Toll'<br>below iOS 26.5 only]]
   SN -- tap --> G[Gate §9]
+  SN -- tap with Toll already in front -. gate runs again, no Toll open counted .-> G
   SN -- ignored --> N
   SP[[Silent push]] -. refresh data .-> N
 ```
@@ -386,8 +398,11 @@ flowchart TD
   A1 -. second missed check-in .-> A2[Friends: 'Toll has been off on Adi's phone since Tuesday']
   A -. person opens Toll .-> H1[Home: 'Screen Time is off · Fix']
   H1 -- Fix --> SA[[Authorization sheet]] -- approved -. check-in resumes .-> H[Home]
-  B([Tokens expired · iOS 26.5 tokensDidExpire]) -. person opens Toll .-> H2[Home: 'Blocks need re-picking · Fix']
-  H2 -- Fix --> PK[[App picker]] --> H
+  SA -- not approved, system no longer prompts --> SS[[Settings app]] -. back in Toll with Screen Time on: shield applied .-> H
+  B([Tokens expired · iOS 26.5 tokensDidExpire]) -. person opens Toll .-> H2[Home: 'Blocks need re-picking · Fix'<br>shown when any block has an app without a token]
+  H2 -- Fix, one block affected --> NB[That block · remaining apps kept · 'Some apps are missing from this block. Choose them again.']
+  H2 -- Fix, several affected --> BL[Blocks · each affected row reads 'Needs re-picking'] -- tap a row --> NB
+  NB -- Choose more --> PK[[App picker]] -- Done --> H
   C([App deleted]) -. two missed check-ins .-> A2
   D([Phone off / offline for days]) -. two missed check-ins .-> A2
   A2 -. any check-in arrives .-> H

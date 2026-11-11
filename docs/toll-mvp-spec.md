@@ -103,7 +103,7 @@ The gate can also be entered from inside Toll: "Unblock" on a block that is on. 
 
 **G-5.** One open request at a time. A second block hit, or an Unblock inside Toll, during a wait joins the same wait (it does not reset or extend); while a pass is waiting to be used it joins that pass and brings the picker back. Leaving the gate screen does not abandon the wait; only the user tapping "Cancel" does, which records `wait_abandoned`.
 
-**G-6. Session.** When a pass is granted (free at once, or when the wait ends and the user is in Toll), Toll shows the session choice (`gate.sessionMinutes`). Choosing a length uses the pass: the apps it covers are removed from the shield set for that many minutes of wall-clock time from that moment, whether or not they are used. The persisted expiry (start + minutes) is the truth. The session ends, and the apps are re-shielded, when anything of Toll's next runs at or after it: the DeviceActivity monitor woken for that moment, Toll in the foreground, or any other extension wake. DeviceActivity rejects intervals under 15 minutes, so the monitor is woken by a one-off interval of `max(minutes, 15)` minutes whose end warning is set to fall on the session's end; a callback ends a session only if the persisted expiry has passed, so an early or stray one cannot cut it short. A session cannot be extended; a new request follows it.
+**G-6. Session.** When a pass is granted (free at once, or when the wait ends and the user is in Toll), Toll shows the session choice (`gate.sessionMinutes`). Choosing a length uses the pass: the apps it covers are removed from the shield set for that many minutes of wall-clock time from that moment, whether or not they are used. The persisted expiry (start + minutes) is the truth. The session ends, and the apps are re-shielded, when anything of Toll's next runs at or after it: the DeviceActivity monitor woken for that moment, Toll in the foreground, or any other extension wake. DeviceActivity rejects intervals under 15 minutes, so the monitor is woken by a one-off interval of `max(minutes, 15)` minutes whose end warning is set to fall on the session's end; a callback ends a session only if the persisted expiry has passed, so an early or stray one cannot cut it short. Setting the clock back does not move the end (G-9). A session cannot be extended; a new request follows it. A new session that covers an app of one still running replaces that one: the earlier session ends at that moment, `session_ended` is recorded for it and its interval is stopped.
 - **Not now.** The picker can be declined. A pass that came from a shield is kept until the day reset: the picker steps aside and comes back on the next shield hit or when the user asks for it in Toll. A pass asked for inside Toll is dropped. Either way nothing was recorded, so the free pass is still there and the wait ladder has not moved.
 - **Block again.** A session can be ended early from Toll. The apps are re-shielded at once and `session_ended` is recorded.
 
@@ -113,7 +113,7 @@ The gate can also be entered from inside Toll: "Unblock" on a block that is on. 
 
 **G-8.** The gate never dead-ends. Any failure (extension crash, missing token, clock skew) MUST fall back to: shield stays up, Toll shows the block and a working path through it. A user MUST always be able to reach Settings → Blocks and remove a block (recorded and visible to friends).
 
-**G-9.** Clock integrity: waits use monotonic time where available plus wall-clock; if wall-clock jumps backward by more than `gate.clockSkewTolerance`, the wait end is recomputed from monotonic elapsed time, not shortened.
+**G-9.** Clock integrity: waits use monotonic time where available plus wall-clock; if wall-clock jumps backward by more than `gate.clockSkewTolerance`, the wait end is recomputed from monotonic elapsed time, not shortened. Sessions (G-6) are guarded the same way: a session keeps the monotonic instant it started at, and within one boot, whenever the wall clock and the monotonic clock disagree by more than the tolerance, it ends at the earlier of the two ends, so setting the clock back does not lengthen an unblock. Setting it forward still ends the session early, as before: the monitor's wake has then already been spent, and a session kept open past it would have nothing to end it. Across a reboot, and for a session persisted before this rule, only the wall clock is left. The rule decides when the shield returns the next time anything of Toll's runs; the monitor's wake for a session is still an interval on the wall clock, and a countdown on screen may follow the wall clock.
 
 **G-10. Toll opens.** Toll counts its own foreground opens per day and shows the number on Home ("You opened Toll 14 times today").
 
@@ -257,7 +257,8 @@ Every line is a fact, a number, or a question. No adjectives about the user. No 
 | New block | "New block" · "Choose more" · Line under the apps: "Names on the right are what friends see. Tap to change." · When: "Always · every day", "Nights · 11 pm – 7 am", "Weekdays · 9 am – 5 pm", "Custom · pick times" · "Block name" (caption "Optional. Only you see it.") · "Done". |
 | Find your friends | "Find your friends". Groups: Invite code, Contacts, School. Buttons: "Done" · "Skip". |
 | First wait, naming | "Which app is this?" Beneath: "Friends see the name. Change it any time from Blocks." Then the tag chips. |
-| Blocks row | "Instagram, TikTok, YouTube" beneath "Always"; "Reddit, Snapchat" beneath "Nights · 11 pm – 7 am". Button: "Add a block". |
+| Blocks row | "Instagram, TikTok, YouTube" beneath "Always"; "Reddit, Snapchat" beneath "Nights · 11 pm – 7 am". A block that has lost apps reads "Needs re-picking" in place of its schedule. Button: "Add a block". |
+| Block, apps missing | Above the apps when editing a block that has lost some: "Some apps are missing from this block. Choose them again." |
 | Pinned, schedule loosened | "Adi's Instagram block is now nights only." |
 | Welcome buttons | "Continue with Apple" · "Continue with email" · "Continue without an account" |
 | Your blocks, returning | "Block these again". No line. |
@@ -268,9 +269,11 @@ Every line is a fact, a number, or a question. No adjectives about the user. No 
 | Before notification prompt | "This is how the block screen reaches Toll." |
 | Blocks header | "Removing a block is shown to your friends." |
 | Blocks at limit | "40 apps is the most this phone allows." |
+| Block count at limit | Beneath the Blocks list: "8 blocks is the most." |
 | Remove block confirm | "Remove Instagram? Your friends will see this." Buttons: "Remove" · "Keep". |
 | Invite caption | "Friends who install from this link are added when they accept." |
 | Empty friends | "No friends yet." Button: "Send an invite". |
+| Settings, notifications off | In place of the summary switch: "Notifications are off". Button: "Open Settings". |
 | School below minimum | "Not enough people at your school yet." |
 | Store listing, first screen | Lead with time and friends. Write during build. |
 
@@ -408,7 +411,6 @@ All tunables. One source of truth in code (`TollConfig` / `config.ts`), overrida
 | `identity.handleCooldownDays` | 30 | |
 | `identity.photoMaxPx` | 512 | Stored as one 512 px JPEG in R2. |
 | `notify.hour` | 10 | Local. The daily summary is on by default once notification permission is granted (step 4); off in Settings. |
-| `gate.sessionWindowMinutes` | 60 | Unused since sessions became flat time (G-6, ledger A91). `config.ts` still serves it; the app ignores it. Remove with the next Worker change. |
 | `blocks.maxTokens` | 40 | Platform shields nothing above 50 tokens. |
 | `blocks.max` | 8 | Blocks per device; keeps DeviceActivity activities under the platform's 20. |
 | `blocks.presets` | always; nights 23:00–07:00 daily; weekdays 09:00–17:00 Mon–Fri | The When chips. Custom is a window plus a day set. |

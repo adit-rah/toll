@@ -29,6 +29,9 @@ public final class AppModel {
   /// Whether the Keychain holds a session. Kept here because views ask on every draw and the Keychain
   /// answers from another process; every sign-in and sign-out passes through this model.
   public private(set) var isSignedIn = false
+  /// The system's answer about notifications as of the last time Toll came to the front; nil before
+  /// the first. Settings shows the way to the Settings app instead of its switches when this is false.
+  public private(set) var notificationsAllowed: Bool?
   private var choseSolo = false
   private var friendsStepShown = false
   private var isReturning = false
@@ -115,9 +118,33 @@ public final class AppModel {
     // gate reads the permission (only the shield's fallback line does).
     setGate(await deps.gate.foreground())
     let allowed = await permission
+    await notifications(allowed: allowed)
+    deps.analytics.send(.appOpen)
+  }
+
+  private func notifications(allowed: Bool) async {
+    if notificationsAllowed != allowed { notificationsAllowed = allowed }
     await deps.gate.setNotificationsAllowed(allowed)
     if allowed && isSignedIn { UIApplication.shared.registerForRemoteNotifications() }
-    deps.analytics.send(.appOpen)
+  }
+
+  /// The permission changed without Toll leaving the front: the system's own sheet was answered.
+  public func recheckNotifications() async {
+    let allowed = await NotificationPermission.isAllowed()
+    await notifications(allowed: allowed)
+  }
+
+  /// A shield notification tapped while Toll is already in front. No activation follows, so nothing
+  /// else would read the tap and start its wait. Not counted as an open (G-10): Toll was open.
+  public func gateTapped() async {
+    guard launched else { return }
+    setGate(await deps.gate.foreground())
+  }
+
+  /// Where a permission is changed once iOS has stopped asking for it (flows §4, §19).
+  public func openSystemSettings() async {
+    guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+    await UIApplication.shared.open(url)
   }
 
   /// The wait card hands back the same state every second while it counts down; publishing it again

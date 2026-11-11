@@ -80,6 +80,17 @@ public final class SettingsModel {
     }
   }
 
+  /// "Open Settings" under "Notifications are off" (flows §16). iOS shows its sheet only if it never
+  /// has (setup skips it when Screen Time was turned on from the Settings app); after that it answers
+  /// no at once and the switch is in the Settings app. Toll rereads the answer as it returns.
+  public func allowNotifications() async {
+    if await NotificationPermission.request() {
+      await app.recheckNotifications()
+    } else {
+      await app.openSystemSettings()
+    }
+  }
+
   public func loadBlockedPeople() async {
     guard app.isSignedIn else { return }
     let people = (try? await app.deps.network.blockedPeople()) ?? []

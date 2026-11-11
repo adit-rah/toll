@@ -91,9 +91,6 @@ public enum Copy {
 
   public enum SessionPicker {
     public static let question = "How long?"
-    public static func open(_ app: String) -> String { "Open \(app)" }
-    /// The button reads "Open" followed by the system's own app name, which Toll cannot read as text.
-    public static let openVerb = "Open"
     public static let note = "From now. The block returns after."
     public static func unblock(minutes: Int) -> String { "Unblock for \(minutes) min" }
     public static let notNow = "Not now"
@@ -230,6 +227,7 @@ public enum Copy {
       "\(count) blocks\(middleDot)\(schedules)"
     }
     public static let limit = "40 apps is the most this phone allows."
+    public static let needsRepicking = "Some apps are missing from this block. Choose them again."
     public static let discardTitle = "Discard changes?"
     public static let discard = "Discard"
     public static let keepEditing = "Keep editing"
@@ -244,6 +242,8 @@ public enum Copy {
     }
     public static let remove = "Remove"
     public static let keep = "Keep"
+    public static let needsRepicking = "Needs re-picking"
+    public static func limit(_ max: Int) -> String { "\(max) blocks is the most." }
   }
 
   public enum Friends {
@@ -419,6 +419,8 @@ public enum Copy {
     public static let notifications = "Notifications"
     public static let dailySummary = "One summary a day"
     public static let time = "Time"
+    public static let notificationsOff = "Notifications are off"
+    public static let openSettings = "Open Settings"
     public static let discoverability = "Discoverability"
     public static let letContactsFind = "Let contacts find me"
     public static let blockedApps = "Blocked apps"

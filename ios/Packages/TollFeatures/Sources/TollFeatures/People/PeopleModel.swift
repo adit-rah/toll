@@ -57,13 +57,23 @@ public final class PeopleModel {
   }
 
   public func accept(_ userId: String) async {
-    try? await app.deps.network.accept(userId)
-    await load()
+    var failed = false
+    do { try await app.deps.network.accept(userId) } catch { failed = true }
+    await reload(afterFailure: failed)
   }
 
   public func decline(_ userId: String) async {
-    try? await app.deps.network.decline(userId)
+    var failed = false
+    do { try await app.deps.network.decline(userId) } catch { failed = true }
+    await reload(afterFailure: failed)
+  }
+
+  /// The request row is still there after an answer that did not land, so the line says why. A reload
+  /// that fails too has already said "No connection."; one that works clears the line, so this is set
+  /// after it.
+  private func reload(afterFailure failed: Bool) async {
     await load()
+    if failed, error == nil { error = Copy.Errors.generic }
   }
 
   public func isRequested(_ userId: String) -> Bool {

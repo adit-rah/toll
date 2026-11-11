@@ -225,10 +225,10 @@ Home tab. Nav bar: no title (the hero is the title). Bar items, trailing: `plus`
 
 1. **You** (centred, no card, 12 pt below the toolbar): `HeroStat` "3" + glyph, "passes today", "11 this week · 17 last week", then `WeekStrip`. 36 pt below it the left-aligned content begins.
 2. **Pinned** (if any): `PinnedRow`s.
-3. **Friends** section: header row with `micro`-style uppercase label "FRIENDS" (`caption` weight medium, `label2`) and trailing `caption` "held 83% this week"; then `FriendRow`s ordered by improvement, hairlines between. Empty: `EmptyState` "No friends yet." + "Send an invite".
+3. **Friends** section: header row with `micro`-style uppercase label "FRIENDS" (`caption` weight medium, `label2`) and trailing `caption` "held 83% this week"; then `FriendRow`s ordered by improvement, hairlines between. Empty: `EmptyState` "No friends yet." + "Send an invite". Signed in, never synced and the fetch failed: `EmptyState` "No connection." with no button, in the same place (friends are unknown, not none).
 4. **Dock**: pinned to the bottom, above the tab bar. It belongs to the screen, not to the list: it is in the same place with no friends and with forty, and rows fade out over 20 pt as they pass under it. Top to bottom: one centred `caption` in `label2`, "You opened Toll 14 times today.", the quietest thing on the screen; then, 8 pt beneath it and 8 pt above the tab bar, the block bar (3.18). With no blocks there is no bar and the caption sits 8 pt above the tab bar by itself.
 
-Device-state line: when Screen Time is off, tokens have expired, or nothing is blocked, a `PinnedRow`-style line sits above everything else ("Screen Time is off · Fix"); "Fix" is the accent word and opens the system sheet or the picker. It outranks a removed-block pin because the gate does not work until it is cleared.
+Device-state line: when Screen Time is off, tokens have expired, or nothing is blocked, a `PinnedRow`-style line sits above everything else ("Screen Time is off · Fix"); "Fix" is the accent word. For Screen Time it opens the system sheet, or the Settings app once iOS has stopped showing the sheet; Home rereads the permission when Toll comes back to the front. For expired tokens (any block holding an app without a token) it opens that block when one is affected and Blocks when several are. It outranks a removed-block pin because the gate does not work until it is cleared.
 
 The tab bar floats over the bottom; content scrolls under it.
 
@@ -262,13 +262,13 @@ A large detent sheet over Home (top at ~96 pt, grabber). Header: 44 pt `Avatar`,
 
 ### 4.6 Blocks
 
-Grouped background, inline title. One grouped card of `BlockRow`s (one chevron per row; an empty list says "Nothing blocked yet"); caption beneath "Removing a block is shown to your friends." `PrimaryButton` "Add a block" on a bottom bar (§2.1).
+Grouped background, inline title. One grouped card of `BlockRow`s (one chevron per row; an empty list says "Nothing blocked yet"); caption beneath "Removing a block is shown to your friends." `PrimaryButton` "Add a block" on a bottom bar (§2.1). A block that has lost apps (flows §19) reads "Needs re-picking" where its schedule would be: words, not colour.
 
-**New block** — pushed, inline title, arriving on the empty apps card ("+ Choose apps"); the picker opens only from that row. Back from the picker: the chosen apps card (system `Label(token)` icon + name, and on the right the friends-facing tag in `caption`, tappable → tag chips), a "Choose more" row, a `micro` line ("Names on the right are what friends see. Tap to change."), `WhenChips`, a "Block name" row (caption "Optional. Only you see it."), Done. Editing an existing block opens the same screen prefilled.
+**New block** — pushed, inline title, arriving on the empty apps card ("+ Choose apps"); the picker opens only from that row. Back from the picker: the chosen apps card (system `Label(token)` icon + name, and on the right the friends-facing tag in `caption`, tappable → tag chips), a "Choose more" row, a `micro` line ("Names on the right are what friends see. Tap to change."), `WhenChips`, a "Block name" row (caption "Optional. Only you see it."), Done. Editing an existing block opens the same screen prefilled. A block that has lost apps opens with the ones it still has and one `subhead` line above the apps card, "Some apps are missing from this block. Choose them again."; the line goes once anything is chosen, and the screen is not treated as edited until the person changes something.
 
 **Custom hours** — a 380 pt sheet over New block (full height at accessibility text sizes): "Custom" `title`; From and Until as two rows in one card, each with the system's compact time picker (two wheels side by side clip each other at phone width); a day row of seven equal tiles across the full width (44 pt tall, selected = `accent`); Done at the bottom. Choosing Custom in `WhenChips` opens it; Done returns with the Custom tile showing the chosen window.
 
-At `blocks.maxTokens` the picker's Done is disabled and the limit line from spec §10 shows; at `blocks.max` the "Add a block" button is disabled.
+At `blocks.maxTokens` the picker's Done is disabled and the limit line from spec §10 shows; at `blocks.max` the "Add a block" button is disabled and a second `caption` beneath the list says why: "8 blocks is the most." (the number is `blocks.max`).
 
 ### 4.7 Insights
 
@@ -276,7 +276,7 @@ Inline title; segmented control (Me · Friends · School) under the nav bar; a l
 
 ### 4.8 Settings
 
-Inset-grouped list, inline title. Account (40 pt `Avatar`, name, `@handle`, Edit trailing; sign out) · School (status, change, leave) · Notifications (daily summary toggle, time) · Discoverability (contacts matching toggle) · Blocks shortcut · Data (export my data, delete account) · About (privacy policy, terms, support address, version) · **Support Toll** (donation link; last group, below the fold). Delete account is `DestructiveQuiet` with a two-step confirm.
+Inset-grouped list, inline title. Account (40 pt `Avatar`, name, `@handle`, Edit trailing; sign out) · School (status, change, leave) · Notifications (daily summary toggle, time; with notifications off in iOS, a "Notifications are off" row and an "Open Settings" button row take their place) · Discoverability (contacts matching toggle) · Blocks shortcut · Data (export my data, delete account) · About (privacy policy, terms, support address, version) · **Support Toll** (donation link; last group, below the fold). Delete account is `DestructiveQuiet` with a two-step confirm.
 
 ### 4.9 Invite sheet
 

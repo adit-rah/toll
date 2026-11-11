@@ -94,10 +94,14 @@ struct BlockedPeopleView: View {
   }
 }
 
-/// Edit name and handle (flows §16); reuses the You step's model.
+/// Edit name and handle (flows §16); reuses the You step's model for the fields and the live check.
 struct AccountEditView: View {
   let app: AppModel
   @State private var model: YouModel?
+  /// The handle the server turned down and why, beside the field for as long as it still holds it.
+  @State private var refused: (handle: String, reason: String)?
+  @State private var saveError: String?
+  @State private var isSaving = false
   @Environment(\.dismiss) private var dismiss
 
   var body: some View {
@@ -116,7 +120,7 @@ struct AccountEditView: View {
             }
           }
         } footer: {
-          Text(model.error ?? (model.nameRinged ? Copy.Errors.nameInvalid : Copy.You.note))
+          Text(saveError ?? Copy.You.note)
         }
       }
     }
@@ -125,7 +129,7 @@ struct AccountEditView: View {
     .toolbar {
       ToolbarItem(placement: .confirmationAction) {
         Button(Copy.Settings.save) { Task { await save() } }
-          .disabled(model?.isSaving ?? true)
+          .disabled(model == nil || isSaving)
       }
     }
     .task {
@@ -137,20 +141,40 @@ struct AccountEditView: View {
   }
 
   private func handleStatus(_ model: YouModel) -> String? {
+    if let refused, refused.handle == model.handle.lowercased() { return refused.reason }
     switch model.handleState {
-    case .available: Copy.You.available
-    case .taken: Copy.You.taken
-    case .invalid: Copy.You.invalidHandle
-    case .unknown, .checking: nil
+    case .available: return Copy.You.available
+    case .taken: return Copy.You.taken
+    case .invalid: return Copy.You.invalidHandle
+    case .unknown, .checking: return nil
     }
   }
 
-  /// Leaves only when the account now holds what was typed; a refused name or handle stays on
-  /// screen with its reason.
+  /// Leaves only when the account now holds what was typed; a refused name or handle stays on screen
+  /// with its reason. Sent from here, not through the You step's `save()`: that one finishes a setup
+  /// step, and it has no line for a handle changed too recently, which setup can never meet.
   private func save() async {
-    guard let model else { return }
-    await model.save()
+    guard let model, !isSaving else { return }
     let name = model.name.trimmingCharacters(in: .whitespacesAndNewlines)
-    if model.error == nil, app.me?.displayName == name, app.me?.handle == model.handle.lowercased() { dismiss() }
+    let handle = model.handle.lowercased()
+    isSaving = true
+    defer { isSaving = false }
+    refused = nil
+    saveError = nil
+    do {
+      let me = try await app.deps.account.update(MePatch(displayName: name, handle: handle))
+      app.updated(me)
+      dismiss()
+    } catch let error as APIError {
+      switch error.code {
+      case "handle_taken": refused = (handle: handle, reason: Copy.Errors.handleTaken)
+      case "handle_invalid": refused = (handle: handle, reason: Copy.You.invalidHandle)
+      case "handle_cooldown": saveError = Copy.Errors.handleCooldown
+      case "name_invalid": saveError = Copy.Errors.nameInvalid
+      default: saveError = error.isTransport ? Copy.Errors.offline : Copy.Errors.generic
+      }
+    } catch {
+      saveError = Copy.Errors.generic
+    }
   }
 }

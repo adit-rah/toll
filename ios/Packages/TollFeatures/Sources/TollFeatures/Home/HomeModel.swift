@@ -10,7 +10,9 @@ import TollScreenTime
 @Observable
 public final class HomeModel {
   public enum DeviceState: Equatable {
-    case screenTimeOff, blocksNeedRepicking, nothingBlocked
+    case screenTimeOff, nothingBlocked
+    /// Carries the block when exactly one has lost apps, so Fix can open it directly.
+    case blocksNeedRepicking(only: BlockRef?)
   }
 
   public struct You: Equatable {
@@ -26,6 +28,9 @@ public final class HomeModel {
   public private(set) var you = You()
   public private(set) var home: HomeResponse?
   public private(set) var deviceState: DeviceState?
+  /// The server has never answered on this phone and the last try failed: friends are unknown, which is
+  /// not the same as none.
+  public private(set) var friendsUnavailable = false
   /// One per stored block, in the block list's order (design §3.18).
   private(set) var blockStates: [BlockState] = []
   public private(set) var isRefreshing = false
@@ -182,7 +187,16 @@ public final class HomeModel {
     isRefreshing = true
     defer { isRefreshing = false }
     await app.deps.sync.flush(force: true)
-    if let fresh = try? await app.deps.network.refreshHome() { show(fresh) }
+    do {
+      let fresh = try await app.deps.network.refreshHome()
+      show(fresh)
+      if friendsUnavailable { friendsUnavailable = false }
+    } catch {
+      // Leaving the tab cancels the request; that is not a lost connection. With a cached answer the
+      // rows stay and the "Updated" line says how old they are.
+      let unavailable = home == nil && !Task.isCancelled
+      if friendsUnavailable != unavailable { friendsUnavailable = unavailable }
+    }
   }
 
   /// Home calls this whenever the gate's state changes.
@@ -199,10 +213,9 @@ public final class HomeModel {
     } else if blocks.isEmpty {
       state = .nothingBlocked
     } else {
-      let refs = blocks.flatMap(\.appRefs)
-      // The registry is a file in the App Group, read under file coordination: kept off the main actor.
-      let noTokens = await Task.detached { TokenRegistry().tokens(for: refs).isEmpty }.value
-      state = noTokens ? .blocksNeedRepicking : nil
+      let stale = await StaleBlocks.ids(in: blocks)
+      let only: BlockRef? = stale.count == 1 ? stale.first : nil
+      state = stale.isEmpty ? nil : .blocksNeedRepicking(only: only)
     }
     if deviceState != state { deviceState = state }
   }
@@ -210,8 +223,22 @@ public final class HomeModel {
   public func fixScreenTime() async {
     let state = await ScreenTimeAuthorization.request()
     app.deps.analytics.send(.screenTimeAuth(granted: state == .approved))
-    if state == .approved { await app.deps.blocks.applyBlocks() }
+    guard state == .approved else {
+      // After a refusal iOS answers without showing its sheet, so asking again does nothing the person
+      // can see; the switch is in the Settings app (flows §4, §19).
+      await app.openSystemSettings()
+      return
+    }
+    await app.deps.blocks.applyBlocks()
     await updateDeviceState()
+  }
+
+  /// Toll is in front again, perhaps back from the Settings app with Screen Time now on: nothing else
+  /// rereads the permission, and the shield was never applied while it was off.
+  public func cameToFront() async {
+    let wasOff = deviceState == .screenTimeOff
+    await updateDeviceState()
+    if wasOff, deviceState != .screenTimeOff { await app.deps.blocks.applyBlocks() }
   }
 
   /// "Last-synced timestamp is shown only if older than 1 hour" (design §4.1).
