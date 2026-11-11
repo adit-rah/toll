@@ -92,6 +92,9 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A84 | Insights refresh | Me numbers come from the last eight weeks of events, computed off the main actor; remote insights refetch on pull, week change, account change, or after `sync.flushIntervalSeconds` | insights §3 |
 | A85 | Share card | Rendered only when a share target asks for it; canvas is white / `#0F1115` in both preview and export; the square format drops the metric row | design §3.14 |
 | A86 | Insight chart motion | The first-appearance bar growth in design §2.5 is not built yet | design §2.5 — open |
+| A87 | Uploads never hold the screen | A flush started by the user opening Toll, saving a block or tagging an app runs after the state is returned; background wakes still wait for it. A user-opened flush may therefore be cut off by suspension and goes out on the next trigger (events are idempotent) | spec §11.1, G-4 |
+| A88 | Launch and foreground | Foreground waits for launch, and a foreground arriving during one is run after it rather than dropped; `GET /home` at launch is skipped once Find your friends has been shown, since Home fetches its own | spec §9 |
+| A89 | Still slow, not fixed | `Dependencies.live()` opens the database and starts Sentry before the first frame; Home refreshes on every tab return (throttling needs a §14 tunable); the periodic `sync.flushIntervalSeconds` trigger is not implemented | spec §11, §14 — open |
 
 ## B. Open — needs a founder decision before the relevant task
 
