@@ -15,6 +15,9 @@ Free iPhone app blocker with a social layer. Specs in `docs/` are the source of 
 - Swift core on Linux or macOS: `swift test --package-path ios/Packages/TollCore`. Format: `swift format --in-place --recursive ios/`.
 - App build (macOS): `xcodebuild build -project ios/Toll.xcodeproj -scheme Toll -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO`. CI does this on every push (`.github/workflows/ios.yml`).
 
+## Releasing
+A build for a phone is a new `v*` tag, nothing more: an automation (Xcode Cloud, `ios/README.md`) archives the tagged commit and sends it to TestFlight. Take the next patch number after `git tag -l` and run `git tag vX.Y.Z <commit> && git push origin vX.Y.Z`. The tag can sit on a feature branch; no merge to `main`, version edit or workflow change is needed first. The founders also publish a GitHub pre-release named after the tag (`v0.1.0` was one); that is a label on the tag, not the trigger.
+
 ## Rules
 - Tunables only in `TollConfig.swift` / `api/src/config.ts`, with spec §14 defaults. User-facing strings only in `Copy.swift` (app; the one file allowed past 300 lines) or `api/src/copy.ts` (push and email); match spec §10 exactly, including the middle dot `·`.
 - Name things by spec §4 terms: `GateEvent`, `Pass`, `Wait`, `Session`, `Block`, `AppRef`, `Tag`, `Rollup`.
