@@ -83,6 +83,11 @@ Everything deferred, undecided, or decided-by-default. One line each. When somet
 | A75 | Friend detail | "Waited" shows minutes; only "this week" has a last-week value (the API returns no others); block chips are neutral, not accent-tinted | design §4.5 |
 | A76 | Invite sheet | Code centred, action on the bottom edge (the mock stacked everything at the top and left the lower 40% blank) | design §4.9 |
 | A77 | Avatar photos | Fetched once into an in-memory thumbnail cache at the drawn size, decoded off the main actor; no disk cache beyond URLSession's | design §3.17 |
+| A78 | Wait card geometry | Top at 180 pt only when the card fits, else centred, else scrolling; insets 32/20/20 from the artboards; wait and session picker share one frame | design §3.7, §4.10 |
+| A79 | Wait ticking | The card's clock is a leaf timeline and the gate is asked only once `Wait.isComplete` reads true (at most one second apart), instead of a coordinated pass over the shared state every second. Same completion test and events | spec G-4 |
+| A80 | Hero alignment | The numeral is centred and the glyph hangs beside it, rather than the pair being centred | design §3.2 |
+| A81 | Dark wait card | Still `bg` (black) on the dark material, with only a hairline under Reduce Transparency; needs a look on a phone before deciding on a raised tier | design §3.7 — open |
+| A82 | "Open <App>" | Starting a session unlocks the app and the card leaves, but iOS has no way to launch an app from its Screen Time token, so the person switches to it themselves | spec G-6 — open |
 
 ## B. Open — needs a founder decision before the relevant task
 

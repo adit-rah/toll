@@ -132,7 +132,7 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.2 `HeroStat`
 
-- Centred column: numeral `hero` with the `StatusGlyph` (20 pt) beside it, vertically centred on the numeral; beneath, the unit line `body` medium ("passes today"); beneath, the subhead line (`subhead`); optional second line (`caption`).
+- Centred column: numeral `hero` on the screen's centre axis, with the `StatusGlyph` (20 pt) hung 10 pt off its trailing side, vertically centred on the numeral (centring the pair instead pushes the numeral off the axis the lines beneath share); beneath, closed up to the numeral, the unit line `body` medium ("passes today"); 10 pt beneath, the subhead line (`subhead`); optional second line (`caption`).
 - States: normal; zero ("0 passes" is a fact and looks identical); loading (numeral placeholder shimmer-free: `--`).
 
 ### 3.3 `MetricPair`
@@ -157,7 +157,7 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 - Full-screen `.regular` material backdrop over Home including the tab bar (Home stays visible beneath, dimmed; tabs are not tappable while the card is up). Centred card (`bg`, hairline border, radius 20, width = screen − 2×gutter): tag name `title` ("Instagram"), countdown `hero` ("2:41"), line beneath `subhead` ("Wait 3 of today · next wait 8 min"), bottom: `QuietButton` "Cancel". Nothing else. No ring, no progress bar: the number is the progress.
 - When the wait ends while in app: the card swaps to `SessionPicker` (3.8) with a `.light` haptic. A free pass shows `SessionPicker` in the same card with no countdown.
-- The card sits with its top at 180 pt; the countdown is centred in it with 28 pt above and 12 pt below.
+- The card sits with its top at 180 pt from the top of the screen when it fits; a taller card (naming on a 4.7" screen, large text) centres instead and scrolls only if it cannot fit at all. Insets are 32 pt top, 20 pt sides and bottom. The countdown is centred with 24 pt above and 8 pt below (its own line box adds the rest). The wait and the session picker share one frame, Cancel and Open on the same bottom edge, so the swap is a crossfade and nothing resizes. The clock owns its own tick: a second passing redraws the digits only.
 
 ### 3.8 `SessionPicker`
 
@@ -165,7 +165,7 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.9 `TagChips` (first-wait naming)
 
-- Inside the wait card, beneath a hairline: "Which app is this?" `subhead` medium, one `micro` line ("Friends see the name. Change it any time from Blocks."), then the seven tag chips (display forms: Instagram, TikTok, YouTube, Snapchat, X, Reddit, Other) wrapped and centred (34 pt, `surface`; selected = `accent` fill). Shown only when the token has no tag; the countdown keeps running above it. Tapping a chip stores the tag and the section fades out.
+- Inside the wait card, between the wait line and Cancel, beneath a hairline: "Which app is this?" `subhead` medium, one 12 pt `label2` line ("Friends see the name. Change it any time from Blocks."), then the seven tag chips (display forms: Instagram, TikTok, YouTube, Snapchat, X, Reddit, Other) wrapped and centred (34 pt, `surfaceRaised`, because the card is `bg`; selected = `accent` fill). Shown only when the token has no tag; the countdown keeps running above it. Tapping a chip stores the tag and the section fades out.
 
 ### 3.10 `BlockRow`
 
@@ -193,7 +193,7 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.15 `WeekStrip`
 
-- Seven 12 pt-wide bars, 6 pt apart, 28 pt tall at the week's maximum, Monday to Sunday, passes per day; today in `accent`, other days `neutralBar`, zero days a 2 pt stub. No axis, no labels, no values: it is texture that rewards a second look, not a chart. Tapping it opens Insights. Accessibility label reads the seven numbers.
+- Seven 12 pt-wide bars, 6 pt apart, 28 pt tall at the week's maximum, Monday to Sunday, passes per day; today in `accent`, other days `neutralBar`, zero days a 2 pt stub; tops rounded 2 pt, feet square on a shared baseline. No axis, no labels, no values: it is texture that rewards a second look, not a chart. Tapping it opens Insights. Accessibility label reads the seven numbers.
 
 
 ### 3.16 `WhenChips`
