@@ -23,7 +23,7 @@ public struct Dependencies: Sendable {
 
   public static func preview(apiBaseURL: URL = APIClient.configuredBaseURL) throws -> Dependencies {
     try make(
-      database: AppDatabase.inMemory(), keychain: Keychain(service: "com.advan.toll.preview"), analytics: .disabled,
+      database: AppDatabase.inMemory(), keychain: .inMemory(), analytics: .disabled,
       apiBaseURL: apiBaseURL)
   }
 

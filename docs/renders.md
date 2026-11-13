@@ -9,6 +9,7 @@ How an agent with no Mac sees the app (ledger A123). A GitHub macOS runner build
 | `<variant>/<scenario>/ui.json` | Accessibility tree from `axe describe-ui`: label, value, traits and frame of every element. Read it for VoiceOver labels (design §5) and for what is actually on screen |
 | `<variant>/<scenario>/log.txt` | The app's OSLog lines for that launch (subsystem `com.advan.toll`) |
 | `<variant>/<scenario>/*.ips` | A crash report, if the app crashed |
+| `<variant>/<scenario>/launch.txt` | What `simctl` said when installing and opening the app; read it when a screenshot shows the home screen |
 | `<variant>/<scenario>/steps.txt` | Output of the AXe steps, when the scenario had any |
 | `api.log` | The local Worker's request log |
 

@@ -9,7 +9,7 @@
 #   VARIANTS   any of light dark ax5 dark-ax5, space-separated (default: light)
 #   API TOKEN  from render-api.sh; without them the signed-in scenarios land on Welcome
 #   XCODEBUILD_ARGS  extra xcodebuild arguments (CI passes its package cache)
-set -euo pipefail
+set -Eeuo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 OUT=${1:-$ROOT/build/renders}
 DERIVED=$ROOT/build/render-derived
@@ -30,25 +30,7 @@ finish() {
 }
 trap finish EXIT
 
-# Simulator: a device named toll-render on the newest iOS runtime, created once and reused.
-UDID=$(xcrun simctl list devices available -j | python3 -c '
-import json, sys
-devices = [d for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"] == "toll-render"]
-print(devices[0]["udid"] if devices else "")')
-if [ -z "$UDID" ]; then
-  read -r RUNTIME TYPE < <(xcrun simctl list runtimes available -j | python3 -c '
-import json, re, sys
-runtimes = [r for r in json.load(sys.stdin)["runtimes"] if r["platform"] == "iOS"]
-r = max(runtimes, key=lambda r: [int(p) for p in r["version"].split(".")])
-phones = [t for t in r["supportedDeviceTypes"] if re.fullmatch(r"iPhone \d+", t["name"])]
-phone = max(phones, key=lambda t: int(t["name"].split()[1]))
-print(r["identifier"], phone["identifier"])')
-  UDID=$(xcrun simctl create toll-render "$TYPE" "$RUNTIME")
-fi
-xcrun simctl boot "$UDID" 2>/dev/null || true
-xcrun simctl bootstatus "$UDID" -b >/dev/null
-xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 \
-  --cellularBars 4 --wifiBars 3
+UDID=${UDID:-$("$ROOT/ios/scripts/render-device.sh")}
 
 echo "Building for ${UDID}..." >&2
 # shellcheck disable=SC2086
@@ -65,25 +47,17 @@ fi
 APP=$DERIVED/Build/Products/Debug-iphonesimulator/Toll.app
 [ -d "$APP" ] || { echo "no $APP" >&2; exit 1; }
 
-# Signed ad hoc with only what the simulator honours: the App Group and a Keychain identity. Family
-# Controls has no simulator support at all, which is why DemoLaunch fakes its answer.
-setting() { sed -n "s/^$1 = //p" "$ROOT/ios/Config/Base.xcconfig" | head -1; }
-TEAM=$(setting DEVELOPMENT_TEAM)
-ENT=$OUT/.entitlements.plist
-cat >"$ENT" <<PLIST
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict>
-  <key>application-identifier</key><string>$TEAM.$BUNDLE</string>
-  <key>keychain-access-groups</key><array><string>$TEAM.$BUNDLE</string></array>
-  <key>com.apple.security.application-groups</key><array><string>$(setting TOLL_APP_GROUP)</string></array>
-</dict></plist>
-PLIST
+# Ad hoc, like Xcode signs for the simulator. No entitlements: the simulator refuses restricted ones in a
+# signature, so the App Group falls back to a temporary folder and demo launches keep the session in
+# memory (Keychain.inMemory). Family Controls has no simulator support at all; DemoLaunch fakes it.
 for inner in "$APP"/Frameworks/* "$APP"/PlugIns/*.appex; do
   if [ -e "$inner" ]; then codesign --force --sign - "$inner"; fi
 done
-codesign --force --sign - --entitlements "$ENT" "$APP"
-rm "$ENT"
+codesign --force --sign - "$APP"
+
+xcrun simctl bootstatus "$UDID" -b >/dev/null
+xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 \
+  --cellularBars 4 --wifiBars 3
 
 trim() {
   local s=$1
@@ -102,11 +76,13 @@ capture() {
   touch "$marker"
   xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
   xcrun simctl uninstall "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
-  xcrun simctl install "$UDID" "$APP"
   local since
   since=$(date '+%Y-%m-%d %H:%M:%S')
-  xcrun simctl launch "$UDID" "$BUNDLE" -TollDemo "$scenario" ${TOKEN:+-TollDemoToken "$TOKEN"} \
-    ${API:+-TollDemoAPI "$API"} >/dev/null
+  # One scenario that will not open is a finding, not a reason to lose the others.
+  if ! { xcrun simctl install "$UDID" "$APP" && xcrun simctl launch "$UDID" "$BUNDLE" -TollDemo "$scenario" \
+    ${TOKEN:+-TollDemoToken "$TOKEN"} ${API:+-TollDemoAPI "$API"}; } >"$dir/launch.txt" 2>&1; then
+    echo "$variant/$(slug "$line"): did not launch" >&2
+  fi
   sleep "$SETTLE"
   if [ -n "$steps" ]; then
     IFS=';' read -r -a parts <<<"$steps"
