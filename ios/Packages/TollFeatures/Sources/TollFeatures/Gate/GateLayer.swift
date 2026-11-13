@@ -10,8 +10,8 @@ struct GateLayer: View {
 
   var body: some View {
     WaitOverlay(isPresented: isShown) {
-      if let model, let ref = model.primaryApp {
-        GateCard(model: model, ref: ref)
+      if let model, !model.titleApps.isEmpty {
+        GateCard(model: model, apps: model.titleApps)
       }
     }
     .task(id: app.gate) {
@@ -22,7 +22,7 @@ struct GateLayer: View {
 
   private var isShown: Bool {
     guard let model else { return false }
-    return model.phase != .hidden && model.primaryApp != nil
+    return model.phase != .hidden && !model.titleApps.isEmpty
   }
 }
 
@@ -30,16 +30,11 @@ struct GateLayer: View {
 /// countdown is not one of them: the card's clock ticks by itself.
 private struct GateCard: View {
   @Bindable var model: GateModel
-  let ref: AppRef
+  let apps: [AppRef]
 
   var body: some View {
     WaitCard(countdown: countdown, session: session, naming: naming) {
-      AppLabel(ref)
-    } openLabel: {
-      HStack(spacing: 4) {
-        Text(Copy.SessionPicker.openVerb)
-        AppLabel(ref)
-      }
+      AppNames(apps)
     }
   }
 
@@ -55,7 +50,8 @@ private struct GateCard: View {
     let gate = self.model
     return SessionChoice(
       question: Copy.SessionPicker.question, options: gate.sessionChoices, selection: $model.selectedMinutes,
-      note: Copy.SessionPicker.note, onOpen: { Task { await gate.open() } })
+      note: Copy.SessionPicker.note, onOpen: { Task { await gate.open() } },
+      onNotNow: { Task { await gate.notNow() } })
   }
 
   /// Offered only while the wait runs. It stays up after a tag is chosen (`untaggedApp` is kept) so

@@ -34,10 +34,17 @@ struct SettingsView: View {
       if app.isSignedIn {
         school(model)
         Section(Copy.Settings.notifications) {
-          Toggle(Copy.Settings.dailySummary, isOn: $bound.notifyEnabled)
-          if model.notifyEnabled {
-            Picker(Copy.Settings.time, selection: $bound.notifyHour) {
-              ForEach(0..<24, id: \.self) { Text(Copy.Schedules.time(ClockTime(hour: $0))).tag($0) }
+          if app.notificationsAllowed == false {
+            // A switch for a summary the system will not deliver would be a lie; the way to turn
+            // them on takes its place. Two rows, so the button is a full-width target at any text size.
+            Text(Copy.Settings.notificationsOff)
+            Button(Copy.Settings.openSettings) { Task { await model.allowNotifications() } }
+          } else {
+            Toggle(Copy.Settings.dailySummary, isOn: $bound.notifyEnabled)
+            if model.notifyEnabled {
+              Picker(Copy.Settings.time, selection: $bound.notifyHour) {
+                ForEach(0..<24, id: \.self) { Text(Copy.Schedules.time(ClockTime(hour: $0))).tag($0) }
+              }
             }
           }
         }

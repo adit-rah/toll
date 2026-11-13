@@ -58,6 +58,18 @@ struct GateRulesTests {
     #expect(GateRules.isHeld(hit: hit, following: [late], window: 120))
   }
 
+  @Test func aFreePassOfferedAndDeclinedLeavesTheHitHeld() throws {
+    let machine = GateMachine(config: gate, timeZone: TimeZone(identifier: "UTC") ?? .gmt)
+    let hit = GateEvent(kind: .blockHit, occurredAt: t0, tzOffsetMinutes: 0, appRef: "a")
+    var state = SharedGateState()
+    let offered = machine.enter(
+      appRef: "a", ledger: GateLedger(), state: &state, now: t0, monotonic: nil)
+    #expect(GateRules.isHeld(hit: hit, following: offered, window: 120))
+    let used = try #require(
+      machine.startSession(minutes: 5, state: &state, now: t0.addingTimeInterval(20)))
+    #expect(!GateRules.isHeld(hit: hit, following: [used.pass], window: 120))
+  }
+
   @Test func blockLimits() {
     let blocks = TollConfig.Blocks()
     #expect(BlockLimits.canAddBlock(existing: 7, config: blocks))

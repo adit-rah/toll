@@ -22,7 +22,6 @@ export const defaultConfig = {
     sessionMinutes: [5, 10, 15],
     resumeWindowSeconds: 120,
     clockSkewToleranceSeconds: 60,
-    sessionWindowMinutes: 60,
   },
   status: {
     // Upper bounds of level 1 and level 2: 0–2, 3–4, 5+.

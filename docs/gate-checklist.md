@@ -70,7 +70,11 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] Outside a Nights block's window the app opens normally and nothing is recorded.
 
 ## 8. The gate (flows §9, §10; spec G-3…G-10)
-- [ ] First two opens of the day: free pass → session picker at once ("How long?"), no wait card.
+- [ ] First two opens of the day: free pass → session picker at once ("How long?", "From now. The block returns after."), no wait card.
+- [ ] Free pass → picker → "Not now" (it sits where Cancel sits on the wait card): the card leaves, Home's count does not move, friends see nothing, and the block bar reads "Pass ready". Tap the same app again → shield → Open Toll → the picker is back, still a free pass. Unblock → now "1 pass today".
+- [ ] "Not now", keep vs discard: after a shield hit the pass is kept (bar: "Pass ready"; tap the bar → card → Unblock → the picker returns with no new wait). After Unblock inside Toll, "Not now" drops it (bar back to "Always" or "Until …"; Unblock again starts over, free pass or wait as before). Neither moves the day's count.
+- [ ] "Not now", then leave the pass until after 4 am → it is gone: the next open is a fresh free pass, not a third one.
+- [ ] Insights → Gates: a free pass declined with "Not now" and never used counts as a gate held.
 - [ ] Third open: wait card "<App>", countdown from 3:00, "Wait 1 of today · next wait 5 min", Cancel. A light haptic as it starts.
 - [ ] First wait for an untagged app asks "Which app is this?" with the seven chips; choosing one collapses the section; the countdown never pauses. Ignoring it still lets the pass through.
 - [ ] Leave Toll (home button) for a minute, come back → the countdown has continued.
@@ -80,13 +84,43 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] While a wait runs, open a second blocked app → its shield → Open Toll → the same card, the same countdown (not reset, not extended).
 - [ ] Cancel → back to Home; next open starts a new wait of the next length.
 - [ ] Countdown reaches 0 with Toll open → the card becomes the picker (crossfade, light haptic). Coming back after it ended → the picker directly.
-- [ ] Choose 5 min → "Open <App>" → the app opens unshielded. Home shows "<App> is open · ends after 5 min of use."
-- [ ] Use the app ~5 minutes → it re-shields (threshold). Note how late it was.
-- [ ] Choose 15 min, don't use the app, wait 60 minutes → it re-shields (window end).
-- [ ] With threshold delivery disrupted (reboot mid-session), open Toll after the window → the app re-shields on foreground.
+- [ ] Choose 5 min → the button reads "Unblock for 5 min" and follows the chip → tap it: the card drops away and Toll stays on Home (it does not switch apps); the block bar reads "Open · 4:59 left" and counts down by the second. The app opens unshielded from the home screen. The pass appears in the day's count now, not before.
+- [ ] The wait card and the picker are the same size: when a wait reaches zero nothing jumps, and "Not now" lands exactly where "Cancel" was. Check on a 4.7-inch screen and at the largest standard text size.
+- [ ] **5 min, the short-session workaround (spec G-6, §6):** start a 5 min session, stay in the app with Toll in the background → it re-shields at 5:00 by the wall clock. This is the end warning of a 15-minute interval; note how late it was. If it re-shields only at 15:00, the warning did not arrive or arrived before the expiry: file it in the fix list with the Console line `reconcile source=warning:session.…`.
+- [ ] **10 min:** the same → re-shields at 10:00 (warning 5 minutes before a 15-minute interval).
+- [ ] **15 min:** re-shields at 15:00 (interval end, no warning involved).
+- [ ] A 5 min session where the app is never opened → still re-shields at 5:00: time is flat, use does not matter.
+- [ ] Console, category `activity`: starting a 5 or 10 min session logs no "session activity failed" (that would be `intervalTooShort`).
+- [ ] No early re-shield: during a 10 min session, lock the phone for 3 minutes and come back → the app is still open; the shield does not return before 10:00.
+- [ ] With the monitor disrupted (reboot mid-session), open Toll after the session's time → the app re-shields on foreground and the block bar is back to "Always" / "Until …".
+- [ ] **Clock set back mid-session, Toll open (spec G-9):** start a 5 min session, note the real time, then in Settings turn off Set Automatically and set the clock back an hour. No reboot. Open Toll after 5 real minutes → the app is shielded again and the bar is back to "Always" / "Until …". Before that the bar's countdown may read about an hour; that is known and only the shield matters. Console, category `shield`: a `reconcile source=foreground` line with `ended=1`.
+- [ ] **The same with Toll force-quit before the clock change:** open Toll after 5 real minutes → still re-shields. If it does not, the boot id Toll reads changed with the clock (`SystemClock.bootID` reads `kern.boottime`): file it in the fix list, because the same would let a clock change shorten a wait after a relaunch.
+- [ ] **The same without opening Toll at all:** stay in the unblocked app and record when the shield returns. The monitor is woken by a wall-clock interval, so it may come only at the next schedule edge or when the set-back clock reaches the expiry; note which, with the Console `reconcile source=…` line.
+- [ ] Set the clock forward an hour during a 10 min session → it ends when Toll or the monitor next runs (unchanged: the earlier of the two clocks ends a session).
+- [ ] Set the clock back during a session, then reboot → only the wall clock is left: the session ends when the clock reaches the expiry (known: this lengthens it; record what happens).
+- [ ] **A second unblock over a running session:** start a 15 min session from a shield hit on one app, then Unblock the whole block from Home for 5 min → the first session is gone (one countdown, 5 min), everything re-shields at 5:00, and nothing happens at 15:00.
+- [ ] A session started 5 minutes before a Nights block ends → the app simply stays open after the window; nothing odd at the session's expiry.
 - [ ] Both apps hit during one wait both unlock for the session.
+- [ ] **Unblock from Home:** tap the block bar → the card → Unblock: the sheet closes first, then, with a free pass left, the picker at once, for every app in the block; "Not now" → the pass is gone and nothing was counted. With no free pass → the wait card titled with the block's apps on one line (a shield hit still names only the app that was tapped); at zero the picker; choosing a length unlocks every app in the block. No block hit is added to Insights → Gates.
+- [ ] Unblock while a wait is already running → the same card and countdown; that block's apps unlock with the rest.
+- [ ] **Block again:** during a session, tap the bar → the card shows the countdown large and "Block again" → tap: a light haptic, the app is shielded at once, the card stays open and now offers Unblock, the bar reads "Always" / "Until …", and the pass still counts.
+- [ ] Update over a build from before 11 Nov with a wait running → the wait continues and completes normally (old state decodes).
 - [ ] The wait shows nowhere else: no lock-screen countdown, no notification at the end.
 - [ ] Home footer: "You opened Toll N times today." increments on each open.
+
+## 8a. The block bar on Home (design §3.18, §4.1)
+- [ ] With an Always block: a bar sits at the very bottom of Home, 8 pt above the tab bar, under "You opened Toll N times today.": icons, the apps' names (or the block's own name), "Always", and "Unblock" on the right. It is there with no friends and with a long list; rows fade out above the caption and never show beside the bar.
+- [ ] **iOS 26:** the bar is glass and reads in light and dark, on the plain page and with Reduce Transparency on. Scroll the list so the tab bar minimises: the bar follows it down and nothing overlaps. **iOS 18:** the bar is a raised fill with a hairline.
+- [ ] A Nights block inside its window reads "Until 7 am"; outside it, with nothing else on, the bar is quiet: "Starts 11 pm", no "Unblock". At 23:00 with Home open the bar changes by itself; at 07:00 it changes back.
+- [ ] No blocks → no bar; the caption is where it always was. Add a block from the `+` beside the gear → Done → the bar appears without leaving Home. At 8 blocks the `+` is disabled.
+- [ ] **Enlarge:** tap the bar → the sheet grows out of the bar (zoom), half height with a grabber, and drags to full height; drag down → it shrinks back into the bar. With Reduce Motion on it crossfades. Note whether the half-height detent survives the zoom on iOS 18 and on iOS 26.
+- [ ] The card: icons and names, the schedule, the state line (none for an Always block), up to five apps and "+N more", Unblock, Edit. Edit → the sheet closes and the block's editor is pushed; Back returns to Home. "Blocks" at the foot → the Blocks screen.
+- [ ] **Countdown reaching zero:** start a 5 min session and keep Home open → the bar counts 0:02, 0:01, then turns back to "Always" / "Until …" within a second, without touching anything, and the app is shielded again. The same with the card open: its large countdown gives way to Unblock.
+- [ ] A session running when Toll is opened cold → the bar shows the right time left on the first frame.
+- [ ] **Several blocks on:** two blocks on → the title reads "2 blocks on" with an icon from each; the sheet has a card for each, each with its own Unblock. Unblock one → the bar leads with that block's countdown and "Block again"; the other card still offers Unblock. A block outside its window is listed last as a plain row with "Starts …".
+- [ ] A wait or a picker arriving while the card sheet is open (leave Toll with the sheet up, hit a shield, Open Toll) → the sheet closes and the gate's card is visible.
+- [ ] VoiceOver: the bar is one button read as one sentence (block, state, action); during a session it reads the time left in 30 s steps and does not interrupt by itself. In the card, the countdown reads the same way.
+- [ ] Largest accessibility text size: the action word moves under the state line, the bar grows, nothing clips; the card sheet scrolls.
 
 ## 9. Blocks (flows §14)
 - [ ] Settings → Blocks lists each block with icons, names and schedule; caption "Removing a block is shown to your friends."
@@ -98,11 +132,14 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] Change Always → Nights: a friend sees "<Name>'s <App> block is now nights only." pinned.
 - [ ] Tap an app's tag in New block → chips → choose → friends' lines re-label past passes too.
 - [ ] Back without Done → "Discard changes?"
-- [ ] 8 blocks → Add a block disabled.
+- [ ] 8 blocks → Add a block disabled, and "8 blocks is the most." shows beneath the list; remove one → the caption goes.
 - [ ] A Nights block shields at 23:00 and lifts at 07:00 (leave the phone overnight; check both edges). **Verifies one overnight DeviceActivity schedule per block (ledger A31).**
 
 ## 10. Device state on Home (flows §7, §19)
 - [ ] Turn Toll off in Settings → Screen Time → reopen Toll → "Screen Time is off · Fix" at the top; Fix → sheet → approved → the line collapses.
+- [ ] Fix → Don't Allow on the sheet (or no sheet at all) → the Settings app opens; turn Screen Time on there → back in Toll the line collapses and blocked apps are shielded again without another tap.
+- [ ] One block with an expired app (iOS 26.5 `tokensDidExpire`, or a registry entry removed in a debug build) → "Blocks need re-picking · Fix" although the block's other apps still work; Fix opens that block with its remaining apps, the line "Some apps are missing from this block. Choose them again." and the system Back button (no discard prompt). Choose more → the line goes → Done → Home's line collapses.
+- [ ] Two blocks affected → Fix opens Blocks; each affected row reads "Needs re-picking" beneath its names (VoiceOver reads it); the others show their schedule.
 - [ ] After two days with Toll's permission off, a friend sees "Toll has been off on <Name>'s phone since <day>." pinned; one check-in clears it.
 - [ ] Delete every block → "Nothing blocked yet · Add apps" → New block.
 
@@ -112,16 +149,21 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] Long-press a row → Remove, Block, Report. Block → "Block <Name>? You won't see each other anywhere." → gone from Home, People, mutuals, school.
 - [ ] Report → reasons + text → Send → "Also block this person?"
 - [ ] Pull to refresh syncs; rows move without bouncing.
+- [ ] Sign in on a fresh install in airplane mode (or with the API unreachable) → Home's Friends section reads "No connection.", not "No friends yet."; pull to refresh online → friends, or the empty line. With friends already cached, airplane mode keeps the rows.
+- [ ] People → Accept or Decline in airplane mode → the row stays and a line at the top says "No connection." or "That didn't work. Try again."; online again, pull to refresh clears it.
 - [ ] VoiceOver reads a row as one sentence ("Adi, about usual, 3 passes today, down 23 percent on last week").
 - [ ] Largest accessibility text size: rows stack, nothing clips; the hero stops growing at AX2.
 
 ## 12. Notifications (flows §17)
 - [ ] Daily summary at 10:00 local: "N passes yesterday. Kth of M friends." Tap → Home. With a pending request the sentence ends "1 friend request waiting." and the tap opens People.
 - [ ] Nothing else ever appears on the lock screen.
+- [ ] Below iOS 26.5: with Toll in front, pull down Notification Center and tap a waiting "Open Toll" notification from a shield → the wait card appears; the Toll-opens count on Home rises by at most one.
+- [ ] Notifications off for Toll in the Settings app → Toll's Settings shows "Notifications are off" and "Open Settings" in place of the summary switch and time; Open Settings → the Settings app → allow → back in Toll the switch and time are there without leaving the screen.
 
 ## 13. Account (flows §16, §20)
 - [ ] Settings → Delete account → confirm → re-authenticate → Welcome; Screen Time shields are gone; reinstalling shows no history.
 - [ ] Solo user signs in from People → new account → You → history uploads (Insights unchanged) → Find your friends.
+- [ ] Settings → Account → change the handle to one in use → Save → "taken" beside the field, still on the screen. Change it twice within a month → "Handles change once a month." beneath the fields. Change only the name → Save returns to Settings with the new name.
 
 ## Fix list
 

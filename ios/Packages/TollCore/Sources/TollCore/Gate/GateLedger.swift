@@ -49,6 +49,7 @@ public enum GateRules {
   }
 
   /// A block hit is held when neither a wait start nor a free pass follows within the resume window.
+  /// A free pass is an event only once it is used, so one offered and declined leaves the hit held.
   public static func isHeld(
     hit: GateEvent, following events: some Sequence<GateEvent>, window: TimeInterval
   ) -> Bool {

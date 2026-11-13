@@ -33,6 +33,9 @@ public final class BlockEditorModel {
   public private(set) var otherTokens = 0
   public private(set) var isSaving = false
   private var original: StoredBlock?
+  /// The loaded block's apps that still have a token. Fewer than the block holds when iOS has expired
+  /// some (flows §19): those cannot be shown or shielded until they are picked again.
+  private var surviving: [AppRef] = []
 
   public init(app: AppModel, mode: Mode) {
     self.app = app
@@ -56,11 +59,19 @@ public final class BlockEditorModel {
   public var canFinish: Bool { !refs.isEmpty && !overLimit && !isSaving }
   public var hasChanges: Bool {
     guard let original else { return !refs.isEmpty }
-    return Set(original.appRefs) != Set(refs) || original.schedule != schedule || (original.name ?? "") != name
+    // Against what the screen opened with: apps iOS dropped are not an edit the person made.
+    return Set(surviving) != Set(refs) || original.schedule != schedule || (original.name ?? "") != name
+  }
+
+  /// True until something is chosen: the picker cannot say which of its apps are the lost ones.
+  public var needsRepicking: Bool {
+    guard let original else { return false }
+    return surviving.count < original.appRefs.count && Set(refs).isSubset(of: surviving)
   }
 
   public func load() async {
     if case .edit(let id) = mode, let block = try? await app.deps.store.blocks().first(where: { $0.id == id }) {
+      surviving = StaleBlocks.surviving(block.appRefs)
       original = block
       schedule = block.schedule
       name = block.name ?? ""

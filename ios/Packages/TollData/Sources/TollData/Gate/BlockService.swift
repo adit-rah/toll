@@ -80,7 +80,8 @@ public actor BlockService {
     #if os(iOS)
       ActivityScheduler().schedule(blocks: blocks.map(\.definition))
       ActivityScheduler().scheduleCheckin()
-      ShieldReconciler().reconcile(now: clock.now, timeZone: clock.timeZone, source: "blocks")
+      ShieldReconciler().reconcile(
+        now: clock.now, timeZone: clock.timeZone, source: "blocks", monotonic: clock.monotonic)
     #endif
   }
 

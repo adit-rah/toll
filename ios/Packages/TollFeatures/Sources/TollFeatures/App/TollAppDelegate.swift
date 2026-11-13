@@ -61,9 +61,22 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
   public nonisolated func userNotificationCenter(
     _ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse
   ) async {
-    // The daily summary carries `route: "people"` when friend requests are waiting (flows §17).
-    let hasRequests = response.notification.request.content.userInfo["route"] as? String == "people"
-    await MainActor.run { if hasRequests { model.tab = .people } }
+    // The daily summary carries `route: "people"` when friend requests are waiting and `"home"`
+    // otherwise; the shield's local notification carries `"gate"` (flows §17).
+    let route = response.notification.request.content.userInfo["route"] as? String
+    await opened(route: route)
+  }
+
+  private func opened(route: String?) async {
+    switch route {
+    case "people": model.tab = .people
+    case "home": model.tab = .home
+    case "gate":
+      // A tap that brings Toll to the front runs the gate as the scene turns active. One made with
+      // Toll already in front activates nothing, and its wait would not start until the next visit.
+      if UIApplication.shared.applicationState == .active { await model.gateTapped() }
+    default: break
+    }
   }
 
   public nonisolated func userNotificationCenter(

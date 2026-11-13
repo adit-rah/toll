@@ -22,36 +22,30 @@
     }
 
     /// Ends sessions past their expiry (G-6), applies the plan, and returns the sessions it ended so the
-    /// caller can record `session_ended`.
+    /// caller can record `session_ended`. With a monotonic reading, a clock set back mid-session does
+    /// not keep the shield down (G-9).
     @discardableResult
-    public func reconcile(now: Date, timeZone: TimeZone, source: String) -> [ActiveSession] {
+    public func reconcile(
+      now: Date, timeZone: TimeZone, source: String, monotonic: MonotonicInstant? = nil,
+      tolerance: TimeInterval = ActiveSession.defaultTolerance
+    ) -> [ActiveSession] {
       var ended: [ActiveSession] = []
       let state = gateStore.update { state in
-        ended = state.sessions.filter { $0.isExpired(at: now) }
-        state.sessions.removeAll { $0.isExpired(at: now) }
+        ended = state.sessions.filter {
+          $0.isExpired(at: now, monotonic: monotonic, tolerance: tolerance)
+        }
+        state.sessions.removeAll { ended.contains($0) }
       }
       let math = DayMath(timeZone: timeZone, resetHour: state.resetHour)
       let plan = ShieldPlan.make(
-        blocks: state.blocks, sessions: state.sessions, at: now, math: math)
+        blocks: state.blocks, sessions: state.sessions, at: now, math: math, monotonic: monotonic,
+        tolerance: tolerance)
       apply(plan)
       if !ended.isEmpty { ActivityScheduler().stop(sessions: ended) }
       // D4: log every re-shield source for the first month.
       log.info(
         "reconcile source=\(source, privacy: .public) shielded=\(plan.shielded.count) ended=\(ended.count)"
       )
-      return ended
-    }
-
-    /// Ends one session now (threshold or interval end) and re-shields its apps.
-    public func end(sessionNamed activityName: String, now: Date, timeZone: TimeZone)
-      -> ActiveSession?
-    {
-      var ended: ActiveSession?
-      gateStore.update { state in
-        ended = state.sessions.first { $0.activityName == activityName }
-        state.sessions.removeAll { $0.activityName == activityName }
-      }
-      reconcile(now: now, timeZone: timeZone, source: "session-end")
       return ended
     }
 

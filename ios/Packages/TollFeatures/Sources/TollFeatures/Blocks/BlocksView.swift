@@ -8,6 +8,8 @@ struct BlocksView: View {
   let app: AppModel
   // Nil until the store answers, so the empty line never flashes before the rows arrive.
   @State private var blocks: [StoredBlock]?
+  /// Blocks with an app iOS has dropped its token for (flows §19).
+  @State private var stale: Set<BlockRef> = []
   @State private var removing: StoredBlock?
 
   var body: some View {
@@ -19,7 +21,7 @@ struct BlocksView: View {
         ForEach(blocks ?? []) { block in
           NavigationLink(value: HomeRoute.editBlock(block.id)) {
             // The link draws the chevron.
-            BlockRow(schedule: Copy.Schedules.label(block.schedule), showsChevron: false) {
+            BlockRow(schedule: caption(for: block), showsChevron: false) {
               AppIconCluster(block.appRefs)
             } names: {
               AppNames(block.appRefs)
@@ -30,7 +32,13 @@ struct BlocksView: View {
           }
         }
       } footer: {
-        Text(Copy.Blocks.header).tollText(.caption)
+        VStack(alignment: .leading, spacing: TollSpacing.labelGap) {
+          Text(Copy.Blocks.header).tollText(.caption)
+          // Why "Add a block" below and the + on Home have gone grey.
+          if let blocks, !canAdd(to: blocks) {
+            Text(Copy.Blocks.limit(app.config.blocks.max)).tollText(.caption).monospacedDigit()
+          }
+        }
       }
     }
     .navigationTitle(Copy.Blocks.title)
@@ -40,7 +48,7 @@ struct BlocksView: View {
         Text(Copy.Blocks.add)
       }
       .buttonStyle(.tollPrimary)
-      .disabled(!BlockLimits.canAddBlock(existing: blocks?.count ?? 0, config: app.config.blocks))
+      .disabled(!canAdd(to: blocks ?? []))
     }
     // `presenting` hands the block to the button; reading `removing` there is too late, because the
     // dialog clears it as it closes.
@@ -58,6 +66,9 @@ struct BlocksView: View {
     .task {
       do {
         for try await value in app.deps.store.observeBlocks() {
+          // Before the rows are published, so a row never draws its schedule and then changes its mind.
+          let lost = await StaleBlocks.ids(in: value)
+          if stale != lost { stale = lost }
           if blocks == nil {
             blocks = value
           } else {
@@ -72,6 +83,15 @@ struct BlocksView: View {
   /// system's app names as text (spec §6).
   private func name(of block: StoredBlock) -> String {
     block.name ?? Copy.Schedules.label(block.schedule)
+  }
+
+  /// The line beneath the names: the schedule, unless the block cannot do its job until it is opened.
+  private func caption(for block: StoredBlock) -> String {
+    stale.contains(block.id) ? Copy.Blocks.needsRepicking : Copy.Schedules.label(block.schedule)
+  }
+
+  private func canAdd(to blocks: [StoredBlock]) -> Bool {
+    BlockLimits.canAddBlock(existing: blocks.count, config: app.config.blocks)
   }
 }
 

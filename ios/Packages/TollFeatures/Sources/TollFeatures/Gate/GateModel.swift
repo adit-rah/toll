@@ -33,7 +33,22 @@ public final class GateModel {
 
   var config: TollConfig.Gate { app.config.gate }
   public var sessionChoices: [Int] { config.sessionMinutes }
-  public var primaryApp: AppRef? { app.gate.wait?.primaryApp ?? app.gate.pendingPass?.appRefs.first }
+  /// The apps the card is titled with. A request made inside Toll is for a whole block, so the card
+  /// names the block's apps; one from a shield names the app that was tapped, whatever joined it.
+  public var titleApps: [AppRef] {
+    let refs: [AppRef]
+    let origin: PendingPass.Origin
+    if let wait = app.gate.wait {
+      refs = wait.appRefs
+      origin = wait.origin ?? .shield
+    } else if let pending = app.gate.pendingPass {
+      refs = pending.appRefs
+      origin = pending.origin
+    } else {
+      return []
+    }
+    return origin == .app ? refs : Array(refs.prefix(1))
+  }
 
   /// "Wait 3 of today · next wait 8 min".
   public var waitLine: String? {
@@ -50,7 +65,7 @@ public final class GateModel {
       guard let current = app.gate.wait, current.id == wait.id else { return }
       showWait(current)
       startTicking()
-    } else if app.gate.pendingPass != nil {
+    } else if let pending = app.gate.pendingPass, !pending.deferred {
       if phase != .choosing {
         if case .waiting = phase { Haptics.light() }
         // Only on arrival: a later sync must not undo the length the user has just picked.
@@ -159,10 +174,22 @@ public final class GateModel {
     Task { [app] in try? await app.deps.blocks.setTag(tag, for: ref) }
   }
 
-  /// Unlocks the apps and leaves Toll for the app (G-6). The card drops as the system switches apps.
+  /// Uses the pass: the apps are unlocked for the chosen minutes from now (G-6). Toll cannot switch
+  /// to the app, so the card leaves and Home's block bar takes over with the countdown.
   public func open() async {
     _ = await app.deps.gate.startSession(minutes: selectedMinutes)
     app.setGate(await app.deps.gate.state)
+    await sync()
+  }
+
+  /// A pass that came from a shield is kept for the day; one asked for inside Toll is dropped. Neither
+  /// was recorded, so neither costs anything (G-6).
+  public func notNow() async {
+    guard let pending = app.gate.pendingPass else { return }
+    switch pending.origin {
+    case .shield: app.setGate(await app.deps.gate.deferPendingPass())
+    case .app: app.setGate(await app.deps.gate.discardPendingPass())
+    }
     await sync()
   }
 }

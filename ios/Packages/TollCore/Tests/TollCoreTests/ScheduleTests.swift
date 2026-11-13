@@ -54,9 +54,8 @@ struct ScheduleTests {
       BlockDefinition(id: "b2", appRefs: ["yt"], schedule: .preset(.weekdays)),
     ]
     let now = local(14, 10)
-    let live = ActiveSession(appRefs: ["ig"], minutes: 5, startedAt: now, windowMinutes: 60)
-    let old = ActiveSession(
-      appRefs: ["tt"], minutes: 5, startedAt: now.addingTimeInterval(-7200), windowMinutes: 60)
+    let live = ActiveSession(appRefs: ["ig"], minutes: 5, startedAt: now)
+    let old = ActiveSession(appRefs: ["tt"], minutes: 5, startedAt: now.addingTimeInterval(-300))
     let plan = ShieldPlan.make(blocks: blocks, sessions: [live, old], at: now, math: math)
     #expect(plan.shielded == ["tt"])
     #expect(plan.unlocked == ["ig"])

@@ -3,8 +3,8 @@ import Foundation
 import TollCore
 import TollScreenTime
 
-/// Wakes on schedule edges, session thresholds and the daily check-in. Keeps under ~6 MB: TollCore only,
-/// no database (spec §6). Every wake reconciles, so a late callback is corrected by the next one.
+/// Wakes on schedule edges, session ends and the daily check-in. Keeps under ~6 MB: TollCore only, no
+/// database (spec §6). Every wake reconciles, so a late callback is corrected by the next one.
 final class DeviceActivityMonitorExtension: DeviceActivityMonitor {
   private let reconciler = ShieldReconciler()
   private let spool = Spool()
@@ -14,38 +14,33 @@ final class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     if activity == .checkin {
       if !reconciler.gateStore.load().blocks.isEmpty { write(.checkin) }
     }
-    recordEnded(
-      reconciler.reconcile(now: Date(), timeZone: .current, source: "start:\(activity.rawValue)"))
+    reconcile("start", activity)
   }
 
   override func intervalDidEnd(for activity: DeviceActivityName) {
     super.intervalDidEnd(for: activity)
-    if activity.rawValue.hasPrefix("session.") {
-      endSession(activity, reason: .intervalEnd)
-    } else {
-      recordEnded(
-        reconciler.reconcile(now: Date(), timeZone: .current, source: "end:\(activity.rawValue)"))
+    reconcile("end", activity)
+  }
+
+  /// Only session activities ask for a warning: it is where a session shorter than the platform's
+  /// minimum interval ends (`SessionInterval`).
+  override func intervalWillEndWarning(for activity: DeviceActivityName) {
+    super.intervalWillEndWarning(for: activity)
+    reconcile("warning", activity)
+  }
+
+  /// A callback never ends a session by itself. Reconciling ends only those whose persisted expiry
+  /// has passed, so an early or stray callback cannot cut one short (G-6). The monotonic reading
+  /// keeps a clock set back mid-session from holding the shield down (G-9).
+  private func reconcile(_ edge: String, _ activity: DeviceActivityName) {
+    let ended = reconciler.reconcile(
+      now: Date(), timeZone: .current, source: "\(edge):\(activity.rawValue)",
+      monotonic: SystemClock().monotonic)
+    for session in ended {
+      write(
+        .sessionEnded, session: session,
+        reason: session.activityName == activity.rawValue ? .intervalEnd : .expiry)
     }
-  }
-
-  override func eventDidReachThreshold(
-    _ event: DeviceActivityEvent.Name, activity: DeviceActivityName
-  ) {
-    super.eventDidReachThreshold(event, activity: activity)
-    guard event == .sessionThreshold else { return }
-    endSession(activity, reason: .threshold)
-    DeviceActivityCenter().stopMonitoring([activity])
-  }
-
-  private func endSession(_ activity: DeviceActivityName, reason: SpoolRecord.SessionEndReason) {
-    if let ended = reconciler.end(sessionNamed: activity.rawValue, now: Date(), timeZone: .current)
-    {
-      write(.sessionEnded, session: ended, reason: reason)
-    }
-  }
-
-  private func recordEnded(_ sessions: [ActiveSession]) {
-    for session in sessions { write(.sessionEnded, session: session, reason: .expiry) }
   }
 
   private func write(

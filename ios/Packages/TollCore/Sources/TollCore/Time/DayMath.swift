@@ -44,4 +44,9 @@ public struct DayMath: Sendable {
     let c = calendar.dateComponents([.hour, .minute], from: date)
     return (c.hour ?? 0) * 60 + (c.minute ?? 0)
   }
+
+  public func clockTime(of date: Date) -> ClockTime {
+    let c = calendar.dateComponents([.hour, .minute], from: date)
+    return ClockTime(hour: c.hour ?? 0, minute: c.minute ?? 0)
+  }
 }

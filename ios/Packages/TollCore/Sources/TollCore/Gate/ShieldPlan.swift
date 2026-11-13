@@ -13,9 +13,13 @@ public struct ShieldPlan: Equatable, Sendable {
   }
 
   public static func make(
-    blocks: [BlockDefinition], sessions: [ActiveSession], at date: Date, math: DayMath
+    blocks: [BlockDefinition], sessions: [ActiveSession], at date: Date, math: DayMath,
+    monotonic: MonotonicInstant? = nil, tolerance: TimeInterval = ActiveSession.defaultTolerance
   ) -> ShieldPlan {
-    let unlocked = Set(sessions.filter { !$0.isExpired(at: date) }.flatMap(\.appRefs))
+    let live = sessions.filter {
+      !$0.isExpired(at: date, monotonic: monotonic, tolerance: tolerance)
+    }
+    let unlocked = Set(live.flatMap(\.appRefs))
     let active = blocks.filter { $0.schedule.isActive(at: date, in: math) }
     return ShieldPlan(
       shielded: Set(active.flatMap(\.appRefs)).subtracting(unlocked), unlocked: unlocked)
