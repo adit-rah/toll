@@ -19,9 +19,9 @@
         if let simulated { return simulated }
       #endif
       switch AuthorizationCenter.shared.authorizationStatus {
-      case .approved: .approved
-      case .denied: .denied
-      default: .notDetermined
+      case .approved: return .approved
+      case .denied: return .denied
+      default: return .notDetermined
       }
     }
 

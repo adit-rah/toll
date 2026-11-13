@@ -40,7 +40,7 @@ public final class AppModel {
   private var foregroundAgain = false
   #if DEBUG
     /// The demo launch seeds the store here, before anything reads it (docs/renders.md).
-    var beforeLaunch: (@MainActor () async -> Void)?
+    @ObservationIgnored var beforeLaunch: (@MainActor () async -> Void)?
   #endif
 
   public init(deps: Dependencies) {

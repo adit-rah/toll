@@ -5,7 +5,7 @@
 
   /// Seeds the in-memory store for a demo scenario: two blocks, three weeks of gate history shaped like
   /// the App Review account's (api/scripts/seed-review.mjs), and a fresh shield hit for the gate.
-  struct DemoSeed {
+  struct DemoSeed: Sendable {
     let deps: Dependencies
 
     func run(_ launch: DemoLaunch) async {
@@ -114,7 +114,8 @@
       GateEvent(
         kind: kind, occurredAt: at, tzOffsetMinutes: GateEvent.offsetMinutes(at: at, in: timeZone),
         appRef: ref,
-        blockRef: Self.nightRefs.contains(ref) ? "b2" : "b1", via: via, free: free,
+        blockRef: BlockRef(rawValue: Self.nightRefs.contains(ref) ? "b2" : "b1"), via: via,
+        free: free,
         waitMinutes: wait,
         sessionMinutes: session)
     }
