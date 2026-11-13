@@ -94,17 +94,26 @@ trim() {
   s=${s#"${s%%[![:space:]]*}"}
   printf '%s' "${s%"${s##*[![:space:]]}"}"
 }
-# Waits until the accessibility tree is the same on two reads in a row: the screen has drawn and the
-# local Worker has answered. Faster than a fixed sleep and never shorter than the screen needs.
+# Waits until the accessibility tree has content and reads the same twice in a row: the screen has drawn
+# and the local Worker has answered. While the app is still launching the tree is an empty shell, which
+# is not a screen. Prints the seconds until the first tree with content.
 settle() {
-  local previous="" current deadline=$((SECONDS + SETTLE))
-  sleep 1
+  local previous="" current deadline=$((SECONDS + SETTLE)) began=$SECONDS drawn=""
   while [ "$SECONDS" -lt "$deadline" ]; do
-    current=$(axe describe-ui --udid "$UDID" 2>/dev/null || true)
-    if [ -n "$current" ] && [ "$current" = "$previous" ]; then return 0; fi
-    previous=$current
     sleep 0.7
+    current=$(axe describe-ui --udid "$UDID" 2>/dev/null || true)
+    if printf '%s' "$current" | python3 -c '
+import json, sys
+def labelled(n):
+    return bool(n.get("AXLabel")) and n.get("type") != "Application" or any(labelled(c) for c in n.get("children") or [])
+try: sys.exit(0 if any(labelled(n) for n in json.load(sys.stdin)) else 1)
+except Exception: sys.exit(1)'; then
+      [ -z "$drawn" ] && drawn=$((SECONDS - began))
+      if [ "$current" = "$previous" ]; then break; fi
+      previous=$current
+    fi
   done
+  echo "${drawn:-never}"
 }
 slug() { printf '%s' "$1" | tr -cs 'A-Za-z0-9' '-' | sed 's/^-//; s/-$//' | cut -c1-60; }
 capture() {
@@ -125,14 +134,15 @@ capture() {
     ${TOKEN:+-TollDemoToken "$TOKEN"} ${API:+-TollDemoAPI "$API"}; } >"$dir/launch.txt" 2>&1; then
     echo "$variant/$(slug "$line"): did not launch" >&2
   fi
-  settle
+  local drawn
+  drawn=$(settle)
   if [ -n "$steps" ]; then
     IFS=';' read -r -a parts <<<"$steps"
     for step in "${parts[@]}"; do
       step=$(trim "$step")
       [ -z "$step" ] && continue
       eval "axe $step --udid \"$UDID\"" >>"$dir/steps.txt" 2>&1 || echo "step failed: $step" >>"$dir/steps.txt"
-      settle
+      settle >/dev/null
     done
   fi
   xcrun simctl io "$UDID" screenshot "$dir/screen.png" >/dev/null 2>&1
@@ -142,7 +152,7 @@ capture() {
     --predicate 'subsystem BEGINSWITH "com.advan.toll"' >"$dir/log.txt" 2>&1 || true
   find "$HOME/Library/Logs/DiagnosticReports" -name 'Toll*' -newer "$marker" -exec cp {} "$dir/" \; 2>/dev/null || true
   rm "$marker"
-  echo "$variant/$(slug "$line"): $((SECONDS - began)) s" | tee -a "$TIMINGS" >&2
+  echo "$variant/$(slug "$line"): $((SECONDS - began)) s, first frame after ${drawn} s" | tee -a "$TIMINGS" >&2
 }
 
 for variant in $VARIANTS; do

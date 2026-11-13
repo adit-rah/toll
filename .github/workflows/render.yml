@@ -49,9 +49,27 @@ jobs:
       # A first boot takes minutes; it runs behind every step up to the screenshots.
       - name: Start booting a simulator
         run: echo "UDID=$(ios/scripts/render-device.sh)" >> "$GITHUB_ENV"
+      # Homebrew takes minutes to tap and install; the installed copy is cached and only reinstalled
+      # when it will not run.
+      - name: Restore AXe
+        if: env.RENDER == 'true'
+        id: axe
+        uses: actions/cache/restore@v4
+        with: { path: ~/axe, key: axe-v1 }
       - name: Install AXe
         if: env.RENDER == 'true'
-        run: brew install cameroncooke/axe/axe
+        run: |
+          if [ -x ~/axe/bin/axe ] && ~/axe/bin/axe --version >/dev/null 2>&1; then
+            echo "$HOME/axe/bin" >> "$GITHUB_PATH"
+            exit 0
+          fi
+          brew install cameroncooke/axe/axe
+          rm -rf ~/axe && cp -RL "$(brew --prefix axe)" ~/axe
+          ~/axe/bin/axe --version && echo "AXE_FRESH=1" >> "$GITHUB_ENV"
+      - name: Save AXe
+        if: env.AXE_FRESH == '1'
+        uses: actions/cache/save@v4
+        with: { path: ~/axe, key: axe-v1 }
       - uses: actions/setup-node@v5
         if: env.RENDER == 'true'
         with: { node-version: 22, cache: npm, cache-dependency-path: api/package-lock.json }
