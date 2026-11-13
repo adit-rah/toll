@@ -130,8 +130,10 @@ capture() {
   local since
   since=$(date '+%Y-%m-%d %H:%M:%S')
   # One scenario that will not open is a finding, not a reason to lose the others.
-  if ! { xcrun simctl install "$UDID" "$APP" && xcrun simctl launch "$UDID" "$BUNDLE" -TollDemo "$scenario" \
-    ${TOKEN:+-TollDemoToken "$TOKEN"} ${API:+-TollDemoAPI "$API"}; } >"$dir/launch.txt" 2>&1; then
+  # The token goes in the environment, never as an argument: base64url can start with "-".
+  if ! { xcrun simctl install "$UDID" "$APP" &&
+    SIMCTL_CHILD_TOLL_DEMO_TOKEN=${TOKEN:-} SIMCTL_CHILD_TOLL_DEMO_API=${API:-} \
+      xcrun simctl launch "$UDID" "$BUNDLE" -TollDemo "$scenario"; } >"$dir/launch.txt" 2>&1; then
     echo "$variant/$(slug "$line"): did not launch" >&2
   fi
   local drawn
@@ -169,7 +171,7 @@ done
   echo "# Renders"
   echo
   echo "Commit \`$(git -C "$ROOT" rev-parse --short HEAD)\` · $(date -u '+%Y-%m-%d %H:%M UTC') ·" \
-    "$(xcodebuild -version | head -1) · $(xcrun simctl list devices -j | python3 -c "
+    "$(xcodebuild -version | sed -n 1p) · $(xcrun simctl list devices -j | python3 -c "
 import json, sys
 for runtime, ds in json.load(sys.stdin)['devices'].items():
   for d in ds:

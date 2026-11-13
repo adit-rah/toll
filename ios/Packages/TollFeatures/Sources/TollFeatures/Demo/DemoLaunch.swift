@@ -42,14 +42,18 @@
     }
   }
 
-  /// Read from launch arguments: `-TollDemo <scenario>`, plus `-TollDemoToken <session token>` and
-  /// `-TollDemoAPI <base URL>` for the signed-in scenarios, which talk to a local Worker.
+  /// The scenario comes from the launch argument `-TollDemo <scenario>`. The session token and API base
+  /// URL come from the environment (`TOLL_DEMO_TOKEN`, `TOLL_DEMO_API`): a base64url token can start with
+  /// `-`, which launch-argument parsing would read as another flag and drop.
   struct DemoLaunch: Sendable {
     let scenario: DemoScenario
     let token: String?
     let apiBaseURL: URL?
 
-    static func fromArguments(_ defaults: UserDefaults = .standard) -> DemoLaunch? {
+    static func fromLaunch(
+      defaults: UserDefaults = .standard,
+      environment: [String: String] = ProcessInfo.processInfo.environment
+    ) -> DemoLaunch? {
       guard let name = defaults.string(forKey: "TollDemo") else { return nil }
       guard let scenario = DemoScenario(rawValue: name) else {
         Logger(subsystem: "com.advan.toll", category: "demo").error(
@@ -57,8 +61,8 @@
         return nil
       }
       return DemoLaunch(
-        scenario: scenario, token: defaults.string(forKey: "TollDemoToken"),
-        apiBaseURL: defaults.string(forKey: "TollDemoAPI").flatMap(URL.init(string:)))
+        scenario: scenario, token: environment["TOLL_DEMO_TOKEN"].flatMap { $0.isEmpty ? nil : $0 },
+        apiBaseURL: environment["TOLL_DEMO_API"].flatMap(URL.init(string:)))
     }
 
     @MainActor
