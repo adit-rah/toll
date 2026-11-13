@@ -50,13 +50,15 @@ jobs:
         with:
           path: .spm
           key: spm-${{ hashFiles('ios/Packages/*/Package.swift') }}
+      # arm64 only: every iPhone and every Mac runner is arm64, and a second architecture doubled the
+      # compile for nothing. No index store: only the editor reads it.
       - name: Build app and extensions
         run: |
           xcodebuild build -project ios/Toll.xcodeproj -scheme Toll \
             -destination 'generic/platform=iOS Simulator' \
             -clonedSourcePackagesDirPath .spm -disableAutomaticPackageResolution \
             -skipPackagePluginValidation -skipMacroValidation \
-            CODE_SIGNING_ALLOWED=NO > build.log 2>&1 && status=0 || status=$?
+            CODE_SIGNING_ALLOWED=NO ARCHS=arm64 COMPILER_INDEX_STORE_ENABLE=NO > build.log 2>&1 && status=0 || status=$?
           grep -E "(error|warning): " build.log | grep -E "/ios/(App|ShieldConfig|ShieldAction|Monitor|Packages)/" | sort -u | head -200 || true
           tail -5 build.log
           exit $status

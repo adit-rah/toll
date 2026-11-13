@@ -9,6 +9,8 @@
 #   VARIANTS   any of light dark ax5 dark-ax5, space-separated (default: light)
 #   API TOKEN  from render-api.sh; without them the signed-in scenarios land on Welcome
 #   XCODEBUILD_ARGS  extra xcodebuild arguments (CI passes its package cache)
+#   BUILD_ONLY=1     build and stop (CI uses it on main to fill the build cache feature branches start from)
+#   SETTLE     most seconds to wait for a screen to stop changing (default 12)
 set -Eeuo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 OUT=${1:-$ROOT/build/renders}
@@ -17,7 +19,8 @@ BUNDLE=com.advan.toll
 ALL="welcome permissions setup-blocks solo-home home insights people gate screen-time-off"
 SCENARIOS=${SCENARIOS:-$(printf '%s\n' $ALL)}
 VARIANTS=${VARIANTS:-light}
-SETTLE=${SETTLE:-6}
+SETTLE=${SETTLE:-12}
+TIMINGS=$OUT/timings.txt
 rm -rf "$OUT" && mkdir -p "$OUT" "$DERIVED"
 # Whatever stops the run, the published folder says so; fetch-renders.sh would otherwise wait in vain.
 trap 'failed_line=$LINENO' ERR
@@ -32,11 +35,35 @@ trap finish EXIT
 
 UDID=${UDID:-$("$ROOT/ios/scripts/render-device.sh")}
 
+# Xcode 26's compilation cache is keyed by content, not timestamps, so a cache restored from another
+# run is reused only where the inputs are byte-for-byte the same; the result matches a clean build.
+build() {
+  # shellcheck disable=SC2086
+  xcodebuild build -project "$ROOT/ios/Toll.xcodeproj" -scheme Toll -configuration Debug \
+    -destination "id=$UDID" -derivedDataPath "$DERIVED" -skipPackagePluginValidation -skipMacroValidation \
+    ${XCODEBUILD_ARGS:-} CODE_SIGNING_ALLOWED=NO COMPILATION_CACHE_ENABLE_CACHING=YES \
+    COMPILER_INDEX_STORE_ENABLE=NO >"$DERIVED.log" 2>&1
+}
+source_errors() { grep -E "/ios/(App|ShieldConfig|ShieldAction|Monitor|Packages)/.*error: " "$DERIVED.log" || true; }
 echo "Building for ${UDID}..." >&2
-# shellcheck disable=SC2086
-if ! xcodebuild build -project "$ROOT/ios/Toll.xcodeproj" -scheme Toll -configuration Debug \
-  -destination "id=$UDID" -derivedDataPath "$DERIVED" -skipPackagePluginValidation -skipMacroValidation \
-  ${XCODEBUILD_ARGS:-} CODE_SIGNING_ALLOWED=NO >"$DERIVED.log" 2>&1; then
+cached=no
+[ -d "$DERIVED/Build" ] && cached=yes
+started=$SECONDS
+built=yes
+if ! build; then
+  # An error in our own code is the answer. Anything else after a restored cache could be the cache,
+  # so it gets one clean build before it counts.
+  if [ "$cached" = yes ] && [ -z "$(source_errors)" ]; then
+    echo "Cached build failed outside the sources; building clean." >&2
+    rm -rf "$DERIVED" && mkdir -p "$DERIVED"
+    cached="no (cache discarded)"
+    build || built=no
+  else
+    built=no
+  fi
+fi
+echo "build: $((SECONDS - started)) s, cache restored: $cached" >"$TIMINGS"
+if [ "$built" = no ]; then
   { echo "# Renders"; echo; echo "The build failed. Errors:"; echo; echo '```'
     errors=$(grep -E "error: " "$DERIVED.log" | sort -u | head -100 || true)
     if [ -n "$errors" ]; then echo "$errors"; else tail -60 "$DERIVED.log"; fi
@@ -46,6 +73,7 @@ if ! xcodebuild build -project "$ROOT/ios/Toll.xcodeproj" -scheme Toll -configur
 fi
 APP=$DERIVED/Build/Products/Debug-iphonesimulator/Toll.app
 [ -d "$APP" ] || { echo "no $APP" >&2; exit 1; }
+if [ "${BUILD_ONLY:-0}" = 1 ]; then cat "$TIMINGS" >&2; exit 0; fi
 
 # Ad hoc, like Xcode signs for the simulator. No entitlements: the simulator refuses restricted ones in a
 # signature, so the App Group falls back to a temporary folder and demo launches keep the session in
@@ -55,7 +83,9 @@ for inner in "$APP"/Frameworks/* "$APP"/PlugIns/*.appex; do
 done
 codesign --force --sign - "$APP"
 
+started=$SECONDS
 xcrun simctl bootstatus "$UDID" -b >/dev/null
+echo "waiting for the simulator to boot: $((SECONDS - started)) s" >>"$TIMINGS"
 xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 \
   --cellularBars 4 --wifiBars 3
 
@@ -64,9 +94,21 @@ trim() {
   s=${s#"${s%%[![:space:]]*}"}
   printf '%s' "${s%"${s##*[![:space:]]}"}"
 }
+# Waits until the accessibility tree is the same on two reads in a row: the screen has drawn and the
+# local Worker has answered. Faster than a fixed sleep and never shorter than the screen needs.
+settle() {
+  local previous="" current deadline=$((SECONDS + SETTLE))
+  sleep 1
+  while [ "$SECONDS" -lt "$deadline" ]; do
+    current=$(axe describe-ui --udid "$UDID" 2>/dev/null || true)
+    if [ -n "$current" ] && [ "$current" = "$previous" ]; then return 0; fi
+    previous=$current
+    sleep 0.7
+  done
+}
 slug() { printf '%s' "$1" | tr -cs 'A-Za-z0-9' '-' | sed 's/^-//; s/-$//' | cut -c1-60; }
 capture() {
-  local variant=$1 line=$2 scenario steps dir step marker
+  local variant=$1 line=$2 scenario steps dir step marker began=$SECONDS
   scenario=$(trim "${line%%:*}")
   steps=""
   case $line in *:*) steps=${line#*:} ;; esac
@@ -83,14 +125,14 @@ capture() {
     ${TOKEN:+-TollDemoToken "$TOKEN"} ${API:+-TollDemoAPI "$API"}; } >"$dir/launch.txt" 2>&1; then
     echo "$variant/$(slug "$line"): did not launch" >&2
   fi
-  sleep "$SETTLE"
+  settle
   if [ -n "$steps" ]; then
     IFS=';' read -r -a parts <<<"$steps"
     for step in "${parts[@]}"; do
       step=$(trim "$step")
       [ -z "$step" ] && continue
       eval "axe $step --udid \"$UDID\"" >>"$dir/steps.txt" 2>&1 || echo "step failed: $step" >>"$dir/steps.txt"
-      sleep 1.5
+      settle
     done
   fi
   xcrun simctl io "$UDID" screenshot "$dir/screen.png" >/dev/null 2>&1
@@ -100,7 +142,7 @@ capture() {
     --predicate 'subsystem BEGINSWITH "com.advan.toll"' >"$dir/log.txt" 2>&1 || true
   find "$HOME/Library/Logs/DiagnosticReports" -name 'Toll*' -newer "$marker" -exec cp {} "$dir/" \; 2>/dev/null || true
   rm "$marker"
-  echo "$variant/$(slug "$line")" >&2
+  echo "$variant/$(slug "$line"): $((SECONDS - began)) s" | tee -a "$TIMINGS" >&2
 }
 
 for variant in $VARIANTS; do
@@ -123,7 +165,8 @@ for runtime, ds in json.load(sys.stdin)['devices'].items():
   for d in ds:
     if d['udid'] == '$UDID': print(d['deviceTypeIdentifier'].split('.')[-1], runtime.split('.')[-1])")"
   echo
-  echo "Each folder holds screen.png, ui.json (accessibility tree), log.txt (app log), and any crash report."
+  echo "Each folder holds screen.png, ui.json (accessibility tree), log.txt (app log), launch.txt, and any"
+  echo "crash report. Where the time went: timings.txt."
   echo
   printf '| Scenario |'
   for v in $VARIANTS; do printf ' %s |' "$v"; done
