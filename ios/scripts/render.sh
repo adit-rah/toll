@@ -19,6 +19,16 @@ SCENARIOS=${SCENARIOS:-$(printf '%s\n' $ALL)}
 VARIANTS=${VARIANTS:-light}
 SETTLE=${SETTLE:-6}
 rm -rf "$OUT" && mkdir -p "$OUT" "$DERIVED"
+# Whatever stops the run, the published folder says so; fetch-renders.sh would otherwise wait in vain.
+trap 'failed_line=$LINENO' ERR
+finish() {
+  local status=$?
+  if [ "$status" -ne 0 ] && [ ! -f "$OUT/README.md" ]; then
+    printf '# Renders\n\nrender.sh stopped at line %s (exit %s). See the workflow log.\n' "${failed_line:-?}" "$status" \
+      >"$OUT/README.md"
+  fi
+}
+trap finish EXIT
 
 # Simulator: a device named toll-render on the newest iOS runtime, created once and reused.
 UDID=$(xcrun simctl list devices available -j | python3 -c '
@@ -40,7 +50,7 @@ xcrun simctl bootstatus "$UDID" -b >/dev/null
 xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 \
   --cellularBars 4 --wifiBars 3
 
-echo "Building for $UDID…" >&2
+echo "Building for ${UDID}..." >&2
 # shellcheck disable=SC2086
 if ! xcodebuild build -project "$ROOT/ios/Toll.xcodeproj" -scheme Toll -configuration Debug \
   -destination "id=$UDID" -derivedDataPath "$DERIVED" -skipPackagePluginValidation -skipMacroValidation \
