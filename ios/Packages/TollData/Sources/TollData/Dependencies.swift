@@ -21,18 +21,22 @@ public struct Dependencies: Sendable {
     try make(database: AppDatabase.live(), keychain: Keychain(), analytics: Analytics.live())
   }
 
-  public static func preview() throws -> Dependencies {
-    try make(database: AppDatabase.inMemory(), keychain: Keychain(service: "com.advan.toll.preview"), analytics: .disabled)
+  public static func preview(apiBaseURL: URL = APIClient.configuredBaseURL) throws -> Dependencies {
+    try make(
+      database: AppDatabase.inMemory(), keychain: Keychain(service: "com.advan.toll.preview"), analytics: .disabled,
+      apiBaseURL: apiBaseURL)
   }
 
   public static func test() throws -> Dependencies {
     try make(database: AppDatabase.inMemory(), keychain: Keychain(service: "com.advan.toll.test"), analytics: .disabled)
   }
 
-  static func make(database: AppDatabase, keychain: Keychain, analytics: Analytics) throws -> Dependencies {
+  static func make(
+    database: AppDatabase, keychain: Keychain, analytics: Analytics, apiBaseURL: URL = APIClient.configuredBaseURL
+  ) throws -> Dependencies {
     let clock = SystemClock()
     let store = LocalStore(database: database)
-    let api = APIClient(baseURL: APIClient.configuredBaseURL) { keychain.string(.sessionToken) }
+    let api = APIClient(baseURL: apiBaseURL) { keychain.string(.sessionToken) }
     let sync = SyncEngine(store: store, api: api, keychain: keychain)
     let config = ConfigService(api: api, store: store)
     return Dependencies(

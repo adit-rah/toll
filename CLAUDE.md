@@ -14,6 +14,7 @@ Free iPhone app blocker with a social layer. Specs in `docs/` are the source of 
 - Worker: `cd api && npm ci && npm run check` (Biome, tsc, Vitest in workerd). `npm run db:generate` after editing `src/db/schema`.
 - Swift core on Linux or macOS: `swift test --package-path ios/Packages/TollCore`. Format: `swift format --in-place --recursive ios/`.
 - App build (macOS): `xcodebuild build -project ios/Toll.xcodeproj -scheme Toll -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO`. CI does this on every push (`.github/workflows/ios.yml`).
+- Seeing a screen without a Mac: push with `[render]` in the commit message (or dispatch `render.yml`), then `ios/scripts/fetch-renders.sh` in the background; read the PNGs and `ui.json` it unpacks into `build/renders/`. Scenarios, steps and limits: `docs/renders.md`.
 
 ## Releasing
 A build for a phone is the branch merged into `main`, then a GitHub release with a new `v*` tag on `main`; an automation picks the tag up, builds it and sends it to TestFlight. Take the next patch number after `git tag -l` (the first was `v0.1.0`, a pre-release). No version edit or workflow change is needed first. A Claude cloud session can open and merge the pull request when asked, but cannot cut the release: pushing a tag is refused (HTTP 403) and there is no release tool. After the merge, hand the person this, with the next tag filled in: `gh release create vX.Y.Z --target main --prerelease --title vX.Y.Z --generate-notes`.

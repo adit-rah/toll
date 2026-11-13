@@ -1,0 +1,84 @@
+name: render
+
+# Screenshots, accessibility trees and logs of the demo scenarios (docs/renders.md), so an agent with no
+# Mac can see what it changed. Runs on demand, or on a push whose head commit says [render]. The output
+# goes to the branch renders/<branch>, replaced each run; it is not a test and fails nothing.
+on:
+  workflow_dispatch:
+    inputs:
+      scenarios:
+        description: "One per line: <scenario> or <scenario>: <axe step>; <axe step>. Blank renders all."
+        required: false
+        default: ""
+      variants:
+        description: "Any of: light dark ax5 dark-ax5"
+        required: false
+        default: "light ax5"
+  push:
+    branches-ignore: ["main", "renders/**"]
+    paths: ["ios/**", "api/**", ".github/workflows/render.yml"]
+
+concurrency:
+  group: render-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[render]')
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - name: Select newest Xcode 26
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
+      - uses: actions/setup-node@v5
+        with: { node-version: 22, cache: npm, cache-dependency-path: api/package-lock.json }
+      - name: Install AXe
+        run: brew install cameroncooke/axe/axe
+      - name: Restore Swift packages
+        uses: actions/cache/restore@v4
+        with:
+          path: .spm
+          key: spm-${{ hashFiles('ios/Packages/*/Package.swift') }}
+          restore-keys: spm-
+      # Same retry as ios.yml: GitHub releases intermittently return 504 for the Sentry binaries.
+      - name: Resolve packages
+        run: |
+          for attempt in 1 2 3 4 5; do
+            xcodebuild -resolvePackageDependencies -project ios/Toll.xcodeproj -scheme Toll \
+              -clonedSourcePackagesDirPath .spm > resolve.log 2>&1 && exit 0
+            grep -E "error|failed" resolve.log | tail -3
+            sleep $((attempt * 45))
+          done
+          exit 1
+      - name: Start the Worker with the App Review data
+        run: |
+          ios/scripts/render-api.sh > api.env
+          sed -n 's/^TOKEN=/::add-mask::/p' api.env
+          cat api.env >> "$GITHUB_ENV"
+      - name: Render
+        env:
+          SCENARIOS: ${{ inputs.scenarios }}
+          VARIANTS: ${{ inputs.variants || 'light ax5' }}
+          XCODEBUILD_ARGS: -clonedSourcePackagesDirPath ${{ github.workspace }}/.spm -disableAutomaticPackageResolution
+        run: ios/scripts/render.sh build/renders
+      - name: Worker log
+        if: always()
+        run: cp /tmp/toll-render-api.log build/renders/api.log 2>/dev/null || true
+      - name: Publish to renders/${{ github.ref_name }}
+        if: always()
+        env:
+          PUSH_TOKEN: ${{ github.token }}
+          BRANCH: renders/${{ github.ref_name }}
+        run: |
+          [ -f build/renders/README.md ] || exit 0
+          cd build/renders
+          git init -q -b "$BRANCH"
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -qm "Renders of ${GITHUB_SHA::7}"
+          git push -qf "https://x-access-token:$PUSH_TOKEN@github.com/$GITHUB_REPOSITORY" "HEAD:refs/heads/$BRANCH"
+          echo "Renders: https://github.com/$GITHUB_REPOSITORY/tree/$BRANCH" >> "$GITHUB_STEP_SUMMARY"

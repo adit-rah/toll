@@ -1,0 +1,154 @@
+#!/bin/bash
+# Renders demo scenarios on an iOS simulator (docs/renders.md): for each scenario and variant, a
+# screenshot, the accessibility tree, the app's log and any crash report, plus a README.md index.
+# Needs macOS with Xcode 26+, python3 and AXe (`brew install cameroncooke/axe/axe`).
+#
+#   ios/scripts/render.sh [out-dir]          default out-dir: build/renders
+#   SCENARIOS  one per line: `<scenario>` or `<scenario>: <axe step>; <axe step>…`
+#              (default: every scenario in DemoLaunch.swift)
+#   VARIANTS   any of light dark ax5 dark-ax5, space-separated (default: light)
+#   API TOKEN  from render-api.sh; without them the signed-in scenarios land on Welcome
+#   XCODEBUILD_ARGS  extra xcodebuild arguments (CI passes its package cache)
+set -euo pipefail
+ROOT=$(cd "$(dirname "$0")/../.." && pwd)
+OUT=${1:-$ROOT/build/renders}
+DERIVED=$ROOT/build/render-derived
+BUNDLE=com.advan.toll
+ALL="welcome permissions setup-blocks solo-home home insights people gate screen-time-off"
+SCENARIOS=${SCENARIOS:-$(printf '%s\n' $ALL)}
+VARIANTS=${VARIANTS:-light}
+SETTLE=${SETTLE:-6}
+rm -rf "$OUT" && mkdir -p "$OUT" "$DERIVED"
+
+# Simulator: a device named toll-render on the newest iOS runtime, created once and reused.
+UDID=$(xcrun simctl list devices available -j | python3 -c '
+import json, sys
+devices = [d for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"] == "toll-render"]
+print(devices[0]["udid"] if devices else "")')
+if [ -z "$UDID" ]; then
+  read -r RUNTIME TYPE < <(xcrun simctl list runtimes available -j | python3 -c '
+import json, re, sys
+runtimes = [r for r in json.load(sys.stdin)["runtimes"] if r["platform"] == "iOS"]
+r = max(runtimes, key=lambda r: [int(p) for p in r["version"].split(".")])
+phones = [t for t in r["supportedDeviceTypes"] if re.fullmatch(r"iPhone \d+", t["name"])]
+phone = max(phones, key=lambda t: int(t["name"].split()[1]))
+print(r["identifier"], phone["identifier"])')
+  UDID=$(xcrun simctl create toll-render "$TYPE" "$RUNTIME")
+fi
+xcrun simctl boot "$UDID" 2>/dev/null || true
+xcrun simctl bootstatus "$UDID" -b >/dev/null
+xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 \
+  --cellularBars 4 --wifiBars 3
+
+echo "Building for $UDID…" >&2
+# shellcheck disable=SC2086
+if ! xcodebuild build -project "$ROOT/ios/Toll.xcodeproj" -scheme Toll -configuration Debug \
+  -destination "id=$UDID" -derivedDataPath "$DERIVED" -skipPackagePluginValidation -skipMacroValidation \
+  ${XCODEBUILD_ARGS:-} CODE_SIGNING_ALLOWED=NO >"$DERIVED.log" 2>&1; then
+  { echo "# Renders"; echo; echo "The build failed. Errors:"; echo; echo '```'
+    errors=$(grep -E "error: " "$DERIVED.log" | sort -u | head -100 || true)
+    if [ -n "$errors" ]; then echo "$errors"; else tail -60 "$DERIVED.log"; fi
+    echo '```'; } >"$OUT/README.md"
+  cat "$OUT/README.md" >&2
+  exit 1
+fi
+APP=$DERIVED/Build/Products/Debug-iphonesimulator/Toll.app
+[ -d "$APP" ] || { echo "no $APP" >&2; exit 1; }
+
+# Signed ad hoc with only what the simulator honours: the App Group and a Keychain identity. Family
+# Controls has no simulator support at all, which is why DemoLaunch fakes its answer.
+setting() { sed -n "s/^$1 = //p" "$ROOT/ios/Config/Base.xcconfig" | head -1; }
+TEAM=$(setting DEVELOPMENT_TEAM)
+ENT=$OUT/.entitlements.plist
+cat >"$ENT" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>application-identifier</key><string>$TEAM.$BUNDLE</string>
+  <key>keychain-access-groups</key><array><string>$TEAM.$BUNDLE</string></array>
+  <key>com.apple.security.application-groups</key><array><string>$(setting TOLL_APP_GROUP)</string></array>
+</dict></plist>
+PLIST
+for inner in "$APP"/Frameworks/* "$APP"/PlugIns/*.appex; do
+  if [ -e "$inner" ]; then codesign --force --sign - "$inner"; fi
+done
+codesign --force --sign - --entitlements "$ENT" "$APP"
+rm "$ENT"
+
+trim() {
+  local s=$1
+  s=${s#"${s%%[![:space:]]*}"}
+  printf '%s' "${s%"${s##*[![:space:]]}"}"
+}
+slug() { printf '%s' "$1" | tr -cs 'A-Za-z0-9' '-' | sed 's/^-//; s/-$//' | cut -c1-60; }
+capture() {
+  local variant=$1 line=$2 scenario steps dir step marker
+  scenario=$(trim "${line%%:*}")
+  steps=""
+  case $line in *:*) steps=${line#*:} ;; esac
+  dir=$OUT/$variant/$(slug "$line")
+  mkdir -p "$dir"
+  marker=$dir/.started
+  touch "$marker"
+  xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
+  xcrun simctl uninstall "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
+  xcrun simctl install "$UDID" "$APP"
+  local since
+  since=$(date '+%Y-%m-%d %H:%M:%S')
+  xcrun simctl launch "$UDID" "$BUNDLE" -TollDemo "$scenario" ${TOKEN:+-TollDemoToken "$TOKEN"} \
+    ${API:+-TollDemoAPI "$API"} >/dev/null
+  sleep "$SETTLE"
+  if [ -n "$steps" ]; then
+    IFS=';' read -r -a parts <<<"$steps"
+    for step in "${parts[@]}"; do
+      step=$(trim "$step")
+      [ -z "$step" ] && continue
+      eval "axe $step --udid \"$UDID\"" >>"$dir/steps.txt" 2>&1 || echo "step failed: $step" >>"$dir/steps.txt"
+      sleep 1.5
+    done
+  fi
+  xcrun simctl io "$UDID" screenshot "$dir/screen.png" >/dev/null 2>&1
+  sips --resampleWidth 600 "$dir/screen.png" >/dev/null
+  axe describe-ui --udid "$UDID" >"$dir/ui.json" 2>&1 || true
+  xcrun simctl spawn "$UDID" log show --style compact --info --debug --start "$since" \
+    --predicate 'subsystem BEGINSWITH "com.advan.toll"' >"$dir/log.txt" 2>&1 || true
+  find "$HOME/Library/Logs/DiagnosticReports" -name 'Toll*' -newer "$marker" -exec cp {} "$dir/" \; 2>/dev/null || true
+  rm "$marker"
+  echo "$variant/$(slug "$line")" >&2
+}
+
+for variant in $VARIANTS; do
+  case $variant in *dark*) appearance=dark ;; *) appearance=light ;; esac
+  case $variant in *ax5*) size=accessibility-extra-extra-extra-large ;; *) size=large ;; esac
+  xcrun simctl ui "$UDID" appearance "$appearance"
+  xcrun simctl ui "$UDID" content_size "$size"
+  while IFS= read -r line; do
+    if [ -n "$(trim "$line")" ]; then capture "$variant" "$line"; fi
+  done <<<"$SCENARIOS"
+done
+
+{
+  echo "# Renders"
+  echo
+  echo "Commit \`$(git -C "$ROOT" rev-parse --short HEAD)\` · $(date -u '+%Y-%m-%d %H:%M UTC') ·" \
+    "$(xcodebuild -version | head -1) · $(xcrun simctl list devices -j | python3 -c "
+import json, sys
+for runtime, ds in json.load(sys.stdin)['devices'].items():
+  for d in ds:
+    if d['udid'] == '$UDID': print(d['deviceTypeIdentifier'].split('.')[-1], runtime.split('.')[-1])")"
+  echo
+  echo "Each folder holds screen.png, ui.json (accessibility tree), log.txt (app log), and any crash report."
+  echo
+  printf '| Scenario |'
+  for v in $VARIANTS; do printf ' %s |' "$v"; done
+  printf '\n|---|'
+  for _ in $VARIANTS; do printf -- '---|'; done
+  echo
+  while IFS= read -r line; do
+    [ -z "$(trim "$line")" ] && continue
+    printf '| `%s` |' "$line"
+    for v in $VARIANTS; do printf ' ![](%s/%s/screen.png) |' "$v" "$(slug "$line")"; done
+    echo
+  done <<<"$SCENARIOS"
+} >"$OUT/README.md"
+echo "Wrote $OUT/README.md" >&2
