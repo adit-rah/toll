@@ -11,7 +11,7 @@ enum StaleBlocks {
     #if DEBUG
       if DemoStandIns.active { return [] }
     #endif
-    await Task.detached { () -> Set<BlockRef> in
+    return await Task.detached { () -> Set<BlockRef> in
       let registry = TokenRegistry()
       let stale = blocks.filter { registry.tokens(for: $0.appRefs).count < $0.appRefs.count }
       return Set(stale.map(\.id))
