@@ -88,17 +88,29 @@ public struct MetricPair: View {
   public var body: some View {
     VStack(alignment: .leading, spacing: 2) {
       Text(label).tollText(.caption).lineLimit(2)
-      HStack(alignment: .firstTextBaseline, spacing: 0) {
-        Text(value).font(TollFont.number).foregroundStyle(TollColor.label)
-        if let previous {
-          Text(Copy.middleDot + previous).tollText(.caption).monospacedDigit()
+      // Last period moves under the value rather than cutting it off when both no longer fit on a line.
+      ViewThatFits(in: .horizontal) {
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+          valueText
+          if let previous { previousText(Copy.middleDot + previous) }
+        }
+        .lineLimit(1)
+        VStack(alignment: .leading, spacing: 0) {
+          valueText.lineLimit(1).minimumScaleFactor(0.8)
+          if let previous { previousText(previous).lineLimit(1).minimumScaleFactor(0.8) }
         }
       }
-      .lineLimit(1)
-      .minimumScaleFactor(0.8)
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(label)
     .accessibilityValue(AccessibilitySentence.join([value, previous]))
+  }
+
+  private var valueText: some View {
+    Text(value).font(TollFont.number).foregroundStyle(TollColor.label)
+  }
+
+  private func previousText(_ text: String) -> some View {
+    Text(text).tollText(.caption).monospacedDigit()
   }
 }

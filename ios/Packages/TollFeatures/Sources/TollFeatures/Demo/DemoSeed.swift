@@ -40,7 +40,7 @@
     }
 
     static let tags: [(AppRef, Tag)] = [
-      ("a1", .instagram), ("a2", .tiktok), ("a3", .youtube), ("a4", .reddit),
+      ("a1", .instagram), ("a2", .tiktok), ("a3", .youtube), ("a4", .reddit), ("a5", .snapchat),
     ]
 
     static func blocks(createdAt: Date) -> [StoredBlock] {

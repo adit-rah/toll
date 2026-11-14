@@ -28,9 +28,22 @@ public struct AppLabel: View {
       } else if let token = tokens?.categories.first {
         styled(Label(token))
       } else {
-        Text(Copy.Shield.fallbackApp)
+        fallback
       }
     }
+  }
+
+  @ViewBuilder
+  private var fallback: some View {
+    #if DEBUG
+      if DemoStandIns.active, let name = DemoStandIns.name(for: ref) {
+        styled(Label(name, systemImage: "app.fill"))
+      } else {
+        Text(Copy.Shield.fallbackApp)
+      }
+    #else
+      Text(Copy.Shield.fallbackApp)
+    #endif
   }
 
   @ViewBuilder
