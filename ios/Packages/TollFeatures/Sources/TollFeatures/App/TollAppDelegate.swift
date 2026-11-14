@@ -15,6 +15,13 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
   public let model: AppModel
 
   public override init() {
+    #if DEBUG
+      if let demo = DemoLaunch.fromLaunch(), let model = try? demo.makeModel() {
+        self.model = model
+        super.init()
+        return
+      }
+    #endif
     let deps: Dependencies
     do {
       deps = try Dependencies.live()

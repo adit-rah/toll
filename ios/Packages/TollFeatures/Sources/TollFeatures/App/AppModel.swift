@@ -38,6 +38,10 @@ public final class AppModel {
   private var launched = false
   private var foregrounding = false
   private var foregroundAgain = false
+  #if DEBUG
+    /// The demo launch seeds the store here, before anything reads it (docs/renders.md).
+    @ObservationIgnored var beforeLaunch: (@MainActor () async -> Void)?
+  #endif
 
   public init(deps: Dependencies) {
     self.deps = deps
@@ -48,6 +52,10 @@ public final class AppModel {
   public var setupSteps: Int { LaunchRouter.setupSteps(signedIn: isSignedIn, isReturning: isReturning) }
 
   public func launch() async {
+    #if DEBUG
+      await beforeLaunch?()
+      isSignedIn = deps.keychain.string(.sessionToken) != nil
+    #endif
     // Asked for together: one at a time, each answer waited its turn on a main actor that is busy
     // drawing the first frame, and the screen stays blank until the last one is in.
     async let solo = try? deps.store.setting("choseSolo", as: Bool.self)

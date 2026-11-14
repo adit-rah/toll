@@ -19,3 +19,6 @@ In Xcode: Product → Xcode Cloud → Create Workflow, on `main`. Actions: Test 
 
 ## Not testable here
 Shield, DeviceActivity and authorization behaviour only run on a device. They are verified with `docs/gate-checklist.md`.
+
+## Seeing screens without a Mac
+Debug builds open straight into a screen state with `-TollDemo <scenario>`; `scripts/render.sh` screenshots each one on a simulator and `render.yml` runs it on GitHub. See `docs/renders.md`; on a Mac, `docs/local-mac.md`.

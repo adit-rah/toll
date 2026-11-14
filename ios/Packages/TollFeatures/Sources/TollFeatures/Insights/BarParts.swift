@@ -248,6 +248,10 @@ struct MetricStrip: View {
           }
         }
       }
+      // The largest Dynamic Type sizes: two columns cut values to "4…" (AX5 render, ledger A125).
+      VStack(alignment: .leading, spacing: 12) {
+        ForEach(items) { item in cell(item) }
+      }
     }
   }
 
