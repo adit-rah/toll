@@ -1,0 +1,562 @@
+[
+  {
+    "AXLabel" : "Toll",
+    "custom_actions" : [
+
+    ],
+    "frame" : {
+      "x" : 0,
+      "width" : 402,
+      "y" : 0,
+      "height" : 874
+    },
+    "role_description" : "application",
+    "help" : null,
+    "role" : "AXApplication",
+    "title" : null,
+    "type" : "Application",
+    "AXFrame" : "{{0, 0}, {402, 874}}",
+    "children" : [
+      {
+        "type" : "Group",
+        "role_description" : "group",
+        "role" : "AXGroup",
+        "content_required" : false,
+        "AXValue" : null,
+        "custom_actions" : [
+
+        ],
+        "children" : [
+          {
+            "traits" : [
+
+            ],
+            "AXLabel" : null,
+            "children" : [
+              {
+                "title" : null,
+                "AXFrame" : "{{0, 0}, {402, 874}}",
+                "subrole" : null,
+                "pid" : 23830,
+                "AXUniqueId" : null,
+                "custom_actions" : [
+
+                ],
+                "type" : "Group",
+                "frame" : {
+                  "x" : 0,
+                  "width" : 402,
+                  "y" : 0,
+                  "height" : 874
+                },
+                "content_required" : false,
+                "help" : null,
+                "AXLabel" : null,
+                "traits" : [
+
+                ],
+                "enabled" : true,
+                "AXValue" : null,
+                "role" : "AXGroup",
+                "children" : [
+                  {
+                    "frame" : {
+                      "x" : 0,
+                      "width" : 402,
+                      "y" : 0,
+                      "height" : 874
+                    },
+                    "AXFrame" : "{{0, 0}, {402, 874}}",
+                    "children" : [
+                      {
+                        "role" : "AXGroup",
+                        "AXValue" : null,
+                        "subrole" : null,
+                        "enabled" : true,
+                        "AXFrame" : "{{0, 0}, {402, 874}}",
+                        "help" : null,
+                        "AXLabel" : null,
+                        "pid" : 23830,
+                        "traits" : [
+
+                        ],
+                        "title" : null,
+                        "children" : [
+                          {
+                            "help" : null,
+                            "custom_actions" : [
+
+                            ],
+                            "role" : "AXGroup",
+                            "frame" : {
+                              "x" : 20,
+                              "width" : 362,
+                              "y" : 82,
+                              "height" : 4
+                            },
+                            "children" : [
+
+                            ],
+                            "traits" : [
+
+                            ],
+                            "AXValue" : null,
+                            "pid" : 23830,
+                            "title" : null,
+                            "type" : "Group",
+                            "AXFrame" : "{{20, 82}, {362, 4}}",
+                            "role_description" : "group",
+                            "AXLabel" : "",
+                            "content_required" : false,
+                            "AXUniqueId" : null,
+                            "enabled" : true,
+                            "subrole" : null
+                          },
+                          {
+                            "content_required" : false,
+                            "role" : "AXScrollArea",
+                            "frame" : {
+                              "x" : 20,
+                              "width" : 362,
+                              "y" : 106,
+                              "height" : 672
+                            },
+                            "AXFrame" : "{{20, 106}, {362, 672}}",
+                            "role_description" : "Group",
+                            "pid" : 23830,
+                            "type" : "ScrollArea",
+                            "enabled" : true,
+                            "custom_actions" : [
+
+                            ],
+                            "help" : null,
+                            "AXLabel" : null,
+                            "children" : [
+                              {
+                                "role_description" : "group",
+                                "pid" : 23830,
+                                "custom_actions" : [
+
+                                ],
+                                "AXValue" : null,
+                                "traits" : [
+
+                                ],
+                                "role" : "AXGroup",
+                                "AXFrame" : "{{20, 106}, {362, 245}}",
+                                "subrole" : null,
+                                "help" : null,
+                                "frame" : {
+                                  "x" : 20,
+                                  "width" : 362,
+                                  "y" : 106,
+                                  "height" : 245
+                                },
+                                "AXLabel" : null,
+                                "enabled" : true,
+                                "AXUniqueId" : null,
+                                "content_required" : false,
+                                "children" : [
+                                  {
+                                    "AXValue" : null,
+                                    "traits" : [
+
+                                    ],
+                                    "role_description" : "heading",
+                                    "pid" : 23830,
+                                    "custom_actions" : [
+
+                                    ],
+                                    "subrole" : null,
+                                    "role" : "AXHeading",
+                                    "title" : null,
+                                    "frame" : {
+                                      "x" : 20,
+                                      "width" : 321.33333333333331,
+                                      "y" : 134,
+                                      "height" : 40.666666666666657
+                                    },
+                                    "help" : null,
+                                    "AXLabel" : "Toll needs two things",
+                                    "AXUniqueId" : null,
+                                    "type" : "Heading",
+                                    "children" : [
+
+                                    ],
+                                    "content_required" : false,
+                                    "enabled" : true,
+                                    "AXFrame" : "{{20, 134}, {321.33333333333331, 40.666666666666657}}"
+                                  },
+                                  {
+                                    "AXLabel" : "Screen Time, The next screen is Apple's. It lets Toll block apps on this phone.",
+                                    "pid" : 23830,
+                                    "role" : "AXStaticText",
+                                    "title" : null,
+                                    "children" : [
+                                      {
+                                        "role_description" : "image",
+                                        "traits" : [
+
+                                        ],
+                                        "enabled" : true,
+                                        "AXUniqueId" : "hourglass",
+                                        "help" : null,
+                                        "AXValue" : null,
+                                        "role" : "AXImage",
+                                        "title" : null,
+                                        "custom_actions" : [
+
+                                        ],
+                                        "frame" : {
+                                          "x" : 20,
+                                          "width" : 44,
+                                          "y" : 202.66666666666666,
+                                          "height" : 44
+                                        },
+                                        "AXFrame" : "{{20, 202.66666666666666}, {44, 44}}",
+                                        "pid" : 23830,
+                                        "type" : "Image",
+                                        "subrole" : null,
+                                        "children" : [
+
+                                        ],
+                                        "content_required" : false,
+                                        "AXLabel" : "Duration"
+                                      },
+                                      {
+                                        "role_description" : "text",
+                                        "help" : null,
+                                        "subrole" : null,
+                                        "pid" : 23830,
+                                        "role" : "AXStaticText",
+                                        "AXValue" : null,
+                                        "content_required" : false,
+                                        "type" : "StaticText",
+                                        "frame" : {
+                                          "x" : 76,
+                                          "width" : 99.333333333333314,
+                                          "y" : 202.66666666666666,
+                                          "height" : 20.333333333333343
+                                        },
+                                        "children" : [
+
+                                        ],
+                                        "AXUniqueId" : null,
+                                        "custom_actions" : [
+
+                                        ],
+                                        "title" : null,
+                                        "enabled" : true,
+                                        "AXFrame" : "{{76, 202.66666666666666}, {99.333333333333314, 20.333333333333343}}",
+                                        "AXLabel" : "Screen Time",
+                                        "traits" : [
+
+                                        ]
+                                      },
+                                      {
+                                        "frame" : {
+                                          "x" : 76,
+                                          "width" : 299,
+                                          "y" : 225,
+                                          "height" : 38
+                                        },
+                                        "AXFrame" : "{{76, 225}, {299, 38}}",
+                                        "enabled" : true,
+                                        "role_description" : "text",
+                                        "AXValue" : null,
+                                        "type" : "StaticText",
+                                        "role" : "AXStaticText",
+                                        "traits" : [
+
+                                        ],
+                                        "AXUniqueId" : null,
+                                        "help" : null,
+                                        "content_required" : false,
+                                        "subrole" : null,
+                                        "pid" : 23830,
+                                        "children" : [
+
+                                        ],
+                                        "title" : null,
+                                        "AXLabel" : "The next screen is Apple's. It lets Toll block apps on this phone.",
+                                        "custom_actions" : [
+
+                                        ]
+                                      }
+                                    ],
+                                    "role_description" : "text",
+                                    "enabled" : true,
+                                    "help" : null,
+                                    "AXUniqueId" : null,
+                                    "custom_actions" : [
+
+                                    ],
+                                    "frame" : {
+                                      "x" : 20,
+                                      "width" : 355,
+                                      "y" : 202.66667175292969,
+                                      "height" : 60.333328247070312
+                                    },
+                                    "AXFrame" : "{{20, 202.66667175292969}, {355, 60.333328247070312}}",
+                                    "type" : "StaticText",
+                                    "content_required" : false,
+                                    "AXValue" : null,
+                                    "traits" : [
+
+                                    ],
+                                    "subrole" : null
+                                  },
+                                  {
+                                    "pid" : 23830,
+                                    "traits" : [
+
+                                    ],
+                                    "type" : "StaticText",
+                                    "title" : null,
+                                    "children" : [
+                                      {
+                                        "role" : "AXImage",
+                                        "content_required" : false,
+                                        "AXUniqueId" : "bell",
+                                        "traits" : [
+
+                                        ],
+                                        "AXFrame" : "{{20, 283}, {44, 44}}",
+                                        "help" : null,
+                                        "title" : null,
+                                        "subrole" : null,
+                                        "type" : "Image",
+                                        "enabled" : true,
+                                        "role_description" : "image",
+                                        "custom_actions" : [
+
+                                        ],
+                                        "AXLabel" : "Notifications",
+                                        "frame" : {
+                                          "x" : 20,
+                                          "width" : 44,
+                                          "y" : 283,
+                                          "height" : 44
+                                        },
+                                        "pid" : 23830,
+                                        "AXValue" : null,
+                                        "children" : [
+
+                                        ]
+                                      },
+                                      {
+                                        "custom_actions" : [
+
+                                        ],
+                                        "pid" : 23830,
+                                        "type" : "StaticText",
+                                        "role_description" : "text",
+                                        "enabled" : true,
+                                        "AXFrame" : "{{76, 283}, {101.33333333333331, 20.333333333333371}}",
+                                        "children" : [
+
+                                        ],
+                                        "help" : null,
+                                        "role" : "AXStaticText",
+                                        "AXLabel" : "Notifications",
+                                        "traits" : [
+
+                                        ],
+                                        "AXValue" : null,
+                                        "subrole" : null,
+                                        "content_required" : false,
+                                        "frame" : {
+                                          "x" : 76,
+                                          "width" : 101.33333333333331,
+                                          "y" : 283,
+                                          "height" : 20.333333333333371
+                                        },
+                                        "title" : null,
+                                        "AXUniqueId" : null
+                                      },
+                                      {
+                                        "content_required" : false,
+                                        "AXValue" : null,
+                                        "subrole" : null,
+                                        "AXFrame" : "{{76, 305.33333333333337}, {284, 18}}",
+                                        "custom_actions" : [
+
+                                        ],
+                                        "type" : "StaticText",
+                                        "children" : [
+
+                                        ],
+                                        "pid" : 23830,
+                                        "AXLabel" : "This is how the block screen reaches Toll.",
+                                        "traits" : [
+
+                                        ],
+                                        "role" : "AXStaticText",
+                                        "enabled" : true,
+                                        "AXUniqueId" : null,
+                                        "frame" : {
+                                          "x" : 76,
+                                          "width" : 284,
+                                          "y" : 305.33333333333337,
+                                          "height" : 18
+                                        },
+                                        "help" : null,
+                                        "role_description" : "text",
+                                        "title" : null
+                                      }
+                                    ],
+                                    "AXUniqueId" : null,
+                                    "AXValue" : null,
+                                    "AXFrame" : "{{20, 283}, {340, 44}}",
+                                    "subrole" : null,
+                                    "enabled" : true,
+                                    "custom_actions" : [
+
+                                    ],
+                                    "frame" : {
+                                      "x" : 20,
+                                      "width" : 340,
+                                      "y" : 283,
+                                      "height" : 44
+                                    },
+                                    "role_description" : "text",
+                                    "help" : null,
+                                    "content_required" : false,
+                                    "role" : "AXStaticText",
+                                    "AXLabel" : "Notifications, This is how the block screen reaches Toll."
+                                  }
+                                ],
+                                "type" : "Group",
+                                "title" : null
+                              }
+                            ],
+                            "traits" : [
+
+                            ],
+                            "subrole" : null,
+                            "title" : null,
+                            "AXUniqueId" : null,
+                            "AXValue" : null
+                          },
+                          {
+                            "children" : [
+
+                            ],
+                            "AXUniqueId" : null,
+                            "traits" : [
+
+                            ],
+                            "type" : "Button",
+                            "subrole" : null,
+                            "frame" : {
+                              "x" : 20,
+                              "width" : 362,
+                              "y" : 778,
+                              "height" : 50
+                            },
+                            "pid" : 23830,
+                            "role" : "AXButton",
+                            "custom_actions" : [
+
+                            ],
+                            "AXLabel" : "Allow",
+                            "help" : null,
+                            "AXValue" : null,
+                            "role_description" : "button",
+                            "enabled" : true,
+                            "title" : null,
+                            "content_required" : false,
+                            "AXFrame" : "{{20, 778}, {362, 50}}"
+                          }
+                        ],
+                        "custom_actions" : [
+
+                        ],
+                        "AXUniqueId" : null,
+                        "role_description" : "group",
+                        "frame" : {
+                          "x" : 0,
+                          "width" : 402,
+                          "y" : 0,
+                          "height" : 874
+                        },
+                        "type" : "Group",
+                        "content_required" : false
+                      }
+                    ],
+                    "AXUniqueId" : null,
+                    "enabled" : true,
+                    "AXValue" : null,
+                    "custom_actions" : [
+
+                    ],
+                    "subrole" : null,
+                    "title" : null,
+                    "content_required" : false,
+                    "traits" : [
+
+                    ],
+                    "AXLabel" : null,
+                    "type" : "Group",
+                    "help" : null,
+                    "pid" : 23830,
+                    "role" : "AXGroup",
+                    "role_description" : "group"
+                  }
+                ],
+                "role_description" : "group"
+              }
+            ],
+            "enabled" : true,
+            "AXUniqueId" : null,
+            "content_required" : false,
+            "subrole" : null,
+            "role" : "AXGroup",
+            "type" : "Group",
+            "title" : null,
+            "AXValue" : null,
+            "custom_actions" : [
+
+            ],
+            "AXFrame" : "{{0, 0}, {402, 874}}",
+            "role_description" : "group",
+            "help" : null,
+            "frame" : {
+              "x" : 0,
+              "width" : 402,
+              "y" : 0,
+              "height" : 874
+            },
+            "pid" : 23830
+          }
+        ],
+        "AXUniqueId" : null,
+        "title" : null,
+        "frame" : {
+          "x" : 0,
+          "width" : 402,
+          "y" : 0,
+          "height" : 874
+        },
+        "traits" : [
+
+        ],
+        "AXFrame" : "{{0, 0}, {402, 874}}",
+        "AXLabel" : null,
+        "pid" : 23830,
+        "enabled" : true,
+        "subrole" : null,
+        "help" : null
+      }
+    ],
+    "pid" : 23830,
+    "AXValue" : null,
+    "subrole" : null,
+    "enabled" : true,
+    "AXUniqueId" : null,
+    "content_required" : false,
+    "traits" : [
+
+    ]
+  }
+]
