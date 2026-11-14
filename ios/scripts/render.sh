@@ -8,8 +8,9 @@
 #              (default: every scenario in DemoLaunch.swift)
 #   VARIANTS   any of light dark ax5 dark-ax5, space-separated (default: light)
 #   API TOKEN  from render-api.sh; without them the signed-in scenarios land on Welcome
+#   UDID       the simulator to use (default: render-device.sh picks and boots one)
 #   XCODEBUILD_ARGS  extra xcodebuild arguments (CI passes its package cache)
-#   BUILD_ONLY=1     build and stop (CI uses it on main to fill the build cache feature branches start from)
+#   BUILD_ONLY=1     build and stop
 #   SETTLE     most seconds to wait for a screen to stop changing (default 12)
 set -Eeuo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
@@ -26,6 +27,7 @@ rm -rf "$OUT" && mkdir -p "$OUT" "$DERIVED"
 trap 'failed_line=$LINENO' ERR
 finish() {
   local status=$?
+  [ -n "${LOG_PID:-}" ] && kill "$LOG_PID" 2>/dev/null
   if [ "$status" -ne 0 ] && [ ! -f "$OUT/README.md" ]; then
     printf '# Renders\n\nrender.sh stopped at line %s (exit %s). See the workflow log.\n' "${failed_line:-?}" "$status" \
       >"$OUT/README.md"
@@ -35,35 +37,14 @@ trap finish EXIT
 
 UDID=${UDID:-$("$ROOT/ios/scripts/render-device.sh")}
 
-# Xcode 26's compilation cache is keyed by content, not timestamps, so a cache restored from another
-# run is reused only where the inputs are byte-for-byte the same; the result matches a clean build.
-build() {
-  # shellcheck disable=SC2086
-  xcodebuild build -project "$ROOT/ios/Toll.xcodeproj" -scheme Toll -configuration Debug \
-    -destination "id=$UDID" -derivedDataPath "$DERIVED" -skipPackagePluginValidation -skipMacroValidation \
-    ${XCODEBUILD_ARGS:-} CODE_SIGNING_ALLOWED=NO COMPILATION_CACHE_ENABLE_CACHING=YES \
-    COMPILER_INDEX_STORE_ENABLE=NO >"$DERIVED.log" 2>&1
-}
-source_errors() { grep -E "/ios/(App|ShieldConfig|ShieldAction|Monitor|Packages)/.*error: " "$DERIVED.log" || true; }
+# Debug, one simulator architecture, no index store (only the editor reads it). The build folder is kept,
+# so on a Mac the next run builds incrementally.
 echo "Building for ${UDID}..." >&2
-cached=no
-[ -d "$DERIVED/Build" ] && cached=yes
 started=$SECONDS
-built=yes
-if ! build; then
-  # An error in our own code is the answer. Anything else after a restored cache could be the cache,
-  # so it gets one clean build before it counts.
-  if [ "$cached" = yes ] && [ -z "$(source_errors)" ]; then
-    echo "Cached build failed outside the sources; building clean." >&2
-    rm -rf "$DERIVED" && mkdir -p "$DERIVED"
-    cached="no (cache discarded)"
-    build || built=no
-  else
-    built=no
-  fi
-fi
-echo "build: $((SECONDS - started)) s, cache restored: $cached" >"$TIMINGS"
-if [ "$built" = no ]; then
+# shellcheck disable=SC2086
+if ! xcodebuild build -project "$ROOT/ios/Toll.xcodeproj" -scheme Toll -configuration Debug \
+  -destination "id=$UDID" -derivedDataPath "$DERIVED" -skipPackagePluginValidation -skipMacroValidation \
+  ${XCODEBUILD_ARGS:-} CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO >"$DERIVED.log" 2>&1; then
   { echo "# Renders"; echo; echo "The build failed. Errors:"; echo; echo '```'
     errors=$(grep -E "error: " "$DERIVED.log" | sort -u | head -100 || true)
     if [ -n "$errors" ]; then echo "$errors"; else tail -60 "$DERIVED.log"; fi
@@ -71,6 +52,7 @@ if [ "$built" = no ]; then
   cat "$OUT/README.md" >&2
   exit 1
 fi
+echo "build: $((SECONDS - started)) s" >"$TIMINGS"
 APP=$DERIVED/Build/Products/Debug-iphonesimulator/Toll.app
 [ -d "$APP" ] || { echo "no $APP" >&2; exit 1; }
 if [ "${BUILD_ONLY:-0}" = 1 ]; then cat "$TIMINGS" >&2; exit 0; fi
@@ -88,6 +70,13 @@ xcrun simctl bootstatus "$UDID" -b >/dev/null
 echo "waiting for the simulator to boot: $((SECONDS - started)) s" >>"$TIMINGS"
 xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 \
   --cellularBars 4 --wifiBars 3
+
+# One log stream for the whole run, cut per capture by line number: a `log show` per screen cost seconds.
+APPLOG=$OUT/.app.log
+xcrun simctl spawn "$UDID" log stream --style compact --level debug \
+  --predicate 'subsystem BEGINSWITH "com.advan.toll"' >"$APPLOG" 2>/dev/null &
+LOG_PID=$!
+lines() { wc -l <"$APPLOG" | tr -d ' '; }
 
 trim() {
   local s=$1
@@ -117,7 +106,7 @@ except Exception: sys.exit(1)'; then
 }
 slug() { printf '%s' "$1" | tr -cs 'A-Za-z0-9' '-' | sed 's/^-//; s/-$//' | cut -c1-60; }
 capture() {
-  local variant=$1 line=$2 scenario steps dir step marker began=$SECONDS
+  local variant=$1 line=$2 scenario steps dir step marker began=$SECONDS first drawn
   scenario=$(trim "${line%%:*}")
   steps=""
   case $line in *:*) steps=${line#*:} ;; esac
@@ -125,10 +114,10 @@ capture() {
   mkdir -p "$dir"
   marker=$dir/.started
   touch "$marker"
+  # A fresh install per capture, so no scenario sees another's data.
   xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
   xcrun simctl uninstall "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
-  local since
-  since=$(date '+%Y-%m-%d %H:%M:%S')
+  first=$(($(lines) + 1))
   # One scenario that will not open is a finding, not a reason to lose the others.
   # The token goes in the environment, never as an argument: base64url can start with "-".
   if ! { xcrun simctl install "$UDID" "$APP" &&
@@ -136,7 +125,6 @@ capture() {
       xcrun simctl launch "$UDID" "$BUNDLE" -TollDemo "$scenario"; } >"$dir/launch.txt" 2>&1; then
     echo "$variant/$(slug "$line"): did not launch" >&2
   fi
-  local drawn
   drawn=$(settle)
   if [ -n "$steps" ]; then
     IFS=';' read -r -a parts <<<"$steps"
@@ -150,8 +138,7 @@ capture() {
   xcrun simctl io "$UDID" screenshot "$dir/screen.png" >/dev/null 2>&1
   sips --resampleWidth 600 "$dir/screen.png" >/dev/null
   axe describe-ui --udid "$UDID" >"$dir/ui.json" 2>&1 || true
-  xcrun simctl spawn "$UDID" log show --style compact --info --debug --start "$since" \
-    --predicate 'subsystem BEGINSWITH "com.advan.toll"' >"$dir/log.txt" 2>&1 || true
+  sed -n "${first},\$p" "$APPLOG" >"$dir/log.txt"
   find "$HOME/Library/Logs/DiagnosticReports" -name 'Toll*' -newer "$marker" -exec cp {} "$dir/" \; 2>/dev/null || true
   rm "$marker"
   echo "$variant/$(slug "$line"): $((SECONDS - began)) s, first frame after ${drawn} s" | tee -a "$TIMINGS" >&2
@@ -166,6 +153,7 @@ for variant in $VARIANTS; do
     if [ -n "$(trim "$line")" ]; then capture "$variant" "$line"; fi
   done <<<"$SCENARIOS"
 done
+rm -f "$APPLOG"
 
 {
   echo "# Renders"

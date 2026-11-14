@@ -1,9 +1,9 @@
 name: render
 
 # Screenshots, accessibility trees and logs of the demo scenarios (docs/renders.md), so an agent with no
-# Mac can see what it changed. Runs on demand, or on a push whose head commit says [render]. The output
+# Mac can see what it changed. Runs on demand, or on a push whose head commit says [render] (or
+# [render light ax5] to choose variants). The output
 # goes to the branch renders/<branch>, replaced each run; it is not a test and fails nothing.
-# Pushes to main only build, to keep the build cache that every branch's first render starts from.
 on:
   workflow_dispatch:
     inputs:
@@ -16,7 +16,7 @@ on:
         required: false
         default: "light"
   push:
-    branches-ignore: ["renders/**"]
+    branches-ignore: ["main", "renders/**"]
     paths: ["ios/**", "api/**", ".github/workflows/render.yml"]
 
 concurrency:
@@ -30,34 +30,28 @@ env:
   HOMEBREW_NO_AUTO_UPDATE: "1"
   HOMEBREW_NO_INSTALL_CLEANUP: "1"
   HOMEBREW_NO_ANALYTICS: "1"
-  RENDER: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[render]') }}
 
 jobs:
   render:
     if: >-
-      github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' ||
-      contains(github.event.head_commit.message, '[render]')
+      github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[render]') ||
+      contains(github.event.head_commit.message, '[render ')
     runs-on: macos-26
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
-        with: { fetch-depth: 0 }
       - name: Select newest Xcode 26
-        run: |
-          sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
-          echo "XCODE=$(xcodebuild -version | tr -s ' \n' '-')" >> "$GITHUB_ENV"
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
       # A first boot takes minutes; it runs behind every step up to the screenshots.
       - name: Start booting a simulator
         run: echo "UDID=$(ios/scripts/render-device.sh)" >> "$GITHUB_ENV"
       # Homebrew takes minutes to tap and install; the installed copy is cached and only reinstalled
       # when it will not run.
       - name: Restore AXe
-        if: env.RENDER == 'true'
         id: axe
         uses: actions/cache/restore@v4
         with: { path: ~/axe, key: axe-v1 }
       - name: Install AXe
-        if: env.RENDER == 'true'
         run: |
           if [ -x ~/axe/bin/axe ] && ~/axe/bin/axe --version >/dev/null 2>&1; then
             echo "$HOME/axe/bin" >> "$GITHUB_PATH"
@@ -71,7 +65,6 @@ jobs:
         uses: actions/cache/save@v4
         with: { path: ~/axe, key: axe-v1 }
       - uses: actions/setup-node@v5
-        if: env.RENDER == 'true'
         with: { node-version: 22, cache: npm, cache-dependency-path: api/package-lock.json }
       - name: Restore Swift packages
         uses: actions/cache/restore@v4
@@ -89,43 +82,30 @@ jobs:
             sleep $((attempt * 45))
           done
           exit 1
-      # This branch's last render, else main's latest build. Branch caches are private to the branch;
-      # main's are readable from every branch, so a branch's first render starts warm too.
-      - name: Restore build cache
-        uses: actions/cache/restore@v4
-        with:
-          path: build/render-derived
-          key: render-dd-${{ env.XCODE }}-${{ hashFiles('ios/**/Package.resolved') }}-${{ github.ref_name }}-${{ github.sha }}
-          restore-keys: |
-            render-dd-${{ env.XCODE }}-${{ hashFiles('ios/**/Package.resolved') }}-${{ github.ref_name }}-
-            render-dd-${{ env.XCODE }}-${{ hashFiles('ios/**/Package.resolved') }}-main-
-      - name: Give files their commit times
-        run: ios/scripts/restore-mtimes.sh
       - name: Start the Worker with the App Review data
-        if: env.RENDER == 'true'
         run: |
           ios/scripts/render-api.sh > api.env
           sed -n 's/^TOKEN=/::add-mask::/p' api.env
           cat api.env >> "$GITHUB_ENV"
+      # A push can name its variants too: "[render light ax5]" in the commit message.
+      - name: Variants from the commit message
+        if: github.event_name == 'push'
+        env:
+          MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          variants=$(printf '%s' "$MESSAGE" | sed -n 's/.*\[render \([a-z5 -]*\)\].*/\1/p' | head -1)
+          [ -n "$variants" ] && echo "PUSH_VARIANTS=$variants" >> "$GITHUB_ENV" || true
       - name: Render
-        id: render
         env:
           SCENARIOS: ${{ inputs.scenarios }}
-          VARIANTS: ${{ inputs.variants || 'light' }}
-          BUILD_ONLY: ${{ env.RENDER == 'true' && '0' || '1' }}
+          VARIANTS: ${{ inputs.variants || env.PUSH_VARIANTS || 'light' }}
           XCODEBUILD_ARGS: -clonedSourcePackagesDirPath ${{ github.workspace }}/.spm -disableAutomaticPackageResolution
         run: ios/scripts/render.sh build/renders
-      - name: Save build cache
-        if: steps.render.outcome == 'success'
-        uses: actions/cache/save@v4
-        with:
-          path: build/render-derived
-          key: render-dd-${{ env.XCODE }}-${{ hashFiles('ios/**/Package.resolved') }}-${{ github.ref_name }}-${{ github.sha }}
       - name: Worker log
-        if: always() && env.RENDER == 'true'
+        if: always()
         run: cp /tmp/toll-render-api.log build/renders/api.log 2>/dev/null || true
       - name: Publish to renders/${{ github.ref_name }}
-        if: always() && env.RENDER == 'true'
+        if: always()
         env:
           PUSH_TOKEN: ${{ github.token }}
           BRANCH: renders/${{ github.ref_name }}
