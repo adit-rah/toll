@@ -1,0 +1,91 @@
+
+ ⛅️ wrangler 4.158.0 (update available 4.162.0)
+───────────────────────────────────────────────
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+Your Worker has access to the following bindings:
+Binding                                                     Resource                  Mode
+env.CONFIG (b0d5489db7704e5dad99727621c47913)               KV Namespace              local
+env.PUSH_QUEUE (toll-push)                                  Queue                     local
+env.DB (toll)                                               D1 Database               local
+env.STORAGE (toll)                                          R2 Bucket                 local
+env.RL_OTP (5 requests/60s)                                 Rate Limit                local
+env.RL_SOCIAL (30 requests/60s)                             Rate Limit                local
+env.RL_INGEST (60 requests/60s)                             Rate Limit                local
+env.ASSETS                                                  Assets                    local
+env.ENVIRONMENT ("production")                              Environment Variable      local
+env.PUBLIC_BASE_URL ("https://toll.alders.dev")             Environment Variable      local
+env.APPLE_BUNDLE_ID ("com.advan.toll")                      Environment Variable      local
+env.APPLE_TEAM_ID ("JAFS73RCH8")                            Environment Variable      local
+env.APPLE_KEY_ID ("UX8ZZ6S6J5")                             Environment Variable      local
+env.APNS_KEY_ID ("P8D3W6H8T3")                              Environment Variable      local
+env.APNS_HOST ("api.push.apple.com")                        Environment Variable      local
+env.EMAIL_FROM ("Toll <code@toll.alders.dev>")              Environment Variable      local
+env.FOUNDERS_EMAIL ("support@toll.alders.dev")              Environment Variable      local
+env.SENTRY_DSN ("")                                         Environment Variable      local
+env.APP_STORE_URL ("")                                      Environment Variable      local
+env.REVIEW_EMAIL ("review@toll.alders.dev")                 Environment Variable      local
+env.REVIEW_CODE ("(hidden)")                                Environment Variable      local
+env.OTP_PEPPER ("(hidden)")                                 Environment Variable      local
+env.CONTACTS_SALT ("(hidden)")                              Environment Variable      local
+env.ADMIN_TOKEN ("(hidden)")                                Environment Variable      local
+env.TOKEN_ENC_KEY ("(hidden)")                              Environment Variable      local
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mScheduled Workers are not automatically triggered during local development.[0m
+
+  To manually trigger a scheduled event, run:
+    curl "http://127.0.0.1:8787/cdn-cgi/local/scheduled"
+  For more details, see [4mhttps://developers.cloudflare.com/workers/configuration/cron-triggers/#test-cron-triggers-locally[0m
+
+
+⎔ Starting local server...
+⎔ Connection status updated
+Your Worker has access to the following bindings:
+Binding                                                     Resource                  Mode
+env.CONFIG (b0d5489db7704e5dad99727621c47913)               KV Namespace              local
+env.PUSH_QUEUE (toll-push)                                  Queue                     local
+env.DB (toll)                                               D1 Database               local
+env.STORAGE (toll)                                          R2 Bucket                 local
+env.RL_OTP (5 requests/60s)                                 Rate Limit                local
+env.RL_SOCIAL (30 requests/60s)                             Rate Limit                local
+env.RL_INGEST (60 requests/60s)                             Rate Limit                local
+env.ASSETS                                                  Assets                    local
+env.ENVIRONMENT ("production")                              Environment Variable      local
+env.PUBLIC_BASE_URL ("https://toll.alders.dev")             Environment Variable      local
+env.APPLE_BUNDLE_ID ("com.advan.toll")                      Environment Variable      local
+env.APPLE_TEAM_ID ("JAFS73RCH8")                            Environment Variable      local
+env.APPLE_KEY_ID ("UX8ZZ6S6J5")                             Environment Variable      local
+env.APNS_KEY_ID ("P8D3W6H8T3")                              Environment Variable      local
+env.APNS_HOST ("api.push.apple.com")                        Environment Variable      local
+env.EMAIL_FROM ("Toll <code@toll.alders.dev>")              Environment Variable      local
+env.FOUNDERS_EMAIL ("support@toll.alders.dev")              Environment Variable      local
+env.SENTRY_DSN ("")                                         Environment Variable      local
+env.APP_STORE_URL ("")                                      Environment Variable      local
+env.REVIEW_EMAIL ("review@toll.alders.dev")                 Environment Variable      local
+env.REVIEW_CODE ("(hidden)")                                Environment Variable      local
+env.OTP_PEPPER ("(hidden)")                                 Environment Variable      local
+env.CONTACTS_SALT ("(hidden)")                              Environment Variable      local
+env.ADMIN_TOKEN ("(hidden)")                                Environment Variable      local
+env.TOKEN_ENC_KEY ("(hidden)")                              Environment Variable      local
+
+[wrangler:info] Ready on http://127.0.0.1:8787
+[wrangler:info] GET /health 200 OK (2123ms)
+[wrangler:info] GET /health 200 OK (9ms)
+[wrangler:info] POST /v1/admin/recompute 200 OK (2087ms)
+[wrangler:info] POST /v1/auth/email/start 204 No Content (34ms)
+[wrangler:info] POST /v1/auth/email/verify 200 OK (28ms)
+[wrangler:info] GET /v1/config 200 OK (1662ms)
+[wrangler:info] GET /v1/me 200 OK (1166ms)
+[wrangler:info] POST /v1/events 200 OK (1115ms)
+[wrangler:info] POST /v1/events 200 OK (3241ms)
+[wrangler:info] POST /v1/events 200 OK (458ms)
+[wrangler:info] POST /v1/events 200 OK (367ms)
+[wrangler:info] GET /v1/home 200 OK (856ms)
+[wrangler:info] GET /v1/config 200 OK (1010ms)
+[wrangler:info] GET /v1/me 200 OK (1009ms)
+[wrangler:info] POST /v1/events 200 OK (304ms)
+[wrangler:info] POST /v1/events 200 OK (222ms)
+[wrangler:info] POST /v1/events 200 OK (191ms)
+[wrangler:info] POST /v1/events 200 OK (207ms)
+[wrangler:info] GET /v1/home 200 OK (106ms)
+[wrangler:info] POST /v1/events 200 OK (358ms)
