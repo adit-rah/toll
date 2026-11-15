@@ -64,7 +64,7 @@ public struct TagChips: View {
   }
 
   public var body: some View {
-    FlowLayout(spacing: WaitCardMetrics.chipGap, lineSpacing: WaitCardMetrics.chipLineSpacing) {
+    FlowLayout(spacing: 8, lineSpacing: -2) {
       ForEach(tags, id: \.self) { tag in
         let faded = fadesOthersOnSelect && selection != nil && selection != tag
         ChoiceChip(Copy.Tags.chip(tag), isSelected: selection == tag) {

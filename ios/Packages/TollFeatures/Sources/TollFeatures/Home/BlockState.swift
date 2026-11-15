@@ -2,7 +2,7 @@ import Foundation
 import TollCore
 import TollData
 
-/// What Home's block bar and block cards show for one block (design §3.18).
+/// What Home's state bar and its sheet show for one block (design §3.18).
 struct BlockState: Equatable, Identifiable {
   /// The line beside the block, resolved as far as a clock time so the views need no calendar.
   enum Line: Equatable {
@@ -18,8 +18,8 @@ struct BlockState: Equatable, Identifiable {
   var block: StoredBlock
   var phase: BlockPhase
   var line: Line
-  /// Every live session covering one of the block's apps. "Block again" ends them all: ending only
-  /// one would leave the block reading as open.
+  /// Every live session covering one of the block's apps. "Lock now" ends them all: ending only one
+  /// would leave the block reading as open.
   var sessionIDs: [UUID]
 
   var id: BlockRef { block.id }
@@ -40,7 +40,7 @@ struct BlockState: Equatable, Identifiable {
     return nil
   }
 
-  /// Nil while a session is open: that line is a countdown (`SessionCountdown`), not a string.
+  /// Nil while a session is open: that line ticks, so it is drawn, not stored.
   var lineText: String? {
     switch line {
     case .always: Copy.ActiveBlock.always
@@ -101,6 +101,12 @@ enum BlockStates {
     states.filter { !$0.isOpen && !$0.isOn }
   }
 
+  /// The block outside its window that starts soonest.
+  static func next(_ states: [BlockState]) -> BlockState? {
+    states.filter { $0.startsAt != nil }
+      .min { ($0.startsAt ?? .distantFuture) < ($1.startsAt ?? .distantFuture) }
+  }
+
   /// The next moment any state changes by itself: a window's edge, a session's end, or the day
   /// reset that takes a set-aside pass with it.
   static func nextChange(
@@ -132,48 +138,5 @@ enum BlockStates {
   private static func covers(_ pass: PendingPass, block: StoredBlock, refs: Set<AppRef>) -> Bool {
     if let ref = pass.blockRef { return ref == block.id }
     return !refs.isDisjoint(with: pass.appRefs)
-  }
-}
-
-/// What the bar shows when several blocks compete for it (design §3.18).
-struct BlockBarSummary: Equatable {
-  /// The block whose state line and action the bar carries.
-  var lead: BlockState
-  /// Blocks on or open. Above one the bar counts them instead of naming one; at zero it shows the
-  /// next block to start, with no action.
-  var activeCount: Int
-  var appRefs: [AppRef]
-
-  init?(_ states: [BlockState]) {
-    let active = BlockStates.active(states)
-    if let urgent = active.first {
-      lead = urgent
-      activeCount = active.count
-      appRefs = Self.cluster(active)
-      return
-    }
-    let upcoming = states.filter { $0.startsAt != nil }
-    let next = upcoming.min { ($0.startsAt ?? .distantFuture) < ($1.startsAt ?? .distantFuture) }
-    guard let next else { return nil }
-    lead = next
-    activeCount = 0
-    appRefs = next.block.appRefs
-  }
-
-  var actionTitle: String? {
-    guard activeCount > 0 else { return nil }
-    return lead.isOpen ? Copy.ActiveBlock.blockAgain : Copy.ActiveBlock.unblock
-  }
-
-  /// One app from each block before a second from any: the cluster has room for three icons.
-  private static func cluster(_ states: [BlockState]) -> [AppRef] {
-    var refs: [AppRef] = []
-    for state in states {
-      if let first = state.block.appRefs.first, !refs.contains(first) { refs.append(first) }
-    }
-    for state in states {
-      for ref in state.block.appRefs where !refs.contains(ref) { refs.append(ref) }
-    }
-    return refs
   }
 }

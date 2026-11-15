@@ -4,7 +4,8 @@ import TollCore
 import TollData
 import TollUI
 
-/// The wait card and the session picker it turns into (E1.13, design §3.7–3.9, §4.10).
+/// The wait and the session picker it turns into, shown in the sheet Home's bar opens (E1.13,
+/// design §3.7–3.9, §3.18, §4.10).
 @MainActor
 @Observable
 public final class GateModel {
@@ -22,6 +23,13 @@ public final class GateModel {
   public private(set) var untaggedApp: AppRef?
   public private(set) var chosenTag: Tag?
   public var selectedMinutes: Int
+  /// Counts the moments the sheet should open by itself: a wait starting, or a pass arriving with no
+  /// wait before it in this run. A wait ending while the person is in Toll is not one of them: the
+  /// bar says "Unlock ready" and the sheet, if it is open, turns into the picker in place.
+  public private(set) var prompt = 0
+  /// The last prompt Home acted on. Kept here, not in Home, so a Home rebuilt by its tab does not
+  /// open the sheet a second time.
+  public var promptSeen = 0
   private var ticker: Task<Void, Never>?
   private var namingCheckedFor: UUID?
   private var gateDisagreed = false
@@ -50,11 +58,17 @@ public final class GateModel {
     return origin == .app ? refs : Array(refs.prefix(1))
   }
 
+  public var waitEndsAt: Date? {
+    if case .waiting(let until) = phase { return until }
+    return nil
+  }
+
   /// "Wait 3 of today · next wait 8 min".
   public var waitLine: String? {
     guard let wait = app.gate.wait else { return nil }
     return Copy.Wait.line(
-      number: wait.number, nextMinutes: GateRules.nextWaitMinutes(forWaitNumber: wait.number, config: config))
+      number: wait.number,
+      nextMinutes: GateRules.nextWaitMinutes(forWaitNumber: wait.number, config: config))
   }
 
   /// Recomputes the phase from shared state; the ticker runs only while a wait is shown.
@@ -63,13 +77,16 @@ public final class GateModel {
       // Looked up before the card shows so it arrives with its naming section, not growing one.
       await checkNaming(for: wait)
       guard let current = app.gate.wait, current.id == wait.id else { return }
+      if case .waiting = phase {} else { prompt += 1 }
       showWait(current)
       startTicking()
     } else if let pending = app.gate.pendingPass, !pending.deferred {
       if phase != .choosing {
-        if case .waiting = phase { Haptics.light() }
+        if case .waiting = phase { Haptics.light() } else { prompt += 1 }
         // Only on arrival: a later sync must not undo the length the user has just picked.
-        if let last = app.gate.lastSessionMinutes, last != selectedMinutes { selectedMinutes = last }
+        if let last = app.gate.lastSessionMinutes, last != selectedMinutes {
+          selectedMinutes = last
+        }
         phase = .choosing
       }
       stopTicking()
@@ -175,7 +192,7 @@ public final class GateModel {
   }
 
   /// Uses the pass: the apps are unlocked for the chosen minutes from now (G-6). Toll cannot switch
-  /// to the app, so the card leaves and Home's block bar takes over with the countdown.
+  /// to the app, so the sheet closes and Home's bar takes over with the countdown.
   public func open() async {
     _ = await app.deps.gate.startSession(minutes: selectedMinutes)
     app.setGate(await app.deps.gate.state)

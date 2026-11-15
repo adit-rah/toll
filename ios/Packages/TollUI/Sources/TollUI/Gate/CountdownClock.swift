@@ -2,13 +2,16 @@ import Accessibility
 import SwiftUI
 import TollCore
 
-/// The countdown numeral (design §3.7). It owns its own tick, so one second passing redraws these
-/// digits and nothing else: not the card, not the overlay, not Home under the blur. With no end
-/// date it holds a still "0:00", which is what keeps the card's frame once the wait is over.
-struct CountdownClock: View {
+/// The wait's countdown numeral (design §3.7). It owns its own tick, so one second passing redraws
+/// these digits and nothing else around them. With no end date it holds a still "0:00".
+public struct CountdownClock: View {
   let endsAt: Date?
 
-  var body: some View {
+  public init(endsAt: Date?) {
+    self.endsAt = endsAt
+  }
+
+  public var body: some View {
     if let endsAt {
       // Anchored a whole number of seconds before the end, so every tick lands on a digit change.
       let anchor = endsAt.addingTimeInterval(-WaitClock.anchorLead)
@@ -34,6 +37,51 @@ private struct CountdownDigits: View {
         guard step > 0 else { return }
         AccessibilityNotification.Announcement(WaitClock.spoken(step: step)).post()
       }
+  }
+}
+
+/// The same countdown as plain text in a line ("Instagram unlocks in 2:41" on Home's bar). Spoken in
+/// 30 s steps and never announced: the bar stays on Home for the whole wait.
+public struct CountdownText: View {
+  let endsAt: Date
+
+  public init(endsAt: Date) {
+    self.endsAt = endsAt
+  }
+
+  public var body: some View {
+    TimelineView(.periodic(from: endsAt.addingTimeInterval(-WaitClock.anchorLead), by: 1)) {
+      context in
+      let seconds = WaitClock.secondsLeft(until: endsAt, at: context.date)
+      Text(WaitClock.text(seconds))
+        .monospacedDigit()
+        .contentTransition(.numericText(countsDown: true))
+        .animation(Motion.movement, value: seconds)
+        .accessibilityLabel(WaitClock.spoken(step: WaitClock.spokenStep(seconds)))
+    }
+  }
+}
+
+/// A line that changes each second as `endsAt` nears: "10-min unblock · 6:42 left". VoiceOver hears
+/// the same line in 30 s steps, so resting on it is not interrupted every second.
+public struct TickingText: View {
+  let endsAt: Date
+  let text: (Int) -> String
+
+  public init(endsAt: Date, text: @escaping (Int) -> String) {
+    self.endsAt = endsAt
+    self.text = text
+  }
+
+  public var body: some View {
+    TimelineView(.periodic(from: endsAt.addingTimeInterval(-WaitClock.anchorLead), by: 1)) {
+      context in
+      let seconds = WaitClock.secondsLeft(until: endsAt, at: context.date)
+      Text(text(seconds))
+        .monospacedDigit()
+        .accessibilityLabel(text(WaitClock.spokenStep(seconds)))
+        .accessibilityAddTraits(.updatesFrequently)
+    }
   }
 }
 

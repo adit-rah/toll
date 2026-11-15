@@ -4,19 +4,21 @@ import TollCore
 import TollData
 import TollScreenTime
 
-/// Home (E5.30, design §4.1): you from the local event log, friends from the cached `/home`, the device
-/// state line, and what each block is doing for the block bar.
+/// Home (E5.30, design §4.1): you from the local event log, friends from the cached `/home`, and what
+/// the state bar says: the device's state, the gate, and what each block is doing.
 @MainActor
 @Observable
 public final class HomeModel {
   public enum DeviceState: Equatable {
     case screenTimeOff, nothingBlocked
-    /// Carries the block when exactly one has lost apps, so Fix can open it directly.
-    case blocksNeedRepicking(only: BlockRef?)
+    /// The blocks that have lost apps, which the sheet lists.
+    case blocksNeedRepicking([BlockRef])
   }
 
   public struct You: Equatable {
     public var passesToday = 0
+    /// Block hits today, Dismiss included: the "Blocked" fact.
+    public var blockedToday = 0
     public var level: StatusLevel?
     public var thisWeek = 0
     public var lastWeek = 0
@@ -28,6 +30,8 @@ public final class HomeModel {
   public private(set) var you = You()
   public private(set) var home: HomeResponse?
   public private(set) var deviceState: DeviceState?
+  /// The first time this phone saw Screen Time off, for "Since Tuesday"; nil while it is on.
+  public private(set) var screenTimeOffAt: Date?
   /// The server has never answered on this phone and the last try failed: friends are unknown, which is
   /// not the same as none.
   public private(set) var friendsUnavailable = false
@@ -46,6 +50,10 @@ public final class HomeModel {
 
   public init(app: AppModel) {
     self.app = app
+  }
+
+  func setScreenTimeOffAt(_ date: Date?) {
+    if screenTimeOffAt != date { screenTimeOffAt = date }
   }
 
   public var personalised: Bool {
@@ -106,12 +114,14 @@ public final class HomeModel {
     let days = all.filter { $0.day >= week }
     var you = You()
     you.passesToday = days.first { $0.day == today }?.passes ?? 0
+    you.blockedToday = days.first { $0.day == today }?.hits ?? 0
     you.strip = days.map(\.passes)
     you.todayIndex = week.days(until: today)
     you.thisWeek = days.reduce(0) { $0 + $1.passes }
     you.lastWeek = all.filter { $0.day >= lastWeek && $0.day < week }.reduce(0) { $0 + $1.passes }
     let history = all.filter { $0.day >= historyStart && $0.day < today && $0.active }.map(\.passes)
-    you.level = StatusRules.level(passesToday: you.passesToday, history: history, config: app.config.status)
+    you.level = StatusRules.level(
+      passesToday: you.passesToday, history: history, config: app.config.status)
     if self.you != you { self.you = you }
   }
 
@@ -161,20 +171,13 @@ public final class HomeModel {
     }
   }
 
-  /// "Unblock" on a block's card (G-3). A pass set aside for the block is picked up again; if the
-  /// day reset has taken it since, this is an ordinary request.
-  func unblock(_ state: BlockState) async {
-    if state.passReady {
-      let resumed = await app.deps.gate.resumePendingPass()
-      if resumed.pendingPass != nil {
-        app.setGate(resumed)
-        return
-      }
-    }
-    app.setGate(await app.deps.gate.requestUnblock(block: state.id))
+  /// "Unlock ready" on the bar: a pass set aside with Not now comes back to the picker. If the day
+  /// reset has taken it since, there is nothing to resume and the bar moves on by itself.
+  func resume() async {
+    app.setGate(await app.deps.gate.resumePendingPass())
   }
 
-  /// "Block again" (G-6): the shield goes back up now; the pass that was used still counts.
+  /// "Lock now" (G-6): the shield goes back up now; the pass that was used still counts.
   func blockAgain(_ state: BlockState) async {
     for id in state.sessionIDs {
       app.setGate(await app.deps.gate.endSession(id))
@@ -214,10 +217,11 @@ public final class HomeModel {
       state = .nothingBlocked
     } else {
       let stale = await StaleBlocks.ids(in: blocks)
-      let only: BlockRef? = stale.count == 1 ? stale.first : nil
-      state = stale.isEmpty ? nil : .blocksNeedRepicking(only: only)
+      state =
+        stale.isEmpty ? nil : .blocksNeedRepicking(blocks.map(\.id).filter { stale.contains($0) })
     }
     if deviceState != state { deviceState = state }
+    await noteScreenTimeOff(state == .screenTimeOff)
   }
 
   public func fixScreenTime() async {

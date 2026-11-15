@@ -16,6 +16,8 @@ public enum TollFont {
   public static let micro = Font.caption2.weight(.medium)
   /// Friend row detail line: 12 pt, between `caption` and `micro` (design §3.4).
   public static let detail = Font.caption
+  /// The title of the sheet Home's bar opens: 20 pt semibold (design §3.18).
+  public static let sheetTitle = Font.title3.weight(.semibold)
   /// Setup and sign-in titles: 34 pt semibold (design §4.3).
   public static let screenTitle = Font.largeTitle.weight(.semibold)
 }

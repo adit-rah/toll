@@ -39,7 +39,8 @@ public struct RootView: View {
       WelcomeFlow(app: model, asSheet: true)
     }
     .confirmationDialog(
-      Copy.Settings.historyQuestion, isPresented: $model.asksToMergeHistory, titleVisibility: .visible
+      Copy.Settings.historyQuestion, isPresented: $model.asksToMergeHistory,
+      titleVisibility: .visible
     ) {
       Button(Copy.Settings.historyYes) { Task { await model.mergeHistory(true) } }
       Button(Copy.Settings.historyNo, role: .cancel) { Task { await model.mergeHistory(false) } }
@@ -47,14 +48,16 @@ public struct RootView: View {
   }
 }
 
-/// Home · Insights · People (design §2.7). The wait card covers the tab bar while it is up.
+/// Home · Insights · People (design §2.7). The gate's model lives here, above the tabs, so a wait
+/// runs to its end on any tab; when one starts, Home comes forward and opens its sheet on it.
 struct MainTabs: View {
   @Bindable var app: AppModel
+  @State private var gate: GateModel?
 
   var body: some View {
     TabView(selection: $app.tab) {
       Tab(Copy.Home.tab, systemImage: "house", value: AppTab.home) {
-        HomeView(app: app)
+        HomeView(app: app, gate: gate)
       }
       Tab(Copy.Insights.title, systemImage: "chart.bar", value: AppTab.insights) {
         InsightsView(app: app)
@@ -65,7 +68,13 @@ struct MainTabs: View {
     }
     .tint(TollColor.accent)
     .minimizingTabBarOnScroll()
-    .overlay { GateLayer(app: app) }
+    .task(id: app.gate) {
+      if gate == nil { gate = GateModel(app: app) }
+      await gate?.sync()
+    }
+    .onChange(of: gate?.prompt) { old, new in
+      if let new, new > (old ?? 0) { app.tab = .home }
+    }
   }
 }
 

@@ -16,7 +16,7 @@ struct BlocksView: View {
     List {
       Section {
         if let blocks, blocks.isEmpty {
-          Text(Copy.Home.nothingBlocked).font(TollFont.body).foregroundStyle(TollColor.label2)
+          Text(Copy.Bar.nothingYet).font(TollFont.body).foregroundStyle(TollColor.label2)
         }
         ForEach(blocks ?? []) { block in
           NavigationLink(value: HomeRoute.editBlock(block.id)) {
