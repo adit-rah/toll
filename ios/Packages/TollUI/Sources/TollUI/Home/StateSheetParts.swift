@@ -6,6 +6,7 @@ public struct SheetHeader<Icon: View, Title: View>: View {
   let line: String?
   let icon: Icon
   let title: Title
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   public init(line: String?, @ViewBuilder icon: () -> Icon, @ViewBuilder title: () -> Title) {
     self.line = line
@@ -14,7 +15,12 @@ public struct SheetHeader<Icon: View, Title: View>: View {
   }
 
   public var body: some View {
-    HStack(spacing: TollSpacing.rowLeadingGap) {
+    // At accessibility sizes the icon goes above, so the title has the sheet's whole width.
+    let layout =
+      typeSize.isAccessibilitySize
+      ? AnyLayout(VStackLayout(alignment: .leading, spacing: TollSpacing.labelGap))
+      : AnyLayout(HStackLayout(spacing: TollSpacing.rowLeadingGap))
+    layout {
       icon
       VStack(alignment: .leading, spacing: 2) {
         title

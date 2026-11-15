@@ -12,6 +12,7 @@ struct StateSheet: View {
   let onEdit: (BlockRef) -> Void
   let onAddBlock: () -> Void
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
     let state = model.barState
@@ -29,11 +30,13 @@ struct StateSheet: View {
     .safeAreaInset(edge: .bottom, spacing: 0) {
       actions(state)
         .tollGutter()
+        .padding(.top, TollSpacing.footerBottom)
         .padding(.bottom, TollSpacing.footerBottom)
         .background(TollColor.bg)
     }
     .background(TollColor.bg)
-    .presentationDetents([.medium, .large])
+    // Half a screen holds a header and little else at accessibility sizes.
+    .presentationDetents(typeSize.isAccessibilitySize ? [.large] : [.medium, .large])
     .presentationDragIndicator(.visible)
     .animation(Motion.movement, value: gate.phase)
   }

@@ -40,8 +40,8 @@ public struct StateBar<Icon: View, Title: View, Line: View>: View {
             .foregroundStyle(TollColor.label2)
             .monospacedDigit()
         }
-        // At accessibility sizes the lines wrap instead of cutting the names off.
-        .lineLimit(typeSize.isAccessibilitySize ? 3 : 1)
+        // At accessibility sizes the line wraps instead of being cut off.
+        .lineLimit(typeSize.isAccessibilitySize ? 2 : 1)
         .frame(maxWidth: .infinity, alignment: .leading)
         Image(systemName: "chevron.right")
           .font(TollFont.captionMedium)
@@ -54,6 +54,9 @@ public struct StateBar<Icon: View, Title: View, Line: View>: View {
       .modifier(StateBarSurface())
     }
     .buttonStyle(.plain)
+    // Docked over the list like the tab bar, so it stops growing where the tab bar does: past AX1 it
+    // would cover most of Home. The sheet it opens carries the same words at full size.
+    .dynamicTypeSize(...DynamicTypeSize.accessibility1)
     .modifier(SpokenAs(spoken: spoken))
     .accessibilityHint(hint)
     .accessibilityAddTraits(.isButton)

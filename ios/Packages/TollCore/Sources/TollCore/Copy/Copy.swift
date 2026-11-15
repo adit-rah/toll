@@ -112,6 +112,8 @@ public enum Copy {
     public static func startsAt(_ name: String, _ time: ClockTime, apps: Int) -> String {
       "\(name) starts at \(Schedules.time(time))\(middleDot)\(appCount(apps))"
     }
+    /// After the names that fit: "Instagram, TikTok +2".
+    public static func more(_ n: Int) -> String { " +\(n)" }
     public static func appCount(_ n: Int) -> String { "\(n) \(n == 1 ? "app" : "apps")" }
     /// "10-min unblock · 6:42 left". A session is wall-clock time from its start (G-6).
     public static func session(minutes: Int, secondsLeft: Int) -> String {

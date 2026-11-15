@@ -95,7 +95,9 @@ struct HomeBarView: View {
   }
 }
 
-/// App names on one line, then words that belong after them ("Instagram is open").
+/// App names on one line, then words that belong after them ("Instagram is open"). Names never
+/// shrink into each other: when they do not all fit, the first ones stay whole and the rest become
+/// "+2"; only a single name that cannot fit is cut.
 struct NamesThen<After: View>: View {
   let refs: [AppRef]
   let after: After
@@ -106,13 +108,27 @@ struct NamesThen<After: View>: View {
   }
 
   var body: some View {
-    HStack(spacing: 0) {
-      AppNames(refs)
-        .layoutPriority(0)
-      after
-        .fixedSize()
-        .layoutPriority(1)
+    let shown = Array(refs.prefix(4))
+    ViewThatFits(in: .horizontal) {
+      ForEach(Array(stride(from: shown.count, through: 1, by: -1)), id: \.self) { count in
+        line(Array(shown.prefix(count)), hidden: refs.count - count, fixed: true)
+      }
+      line(Array(shown.prefix(1)), hidden: refs.count - 1, fixed: false)
     }
+  }
+
+  private func line(_ names: [AppRef], hidden: Int, fixed: Bool) -> some View {
+    HStack(spacing: 0) {
+      ForEach(Array(names.enumerated()), id: \.element) { index, ref in
+        if index > 0 { Text(", ").fixedSize() }
+        AppLabel(ref)
+          .lineLimit(1)
+          .fixedSize(horizontal: fixed, vertical: false)
+      }
+      if hidden > 0 { Text(Copy.Bar.more(hidden)).fixedSize() }
+      after.fixedSize()
+    }
+    .lineLimit(1)
   }
 }
 

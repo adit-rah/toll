@@ -24,6 +24,7 @@ struct GateSheetBody: View {
   private func waiting(_ until: Date) -> some View {
     VStack(spacing: 0) {
       CountdownClock(endsAt: until)
+        .padding(.top, 12)
       Text(gate.waitLine ?? "")
         .tollText(.caption)
         .monospacedDigit()
