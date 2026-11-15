@@ -4,7 +4,7 @@ Free iPhone app blocker with a social layer. Specs in `docs/` are the source of 
 
 ## Layout
 - `api/` — Cloudflare Worker (Hono, Zod, Drizzle on D1, KV, Queues, R2). One folder per feature in `src/features/<name>/` (`routes.ts`, `contract.ts` Zod schemas, `service.ts`). Pure domain logic in `src/domain/`. DB tables in `src/db/schema/*.ts`.
-- `ios/` — Xcode project (`Toll.xcodeproj`) with four targets: `App/`, `ShieldConfig/`, `ShieldAction/`, `Monitor/`. All logic lives in local packages under `ios/Packages/`:
+- `ios/` — Xcode project (`Toll.xcodeproj`) with five targets: `App/`, `ShieldConfig/`, `ShieldAction/`, `Monitor/`, `Report/` (the DeviceActivityReport that draws Home's screen time). All logic lives in local packages under `ios/Packages/`:
   - `TollCore` — domain model, config, copy, pure logic. Linux-testable. Product `TollScreenTime` = Screen Time glue shared with the extensions.
   - `TollData` — GRDB store, spool ingest, outbox, API client, Keychain, analytics. Never imported by extensions.
   - `TollUI` — tokens and components. `TollFeatures` — one folder per screen.
@@ -15,7 +15,7 @@ Free iPhone app blocker with a social layer. Specs in `docs/` are the source of 
 - Swift core on Linux or macOS: `swift test --package-path ios/Packages/TollCore`. Format: `swift format --in-place --recursive ios/`.
 - App build (macOS): `xcodebuild build -project ios/Toll.xcodeproj -scheme Toll -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO`. CI does this on every push (`.github/workflows/ios.yml`).
 - Cloud sessions start with Swift 6.3 and `api/node_modules` installed (the environment's setup script), so both test commands run at once.
-- Seeing a screen. In a cloud session: dispatch `render.yml` with only the scenarios you changed (or push with `[render]`, or `[render light ax5]`, in the commit message for all nine), then run `ios/scripts/fetch-renders.sh` in the background and read the PNGs and `ui.json` it unpacks into `build/renders/`; light by default, add `ax5` (and `dark`) when layout or type changed. Quick start, scenarios, limits: `docs/renders.md` (or the `render` skill). On a Mac: render locally in seconds instead, `docs/local-mac.md`.
+- Seeing a screen. In a cloud session: dispatch `render.yml` with only the scenarios you changed (or push with `[render]`, or `[render light ax5]`, in the commit message for all eleven), then run `ios/scripts/fetch-renders.sh` in the background and read the PNGs and `ui.json` it unpacks into `build/renders/`; light by default, add `ax5` (and `dark`) when layout or type changed. Quick start, scenarios, limits: `docs/renders.md` (or the `render` skill). On a Mac: render locally in seconds instead, `docs/local-mac.md`.
 
 ## Releasing
 A build for a phone is the branch merged into `main`, then a GitHub release with a new `v*` tag on `main`; an automation picks the tag up, builds it and sends it to TestFlight. Take the next patch number after `git tag -l` (the first was `v0.1.0`, a pre-release). No version edit or workflow change is needed first. A Claude cloud session can open and merge the pull request when asked, but cannot cut the release: pushing a tag is refused (HTTP 403) and there is no release tool. After the merge, hand the person this, with the next tag filled in: `gh release create vX.Y.Z --target main --prerelease --title vX.Y.Z --generate-notes`.

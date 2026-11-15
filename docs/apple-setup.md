@@ -1,6 +1,6 @@
 # Apple setup (E0.1) — founders
 
-Everything here needs the Apple Developer account holder. Nothing in the repo can do it. TestFlight is blocked until the four Family Controls (Distribution) requests are approved (spec §6, ledger D2); the development entitlement works for device builds meanwhile.
+Everything here needs the Apple Developer account holder. Nothing in the repo can do it. TestFlight is blocked until the five Family Controls (Distribution) requests are approved (spec §6, ledger D2); the development entitlement works for device builds meanwhile.
 
 ## 1. Identifiers (developer.apple.com → Certificates, Identifiers & Profiles)
 
@@ -10,17 +10,18 @@ Everything here needs the Apple Developer account holder. Nothing in the repo ca
 | `com.advan.toll.ShieldConfig` | App ID | Family Controls, App Groups |
 | `com.advan.toll.ShieldAction` | App ID | Family Controls, App Groups |
 | `com.advan.toll.Monitor` | App ID | Family Controls, App Groups |
-| `group.com.advan.toll` | App Group | assign to all four App IDs |
+| `com.advan.toll.Report` | App ID | Family Controls (no App Group: it writes nothing) |
+| `group.com.advan.toll` | App Group | assign to the first four App IDs |
 
 If any of these names must change, change `ios/Config/Base.xcconfig` (and `APPLE_BUNDLE_ID` in `api/wrangler.jsonc`); nothing else hard-codes them.
 
-## 2. Family Controls (Distribution) — file four requests
+## 2. Family Controls (Distribution) — file five requests
 
 Form: developer.apple.com/contact/request/family-controls-distribution — one request per bundle id above. Reported turnaround is four business days to several weeks. Paste this justification (adjust the first sentence per extension):
 
-> Toll is a personal self-control app. The person using it chooses apps on their own iPhone to block; when they tap a blocked app, getting past the block costs them a wait spent inside Toll. Toll uses individual (not family) authorization on the user's own device only. It reads no Screen Time usage data and transmits none: the only data that leaves the device are events Toll records itself (for example, "a pass was taken at 9:10 after a 3-minute wait"), labelled with a name the user picks from a fixed list. Tokens never leave the device. There is no payment of any kind for getting past a block: it costs time, never money (Guideline 4.10). This bundle id is [the app / the ShieldConfiguration extension that renders the shield text / the ShieldAction extension that handles the shield's buttons / the DeviceActivityMonitor extension that applies schedules, ends sessions and records a daily check-in].
+> Toll is a personal self-control app. The person using it chooses apps on their own iPhone to block; when they tap a blocked app, getting past the block costs them a wait spent inside Toll. Toll uses individual (not family) authorization on the user's own device only. It reads no Screen Time usage data and transmits none (the one place minutes appear, Toll's Home screen, is drawn by a DeviceActivityReport extension whose numbers never reach the app): the only data that leaves the device are events Toll records itself (for example, "a pass was taken at 9:10 after a 3-minute wait"), labelled with a name the user picks from a fixed list. Tokens never leave the device. There is no payment of any kind for getting past a block: it costs time, never money (Guideline 4.10). This bundle id is [the app / the ShieldConfiguration extension that renders the shield text / the ShieldAction extension that handles the shield's buttons / the DeviceActivityMonitor extension that applies schedules, ends sessions and records a daily check-in / the DeviceActivityReport extension that draws today's time on the blocked apps on the person's own Home screen and exports nothing].
 
-Record the four request ids here when filed:
+Record the five request ids here when filed:
 
 | Bundle id | Request id | Filed | Approved |
 |---|---|---|---|
@@ -28,6 +29,7 @@ Record the four request ids here when filed:
 | `com.advan.toll.ShieldConfig` | | | |
 | `com.advan.toll.ShieldAction` | | | |
 | `com.advan.toll.Monitor` | | | |
+| `com.advan.toll.Report` | | | |
 
 ## 3. Keys
 
