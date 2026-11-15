@@ -29,7 +29,9 @@ public struct Metrics: Equatable, Sendable {
   public var sessionChoices: [Int: Int] = [:]
   public var latePasses = 0
 
-  public var heldPercent: Int? { hits == 0 ? nil : Int((Double(held) / Double(hits) * 100).rounded()) }
+  public var heldPercent: Int? {
+    hits == 0 ? nil : Int((Double(held) / Double(hits) * 100).rounded())
+  }
   public var lateShare: Double? { passes == 0 ? nil : Double(latePasses) / Double(passes) }
 }
 
@@ -38,6 +40,8 @@ public struct DayMetrics: Equatable, Sendable {
   public var passes: Int
   public var active: Bool
   public var passList: [GateEvent]
+  /// Block hits, Dismiss included: Home's "Blocked" fact.
+  public var hits = 0
 }
 
 /// Events in, every metric out, for any range (E8.36). Me insights and solo mode run entirely on this;
@@ -53,7 +57,9 @@ public struct MetricsEngine: Sendable {
 
   /// Metrics for the days `from` through `through`, inclusive. `events` may extend past the range: held
   /// looks a little past each hit.
-  public func metrics(_ events: [GateEvent], from: TollDay, through: TollDay, tags: [AppRef: Tag] = [:]) -> Metrics {
+  public func metrics(
+    _ events: [GateEvent], from: TollDay, through: TollDay, tags: [AppRef: Tag] = [:]
+  ) -> Metrics {
     let sorted = Self.chronological(events)
     let window = TimeInterval(config.gate.resumeWindowSeconds)
     var cursor = DayCursor(math: math)
@@ -98,7 +104,9 @@ public struct MetricsEngine: Sendable {
     return events
   }
 
-  private func record(pass event: GateEvent, day: TollDay, tags: [AppRef: Tag], into m: inout Metrics) {
+  private func record(
+    pass event: GateEvent, day: TollDay, tags: [AppRef: Tag], into m: inout Metrics
+  ) {
     m.passes += 1
     let waitMinutes = event.free == true ? 0 : event.waitMinutes ?? 0
     if event.free == true { m.free += 1 } else { m.waited += 1 }
@@ -123,9 +131,14 @@ public struct MetricsEngine: Sendable {
       let blank = DayMetrics(day: day, passes: 0, active: false, passList: [])
       var entry = byDay.removeValue(forKey: day) ?? blank
       entry.active = true
-      if event.kind == .pass {
+      switch event.kind {
+      case .pass:
         entry.passes += 1
         entry.passList.append(event)
+      case .blockHit:
+        entry.hits += 1
+      default:
+        break
       }
       byDay[day] = entry
     }
@@ -146,12 +159,14 @@ public struct MetricsEngine: Sendable {
     guard let first = weeks.min(), let last = weeks.max() else { return [:] }
     let m = metrics(events, from: first, through: last.adding(days: 6))
     let n = Double(weeks.count)
-    return Dictionary(uniqueKeysWithValues: Weekday.allCases.map { ($0, Double(m.byWeekday[$0] ?? 0) / n) })
+    return Dictionary(
+      uniqueKeysWithValues: Weekday.allCases.map { ($0, Double(m.byWeekday[$0] ?? 0) / n) })
   }
 
   /// Personalised status needs a history of daily pass counts on days blocks were on (spec §14).
   public func dailyHistory(_ events: [GateEvent], before day: TollDay, days count: Int) -> [Int] {
-    days(events, from: day.adding(days: -count), through: day.adding(days: -1)).filter(\.active).map(\.passes)
+    days(events, from: day.adding(days: -count), through: day.adding(days: -1)).filter(\.active)
+      .map(\.passes)
   }
 }
 

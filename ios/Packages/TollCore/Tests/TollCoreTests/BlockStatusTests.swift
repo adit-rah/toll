@@ -135,7 +135,30 @@ struct BlockStatusTests {
     #expect(Copy.ActiveBlock.blocksOn(1) == "1 block on")
     #expect(Copy.ActiveBlock.blocksOn(3) == "3 blocks on")
     #expect(Copy.SessionPicker.unblock(minutes: 10) == "Unblock for 10 min")
+  }
+
+  @Test func theWordsOnHomesBarAndSheet() {
+    #expect(Copy.Bar.session(minutes: 10, secondsLeft: 402) == "10-min unblock · 6:42 left")
+    #expect(Copy.Bar.moreFrom(2, ClockTime(hour: 23)) == "2 more from 11 pm")
     #expect(
-      Copy.Home.sessionActive("Instagram", minutesLeft: 7) == "Instagram is open · 7 min left")
+      Copy.Bar.startsAt("Nights", ClockTime(hour: 23), apps: 5) == "Nights starts at 11 pm · 5 apps"
+    )
+    #expect(Copy.Bar.appCount(1) == "1 app")
+    #expect(
+      Copy.Sheet.blockedNowLine(apps: 3, next: (2, ClockTime(hour: 23)))
+        == "3 apps · 2 more from 11 pm")
+    #expect(Copy.Sheet.blockedNowLine(apps: 3, next: nil) == "3 apps")
+    #expect(
+      Copy.Sheet.opened(at: ClockTime(hour: 19, minute: 12), locks: ClockTime(hour: 19, minute: 22))
+        == "Opened 7:12 pm · locks at 7:22 pm")
+    #expect(Copy.Home.lastWeek(this: 11, last: 17) == "▼ 17")
+    #expect(Copy.Home.lastWeek(this: 18, last: 17) == "▲ 17")
+    #expect(Copy.Home.lastWeek(this: 17, last: 17) == "17")
+    #expect(Copy.Home.unlocksToday(1) == "unlock today")
+    #expect(Copy.Home.friendsWalkedAwayShort(83) == "walked away 83%")
+    #expect(Copy.duration(6_120) == "1h 42m")
+    #expect(Copy.duration(3_600) == "1h 00m")
+    #expect(Copy.duration(2_579) == "42m")
+    #expect(Copy.duration(-5) == "0m")
   }
 }
