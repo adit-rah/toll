@@ -441,7 +441,7 @@ Epics in dependency order. Each task is one PR. "Done" means: requirement ids sa
 10. Wait engine: persisted end time, monotonic guard (G-9), one-at-a-time, abandon.
 11. Session engine: unlock, one-off DeviceActivity interval (flat time, G-6), re-shield on callback/expiry/foreground, `session_ended`.
 12. Daily `checkin` activity in `TollMonitor`.
-13. Gate UI: `WaitOverlay` with first-wait naming, `SessionPicker`, Toll-opens counter.
+13. Gate UI: the wait in Home's sheet with first-wait naming, `SessionPicker`, Toll-opens counter (the `WaitOverlay` until Home v2, ledger A127).
 
 **E2. Local data and sync (TollData)**
 14. GRDB schema and migrations: events, blocks (local), settings. `ValueObservation` for Home.
