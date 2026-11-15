@@ -12,7 +12,8 @@ struct ScreenTimeReportExtension: DeviceActivityReportExtension {
   }
 }
 
-struct ScreenTimeScene: DeviceActivityReportScene {
+/// Nonisolated: iOS hands the results over off the main actor, and summing them needs no UI.
+nonisolated struct ScreenTimeScene: DeviceActivityReportScene {
   let context = DeviceActivityReport.Context(ReportContext.screenTime)
   let content: (String) -> ScreenTimeValue
 
