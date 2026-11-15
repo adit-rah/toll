@@ -25,7 +25,7 @@ public struct StateBar<Icon: View, Title: View, Line: View>: View {
     self.line = line()
   }
 
-  private static let minHeight: CGFloat = 64
+  private static var minHeight: CGFloat { 64 }
 
   public var body: some View {
     Button(action: action) {
