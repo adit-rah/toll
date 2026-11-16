@@ -120,7 +120,9 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] Largest accessibility text size: the facts stack, the bar's lines wrap and it grows, nothing clips; the sheet scrolls and its button stays at the bottom.
 
 ## 8b. Background launches (ledger A131)
-- [ ] With Toll closed and the phone on a very slow network (Settings → Developer → Network Link Conditioner, "Very Bad Network"), trigger a silent push (the daily one, or a test push) and a background refresh (Xcode: Debug → Simulate Background Fetch). No crash report for Toll appears in Settings → Privacy & Security → Analytics Data; Console shows "answered at the background budget" or "answered early", and the outbox is sent the next time Toll opens.
+- [ ] **Background refresh does not crash.** Run Toll from Xcode on the phone, send it to the background, pause in the debugger and run `e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.advan.toll.sync"]`, then continue. Toll keeps running (no trap in `_dispatch_assert_queue_fail`); Console shows a `reconcile source=foreground` line. Then `_simulateExpirationForTaskWithIdentifier:` with the same id: no crash, "background refresh answered early" in Console.
+- [ ] Leave the phone overnight with Toll closed → Settings → Privacy & Security → Analytics & Improvements → Analytics Data has no new `Toll-…` file.
+- [ ] With Toll closed and the phone on "Very Bad Network" (Settings → Developer → Network Link Conditioner), the daily silent push arrives → no crash; Console shows "answered at the background budget" when the network is slow; the outbox is sent the next time Toll opens.
 
 ## 9. Blocks (flows §14)
 - [ ] Settings → Blocks lists each block with icons, names and schedule; caption "Removing a block is shown to your friends."

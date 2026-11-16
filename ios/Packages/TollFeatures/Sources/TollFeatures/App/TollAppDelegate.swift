@@ -42,7 +42,10 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
     _ application: UIApplication, didFinishLaunchingWithOptions options: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     UNUserNotificationCenter.current().delegate = self
-    BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.syncTask, using: nil) { task in
+    // On the main queue: this closure is written on the main actor, so Swift checks at run time that it
+    // runs there. With `using: nil` iOS called it on its own queue and the check trapped, killing every
+    // background refresh launch within a second (crash logs of 13 and 15 Nov, ledger A131).
+    BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.syncTask, using: .main) { task in
       // The system hands the task over once and completes it from wherever we finish; not Sendable.
       nonisolated(unsafe) let task = task
       Task { @MainActor in await self.runBackgroundSync(task) }
@@ -113,7 +116,9 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
     scheduleBackgroundSync()
     let model = self.model
     let work = BackgroundWork()
-    task.expirationHandler = { work.stop() }
+    // `@Sendable` so it is not a main-actor closure: iOS calls it on a queue of its choosing, and a
+    // main-actor one would trap there the same way the launch handler did.
+    task.expirationHandler = { @Sendable in work.stop() }
     let finished = await work.run { await model.deps.gate.foreground(userOpened: false) }
     if !finished { log.info("background refresh answered early; work carries on later") }
     task.setTaskCompleted(success: finished)
