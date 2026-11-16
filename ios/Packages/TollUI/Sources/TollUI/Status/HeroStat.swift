@@ -63,7 +63,10 @@ private struct HeroNumeral: View {
   private static let glyphGap: CGFloat = 10
 
   var body: some View {
+    // A day's count always fits at the AX2 cap, yet inside Home at accessibility sizes the shrink-
+    // to-fit halved it under its own unit line; fixed, as Friend detail's numeral already is.
     HeroNumber(text)
+      .fixedSize()
       .overlay(alignment: .trailing) {
         StatusGlyph(mark, size: .hero)
           .opacity(showsGlyph ? 1 : 0)

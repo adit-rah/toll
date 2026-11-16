@@ -107,9 +107,9 @@ struct HomeView: View {
   @ViewBuilder
   private func content(_ model: HomeModel) -> some View {
     VStack(spacing: 0) {
+      // No space above: the iOS 26 toolbar is already taller than the canvas's 44 pt bar.
       hero(model)
-        .padding(.top, TollSpacing.heroTop)
-        .padding(.bottom, TollSpacing.sectionGap)
+        .padding(.bottom, TollSpacing.heroToPinned)
       ForEach(model.home?.pinned ?? [], id: \.self) { pin in
         Button {
           detail = model.home?.friends.first { $0.user.id == pin.user.id }
@@ -172,6 +172,7 @@ struct HomeView: View {
         Copy.Home.friendsHeader,
         trailing: model.home?.friendsHeldPercent.map(Copy.Home.friendsWalkedAwayShort)
       )
+      .padding(.top, TollSpacing.pinnedToHeader)
       .padding(.bottom, 4)
       if let stale = model.staleSince {
         Text(Copy.Home.lastSynced(stale.formatted(.relative(presentation: .named))))
