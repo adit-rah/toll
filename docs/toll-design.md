@@ -232,7 +232,7 @@ Home tab. Nav bar: no title (the hero is the title). One bar item, trailing: `ge
 2. **Pinned** (if any): `PinnedRow`s.
 3. **Friends** section: header row with the uppercase label "FRIENDS" (`caption` weight medium, `label2`) and trailing `caption` "walked away 83%"; then `FriendRow`s ordered by improvement, hairlines between. Empty: `EmptyState` "No friends yet." + "Send an invite". Signed in, never synced and the fetch failed: `EmptyState` "No connection." with no button, in the same place.
 4. **Footer**: 16 pt beneath the last row, one centred `caption` in `label3`, "You opened Toll 14 times today.", the quietest thing on the screen. It scrolls with the list.
-5. **State bar** (3.18), docked above the tab bar; the list scrolls under it.
+5. **State bar** (3.18), docked above the tab bar; the list scrolls under it and fades out over 20 pt at the bar's top edge, the page colour filling down to the bottom edge, so no half-covered line shows between the bar and the tab bar.
 
 The tab bar floats over the bottom; content scrolls under it. Refresh: pull-to-refresh syncs. Last-synced timestamp is shown only if older than 1 hour (`caption` under Friends header).
 

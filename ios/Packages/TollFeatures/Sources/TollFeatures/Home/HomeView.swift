@@ -88,6 +88,7 @@ struct HomeView: View {
       .tollGutter()
       .padding(.top, TollSpacing.labelGap)
       .padding(.bottom, TollSpacing.footerBottom)
+      .background { BarFade() }
     }
   }
 

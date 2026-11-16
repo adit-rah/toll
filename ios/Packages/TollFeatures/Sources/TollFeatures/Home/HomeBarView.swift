@@ -152,3 +152,22 @@ struct AppTile: View {
     .accessibilityHidden(true)
   }
 }
+
+/// Behind the bar, down to the bottom edge: rows fade out over 20 pt as they pass under it, so no
+/// half-covered line shows in the gap above the tab bar (design §4.1).
+struct BarFade: View {
+  private static let fade: CGFloat = 20
+
+  var body: some View {
+    VStack(spacing: 0) {
+      LinearGradient(
+        colors: [TollColor.bg.opacity(0), TollColor.bg], startPoint: .top, endPoint: .bottom
+      )
+      .frame(height: Self.fade)
+      TollColor.bg
+    }
+    .padding(.top, -Self.fade)
+    .ignoresSafeArea(edges: .bottom)
+    .allowsHitTesting(false)
+  }
+}
