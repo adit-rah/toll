@@ -56,13 +56,18 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
     Task { try? await model.deps.account.registerDevice(pushToken: hex) }
   }
 
-  /// Silent pushes refresh data and flush check-ins so silence (N-9) is only real silence.
+  /// Silent pushes refresh data and flush check-ins so silence (N-9) is only real silence. Bounded:
+  /// past the system's time for a push the app is killed (`BackgroundWork`).
   public func application(
     _ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]
   ) async -> UIBackgroundFetchResult {
-    await model.deps.gate.foreground(userOpened: false)
-    _ = try? await model.deps.network.refreshHome()
-    return .newData
+    let model = self.model
+    let finished = await BackgroundWork().run {
+      await model.deps.gate.foreground(userOpened: false)
+      _ = try? await model.deps.network.refreshHome()
+    }
+    if !finished { log.info("silent push answered at the background budget; work carries on later") }
+    return finished ? .newData : .failed
   }
 
   public nonisolated func userNotificationCenter(
@@ -102,9 +107,15 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
     }
   }
 
+  /// Completed exactly once, and in time: a refresh task still open at its expiration, or past the
+  /// background budget, gets the app killed (`BackgroundWork`).
   private func runBackgroundSync(_ task: BGTask) async {
     scheduleBackgroundSync()
-    await model.deps.gate.foreground(userOpened: false)
-    task.setTaskCompleted(success: true)
+    let model = self.model
+    let work = BackgroundWork()
+    task.expirationHandler = { work.stop() }
+    let finished = await work.run { await model.deps.gate.foreground(userOpened: false) }
+    if !finished { log.info("background refresh answered early; work carries on later") }
+    task.setTaskCompleted(success: finished)
   }
 }

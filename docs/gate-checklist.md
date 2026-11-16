@@ -119,6 +119,9 @@ Unit tests cover the logic (`TollCore`: routing O-1…O-6, wait ladder, free pas
 - [ ] VoiceOver: the bar is one button with the hint "Shows details", its lines read as one sentence; during a wait or a session the time is read in 30 s steps and nothing interrupts by itself. The three facts read "Screen time on blocked apps today, …", "This week, 11 unlocks, 17 last week", "Blocked, 11 times today".
 - [ ] Largest accessibility text size: the facts stack, the bar's lines wrap and it grows, nothing clips; the sheet scrolls and its button stays at the bottom.
 
+## 8b. Background launches (ledger A131)
+- [ ] With Toll closed and the phone on a very slow network (Settings → Developer → Network Link Conditioner, "Very Bad Network"), trigger a silent push (the daily one, or a test push) and a background refresh (Xcode: Debug → Simulate Background Fetch). No crash report for Toll appears in Settings → Privacy & Security → Analytics Data; Console shows "answered at the background budget" or "answered early", and the outbox is sent the next time Toll opens.
+
 ## 9. Blocks (flows §14)
 - [ ] Settings → Blocks lists each block with icons, names and schedule; caption "Removing a block is shown to your friends."
 - [ ] Navigation holds: Blocks → Add a block → pick apps → Done lands on Blocks; Back from Blocks lands on Settings; Back again lands on Home. The same after editing a row, and after Discard.
