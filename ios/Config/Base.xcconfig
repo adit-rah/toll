@@ -4,8 +4,11 @@ TOLL_APP_GROUP = group.com.advan.toll
 TOLL_LINK_HOST = toll.alders.dev
 TOLL_API_BASE_URL = https:/$()/toll.alders.dev/v1
 
+// Local and untagged builds. A `vX.Y.Z` tag build gets its version from the tag and its build
+// number from Xcode Cloud, written to Version.xcconfig by ci_scripts/ci_post_clone.sh.
 MARKETING_VERSION = 0.1.0
 CURRENT_PROJECT_VERSION = 1
+#include? "Version.xcconfig"
 
 // Committed because Xcode Cloud signs from committed files only; the team id is in every signed build anyway.
 // A git-ignored Signing.xcconfig can override it to sign with another team locally.
