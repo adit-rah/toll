@@ -16,7 +16,7 @@ Logic lives in `Packages/` (see each package README). Targets use synchronized f
 `Config/Base.xcconfig` holds the bundle id, App Group, link host, API URL and team id. To sign with a different team locally, put `DEVELOPMENT_TEAM = <team id>` in `Config/Signing.xcconfig` (git-ignored).
 
 ## Xcode Cloud (founders, once)
-In Xcode: Product → Xcode Cloud → Create Workflow, on `main`. Actions: Test → `swift test` is covered by GitHub Actions, so use Build + Archive (iOS) and a TestFlight post-action on tags `v*`. Xcode Cloud needs the five Family Controls (Distribution) entitlements approved before the first TestFlight upload.
+In Xcode: Product → Xcode Cloud → Create Workflow, on `main`. Actions: Test → `swift test` is covered by GitHub Actions, so use Build + Archive (iOS) and a TestFlight post-action on tags `v*`. Xcode Cloud needs the five Family Controls (Distribution) entitlements approved before the first TestFlight upload. The tag sets the version: `ci_scripts/ci_post_clone.sh` turns `v0.1.4` into version 0.1.4 with Xcode Cloud's run number as the build (ledger A133); `Base.xcconfig`'s 0.1.0 is only for local and untagged builds.
 
 ## Not testable here
 Shield, DeviceActivity and authorization behaviour only run on a device. They are verified with `docs/gate-checklist.md`.
