@@ -19,16 +19,22 @@ struct FriendsInsightsCards: View {
         BinBars(bars: distribution.bins.map { Self.bar($0) }, title: Copy.Insights.distribution)
       }
     }
-    ChartCard(title: Copy.Insights.heldByFriend, caption: data.friendsHeldPercent.map(Copy.Home.friendsHeld)) {
+    ChartCard(
+      title: Copy.Insights.heldByFriend,
+      caption: data.friendsHeldPercent.map(Copy.Home.friendsWalkedAway)
+    ) {
       ValueBars(rows: heldRows, title: Copy.Insights.heldByFriend)
     }
     ChartCard(title: Copy.Insights.whenFriendsReach, caption: peakCaption) {
       HourBars(
         values: data.friendsByHour.map(Double.init), overlay: data.myByHour.map(Double.init),
-        lateStart: model.app.config.insights.lateStart, resetHour: model.app.config.gate.dayResetHour,
+        lateStart: model.app.config.insights.lateStart,
+        resetHour: model.app.config.gate.dayResetHour,
         title: Copy.Insights.whenFriendsReach)
     }
-    let weekly = data.weekly.compactMap { row in row.heldPercent.map { (week: row.week, percent: $0) } }
+    let weekly = data.weekly.compactMap { row in
+      row.heldPercent.map { (week: row.week, percent: $0) }
+    }
     // One week is a dot, not a trend.
     if weekly.count >= 2 {
       ChartCard(title: Copy.Insights.weekOnWeek, caption: changeCaption) {
@@ -39,33 +45,43 @@ struct FriendsInsightsCards: View {
       }
     }
     if let same = data.sameAppSameHour {
-      Text(Copy.Insights.sameApp(same.count, app: Copy.Tags.display(same.tag), after: model.lateStartLabel))
-        .tollText(.subhead)
-        .monospacedDigit()
-        .fixedSize(horizontal: false, vertical: true)
-        .tollCard()
+      Text(
+        Copy.Insights.sameApp(
+          same.count, app: Copy.Tags.display(same.tag), after: model.lateStartLabel)
+      )
+      .tollText(.subhead)
+      .monospacedDigit()
+      .fixedSize(horizontal: false, vertical: true)
+      .tollCard()
     }
   }
 
   static func bar(_ bin: Bin) -> BinBars.Bar {
-    BinBars.Bar(id: ChartLabels.bin(from: bin.from, to: bin.to), count: bin.count, mine: bin.includesMe)
+    BinBars.Bar(
+      id: ChartLabels.bin(from: bin.from, to: bin.to), count: bin.count, mine: bin.includesMe)
   }
 
   /// Highest held % first (I-11); someone with no gates this week has no percentage and goes last.
   private var heldRows: [ValueBars.Row] {
     data.people.enumerated()
-      .sorted { ($0.element.heldPercent ?? -1, $1.offset) > ($1.element.heldPercent ?? -1, $0.offset) }
+      .sorted {
+        ($0.element.heldPercent ?? -1, $1.offset) > ($1.element.heldPercent ?? -1, $0.offset)
+      }
       .map { index, person in
         ValueBars.Row(
-          id: person.user?.id ?? "me-\(index)", name: person.isMe ? Copy.Insights.me : person.user?.displayName ?? "",
-          fraction: Double(person.heldPercent ?? 0) / 100, value: person.heldPercent.map(Copy.percent) ?? "—",
+          id: person.user?.id ?? "me-\(index)",
+          name: person.isMe ? Copy.Insights.me : person.user?.displayName ?? "",
+          fraction: Double(person.heldPercent ?? 0) / 100,
+          value: person.heldPercent.map(Copy.percent) ?? "—",
           isMine: person.isMe)
       }
   }
 
   private var peakCaption: String? {
     guard data.friendsByHour.reduce(0, +) >= model.minN,
-      let peak = data.friendsByHour.indices.max(by: { data.friendsByHour[$0] < data.friendsByHour[$1] })
+      let peak = data.friendsByHour.indices.max(by: {
+        data.friendsByHour[$0] < data.friendsByHour[$1]
+      })
     else { return nil }
     return Copy.Insights.peakHour(ChartLabels.hour(peak))
   }

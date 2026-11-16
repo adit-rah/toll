@@ -3,11 +3,11 @@
 How an agent sees the app (ledger A123). On a Mac, render locally: `docs/local-mac.md`. In a cloud session (Linux, no Mac), a GitHub macOS runner builds Toll for a simulator, opens each demo scenario, and pushes what it saw to the branch `renders/<branch>`.
 
 ## Quick start (cloud)
-1. Push your change. Then either dispatch `render.yml` on your branch with `scenarios` set to just the screens you touched (GitHub `actions_run_trigger`, method `run_workflow`, ref = your branch), or push a commit whose message contains `[render]` to render all nine screens (`[render light ax5]` picks the variants). Dispatch needs `render.yml` on `main`; before that, use the commit message.
+1. Push your change. Then either dispatch `render.yml` on your branch with `scenarios` set to just the screens you touched (GitHub `actions_run_trigger`, method `run_workflow`, ref = your branch), or push a commit whose message contains `[render]` to render all eleven screens (`[render light ax5]` picks the variants). Dispatch needs `render.yml` on `main`; before that, use the commit message.
 2. Run `ios/scripts/fetch-renders.sh` with `run_in_background`. It waits for the renders of `HEAD`, unpacks them into `build/renders/` and prints the index. It needs only git.
 3. Read `build/renders/<variant>/<scenario>/screen.png`, and `ui.json` beside it.
 
-Expect about 12 minutes for all nine screens and 7–8 for one or two, most of it the runner setting up. `timings.txt` says where each run's time went.
+Expect about 12 minutes for all eleven screens and 7–8 for one or two, most of it the runner setting up. `timings.txt` says where each run's time went.
 
 ## What comes back
 | File | What it is |
@@ -32,8 +32,12 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/DemoLaunch.swift
 | `setup-blocks` | Setup: first block (solo, Screen Time approved) |
 | `solo-home` | Home, no account, three weeks of local history |
 | `home` · `insights` · `people` | The tabs, signed in as the App Review account |
-| `gate` | The wait card, from a shield tap on Instagram |
+| `gate` | Home with the wait sheet open, from a shield tap on Instagram |
+| `session` | Home with Instagram open: a 10-minute unblock, 3:20 in |
+| `pass-ready` | Home with an unlock set aside ("Unlock ready") |
 | `screen-time-off` | Home with Screen Time permission revoked |
+
+Home's sheet for any of these is one step away: `home: tap --id stateBar --wait-timeout 5`.
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):
 ```
@@ -50,6 +54,7 @@ Variants: `light`, `dark`, `ax5` (largest Dynamic Type), `dark-ax5`. Pushes rend
 - **Capture.** Each screen gets a fresh install, so no scenario sees another's data, and is captured once its accessibility tree has content and reads the same twice in a row (at most `SETTLE`, 12 s). A screen with a running countdown, such as the gate, always takes the full 12 s. The app takes 5–15 s to its first frame on the runner.
 
 ## What it cannot show
+- Screen time. The report extension draws nothing in the simulator, so demo launches show a stand-in "1h 42m".
 - Real app names and icons. Picker tokens do not exist in the simulator, so in demo launches an app shows its tag's name with a generic icon, and blocks never read as needing re-picking (`DemoStandIns`). On a phone the same places show the system's name and icon.
 - Shields, the picker, and anything else that needs Family Controls. Those stay in `docs/gate-checklist.md`.
 - Push notifications and Sign in with Apple.

@@ -16,7 +16,7 @@ Decisions taken along the way: `docs/toll-future-ledger.md` A21–A62. Open foun
 
 ## Order of work
 
-1. **Apple** (`docs/apple-setup.md`): App IDs, App Group, the four Family Controls (Distribution) requests, APNs and Sign in with Apple keys. Record the request ids in that file. The team id goes in `ios/Config/Signing.xcconfig` (git-ignored) and `api/wrangler.jsonc`.
+1. **Apple** (`docs/apple-setup.md`): App IDs, App Group, the five Family Controls (Distribution) requests, APNs and Sign in with Apple keys. Record the request ids in that file. The team id goes in `ios/Config/Signing.xcconfig` (git-ignored) and `api/wrangler.jsonc`.
 2. **Cloudflare** (`api/DEPLOY.md`): create D1, KV, R2, queues; paste ids into `wrangler.jsonc`; set secrets; apply migrations; seed schools and the review account; route `toll.alders.dev` to the Worker; then set the `DEPLOY_ENABLED` repository variable and the two GitHub secrets so CI deploys.
 3. **First device build** with the development entitlement from Xcode on a Mac (Product → Run on a phone). Run `docs/gate-checklist.md` §7 first: whether "Open Toll" opens Toll directly on iOS 26.5+ under individual authorization is the week-one question (ledger D1). If it does not, the notification route already works; file Feedback and tell the team.
 4. **Rest of the checklist** on both phones (iOS 26.5+ and 18.x). Fix list at the bottom of that file.

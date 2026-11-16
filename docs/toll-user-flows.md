@@ -141,7 +141,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  H[Home<br>hero · week strip · pinned · friends · footer · tab bar]
+  H[Home v2<br>hero · three facts · week strip · pinned · friends · footer · state bar · tab bar]
   H -- tap hero or week strip --> IN[Insights · Me]
   H -- tap a friend row --> FD[Friend detail sheet]
   H -- long-press a friend row --> CM[Context menu: Remove · Block · Report]
@@ -152,17 +152,20 @@ flowchart TD
   H -- tab: People --> PE[People]
   H -- pull to refresh -. sync .-> H
   H -- empty friends: Send an invite --> IV[Invite sheet]
-  H -. a wait is running .-> WO[Wait overlay over Home]
-  H -. a session is active .-> SL[Session line at top: 'Instagram is open · 7 min left']
-  SL -- Block again -. session_ended .-> H
-  H -. opened within 120 s of a block hit .-> G[Gate §9]
-  H -- Unblock on a block that is on --> G
-  H -. a pass was set aside with Not now .-> PR[Block reads 'Pass ready']
+  H -- tap the state bar --> SH[Sheet: the bar's state, one primary and one quiet action at most]
+  H -. a wait starts or a free pass arrives .-> G[Gate §9 · the sheet opens by itself]
+  H -. a wait is running, sheet closed .-> WB[Bar: 'Instagram unlocks in 2:41']
+  WB -- tap --> G
+  H -. a session is active .-> SL[Bar: 'Instagram is open · 10-min unblock · 6:42 left']
+  SL -- tap · Lock now -. session_ended .-> H
+  H -. a pass was set aside with Not now, or a wait ended with the sheet closed .-> PR[Bar: 'Unlock ready']
   PR -- tap --> G
-  H -. Screen Time off / tokens expired / no blocks .-> DS[Device-state line · Fix]
-  DS -- Fix: Screen Time off --> SA[[Authorization sheet]] --> H
-  DS -- Fix: tokens expired --> RP[The block that lost apps · Blocks if several §19] --> H
-  DS -- Add apps --> NB[New block]
+  H -. blocks on / nothing on now .-> BS[Sheet: blocks · 'Add a block']
+  BS -- a row --> EB[That block's editor]
+  BS -- Add a block --> NB[New block]
+  H -. Screen Time off .-> SO[Bar: 'Screen Time is off'] -- tap · Turn on Screen Time --> SA[[Authorization sheet, or the Settings app]] --> H
+  H -. tokens expired .-> RP[Bar: 'Blocks need re-picking'] -- tap · a row --> EB
+  H -. no blocks .-> NY[Bar: 'Nothing blocked yet'] -- tap · Add a block --> NB
   H -. signed in, never synced, fetch failed .-> OF[Friends: 'No connection.' · no invite button]
   OF -- pull to refresh --> H
 ```
@@ -187,28 +190,29 @@ flowchart TD
 ```mermaid
 flowchart TD
   G([Toll opens from a block hit]) --> PP{Pass waiting to be used?}
-  U([Unblock on a block, inside Toll<br>every app in the block · no block_hit]) --> PP
   PP -- yes: the request joins it --> SP
   PP -- no --> FP{Free pass left today?}
-  FP -- yes: pass granted, nothing recorded --> SP[Session picker on the card]
+  FP -- yes: pass granted, nothing recorded --> SP[Session picker in Home's sheet]
   FP -- no --> WS{Wait already running?}
-  WS -- yes, same app --> WO[Wait overlay<br>countdown continues]
-  WS -- yes, different app or block --> WO2[Wait overlay<br>same wait; all of them unlock]
+  WS -- yes, same app --> WO[Home's sheet: the wait<br>countdown continues]
+  WS -- yes, different app or block --> WO2[Home's sheet: the wait<br>same wait; all of them unlock]
   WS -- no -. wait_started, duration from ladder .-> WO
-  WO -- app has no tag --> NM[Card also asks 'Which app is this?' §10]
-  WO -- Cancel -. wait_abandoned .-> H[Home]
+  WO -- app has no tag --> NM[Sheet also asks 'Which app is this?' §10]
+  WO -- Cancel the wait -. wait_abandoned .-> H[Home]
+  WO -- swipe the sheet down -. wait keeps running .-> WB([Bar: 'Instagram unlocks in 2:41'])
+  WB -- tap the bar --> WO
+  WB -. reaches 0 · wait_completed .-> UR([Bar: 'Unlock ready']) -- tap --> SP
   WO -- leave Toll -. wait keeps running .-> AW([Away])
   AW -- come back before it ends --> WO
   AW -- come back after it ends -. wait_completed .-> SP
-  WO -. countdown reaches 0 in app · wait_completed .-> SP
+  WO -. countdown reaches 0 with the sheet open · wait_completed .-> SP
   SP -- 5 / 10 / 15 min · Open -. pass recorded .-> SE([Session: apps unshielded for that long from now<br>spec G-6])
   SP -- Not now, pass came from a shield --> KP([Pass kept until the day reset · picker steps aside])
-  SP -- Not now, pass asked for inside Toll --> DP([Pass dropped])
-  KP -- next shield hit, Unblock, or 'Pass ready' in Toll --> SP
-  KP -. day reset .-> DP
+  KP -- next shield hit, or 'Unlock ready' on Home's bar --> SP
+  KP -. day reset .-> DP([Pass dropped])
   DP -. nothing recorded: free pass and ladder unchanged .-> H
   SE -. time is up: monitor wake / Toll next runs after expiry .-> RS([Re-shielded · session_ended])
-  SE -- Block again, inside Toll -. session_ended .-> RS
+  SE -- Lock now, in Home's sheet -. session_ended .-> RS
   SE -- tap the app again during session --> OK([Opens, no shield])
   RS -- tap the app --> SH[Shield §8]
 ```
@@ -217,10 +221,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  N[Wait card with 'Which app is this?' chips]
+  N[Wait sheet with 'Which app is this?' chips]
   N -- tap a chip -. tag stored by app ref .-> N1[Chips fade · wait continues]
   N -- ignore it --> N2[Wait continues · a pass, once used, is recorded as 'a blocked app']
-  N -. wait started by Unblock on a block .-> N3[Asks about the block's first app only]
   N2 -. next wait for the same app .-> N
   N1 -. later .-> BE[Blocks → tap the app's name → chips] 
   BE -- choose a different tag -. history re-labels .-> BE

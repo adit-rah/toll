@@ -8,6 +8,9 @@ public enum TollColor {
   public static let bgGrouped = Color(uiColor: .systemGroupedBackground)
   public static let surface = Color(uiColor: .secondarySystemGroupedBackground)
   public static let surfaceRaised = Color(uiColor: .tertiarySystemGroupedBackground)
+  /// Home's state bar (design §3.18): `#F2F2F7` on the white page, `#1C1C1E` on the black one, so it
+  /// stands off the page in both without glass.
+  public static let floating = Color(uiColor: .secondarySystemBackground)
   /// Translucent, so it reads on `bg`, `bgGrouped` and `surface` alike. For controls that can sit on
   /// any of them: a disabled button, a field inside a list row.
   public static let fill = Color(uiColor: .tertiarySystemFill)

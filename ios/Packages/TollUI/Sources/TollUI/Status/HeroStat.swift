@@ -11,7 +11,7 @@ public struct HeroStat: View {
   let caption: String?
   let statusSpeech: String?
 
-  /// `unit` is `Copy.Home.passesToday(n)`; `statusSpeech` is the glyph's spoken level.
+  /// `unit` is `Copy.Home.unlocksToday(n)`; `statusSpeech` is the glyph's spoken level.
   public init(
     value: Int?, mark: StatusMark, unit: String, subhead: String? = nil, caption: String? = nil,
     statusSpeech: String? = nil

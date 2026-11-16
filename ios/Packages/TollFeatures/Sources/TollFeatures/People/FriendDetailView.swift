@@ -68,13 +68,13 @@ struct FriendDetailView: View {
     HStack(alignment: .firstTextBaseline, spacing: TollSpacing.labelGap) {
       // The label wraps before the count shrinks.
       HeroNumber("\(friend.today.passes)", size: 40).fixedSize()
-      Text(Copy.Home.passesToday(friend.today.passes)).tollText(.body)
+      Text(Copy.Home.unlocksToday(friend.today.passes)).tollText(.body)
       StatusGlyph(FriendFormatting.mark(friend))
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(
       AccessibilitySentence.join([
-        "\(friend.today.passes) \(Copy.Home.passesToday(friend.today.passes))",
+        "\(friend.today.passes) \(Copy.Home.unlocksToday(friend.today.passes))",
         FriendFormatting.speech(friend).status,
       ]))
   }
@@ -84,7 +84,8 @@ struct FriendDetailView: View {
   private var metrics: some View {
     let w = friend.week
     let pairs = [
-      MetricPair(label: Copy.FriendDetail.thisWeek, value: "\(w.passes)", previous: "\(w.lastWeek)"),
+      MetricPair(
+        label: Copy.FriendDetail.thisWeek, value: "\(w.passes)", previous: "\(w.lastWeek)"),
       MetricPair(label: Copy.FriendDetail.held, value: w.heldPercent.map(Copy.percent) ?? "—"),
       MetricPair(label: Copy.FriendDetail.waited, value: Copy.minutes(w.waitMinutes)),
       MetricPair(label: Copy.FriendDetail.cleanDays, value: "\(w.cleanDays)"),
@@ -135,7 +136,8 @@ struct FriendDetailView: View {
               .padding(.horizontal, 12)
               .frame(minHeight: 30)
               .background(
-                TollColor.fill, in: RoundedRectangle(cornerRadius: TollRadius.chip, style: .continuous))
+                TollColor.fill,
+                in: RoundedRectangle(cornerRadius: TollRadius.chip, style: .continuous))
           }
         }
       }
@@ -153,8 +155,12 @@ struct FriendDetailView: View {
 
   @ViewBuilder
   private var actionButtons: some View {
-    QuietButton(Copy.FriendDetail.remove, tone: .secondary) { personAction = (.remove, friend.user) }
+    QuietButton(Copy.FriendDetail.remove, tone: .secondary) {
+      personAction = (.remove, friend.user)
+    }
     QuietButton(Copy.FriendDetail.block, tone: .secondary) { personAction = (.block, friend.user) }
-    QuietButton(Copy.FriendDetail.report, tone: .secondary) { personAction = (.report, friend.user) }
+    QuietButton(Copy.FriendDetail.report, tone: .secondary) {
+      personAction = (.report, friend.user)
+    }
   }
 }

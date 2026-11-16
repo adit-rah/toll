@@ -31,6 +31,22 @@
       await deps.blocks.applyBlocks()
       var history = DemoHistory(timeZone: zone)
       try? await store.record(history.events(from: start, to: now))
+      // Written straight into the shared state: the gate reaches these only after a real wait.
+      if scenario == .session {
+        _ = SharedGateStore().update { state in
+          state.sessions = [
+            ActiveSession(
+              appRefs: ["a1"], minutes: 10, startedAt: now.addingTimeInterval(-200), blockRef: "b1")
+          ]
+        }
+      }
+      if scenario == .passReady {
+        _ = SharedGateStore().update { state in
+          state.pendingPass = PendingPass(
+            appRefs: ["a1"], free: false, waitMinutes: 5, grantedAt: now.addingTimeInterval(-60),
+            blockRef: "b1", deferred: true)
+        }
+      }
       if scenario == .gate {
         Spool().append(
           SpoolRecord(

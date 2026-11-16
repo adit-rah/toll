@@ -53,14 +53,14 @@ describe("daily summary sentence (N-13, spec §10)", () => {
 
   it("matches the spec sentence, with pluralisation and requests", () => {
     expect(copy.dailySummary({ passes: 4, rank: 2, of: 6, requests: 0 })).toBe(
-      "4 passes yesterday. 2nd of 6 friends.",
+      "4 unlocks yesterday. 2nd of 6 friends.",
     );
     expect(copy.dailySummary({ passes: 4, rank: 2, of: 6, requests: 1 })).toBe(
-      "4 passes yesterday. 2nd of 6 friends. 1 friend request waiting.",
+      "4 unlocks yesterday. 2nd of 6 friends. 1 friend request waiting.",
     );
-    expect(copy.dailySummary({ passes: 1, rank: null, of: 1, requests: 0 })).toBe("1 pass yesterday.");
+    expect(copy.dailySummary({ passes: 1, rank: null, of: 1, requests: 0 })).toBe("1 unlock yesterday.");
     expect(copy.dailySummary({ passes: 0, rank: null, of: 1, requests: 2 })).toBe(
-      "0 passes yesterday. 2 friend requests waiting.",
+      "0 unlocks yesterday. 2 friend requests waiting.",
     );
   });
 
@@ -84,7 +84,7 @@ describe("daily summary sentence (N-13, spec §10)", () => {
     await passesOn(fresh, yesterday, 3);
 
     const summary = await dailySummary(database(env.DB), me.id, Date.now());
-    expect(summary.body).toBe("4 passes yesterday. 2nd of 3 friends. 1 friend request waiting.");
+    expect(summary.body).toBe("4 unlocks yesterday. 2nd of 3 friends. 1 friend request waiting.");
   });
 });
 
@@ -113,7 +113,7 @@ describe("daily summary selection (§11.3)", () => {
     expect(kinds(tokyoToken)).toEqual(["background", "alert"]);
     expect(kinds(offToken)).toEqual(["background"]);
     expect(pushes.find((p) => p.deviceToken === tokyoToken && p.kind === "alert")?.body).toBe(
-      "0 passes yesterday.",
+      "0 unlocks yesterday.",
     );
   });
 });
@@ -145,7 +145,7 @@ describe("push consumer (E7.35)", () => {
     const message = (body: PushMessage) => ({ body, ack: () => acked.push(body.deviceToken) });
     const batch = {
       messages: [
-        message({ deviceToken: good, environment: "sandbox", kind: "alert", body: "1 pass yesterday." }),
+        message({ deviceToken: good, environment: "sandbox", kind: "alert", body: "1 unlock yesterday." }),
         message({ deviceToken: dead, environment: "production", kind: "background" }),
       ],
       ackAll: () => {},
@@ -161,7 +161,7 @@ describe("push consumer (E7.35)", () => {
     expect(seen[0]?.headers.get("apns-priority")).toBe("10");
     expect(seen[0]?.headers.get("apns-topic")).toBe("com.advan.toll");
     expect(seen[0]?.headers.get("authorization")).toMatch(/^bearer ey/);
-    expect(seen[0]?.body).toEqual({ aps: { alert: { body: "1 pass yesterday." }, sound: "default" } });
+    expect(seen[0]?.body).toEqual({ aps: { alert: { body: "1 unlock yesterday." }, sound: "default" } });
     expect(seen[1]?.url).toBe(`https://api.push.apple.com/3/device/${dead}`);
     expect(seen[1]?.headers.get("apns-push-type")).toBe("background");
     expect(seen[1]?.headers.get("apns-priority")).toBe("5");

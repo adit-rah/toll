@@ -3,9 +3,10 @@
 Design tokens and components from `docs/toll-design.md` §2–§3. Views only; no services. iOS only.
 
 - `Tokens/` — `TollColor`, `TollFont` / `TollText` / `HeroNumber`, `TollSpacing` / `TollRadius` / `Hairline` / `.tollGutter()`, `Motion` (and the Reduce Motion modifiers), `Haptic` / `Haptics`.
-- `Status/` — `StatusGlyph` with `StatusMark`, `HeroStat`, `MetricPair`.
+- `Status/` — `StatusGlyph` with `StatusMark`, `HeroStat`, `MetricPair`, `FactColumn`.
 - `Rows/` — `Avatar`, `FriendRow`, `PinnedRow`, `MutualRow`, `SectionHeader`, `TrendLabel`, `AccessibilitySentence`.
-- `Gate/` — `WaitCard` (countdown, session picker, first-wait naming), `WaitOverlay`, `WaitOverlayBackdrop`, `ChoiceChip`, `TagChips`, `FlowLayout`.
+- `Gate/` — `CountdownClock`, `CountdownText`, `TickingText`, `ChoiceChip`, `TagChips`, `FlowLayout`.
+- `Home/` — `StateBar`, `SymbolTile`, `SheetHeader`, `SheetCard`, `SessionProgress` (design §3.18).
 - `Controls/` — `PrimaryButton`, `QuietButton`, `DestructiveQuiet` and their styles, `EmptyState`, `FilledField`, `CodeBoxes`.
 - `Blocks/` — `BlockRow`, `IconCluster`, `WhenChips`.
 - `Charts/` — `ChartCard`, `WeekStrip`.

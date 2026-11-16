@@ -11,7 +11,7 @@ export function ordinal(n: number): string {
 export const copy = {
   // Spec §10 and N-13: the same sentence good or bad; only the numbers change.
   dailySummary: (s: { passes: number; rank: number | null; of: number; requests: number }) => {
-    const parts = [`${plural(s.passes, "pass", "passes")} yesterday.`];
+    const parts = [`${plural(s.passes, "unlock", "unlocks")} yesterday.`];
     if (s.rank !== null) parts.push(`${ordinal(s.rank)} of ${s.of} friends.`);
     if (s.requests > 0) parts.push(`${plural(s.requests, "friend request", "friend requests")} waiting.`);
     return parts.join(" ");

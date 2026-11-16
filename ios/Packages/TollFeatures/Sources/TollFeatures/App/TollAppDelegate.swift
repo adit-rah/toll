@@ -42,7 +42,10 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
     _ application: UIApplication, didFinishLaunchingWithOptions options: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     UNUserNotificationCenter.current().delegate = self
-    BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.syncTask, using: nil) { task in
+    // On the main queue: this closure is written on the main actor, so Swift checks at run time that it
+    // runs there. With `using: nil` iOS called it on its own queue and the check trapped, killing every
+    // background refresh launch within a second (crash logs of 13 and 15 Nov, ledger A131).
+    BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.syncTask, using: .main) { task in
       // The system hands the task over once and completes it from wherever we finish; not Sendable.
       nonisolated(unsafe) let task = task
       Task { @MainActor in await self.runBackgroundSync(task) }
@@ -56,13 +59,18 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
     Task { try? await model.deps.account.registerDevice(pushToken: hex) }
   }
 
-  /// Silent pushes refresh data and flush check-ins so silence (N-9) is only real silence.
+  /// Silent pushes refresh data and flush check-ins so silence (N-9) is only real silence. Bounded:
+  /// past the system's time for a push the app is killed (`BackgroundWork`).
   public func application(
     _ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]
   ) async -> UIBackgroundFetchResult {
-    await model.deps.gate.foreground(userOpened: false)
-    _ = try? await model.deps.network.refreshHome()
-    return .newData
+    let model = self.model
+    let finished = await BackgroundWork().run {
+      await model.deps.gate.foreground(userOpened: false)
+      _ = try? await model.deps.network.refreshHome()
+    }
+    if !finished { log.info("silent push answered at the background budget; work carries on later") }
+    return finished ? .newData : .failed
   }
 
   public nonisolated func userNotificationCenter(
@@ -102,9 +110,17 @@ public final class TollAppDelegate: NSObject, UIApplicationDelegate, UNUserNotif
     }
   }
 
+  /// Completed exactly once, and in time: a refresh task still open at its expiration, or past the
+  /// background budget, gets the app killed (`BackgroundWork`).
   private func runBackgroundSync(_ task: BGTask) async {
     scheduleBackgroundSync()
-    await model.deps.gate.foreground(userOpened: false)
-    task.setTaskCompleted(success: true)
+    let model = self.model
+    let work = BackgroundWork()
+    // `@Sendable` so it is not a main-actor closure: iOS calls it on a queue of its choosing, and a
+    // main-actor one would trap there the same way the launch handler did.
+    task.expirationHandler = { @Sendable in work.stop() }
+    let finished = await work.run { await model.deps.gate.foreground(userOpened: false) }
+    if !finished { log.info("background refresh answered early; work carries on later") }
+    task.setTaskCompleted(success: finished)
   }
 }

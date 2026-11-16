@@ -48,8 +48,10 @@ private struct WeekCard: View {
           label: Copy.FriendDetail.held, value: this.heldPercent.map(Copy.percent) ?? "—",
           previous: last.heldPercent.map(Copy.percent)),
         .init(
-          label: Copy.FriendDetail.waited, value: Copy.minutes(this.waitMinutes), previous: "\(last.waitMinutes)"),
-        .init(label: Copy.Insights.cleanDays, value: "\(this.cleanDays)", previous: "\(last.cleanDays)"),
+          label: Copy.FriendDetail.waited, value: Copy.minutes(this.waitMinutes),
+          previous: "\(last.waitMinutes)"),
+        .init(
+          label: Copy.Insights.cleanDays, value: "\(this.cleanDays)", previous: "\(last.cleanDays)"),
         .init(
           label: Copy.Insights.tollOpens, value: "\(model.me.tollOpensThis)",
           previous: "\(model.me.tollOpensLast)"),
@@ -60,7 +62,7 @@ private struct WeekCard: View {
   private func count(_ passes: Int) -> some View {
     HStack(alignment: .firstTextBaseline, spacing: 8) {
       HeroNumber("\(passes)", size: 40)
-      Text(Copy.passes(passes)).tollText(.body)
+      Text(Copy.unlocks(passes)).tollText(.body)
     }
   }
 
@@ -76,15 +78,18 @@ private struct DayCard: View {
     let days = model.me.days
     let today = model.me.today
     ChartCard(title: Copy.Insights.dayByDay) {
-      DayPairBars(pairs: DayPairBars.weekdayPairs(days), today: today, selected: model.selectedDay) { day in select(day) }
-        .accessibilityElement(children: .ignore)
-        .accessibilityValue(selection(in: days).map { heading($0) } ?? "")
-        .accessibilityAdjustableAction { direction in step(direction, in: days) }
-        .audioGraph(
-          Copy.Insights.dayByDay, labels: days.map { ChartLabels.day($0.day) }, values: days.map { Double($0.passes) })
+      DayPairBars(pairs: DayPairBars.weekdayPairs(days), today: today, selected: model.selectedDay)
+      { day in select(day) }
+      .accessibilityElement(children: .ignore)
+      .accessibilityValue(selection(in: days).map { heading($0) } ?? "")
+      .accessibilityAdjustableAction { direction in step(direction, in: days) }
+      .audioGraph(
+        Copy.Insights.dayByDay, labels: days.map { ChartLabels.day($0.day) },
+        values: days.map { Double($0.passes) })
       if let day = selection(in: days) {
         VStack(alignment: .leading, spacing: 4) {
-          Text(heading(day)).font(TollFont.subheadMedium).foregroundStyle(TollColor.label).monospacedDigit()
+          Text(heading(day)).font(TollFont.subheadMedium).foregroundStyle(TollColor.label)
+            .monospacedDigit()
           ForEach(day.passList) { pass in
             Text(passText(pass)).tollText(.caption).monospacedDigit()
           }
@@ -113,15 +118,17 @@ private struct DayCard: View {
   }
 
   private func heading(_ day: DayMetrics) -> String {
-    let date = model.math.start(of: day.day).formatted(.dateTime.weekday(.wide).month(.abbreviated).day())
-    return "\(date)\(Copy.middleDot)\(day.passes) \(Copy.passes(day.passes))"
+    let date = model.math.start(of: day.day).formatted(
+      .dateTime.weekday(.wide).month(.abbreviated).day())
+    return "\(date)\(Copy.middleDot)\(day.passes) \(Copy.unlocks(day.passes))"
   }
 
   private func passText(_ pass: GateEvent) -> String {
     let app = Copy.Tags.display(pass.appRef.flatMap { model.me.tags[$0] })
     let time = Copy.clock(pass.occurredAt, offsetMinutes: pass.tzOffsetMinutes)
     return pass.free == true
-      ? Copy.FriendRows.free(app, at: time) : Copy.FriendRows.waited(app, at: time, minutes: pass.waitMinutes ?? 0)
+      ? Copy.FriendRows.free(app, at: time)
+      : Copy.FriendRows.waited(app, at: time, minutes: pass.waitMinutes ?? 0)
   }
 }
 
@@ -134,10 +141,12 @@ private struct HourCard: View {
       range: ChartRange(
         Copy.Insights.week, Copy.Insights.eightWeeksToggle,
         selection: Binding(
-          get: { model.hourRangeIsEightWeeks ? 1 : 0 }, set: { model.hourRangeIsEightWeeks = $0 == 1 }))
+          get: { model.hourRangeIsEightWeeks ? 1 : 0 },
+          set: { model.hourRangeIsEightWeeks = $0 == 1 }))
     ) {
       HourBars(
-        values: model.hourRange.byHour.map(Double.init), lateStart: model.app.config.insights.lateStart,
+        values: model.hourRange.byHour.map(Double.init),
+        lateStart: model.app.config.insights.lateStart,
         resetHour: model.app.config.gate.dayResetHour, title: Copy.Insights.byHour)
     }
   }
@@ -172,16 +181,19 @@ private struct WeekdayCard: View {
       .chartYAxis(.hidden)
       .frame(height: ChartHeight.bars)
       .audioGraph(
-        Copy.Insights.weekdays, labels: averages.map { ChartLabels.weekdayName($0.day) }, values: averages.map(\.value))
+        Copy.Insights.weekdays, labels: averages.map { ChartLabels.weekdayName($0.day) },
+        values: averages.map(\.value))
     }
   }
 
   private func caption(_ averages: [(day: Weekday, value: Double)]) -> String? {
     guard model.me.eightWeeks.passes >= model.minN,
-      let high = averages.max(by: { $0.value < $1.value }), let low = averages.min(by: { $0.value < $1.value }),
+      let high = averages.max(by: { $0.value < $1.value }),
+      let low = averages.min(by: { $0.value < $1.value }),
       high.value > low.value
     else { return nil }
-    return Copy.Insights.weekdayRange(high: ChartLabels.weekdayName(high.day), low: ChartLabels.weekdayName(low.day))
+    return Copy.Insights.weekdayRange(
+      high: ChartLabels.weekdayName(high.day), low: ChartLabels.weekdayName(low.day))
   }
 }
 
@@ -191,9 +203,14 @@ private struct AppCard: View {
   var body: some View {
     let week = model.me.thisWeek
     let rows = appRows(week)
-    let costly = week.byTag.filter { $0.value.waitMinutes > 0 }.max { $0.value.waitMinutes < $1.value.waitMinutes }
-    let caption = week.passes >= model.minN
-      ? costly.map { Copy.Insights.appCost(Copy.Tags.display($0.key), minutes: $0.value.waitMinutes) } : nil
+    let costly = week.byTag.filter { $0.value.waitMinutes > 0 }.max {
+      $0.value.waitMinutes < $1.value.waitMinutes
+    }
+    let caption =
+      week.passes >= model.minN
+      ? costly.map {
+        Copy.Insights.appCost(Copy.Tags.display($0.key), minutes: $0.value.waitMinutes)
+      } : nil
     ChartCard(title: Copy.Insights.byApp, caption: caption) {
       if rows.isEmpty {
         Text(Copy.FriendDetail.noPasses).tollText(.subhead)
@@ -212,10 +229,12 @@ private struct AppCard: View {
       byName[name, default: Metrics.TagMetrics()].waitMinutes += metrics.waitMinutes
     }
     let top = max(1, byName.values.map(\.passes).max() ?? 1)
-    return byName.sorted { ($0.value.passes, $1.key) > ($1.value.passes, $0.key) }.map { name, metrics in
+    return byName.sorted { ($0.value.passes, $1.key) > ($1.value.passes, $0.key) }.map {
+      name, metrics in
       ValueBars.Row(
         id: name, name: name, fraction: Double(metrics.passes) / Double(top),
-        value: "\(metrics.passes)\(Copy.middleDot)\(Copy.minutes(metrics.waitMinutes))", isMine: true)
+        value: "\(metrics.passes)\(Copy.middleDot)\(Copy.minutes(metrics.waitMinutes))",
+        isMine: true)
     }
   }
 }
@@ -230,7 +249,8 @@ private struct GatesCard: View {
       MetricStrip(items: [
         .init(label: Copy.Insights.hits, value: "\(this.hits)", previous: "\(last.hits)"),
         .init(label: Copy.Insights.heldLabel, value: "\(this.held)", previous: "\(last.held)"),
-        .init(label: Copy.Insights.abandoned, value: "\(this.abandoned)", previous: "\(last.abandoned)"),
+        .init(
+          label: Copy.Insights.abandoned, value: "\(this.abandoned)", previous: "\(last.abandoned)"),
       ])
     }
   }

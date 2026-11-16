@@ -10,13 +10,20 @@ struct MetricsEngineTests {
   var engine: MetricsEngine { MetricsEngine(math: math, config: .defaults) }
 
   func at(_ y: Int, _ mo: Int, _ d: Int, _ h: Int, _ mi: Int = 0, _ s: Int = 0) -> Date {
-    math.calendar.date(from: DateComponents(year: y, month: mo, day: d, hour: h, minute: mi, second: s)) ?? .distantPast
+    math.calendar.date(
+      from: DateComponents(year: y, month: mo, day: d, hour: h, minute: mi, second: s))
+      ?? .distantPast
   }
 
-  func e(_ kind: GateEvent.Kind, _ date: Date, app: AppRef? = "ig", free: Bool? = nil, wait: Int? = nil, session: Int? = nil)
+  func e(
+    _ kind: GateEvent.Kind, _ date: Date, app: AppRef? = "ig", free: Bool? = nil, wait: Int? = nil,
+    session: Int? = nil
+  )
     -> GateEvent
   {
-    GateEvent(kind: kind, occurredAt: date, tzOffsetMinutes: -300, appRef: app, free: free, waitMinutes: wait, sessionMinutes: session)
+    GateEvent(
+      kind: kind, occurredAt: date, tzOffsetMinutes: -300, appRef: app, free: free,
+      waitMinutes: wait, sessionMinutes: session)
   }
 
   let monday = TollDay(year: 2026, month: 11, day: 9)
@@ -47,6 +54,8 @@ struct MetricsEngineTests {
     let m = engine.metrics(events, from: monday, through: monday)
     #expect(m.hits == 3 && m.held == 1 && m.abandoned == 1)
     #expect(m.heldPercent == 33)
+    // Home's "Blocked" fact counts the same hits per day.
+    #expect(engine.days(events, from: monday, through: monday).map(\.hits) == [3])
   }
 
   @Test func cleanDaysAreActiveDaysWithoutPasses() {
@@ -73,7 +82,8 @@ struct MetricsEngineTests {
       e(.pass, at(2026, 11, 9, 14), app: "tt", free: true),
       e(.pass, at(2026, 11, 9, 15), app: "unknown", free: true),
     ]
-    let m = engine.metrics(events, from: monday, through: monday, tags: ["ig": .instagram, "tt": .tiktok])
+    let m = engine.metrics(
+      events, from: monday, through: monday, tags: ["ig": .instagram, "tt": .tiktok])
     #expect(m.byTag[.instagram] == Metrics.TagMetrics(passes: 2, waitMinutes: 13))
     #expect(m.byTag[.tiktok]?.passes == 1)
     #expect(m.byTag[nil]?.passes == 1)
@@ -94,7 +104,8 @@ struct MetricsEngineTests {
 
   @Test func sessionChoicesAndTrend() {
     let events = [
-      e(.sessionEnded, at(2026, 11, 9, 12), session: 5), e(.sessionEnded, at(2026, 11, 9, 13), session: 5),
+      e(.sessionEnded, at(2026, 11, 9, 12), session: 5),
+      e(.sessionEnded, at(2026, 11, 9, 13), session: 5),
       e(.sessionEnded, at(2026, 11, 9, 14), session: 15),
     ]
     #expect(engine.metrics(events, from: monday, through: monday).sessionChoices == [5: 2, 15: 1])

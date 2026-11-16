@@ -12,12 +12,13 @@
     case permissions
     case setupBlocks = "setup-blocks"
     case soloHome = "solo-home"
-    case home, insights, people, gate
+    case home, insights, people, gate, session
+    case passReady = "pass-ready"
     case screenTimeOff = "screen-time-off"
 
     var signedIn: Bool {
       switch self {
-      case .home, .insights, .people, .gate, .screenTimeOff: true
+      case .home, .insights, .people, .gate, .session, .passReady, .screenTimeOff: true
       default: false
       }
     }

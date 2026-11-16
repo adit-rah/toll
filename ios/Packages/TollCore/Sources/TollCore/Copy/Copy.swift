@@ -5,8 +5,16 @@ import Foundation
 public enum Copy {
   public static let middleDot = " · "
 
-  public static func passes(_ n: Int) -> String { n == 1 ? "pass" : "passes" }
+  /// The word people see for a pass (spec §4 keeps "pass" for the thing itself).
+  public static func unlocks(_ n: Int) -> String { n == 1 ? "unlock" : "unlocks" }
   public static func minutes(_ n: Int) -> String { "\(n) min" }
+  /// Screen time: "1h 42m", "42m", "0m"; minutes rounded down, as the system's own report does.
+  public static func duration(_ seconds: TimeInterval) -> String {
+    let total = max(0, Int(seconds) / 60)
+    let hours = total / 60
+    let rest = total % 60
+    return hours == 0 ? "\(rest)m" : String(format: "%dh %02dm", hours, rest)
+  }
 
   public enum Tags {
     public static func display(_ tag: Tag?) -> String {
@@ -48,33 +56,112 @@ public enum Copy {
 
   public enum Home {
     public static let tab = "Home"
-    public static func passesToday(_ n: Int) -> String { "\(passes(n)) today" }
+    public static func unlocksToday(_ n: Int) -> String { "\(unlocks(n)) today" }
     public static func week(_ this: Int, last: Int) -> String {
       "\(this) this week\(middleDot)\(last) last week"
     }
     public static func tollOpens(_ n: Int) -> String {
       "You opened Toll \(n) \(n == 1 ? "time" : "times") today."
     }
-    /// Follows the system app name, which Toll cannot read as text.
-    public static func sessionActiveRest(minutesLeft: Int) -> String {
-      "is open\(middleDot)\(minutesLeft) min left"
+    public static let screenTime = "Screen time"
+    public static let thisWeek = "This week"
+    public static let blocked = "Blocked"
+    /// Last week beside this week's number: the arrow says which way this week went, never in colour.
+    public static func lastWeek(this: Int, last: Int) -> String {
+      this < last ? "▼ \(last)" : this > last ? "▲ \(last)" : "\(last)"
     }
-    public static func sessionActive(_ app: String, minutesLeft: Int) -> String {
-      "\(app) \(sessionActiveRest(minutesLeft: minutesLeft))"
+    public static func thisWeekSpoken(_ this: Int, last: Int) -> String {
+      "\(this) \(unlocks(this)), \(last) last week"
     }
-    public static let screenTimeOff = "Screen Time is off"
-    public static let blocksNeedRepicking = "Blocks need re-picking"
-    public static let nothingBlocked = "Nothing blocked yet"
-    public static let fix = "Fix"
-    public static let addApps = "Add apps"
+    public static func blockedSpoken(_ n: Int) -> String {
+      "\(n) \(n == 1 ? "time" : "times") today"
+    }
+    public static let screenTimeSpoken = "Screen time on blocked apps today"
     public static let friendsHeader = "Friends"
-    public static func friendsHeldShort(_ percent: Int) -> String { "held \(percent)% this week" }
-    public static func friendsHeld(_ percent: Int) -> String {
-      "Your friends held \(percent)% of gates this week."
+    public static func friendsWalkedAwayShort(_ percent: Int) -> String {
+      "walked away \(percent)%"
+    }
+    public static func friendsWalkedAway(_ percent: Int) -> String {
+      "Your friends walked away \(percent)% of the time this week."
     }
     public static let noFriends = "No friends yet."
     public static let sendInvite = "Send an invite"
     public static func lastSynced(_ relative: String) -> String { "Updated \(relative)" }
+  }
+
+  /// Home's state bar (design §3.18): one fact, two lines, no buttons. Where a line starts with an app's
+  /// name, the name is the system's label and these are the words after it.
+  public enum Bar {
+    public static let blockedSuffix = " blocked"
+    public static let isOpenSuffix = " is open"
+    public static let unlocksInSuffix = " unlocks in "
+    public static let unlockReady = "Unlock ready"
+    public static let nothingNow = "Nothing blocked right now"
+    public static let nothingYet = "Nothing blocked yet"
+    public static let chooseApps = "Choose apps to block"
+    public static let screenTimeOff = "Screen Time is off"
+    public static let screenTimeOffLine = "Nothing is blocked until it's back on"
+    public static let needsRepicking = "Blocks need re-picking"
+    public static let needsRepickingLine = "Some apps are missing"
+    public static let chooseHowLong = "Choose how long"
+    /// "2 more from 11 pm": the apps of the next block to start, after what is on now.
+    public static func moreFrom(_ count: Int, _ time: ClockTime) -> String {
+      "\(count) more from \(Schedules.time(time))"
+    }
+    /// "Nights starts at 11 pm · 5 apps".
+    public static func startsAt(_ name: String, _ time: ClockTime, apps: Int) -> String {
+      "\(name) starts at \(Schedules.time(time))\(middleDot)\(appCount(apps))"
+    }
+    /// After the names that fit: "Instagram, TikTok +2".
+    public static func more(_ n: Int) -> String { " +\(n)" }
+    public static func appCount(_ n: Int) -> String { "\(n) \(n == 1 ? "app" : "apps")" }
+    /// "10-min unblock · 6:42 left". A session is wall-clock time from its start (G-6).
+    public static func session(minutes: Int, secondsLeft: Int) -> String {
+      "\(minutes)-min unblock\(middleDot)\(ActiveBlock.left(seconds: secondsLeft))"
+    }
+    public static let opensSheet = "Shows details"
+  }
+
+  /// The sheet the bar opens (design §3.18): the same anatomy for every state.
+  public enum Sheet {
+    public static let blockedNow = "Blocked right now"
+    /// "3 apps · 2 more from 11 pm".
+    public static func blockedNowLine(apps: Int, next: (count: Int, at: ClockTime)?) -> String {
+      guard let next else { return Bar.appCount(apps) }
+      return Bar.appCount(apps) + middleDot + Bar.moreFrom(next.count, next.at)
+    }
+    /// A block's row: "Always · on now", "Nights · from 11 pm".
+    public static func onNow(_ kind: String) -> String { "\(kind)\(middleDot)on now" }
+    public static func openNow(_ kind: String) -> String { "\(kind)\(middleDot)open now" }
+    public static func from(_ kind: String, _ time: ClockTime) -> String {
+      "\(kind)\(middleDot)from \(Schedules.time(time))"
+    }
+    public static let tapToEdit = "Tap a block to change its apps or hours."
+    public static let tapToRepick = "Tap a block to choose its apps again."
+    public static let nothingYetLine = "Choose apps, then when to block them."
+    /// "Opened 7:12 pm · locks at 7:22 pm".
+    public static func opened(at start: ClockTime, locks end: ClockTime) -> String {
+      "Opened \(Schedules.time(start))\(middleDot)locks at \(Schedules.time(end))"
+    }
+    public static func sessionNote(locks end: ClockTime) -> String {
+      "The block comes back on its own at \(Schedules.time(end)). Locking now ends it early."
+    }
+    public static let lockNow = "Lock now"
+    /// "Blocked · Always".
+    public static func blockedBy(_ schedule: String) -> String { "Blocked\(middleDot)\(schedule)" }
+    public static let waitNote =
+      "The wait keeps running if you close this. You choose how long when it ends."
+    public static let cancelWait = "Cancel the wait"
+    public static let freeUnlock = "Free unlock"
+    public static func waited(_ n: Int) -> String { "Waited \(n) min" }
+    public static func offSince(_ day: String) -> String { "Since \(day)" }
+    public static let today = "today"
+    public static let yesterday = "yesterday"
+    public static let screenTimeOffBody = "Toll can't block anything until Screen Time is back on."
+    public static func screenTimeOffFriends(days: Int) -> String {
+      "After \(days) \(days == 1 ? "day" : "days") your friends see Toll as off on your phone."
+    }
+    public static let turnOnScreenTime = "Turn on Screen Time"
   }
 
   public enum Wait {
@@ -102,7 +189,7 @@ public enum Copy {
     public static let blockAgain = "Block again"
     public static let always = "Always"
     public static let open = "Open"
-    public static let passReady = "Pass ready"
+    public static let passReady = "Unlock ready"
     public static func left(seconds: Int) -> String {
       let s = max(0, seconds)
       return String(format: "%d:%02d left", s / 60, s % 60)
@@ -119,6 +206,16 @@ public enum Copy {
       case .nights: "Nights\(middleDot)\(window(schedule))"
       case .weekdays: "Weekdays\(middleDot)\(window(schedule))"
       case .custom: "Custom\(middleDot)\(window(schedule))"
+      }
+    }
+
+    /// The schedule's kind alone: "Always", "Nights".
+    public static func kind(_ schedule: Schedule) -> String {
+      switch schedule.kind {
+      case .always: "Always"
+      case .nights: "Nights"
+      case .weekdays: "Weekdays"
+      case .custom: "Custom"
       }
     }
 
@@ -274,7 +371,8 @@ public enum Copy {
   }
 
   public static func weekdayName(_ day: TollDay) -> String {
-    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][day.weekday.rawValue - 1]
+    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][
+      day.weekday.rawValue - 1]
   }
 
   public static func percent(_ n: Int) -> String { "\(n)%" }
@@ -283,8 +381,10 @@ public enum Copy {
     public static func waited(_ app: String, at time: String, minutes: Int) -> String {
       "Opened \(app) at \(time) after a \(minutes)-minute wait"
     }
-    public static func free(_ app: String, at time: String) -> String { "Opened \(app) at \(time) (free pass)" }
-    public static let clean = "0 passes today"
+    public static func free(_ app: String, at time: String) -> String {
+      "Opened \(app) at \(time) (free unlock)"
+    }
+    public static let clean = "0 unlocks today"
     public static func silent(since day: String) -> String { "Toll has been off since \(day)" }
     public static func mutual(via name: String, others: Int) -> String {
       switch others {
@@ -301,16 +401,22 @@ public enum Copy {
     public static func trendAccessibility(_ trend: Double?) -> String? {
       guard let trend else { return nil }
       let percent = Int((abs(trend) * 100).rounded())
-      return trend <= 0 ? "down \(percent) percent on last week" : "up \(percent) percent on last week"
+      return trend <= 0
+        ? "down \(percent) percent on last week" : "up \(percent) percent on last week"
     }
-    public static func accessibility(name: String, level: String?, passes n: Int, trend: Double?) -> String {
-      [name, level, "\(n) \(passes(n)) today", trendAccessibility(trend)].compactMap { $0 }.joined(separator: ", ")
+    public static func accessibility(name: String, level: String?, unlocks n: Int, trend: Double?)
+      -> String
+    {
+      [name, level, "\(n) \(unlocks(n)) today", trendAccessibility(trend)].compactMap { $0 }.joined(
+        separator: ", ")
     }
     public static let silentAccessibility = "Toll is off"
   }
 
   public enum Pins {
-    public static func removal(_ name: String, apps: String) -> String { "\(name) removed \(apps) from their blocklist." }
+    public static func removal(_ name: String, apps: String) -> String {
+      "\(name) removed \(apps) from their blocklist."
+    }
     public static func loosened(_ name: String, apps: String, schedule: String) -> String {
       "\(name)'s \(apps) block is now \(schedule) only."
     }
@@ -329,29 +435,33 @@ public enum Copy {
         }
       }
       switch level {
-      case .fewer: return "0 to 2 passes"
-      case .usual: return "3 to 4 passes"
-      case .more: return "5 or more passes"
+      case .fewer: return "0 to 2 unlocks"
+      case .usual: return "3 to 4 unlocks"
+      case .more: return "5 or more unlocks"
       }
     }
   }
 
   public enum FriendDetail {
-    public static func since(handle: String, date: String) -> String { "@\(handle)\(middleDot)friends since \(date)" }
+    public static func since(handle: String, date: String) -> String {
+      "@\(handle)\(middleDot)friends since \(date)"
+    }
     public static let thisWeek = "This week"
-    public static let held = "Held"
+    public static let held = "Walked away"
     public static let waited = "Waited"
     public static let cleanDays = "Clean days"
     public static func lastWeek(_ value: String) -> String { "\(value) last week" }
     public static let today = "Today"
     public static let yesterday = "Yesterday"
-    public static let noPasses = "No passes"
+    public static let noPasses = "No unlocks"
     public static let blocks = "Blocks"
     public static let remove = "Remove friend"
     public static let block = "Block"
     public static let report = "Report"
     public static func removeConfirm(_ name: String) -> String { "Remove \(name)?" }
-    public static func blockConfirm(_ name: String) -> String { "Block \(name)? You won't see each other anywhere." }
+    public static func blockConfirm(_ name: String) -> String {
+      "Block \(name)? You won't see each other anywhere."
+    }
     public static let cancel = "Cancel"
   }
 
@@ -387,7 +497,7 @@ public enum Copy {
     public static func requestVia(_ name: String) -> String { "friends with \(name)" }
     public static func schoolLine(members: Int, heldPercent: Int?) -> String {
       let base = "\(members) \(members == 1 ? "person" : "people")"
-      return heldPercent.map { "\(base)\(middleDot)held \($0)% this week" } ?? base
+      return heldPercent.map { "\(base)\(middleDot)walked away \($0)% this week" } ?? base
     }
     public static func findAtSchool(_ school: String) -> String { "Find people at \(school)" }
     public static let addSchool = "Add your school"
@@ -452,7 +562,7 @@ public enum Copy {
     public static let school = "School"
     public static let thisWeekVsLast = "This week vs last"
     public static let dayByDay = "Day by day"
-    public static let byHour = "Passes by hour"
+    public static let byHour = "Unlocks by hour"
     public static let weekdays = "Weekday pattern"
     public static let byApp = "By app"
     public static let gates = "Gates"
@@ -460,7 +570,7 @@ public enum Copy {
     public static let term = "Term"
     public static let examWeeks = "Exam weeks"
     public static let distribution = "This week"
-    public static let heldByFriend = "Gates held"
+    public static let heldByFriend = "Walked away"
     public static let whenFriendsReach = "When your friends reach"
     public static let weekOnWeek = "Week on week"
     public static let schoolVsYou = "School vs you"
@@ -469,29 +579,33 @@ public enum Copy {
     public static let week = "Week"
     public static let eightWeeksToggle = "8 weeks"
     public static let hits = "Block hits"
-    public static let heldLabel = "Held"
+    public static let heldLabel = "Walked away"
     public static let abandoned = "Abandoned waits"
     public static let waitMinutes = "Wait minutes"
     public static let cleanDays = "Clean days"
     public static let tollOpens = "Toll opens"
     public static let markExamWeek = "Exam week"
     public static func lateShare(_ percent: Int, after hour: String) -> String {
-      "\(percent)% of your passes are after \(hour)."
+      "\(percent)% of your unlocks are after \(hour)."
     }
     public static func weekdayRange(high: String, low: String) -> String {
-      "Most passes on \(high), fewest on \(low)."
+      "Most unlocks on \(high), fewest on \(low)."
     }
     public static func appCost(_ app: String, minutes: Int) -> String {
       "\(app) cost you \(minutes) minutes of waiting this week."
     }
-    public static func walkedAway(_ percent: Int) -> String { "You walked away from \(percent)% of gates this week." }
+    public static func walkedAway(_ percent: Int) -> String {
+      "You walked away from \(percent)% of gates this week."
+    }
     public static func examComparison(exam: Int, other: Int) -> String {
-      "Exam weeks: \(exam) passes/week. Other weeks: \(other)."
+      "Exam weeks: \(exam) unlocks/week. Other weeks: \(other)."
     }
     public static func friendsUnder(_ count: Int, of total: Int, under limit: Int) -> String {
-      "You and \(count) of \(total) friends had under \(limit) passes this week."
+      "You and \(count) of \(total) friends had under \(limit) unlocks this week."
     }
-    public static func peakHour(_ hour: String) -> String { "Your friends reach most around \(hour)." }
+    public static func peakHour(_ hour: String) -> String {
+      "Your friends reach most around \(hour)."
+    }
     public static func friendsChange(_ points: Int) -> String {
       points >= 0 ? "Up \(points) points on last week." : "Down \(-points) points on last week."
     }
@@ -499,9 +613,11 @@ public enum Copy {
       "\(count) of your friends opened \(app) after \(hour) this week."
     }
     public static func schoolBin(from: Int, to: Int, percent: Int, school: String) -> String {
-      "You're in the group with \(from)–\(to) passes. \(percent)% of \(school) is there."
+      "You're in the group with \(from)–\(to) unlocks. \(percent)% of \(school) is there."
     }
-    public static func mostBlocked(_ app: String, school: String) -> String { "\(app) is the most blocked app at \(school)." }
+    public static func mostBlocked(_ app: String, school: String) -> String {
+      "\(app) is the most blocked app at \(school)."
+    }
     public static let asOf = "as of 4 a.m."
     public static let noFriends = "Insights about friends need a friend."
     public static let notVerified = "Add your school to see how it compares."
@@ -521,15 +637,21 @@ public enum Copy {
   }
 
   public enum ShareCards {
-    public static func week(_ this: Int, last: Int) -> String { "\(this) \(passes(this)) this week\(middleDot)\(last) last week" }
-    public static func day(_ n: Int) -> String { "\(n) \(passes(n)) today" }
-    public static func gates(_ percent: Int) -> String { "Walked away from \(percent)% of gates this week" }
-    public static func friends(_ percent: Int) -> String { "My friends held \(percent)% of gates this week" }
+    public static func week(_ this: Int, last: Int) -> String {
+      "\(this) \(unlocks(this)) this week\(middleDot)\(last) last week"
+    }
+    public static func day(_ n: Int) -> String { "\(n) \(unlocks(n)) today" }
+    public static func gates(_ percent: Int) -> String {
+      "Walked away from \(percent)% of gates this week"
+    }
+    public static func friends(_ percent: Int) -> String {
+      "My friends walked away from \(percent)% of gates this week"
+    }
     public static func school(_ school: String, schoolPercent: Int, mine: Int) -> String {
-      "\(school) held \(schoolPercent)% of gates this week. I held \(mine)%."
+      "\(school) walked away from \(schoolPercent)% of gates this week. I walked away from \(mine)%."
     }
     public static func friendsCount(_ n: Int, passesPerPerson: String) -> String {
-      "\(n) friends\(middleDot)\(passesPerPerson) passes per person"
+      "\(n) friends\(middleDot)\(passesPerPerson) unlocks per person"
     }
     public static let wordmark = "TOLL"
   }

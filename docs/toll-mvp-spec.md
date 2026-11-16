@@ -75,7 +75,7 @@ Ads of any kind. Payments. Groups. Anything that asks a friend to act: approvals
 | **Block name** | Optional free text the user gives a block for their own organisation ("Workday"). Defaults to the schedule label. Never shown to anyone else. |
 | **Gate event** | A fact recorded by the device. Types: `block_hit`, `wait_started`, `wait_completed`, `wait_abandoned`, `pass` (free or waited), `session_ended`, `block_added` (with schedule), `block_changed` (old and new schedule), `block_removed`, `checkin`. Each carries a client UUID, device-local timestamp, and the tag. |
 | **Pass** | One permission to open a blocked app for one session. Free (daily allowance) or waited. It is recorded when it is used (the session starts), not when it is granted: a pass that is declined or lapses at the day reset costs nothing. |
-| **Wait** | The timed cost. Starts when Toll opens from the block screen, or Unblock is tapped inside Toll, with no free pass left. Runs whether or not Toll stays open. Fixed end; nothing shortens it. |
+| **Wait** | The timed cost. Starts when Toll opens from the block screen with no free pass left. Runs whether or not Toll stays open. Fixed end; nothing shortens it. |
 | **Session** | The unlocked period after a pass: the chosen minutes of wall-clock time from the moment it starts, whether or not the app is used. |
 | **Day** | Resets at a configurable local hour (default 04:00) so 1 a.m. is not the cheapest hour. |
 | **Week** | Monday 04:00 local to the next Monday 04:00 local. |
@@ -95,17 +95,17 @@ Ads of any kind. Payments. Groups. Anything that asks a friend to act: approvals
 - If a free pass remains today → a free pass is granted and the session picker (G-6) is shown at once. No wait screen. Nothing is recorded yet (G-7).
 - Else → start a wait (G-4).
 
-The gate can also be entered from inside Toll: "Unblock" on a block that is on. It behaves exactly like a shield hit, for every app in the block at once (the card names the block's apps), and records no `block_hit`. The pass it leads to remembers that it was asked for inside Toll (G-6).
+Home v2 (15 Nov, ledger A127) has no "Unblock" inside Toll: the way through is the shield. The gate keeps its in-app request path (`origin: app`, for a whole block, recording no `block_hit`) for a later design, but nothing on screen reaches it.
 
-**G-3a. Naming.** If the app ref has no tag, the wait card asks "Which app is this?" with the tag chips above Cancel, once. The wait runs meanwhile; answering is not required to pass. The device never needs the tag for its own display: the system renders real names and icons via `Label(token)` everywhere in Toll and on the shield. The tag exists only for what friends see, and because tags are stored by app ref (§4), a wrong or skipped tag is fixed from the block editor and the fix applies to history.
+**G-3a. Naming.** If the app ref has no tag, the wait sheet asks "Which app is this?" with the tag chips above Cancel, once. The wait runs meanwhile; answering is not required to pass. The device never needs the tag for its own display: the system renders real names and icons via `Label(token)` everywhere in Toll and on the shield. The tag exists only for what friends see, and because tags are stored by app ref (§4), a wrong or skipped tag is fixed from the block editor and the fix applies to history.
 
-**G-4. Wait.** Duration = `gate.waits[n]` where `n` is the number of waited passes already taken today (capped at the last value). Duration is fixed at start. The wait MUST continue if Toll is backgrounded or killed: end time is persisted; on return Toll computes remaining from the clock. The wait MUST work offline. The wait is shown only inside Toll (Home overlay). No lock-screen countdown, no notification at the end. The user comes back when they come back.
+**G-4. Wait.** Duration = `gate.waits[n]` where `n` is the number of waited passes already taken today (capped at the last value). Duration is fixed at start. The wait MUST continue if Toll is backgrounded or killed: end time is persisted; on return Toll computes remaining from the clock. The wait MUST work offline. The wait is shown only inside Toll: in the sheet Home's state bar opens, which opens by itself when the wait starts, and on the bar itself ("Instagram unlocks in 2:41") once that sheet is closed. Closing the sheet does not stop the wait. No lock-screen countdown, no notification at the end. The user comes back when they come back.
 
-**G-5.** One open request at a time. A second block hit, or an Unblock inside Toll, during a wait joins the same wait (it does not reset or extend); while a pass is waiting to be used it joins that pass and brings the picker back. Leaving the gate screen does not abandon the wait; only the user tapping "Cancel" does, which records `wait_abandoned`.
+**G-5.** One open request at a time. A second block hit during a wait joins the same wait (it does not reset or extend); while a pass is waiting to be used it joins that pass and brings the picker back. Leaving the gate screen does not abandon the wait; only the user tapping "Cancel the wait" does, which records `wait_abandoned`.
 
-**G-6. Session.** When a pass is granted (free at once, or when the wait ends and the user is in Toll), Toll shows the session choice (`gate.sessionMinutes`). Choosing a length uses the pass: the apps it covers are removed from the shield set for that many minutes of wall-clock time from that moment, whether or not they are used. The persisted expiry (start + minutes) is the truth. The session ends, and the apps are re-shielded, when anything of Toll's next runs at or after it: the DeviceActivity monitor woken for that moment, Toll in the foreground, or any other extension wake. DeviceActivity rejects intervals under 15 minutes, so the monitor is woken by a one-off interval of `max(minutes, 15)` minutes whose end warning is set to fall on the session's end; a callback ends a session only if the persisted expiry has passed, so an early or stray one cannot cut it short. Setting the clock back does not move the end (G-9). A session cannot be extended; a new request follows it. A new session that covers an app of one still running replaces that one: the earlier session ends at that moment, `session_ended` is recorded for it and its interval is stopped.
+**G-6. Session.** When a pass is granted (free at once, or when the wait ends and the user is in Toll), Toll shows the session choice (`gate.sessionMinutes`), in Home's sheet if it is open; a wait that ends with the sheet closed leaves the bar reading "Unlock ready", and tapping it brings the choice. Choosing a length uses the pass: the apps it covers are removed from the shield set for that many minutes of wall-clock time from that moment, whether or not they are used. The persisted expiry (start + minutes) is the truth. The session ends, and the apps are re-shielded, when anything of Toll's next runs at or after it: the DeviceActivity monitor woken for that moment, Toll in the foreground, or any other extension wake. DeviceActivity rejects intervals under 15 minutes, so the monitor is woken by a one-off interval of `max(minutes, 15)` minutes whose end warning is set to fall on the session's end; a callback ends a session only if the persisted expiry has passed, so an early or stray one cannot cut it short. Setting the clock back does not move the end (G-9). A session cannot be extended; a new request follows it. A new session that covers an app of one still running replaces that one: the earlier session ends at that moment, `session_ended` is recorded for it and its interval is stopped.
 - **Not now.** The picker can be declined. A pass that came from a shield is kept until the day reset: the picker steps aside and comes back on the next shield hit or when the user asks for it in Toll. A pass asked for inside Toll is dropped. Either way nothing was recorded, so the free pass is still there and the wait ladder has not moved.
-- **Block again.** A session can be ended early from Toll. The apps are re-shielded at once and `session_ended` is recorded.
+- **Lock now.** A session can be ended early from Toll (Home's sheet; "Block again" before v2). The apps are re-shielded at once and `session_ended` is recorded.
 
 **G-7.** Every pass is recorded (`pass`, tag, time, free/waited, wait minutes) when it is used, timed at the session's start. A pass that is granted and never used leaves no `pass`: it does not count against the day's free passes, does not advance the wait ladder, and friends never see it. Friends see a recorded pass on their next open. No push.
 
@@ -126,13 +126,13 @@ Facts about Apple's Screen Time APIs that shape the build. Verified 8 November 2
 - **Shield → Toll.** Until May 2026 a shield's buttons could only close, defer, or do nothing; the supported route into the host app was a local notification the user taps, and Apple engineers said so repeatedly. iOS 26.5 added `ShieldActionResponse.openParentalControlsApp`, which opens the shielding app directly. Its behaviour under individual (non-family) authorization is undocumented, so it is verified on hardware in week 1 and gated behind `#available(iOS 26.5, *)`; the notification route stays as the fallback. The shield extension receives only an opaque token, so it writes that token to the App Group before responding. Competing apps: one sec uses the notification route; Jomo and ScreenZen appear to open directly by means they have not described; a developer using a private launch method (`LSApplicationWorkspace`) was rejected under 2.5.1 in May 2026. Toll never ships a private method.
 - **Notification-route pitfalls.** Needs notification permission; delivery can be delayed ~10 s by notification prioritization; Focus modes can suppress it; it is two taps. The shield action delays its `.defer` response ~0.4 s so the notification registers.
 - **Tokens are opaque.** The main app cannot read which app a token is; `Label(token)` renders the icon and name as a view the app cannot read as text. The ShieldConfiguration extension does receive the display name but is sandboxed from exporting it (App Group writes from it are ignored on device, and attempting it is a 2.5.1 risk). Tags come from the user. This is final.
-- **No minutes.** Toll cannot read screen-time usage. All social data comes from gate events Toll records itself. Do not add the iOS 26.4 "App and Website Usage" capability: it changes the permission prompt to an all-or-nothing usage disclosure.
+- **No minutes.** Toll cannot read screen-time usage. All social data comes from gate events Toll records itself. Do not add the iOS 26.4 "App and Website Usage" capability: it changes the permission prompt to an all-or-nothing usage disclosure. Home's "Screen time" fact is drawn by a `DeviceActivityReport` extension (`TollReport`): Toll hands iOS a filter (today, the blocked apps' tokens) and iOS draws the extension's view inside Home. The minutes stay in the extension's sandbox; the app never learns them, so they are never stored, synced or shown to friends (ledger A126). The simulator draws nothing there; demo launches show a stand-in.
 - **No revocation signal.** Toll cannot observe the permission being turned off or the app being deleted. The daily `checkin` is how silence is seen (N-9).
 - **Schedules.** A block's window is a repeating `DeviceActivitySchedule`; `intervalDidStart` applies the shield, `intervalDidEnd` removes it. The same lateness caveats apply, so the app also reconciles shields against schedules on every launch and foreground. Up to 20 concurrent activities per app: `blocks.max` of 8 blocks plus sessions fits.
 - **Sessions.** `DeviceActivitySchedule` intervals must be ≥ 15 minutes (max 1 week; 20 concurrent activities), so a 5- or 10-minute session rides a 15-minute interval and ends on its end warning (`warningTime` = interval − session; G-6). Usage-threshold events can fire late, not at all, or spuriously (iOS 26 phantom thresholds acknowledged by Apple), which is one reason sessions do not use them. Interval callbacks can be late or missing too: persist the session expiry in the App Group and re-check on every launch, foreground and extension wake; `stopMonitoring` then `startMonitoring` synthesizes `intervalDidEnd`.
 - **Extensions.** DeviceActivityMonitor has a ~6 MB memory limit. Shield extensions are re-instantiated per call, keep no state, have no network, and must return fast or the system draws the default shield. SwiftData/SQLite in the App Group fails inside ShieldConfiguration. Extensions therefore append JSON lines to a spool file in the App Group (with `NSFileCoordinator`); the app ingests.
 - **Shield limit.** More than 50 app + web-domain tokens across all named stores shields nothing. Toll caps tokens at `blocks.maxTokens` (40) and shows the limit.
-- **Entitlement.** One Family Controls (Distribution) request per bundle identifier: the app and each of the three extensions. Reported turnaround is four business days to several weeks. Required before any TestFlight upload. The development entitlement works meanwhile. Justification: a personal self-control tool on the user's own device; no usage data read or transmitted. File all four now.
+- **Entitlement.** One Family Controls (Distribution) request per bundle identifier: the app and each of the four extensions. Reported turnaround is four business days to several weeks. Required before any TestFlight upload. The development entitlement works meanwhile. Justification: a personal self-control tool on the user's own device; no usage data read or transmitted. File all five now (`TollReport` added 15 Nov, ledger A126).
 - **Rule 4.10** forbids monetizing the phone's screen-time controls. Toll charges time, never money. The listing and review notes say so.
 - **Also required by review:** in-app account deletion including Apple token revocation; a privacy policy; report and block for user-written display names (1.2 UGC); privacy nutrition labels that list gate events as collected and linked to the account; the 2026 age-rating questionnaire (16+ tier). Keep to shields; "hiding" apps via `blockedApplications` has drawn 2.5.1 rejections.
 
@@ -146,7 +146,7 @@ Minimum iOS version and targets: §11.1.
 
 **N-3. Ordering.** Friends are ordered by improvement against their own last week (best improvement first), never by level. Ties by name.
 
-**N-4. Shared number.** "Your friends held 83 percent of gates this week" = gates held ÷ block hits across all friends including you, this week.
+**N-4. Shared number.** "Your friends walked away 83% of the time this week" = gates held ÷ block hits across all friends including you, this week.
 
 **N-5. Pinned.** A removed block ("Adi removed Instagram from his blocklist") or a loosened schedule ("Adi's Instagram block is now nights only") is pinned at the top of the friends list for `network.pinHours`. Silence (N-9) is pinned while it lasts.
 
@@ -182,14 +182,14 @@ Nothing else, ever: no friend-request alert, no wait-ended alert, no removed-blo
 
 Detail in `toll-design.md`. Summary:
 
-- **Home** — top: you (today's count + glyph, week vs last week, a 7-day strip). Then pinned items, then friends ordered per N-3, scrollable. Footer: the Toll-opens count. Device-state lines at the very top when needed: "Screen Time is off · Fix", "Blocks need re-picking · Fix", or (no blocks yet) "Nothing blocked yet · Add apps". A bar pinned above the tab bar shows the block in effect ("Always", "Until 7 am", or "Open · 6:42 left" while it is unblocked); tapping it enlarges into the block's card, which carries Unblock or Block again. A `+` beside the Settings gear opens New block. When a wait is running, an overlay card sits above Home content: block tag, time remaining, Cancel; when the wait ends in-app the card becomes the session picker.
+- **Home** (v2, 15 Nov) — top: you (today's unlocks + glyph; three facts beneath it, screen time on blocked apps, this week against last, times blocked today; a 7-day strip). Then pinned items, then friends ordered per N-3, then the Toll-opens line, scrollable. A state bar docked above the tab bar states one fact and has no buttons: what is blocked now, nothing blocked right now (and what starts next), an app open ("Instagram is open · 10-min unblock · 6:42 left"), a wait running ("Instagram unlocks in 2:41"), an unlock ready, Screen Time off, blocks needing re-picking, or nothing blocked yet. Tapping it opens one medium sheet with the same anatomy every time (icon, title, one line; one body; at most one primary and one quiet action): the blocks with "Add a block"; the session with "Lock now"; the wait with "Cancel the wait", turning into the session picker when it ends; Screen Time off with "Turn on Screen Time". The wait overlay, the device-state lines and the `+` beside the gear are gone: they are this bar and sheet.
 - **People** — requests, friends (same N-3 order as Home), mutuals, school, "In your contacts" (if built), invite. Reached from Home.
 - **Friend detail** (sheet) — the friend's week, today and yesterday, tagged blocks; remove / block / report.
 - **Invite** (sheet) — the user's code and a share link.
 - **Blocks** — one row per block: the apps' icons and names (system labels), the schedule beneath. Tap a row to edit apps or schedule; swipe to remove. "Add a block" → picker → When chips → Done. Limit state at `blocks.maxTokens`. Reached from Settings, Home's empty state and the gate.
 - **Insights** — per `toll-insights-spec.md`. Reached from Home.
 - **Settings** — account, school, notifications (daily summary toggle and hour), discoverability, blocks shortcut, data (export, delete account), about (privacy policy, terms, support address, version), donation link (last group).
-- **Gate** — the wait overlay on Home and the session picker it turns into.
+- **Gate** — the wait in Home's sheet and the session picker it turns into.
 
 Navigation: a standard tab bar with Home · Insights · People. Settings is a bar item on Home; Blocks is reached from Settings, from Home's empty state, and from the gate. Every destination is one tap from every other. (Decided in design review, 8 Nov; replaces the original "one screen, no tab bar".)
 
@@ -232,21 +232,25 @@ Every line is a fact, a number, or a question. No adjectives about the user. No 
 | Where | Line |
 |---|---|
 | Shield | "Instagram is blocked." Subtitle: "You've unblocked this 2 times today." Buttons: "Open Toll" · "Dismiss". If notifications are off: "Open Toll from your home screen." |
-| Home, you | "3 passes today" with the glyph. Beneath: "11 this week · 17 last week". |
+| Words | People see "unlock" for a pass, "blocked" for a block hit, "walked away" for held. Spec terms (§4) stay in code and here. |
+| Home, you | "3 unlocks today" with the glyph. Beneath, three facts: "SCREEN TIME" "1h 42m" · "THIS WEEK" "11 ▼ 17" (▲ when this week is ahead, no arrow when level) · "BLOCKED" "11". |
 | Home, footer | "You opened Toll 14 times today." |
-| Home, block bar | "Always" · "Until 7 am" · "Starts 11 pm" · "Open · 6:42 left" · "Pass ready"; actions "Unblock", "Block again"; several on: "3 blocks on". |
-| Wait overlay | Title "Instagram". Countdown "2:41". Beneath: "Wait 3 of today · next wait 8 min". Button: "Cancel". |
+| Home, state bar | "Instagram, TikTok, YouTube blocked" / "Always · 2 more from 11 pm" · "Nothing blocked right now" / "Nights starts at 11 pm · 5 apps" · "Instagram is open" / "10-min unblock · 6:42 left" · "Instagram unlocks in 2:41" / "Wait 3 of today · next wait 8 min" · "Unlock ready" / "Instagram · Choose how long" · "Screen Time is off" / "Nothing is blocked until it's back on" · "Blocks need re-picking" / "Some apps are missing" · "Nothing blocked yet" / "Choose apps to block". |
+| Home, sheet: blocks | "Blocked right now" / "3 apps · 2 more from 11 pm" (or "Nothing blocked right now"). Rows: apps, "Always · on now" · "Nights · from 11 pm" · "Always · open now". "Tap a block to change its apps or hours." Quiet: "Add a block". |
+| Home, sheet: session | "Instagram is open" / "Opened 7:12 pm · locks at 7:22 pm". Beneath the line: "6:42 left" · "10 min". "The block comes back on its own at 7:22 pm. Locking now ends it early." Button: "Lock now". |
+| Home, sheet: wait | Title "Instagram" / "Blocked · Always". Countdown "2:41". Beneath: "Wait 3 of today · next wait 8 min". "The wait keeps running if you close this. You choose how long when it ends." Quiet: "Cancel the wait". When it ends, the line reads "Waited 5 min" (or "Free unlock") and the session picker follows. |
+| Home, sheet: Screen Time off | "Screen Time is off" / "Since Tuesday". "Toll can't block anything until Screen Time is back on." "After 2 days your friends see Toll as off on your phone." Button: "Turn on Screen Time". |
+| Home, sheet: re-picking, none | "Blocks need re-picking" / "Some apps are missing"; rows; "Tap a block to choose its apps again." · "Nothing blocked yet" / "Choose apps to block"; "Choose apps, then when to block them."; button "Add a block". |
 | Session picker | "How long?" Chips: "5 min · 10 min · 15 min". Beneath: "From now. The block returns after." Button, for every pass, with the chosen length: "Unblock for 10 min" (Toll cannot switch to the app, so it never says "Open"). Quiet button: "Not now". |
-| Active block | Buttons: "Unblock" · "Block again". Status: "Always" · "Until 7 am" · "Starts 11 pm" · "Open" · "6:42 left" · "Pass ready". Count: "1 block on" / "3 blocks on". |
 | Friend row, pass | "Opened Instagram at 11:40 p.m. after a 5-minute wait" |
-| Friend row, free | "Opened Instagram at 9:10 a.m. (free pass)" |
-| Friend row, clean | "0 passes today" |
+| Friend row, free | "Opened Instagram at 9:10 a.m. (free unlock)" |
+| Friend row, clean | "0 unlocks today" |
 | Friend row, silent | "Toll has been off since Tuesday" |
 | Mutual row | "friends with Adi and 2 others" |
 | Pinned, removal | "Adi removed Instagram from his blocklist." |
 | Pinned, silence | "Toll has been off on Adi's phone since Tuesday." |
-| Friends number | "Your friends held 83% of gates this week." Short form in the Friends header: "held 83% this week". |
-| Daily notification | "4 passes yesterday. 2nd of 6 friends." With a pending request: "4 passes yesterday. 2nd of 6 friends. 1 friend request waiting." |
+| Friends number | "Your friends walked away 83% of the time this week." Short form in the Friends header: "walked away 83%". |
+| Daily notification | "4 unlocks yesterday. 2nd of 6 friends." With a pending request: "4 unlocks yesterday. 2nd of 6 friends. 1 friend request waiting." |
 | Welcome | "Toll". Legal: "By continuing you confirm you're 16 or older and agree to the Terms and Privacy Policy." |
 | Store listing, cost | "The first wait is 3 minutes. Each one after it is longer. Nothing shortens it." (listing and website, not in-app) |
 | Email | "What's your email?" Button: "Send code". Line: "A 6-digit code, no password." |
@@ -263,7 +267,6 @@ Every line is a fact, a number, or a question. No adjectives about the user. No 
 | Welcome buttons | "Continue with Apple" · "Continue with email" · "Continue without an account" |
 | Your blocks, returning | "Block these again". No line. |
 | Friends step | "Find your friends." No body. |
-| Home, device state | "Screen Time is off · Fix" · "Blocks need re-picking · Fix" · "Nothing blocked yet · Add apps" |
 | Before Screen Time prompt | "The next screen is Apple's. It lets Toll block apps on this phone." |
 | Screen Time denied | "Toll can't block anything without this." Buttons: "Try again" · "Skip for now". |
 | Before notification prompt | "This is how the block screen reaches Toll." |
@@ -304,6 +307,7 @@ Chosen for a small senior team, agentic tooling, speed, and no over-engineering.
 
 - `TollShieldAction`: on primary button → append `{type: "block_hit", token, at}` to the spool, then `.openParentalControlsApp` (26.5+) or post a local notification and `.defer` after ~0.4 s. On secondary → `.close`. Nothing else runs here.
 - `TollShieldConfig`: returns the configuration from App Group config (tag counts for the subtitle, notification-permission flag for the fallback subtitle). Must return in milliseconds.
+- `TollReport`: a `DeviceActivityReport` extension with one scene, `screenTime`, that sums today's activity for the filter Home passes and draws it as "1h 42m". It imports `TollCore` for the formatting only and writes nothing anywhere.
 - `TollMonitor`: `intervalDidStart`/`intervalDidEnd` for the daily `checkin` activity (writes a `checkin` line); `eventDidReachThreshold` and `intervalDidEnd` for session activities (re-shield the token, write `session_ended`). Keep it under 6 MB: no GRDB, no large imports.
 - App launch and foreground: ingest the spool into GRDB; if a `block_hit` is within `gate.resumeWindow`, enter the gate; re-shield any session whose expiry has passed; flush the outbox.
 - The daily summary is a server push (§11.3), not a local notification, because position among friends is server-side.
@@ -437,7 +441,7 @@ Epics in dependency order. Each task is one PR. "Done" means: requirement ids sa
 10. Wait engine: persisted end time, monotonic guard (G-9), one-at-a-time, abandon.
 11. Session engine: unlock, one-off DeviceActivity interval (flat time, G-6), re-shield on callback/expiry/foreground, `session_ended`.
 12. Daily `checkin` activity in `TollMonitor`.
-13. Gate UI: `WaitOverlay` with first-wait naming, `SessionPicker`, Toll-opens counter.
+13. Gate UI: the wait in Home's sheet with first-wait naming, `SessionPicker`, Toll-opens counter (the `WaitOverlay` until Home v2, ledger A127).
 
 **E2. Local data and sync (TollData)**
 14. GRDB schema and migrations: events, blocks (local), settings. `ValueObservation` for Home.
