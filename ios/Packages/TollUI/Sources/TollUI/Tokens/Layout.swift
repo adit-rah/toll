@@ -12,8 +12,10 @@ public enum TollSpacing {
   public static let blockRowHeight: CGFloat = 64
   public static let compactBlockRowHeight: CGFloat = 48
   public static let minTapTarget: CGFloat = 44
-  public static let heroTop: CGFloat = 12
-  public static let heroToList: CGFloat = 36
+  /// Home: week strip to the first pinned line, then the last one to FRIENDS. With no pinned lines
+  /// the two make the strip-to-FRIENDS gap, 36 pt.
+  public static let heroToPinned: CGFloat = 16
+  public static let pinnedToHeader: CGFloat = 20
   public static let barHeight: CGFloat = 44
   public static let titleGap: CGFloat = 28
   public static let groupGap: CGFloat = 24
@@ -22,7 +24,8 @@ public enum TollSpacing {
   public static let tileGap: CGFloat = 10
   public static let footerBottom: CGFloat = 12
   public static let waitCardTop: CGFloat = 180
-  public static let rowLeadingSlot: CGFloat = 32
+  /// The pinned line's dot with 3 pt either side, so its text starts 26 pt in (design §3.5).
+  public static let pinnedDotSlot: CGFloat = 14
   public static let rowLeadingGap: CGFloat = 12
 
   /// 4.7" and 5.4" phones are 375 pt wide; everything wider gets the full gutter.

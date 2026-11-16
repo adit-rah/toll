@@ -61,7 +61,7 @@ public struct PinnedRow: View {
     Circle()
       .fill(TollColor.accent)
       .frame(width: Self.dotSize, height: Self.dotSize)
-      .frame(width: TollSpacing.rowLeadingSlot)
+      .frame(width: TollSpacing.pinnedDotSlot)
       .accessibilityHidden(true)
   }
 

@@ -149,7 +149,7 @@ Each component lists anatomy, states, and sizing. Names are the SwiftUI type nam
 
 ### 3.5 `PinnedRow`
 
-- Same leading geometry as `FriendRow` (52 pt min height), no background, no box: an 8 pt `accent` dot where the glyph would sit, then the line in `body` medium. Because nothing else on Home uses the accent as text decoration, this is the only accent on the page and the eye stops on it. No icon. Dismiss by swipe is not allowed in 0.1 (it expires on its own).
+- 52 pt min height, no background, no box: an 8 pt `accent` dot with 3 pt either side, then 12 pt to the line in `body` medium, so the text starts 26 pt in (the Home v2 canvas; not `FriendRow`'s 32 pt avatar slot). A line that wraps keeps the dot beside its first line. Because nothing else on Home uses the accent as text decoration, this is the only accent on the page and the eye stops on it. No icon. Dismiss by swipe is not allowed in 0.1 (it expires on its own).
 
 ### 3.6 `MutualRow`
 
@@ -228,7 +228,7 @@ The bar states one fact about the phone right now and has no buttons. Tapping it
 
 Home tab. Nav bar: no title (the hero is the title). One bar item, trailing: `gear` (Settings). Content, top to bottom, on the page background:
 
-1. **You** (centred, no card, 12 pt below the toolbar): `HeroStat` "3" + glyph, "unlocks today"; 20 pt beneath, the three facts (3.3); 18 pt beneath, `WeekStrip`. The numeral and the strip open Insights. 32 pt below it the left-aligned content begins.
+1. **You** (centred, no card, directly under the toolbar, whose iOS 26 height already gives the air): `HeroStat` "3" + glyph, "unlocks today"; 20 pt beneath, the three facts (3.3); 18 pt beneath, `WeekStrip`. The numeral and the strip open Insights. The numeral never shrinks to fit: a day's count fits at its AX2 cap. 16 pt below the strip the pinned lines begin; 20 pt after the last of them, FRIENDS (36 pt from the strip when there are none).
 2. **Pinned** (if any): `PinnedRow`s.
 3. **Friends** section: header row with the uppercase label "FRIENDS" (`caption` weight medium, `label2`) and trailing `caption` "walked away 83%"; then `FriendRow`s ordered by improvement, hairlines between. Empty: `EmptyState` "No friends yet." + "Send an invite". Signed in, never synced and the fetch failed: `EmptyState` "No connection." with no button, in the same place.
 4. **Footer**: 16 pt beneath the last row, one centred `caption` in `label3`, "You opened Toll 14 times today.", the quietest thing on the screen. It scrolls with the list.
