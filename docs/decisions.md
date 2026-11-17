@@ -24,6 +24,20 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D10. Home uses `CLMonitor` with Always and a `CLServiceSession`** (2026-11-17). Only Always relaunches a terminated app for region events. From iOS 18, Always is effective only while the app holds a `CLServiceSession`, which can only start in the foreground and is recreated on each background launch. `startMonitoring(for:)` is marked for removal; `CLMonitor` replaces it. Region monitoring needs Precise location.
 
+**D11. Shared state is a coordinated JSON file, not App Group defaults** (2026-11-17). The app and three extensions write it; `UserDefaults` caches per process and gives no read-modify-write across processes. `state.json` and `transitions.jsonl` in the App Group, under `NSFileCoordinator`.
+
+**D12. During a block, time is read through a monotonic anchor** (2026-11-17). B-4 asks that a clock change never holds the block into the morning; D-7 says there is no way to end the night. Reading the wall clock alone breaks one or the other. While a block is on, "now" is the wall time at the last reconcile with the block off plus the monotonic time since, within one boot. Setting the clock back cannot hold the block past the real morning, and setting it forward cannot end it early. Outside a block the wall clock is accepted as it is. After a restart there is no anchor and the wall clock decides.
+
+**D13. A block only starts for a night that began after the last night end seen** (2026-11-17). This covers B-4's clock and travel cases: a clock set back after the morning, or a flight west into a window that already ended, does not block again. It also means a window edited in the morning to cover the present takes effect tonight, which matches "Changes apply after tonight's block ends".
+
+**D14. A second schedule, the sweep, starts a minute after the window ends** (2026-11-17). Its start and end each reconcile, so one missed `intervalDidEnd` does not leave the block on (B-4). The block screen's buttons also reconcile, so the first tap on a stale block lifts it.
+
+**D15. The log records every wake, not only changes** (2026-11-17). Monitor, region and block-screen wakes are logged even when nothing changed, so late and missing callbacks show in the device protocol. Launch and foreground are logged only when they change the block. The log keeps the last 2,000 lines.
+
+**D16. A trigger screen stands in until setup and Status exist** (2026-11-17). Step 2 must hand over an installable build. Its strings sit in `Copy.Trigger`, apart from the spec's copy, and go with step 5.
+
+**D17. Categories chosen for keep-open cannot be kept open** (2026-11-17). `.all(except:)` takes app and site tokens only. A category picked in the keep-open picker is shown as "not kept open" for now; step 4 decides the setup wording.
+
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 
 | # | Unknown | What Apple's docs and staff say | Device check |
