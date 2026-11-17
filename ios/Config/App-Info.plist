@@ -4,6 +4,10 @@
 <dict>
 	<key>TollAppGroup</key>
 	<string>$(TOLL_APP_GROUP)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Only checks whether you are home. It never records where you go.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Starts and stops the night's block when you get home or leave, with the app closed. It only checks whether you are home and never records where you go.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>

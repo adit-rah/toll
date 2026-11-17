@@ -1,8 +1,17 @@
 #if os(iOS)
+  @preconcurrency import DeviceActivity
   @preconcurrency import ManagedSettings
 
   extension ManagedSettingsStore.Name {
-    /// One named store holds every block's shield (spec §11.1). Computed because `Name` is not Sendable.
-    public static var blocks: Self { Self("blocks") }
+    /// The one store the block lives in. Computed because `Name` is not Sendable.
+    public static var sleep: Self { Self("sleep") }
+  }
+
+  extension DeviceActivityName {
+    /// The sleep window, repeating nightly (spec §6).
+    public static var sleepWindow: Self { Self("sleep.window") }
+    /// A short interval just after the window ends: a second wake, so a missed end callback cannot
+    /// leave the block on in the morning (B-4).
+    public static var sleepSweep: Self { Self("sleep.sweep") }
   }
 #endif

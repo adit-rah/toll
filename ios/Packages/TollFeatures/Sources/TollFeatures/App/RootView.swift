@@ -1,11 +1,20 @@
 import SwiftUI
 import TollUI
 
-/// The one window. Empty until setup and Status exist (MVP spec §12 steps 4 and 5).
+/// The one window. Until setup and Status exist (spec §12 steps 4–5) it shows the trigger screen
+/// used for device testing.
 public struct RootView: View {
-  public init() {}
+  let model: AppModel
+  @Environment(\.scenePhase) private var scenePhase
+
+  public init(model: AppModel) {
+    self.model = model
+  }
 
   public var body: some View {
-    TollColor.bg.ignoresSafeArea()
+    TriggerView(model: model)
+      .onChange(of: scenePhase, initial: true) { _, phase in
+        if phase == .active { model.foreground() }
+      }
   }
 }

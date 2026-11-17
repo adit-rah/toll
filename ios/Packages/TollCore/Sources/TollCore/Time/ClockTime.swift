@@ -1,6 +1,6 @@
 import Foundation
 
-/// A local wall-clock time of day, encoded "HH:mm" to match the server.
+/// A local wall-clock time of day, encoded "HH:mm" so the state file reads plainly.
 public struct ClockTime: Codable, Hashable, Sendable, Comparable {
   public var hour: Int
   public var minute: Int
@@ -32,20 +32,12 @@ public struct ClockTime: Codable, Hashable, Sendable, Comparable {
   }
 }
 
-/// ISO weekday numbering (Monday = 1), matching the server and the Week definition in spec §4.
-public enum Weekday: Int, Codable, CaseIterable, Sendable, Comparable {
-  case monday = 1
-  case tuesday, wednesday, thursday, friday, saturday, sunday
-
-  public static let all = Set(Weekday.allCases)
-  public static let workweek: Set<Weekday> = [.monday, .tuesday, .wednesday, .thursday, .friday]
-
-  /// From `Calendar.component(.weekday)`, where Sunday = 1.
-  public init(gregorian value: Int) {
-    self = Weekday(rawValue: (value + 5) % 7 + 1) ?? .monday
+extension ClockTime {
+  /// Wraps past midnight either way.
+  public func adding(minutes: Int) -> ClockTime {
+    let total = ((minuteOfDay + minutes) % 1440 + 1440) % 1440
+    return ClockTime(hour: total / 60, minute: total % 60)
   }
 
-  public var previous: Weekday { Weekday(rawValue: rawValue == 1 ? 7 : rawValue - 1) ?? .sunday }
-
-  public static func < (lhs: Weekday, rhs: Weekday) -> Bool { lhs.rawValue < rhs.rawValue }
+  public var components: DateComponents { DateComponents(hour: hour, minute: minute) }
 }
