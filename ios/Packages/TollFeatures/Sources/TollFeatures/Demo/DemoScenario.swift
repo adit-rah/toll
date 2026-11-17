@@ -17,6 +17,7 @@
     case doorWaiting = "door-waiting"
     case doorOpen = "door-open"
     case doorNone = "door-none"
+    case trialEnded = "trial-ended"
 
     static var current: DemoScenario? {
       UserDefaults.standard.string(forKey: "TollDemo").flatMap(Self.init(rawValue:))
@@ -88,11 +89,17 @@
     var body: some View {
       if let path = scenario.setupPath {
         DemoSetup(app: app, path: path)
+      } else if scenario == .trialEnded {
+        TrialEndedView(
+          summary: TrialSummary(nightsBlocked: 6, blockScreens: 23), unlocksUsed: 2,
+          price: Copy.fallbackPrice, buy: { .cancelled }, restore: { false })
       } else if let state = scenario.status(now: Date()) {
         if scenario.isDoor {
           DemoDoor(app: app, state: state)
         } else {
-          StatusView(state: state, now: Date(), openSettings: {})
+          StatusView(
+            state: state, now: Date(), trialNight: scenario == .statusStarts ? 5 : nil,
+            openSettings: {})
         }
       } else {
         TollColor.bg.ignoresSafeArea()

@@ -84,8 +84,13 @@ public struct SleepState: Codable, Hashable, Sendable {
   public var doorAskedAt: Date?
   /// Nil until the last setup screen is passed; the app opens on setup until then.
   public var setupFinishedAt: Date?
-  /// Trial or purchase (P-2, P-3). True until the trial is built (§12 step 7).
+  /// Trial or purchase (P-2, P-3), worked out by every reconcile so the trial ends on time with the
+  /// app closed.
   public var entitled = true
+  /// From the Keychain, so a reinstall does not start a new trial (P-4).
+  public var trialStart: Date?
+  /// Mirrors the App Store's answer, so extensions can read it.
+  public var purchased = false
   public var blockOn = false
   /// The end of the night the block is on for. The block screen reads it.
   public var blockEndsAt: Date?
