@@ -18,13 +18,19 @@ public final class AppModel {
   @ObservationIgnored private let reconciler = Reconciler()
   @ObservationIgnored private var started = false
 
-  public init() {}
+  public init() {
+    locationAccess.onChange = { [weak self] in self?.readPermissions() }
+  }
 
   /// Called from `didFinishLaunching`, which also runs for a background relaunch by a region event:
   /// the home watch must be open before that event is delivered.
   public func start() {
     guard !started else { return }
     started = true
+    #if DEBUG
+      // Demo launches render screens; opening location would put a prompt over them.
+      if DemoScenario.current != nil { return }
+    #endif
     Task {
       await HomeRegion.shared.watch { [weak self] presence in await self?.update(presence) }
     }
@@ -53,6 +59,10 @@ public final class AppModel {
 
   public func submit(_ edit: SleepSettings) {
     reconcile(.edit) { $0.submit(edit) }
+  }
+
+  func finishSetup() {
+    reconcile(.edit) { $0.setupFinishedAt = Date() }
   }
 
   func update(_ presence: Presence) {

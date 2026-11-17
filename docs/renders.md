@@ -26,7 +26,8 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 
 | Scenario | Opens on |
 |---|---|
-| `empty` | The empty window (step 1) |
+| `empty` | The empty window |
+| `welcome` · `wake` · `home` · `permissions` · `keep-open` · `ready` | Each setup screen (spec §7 Setup 1–6); home is placed in London, Screen Time is assumed from `keep-open` on |
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):
 ```

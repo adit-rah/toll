@@ -1,8 +1,7 @@
 import SwiftUI
 import TollUI
 
-/// The one window. Until setup and Status exist (spec §12 steps 4–5) it shows the trigger screen
-/// used for device testing.
+/// The one window: setup until it is finished, then the main screen.
 public struct RootView: View {
   let model: AppModel
   @Environment(\.scenePhase) private var scenePhase
@@ -12,9 +11,29 @@ public struct RootView: View {
   }
 
   public var body: some View {
-    TriggerView(model: model)
+    content
       .onChange(of: scenePhase, initial: true) { _, phase in
         if phase == .active { model.foreground() }
       }
+  }
+
+  @ViewBuilder private var content: some View {
+    #if DEBUG
+      if let demo = DemoScenario.current {
+        DemoRoot(app: model, scenario: demo)
+      } else {
+        live
+      }
+    #else
+      live
+    #endif
+  }
+
+  @ViewBuilder private var live: some View {
+    if model.state.setupFinishedAt == nil {
+      SetupFlow(app: model)
+    } else {
+      TriggerView(model: model)
+    }
   }
 }

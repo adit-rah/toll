@@ -78,6 +78,8 @@ public struct SleepState: Codable, Hashable, Sendable {
   /// Nil until the home region reports, and again after home moves.
   public var presence: Presence?
   public var homeCheck = HomeCheck.location
+  /// Nil until the last setup screen is passed; the app opens on setup until then.
+  public var setupFinishedAt: Date?
   /// Trial or purchase (P-2, P-3). True until the trial is built (§12 step 7).
   public var entitled = true
   public var blockOn = false
