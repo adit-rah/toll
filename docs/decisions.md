@@ -34,7 +34,7 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D15. The log records every wake, not only changes** (2026-11-17). Monitor, region and block-screen wakes are logged even when nothing changed, so late and missing callbacks show in the device protocol. Launch and foreground are logged only when they change the block. The log keeps the last 2,000 lines.
 
-**D16. A trigger screen stands in until setup and Status exist** (2026-11-17). Step 2 must hand over an installable build. Its strings sit in `Copy.Trigger`, apart from the spec's copy, and go with step 5.
+**D16. A trigger screen stands in until setup and Status exist** (2026-11-17). Step 2 must hand over an installable build. Its strings sit in `Copy.Trigger`, apart from the spec's copy. Removed in step 8 (D25).
 
 **D17. Categories chosen for keep-open cannot be kept open** (2026-11-17). `.all(except:)` takes app and site tokens only. A category picked in the keep-open picker is shown as "not kept open" for now; step 4 decides the setup wording.
 
@@ -51,6 +51,8 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 **D23. Entitlement is worked out in every reconcile** (2026-11-17, step 7). The state holds the trial start (copied from the Keychain) and whether the purchase is owned (copied from StoreKit). Each reconcile, in the app or an extension, decides `entitled` from them, so the trial ends at the seventh night's end even with the app closed. The trial counts night ends after setup; a setup inside a window makes that night the first. The purchase is the non-consumable `com.advan.toll.full`; StoreKit's `Transaction.updates` covers Ask to Buy, refunds and other phones.
 
 **D24. The trial-ended facts come from the log, and the block screen is counted by its taps** (2026-11-17, step 7). The system draws the block screen without telling the app, and its configuration extension may not write. So "times the block screen came up" counts taps on its buttons, the closest thing the app can see. Nights blocked at home are the distinct nights with a block turned on. Unlocks used is a running count kept with the supply, with returned unlocks taken off.
+
+**D25. Settings replaces the trigger screen** (2026-11-17, step 8). The trigger screen (D16) is gone; the log moved to Settings. The sleep window, home and keep-open rows edit the draft: a held edit if one is waiting, else what is in force. The rows' line, "Changes apply after tonight's block ends", is always shown, as spec §7 has it. The privacy policy URL and the support address come from `Base.xcconfig` (`TOLL_PRIVACY_URL`, `TOLL_SUPPORT_EMAIL`); while empty, their rows are hidden. The founders fill them before review.
 
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 

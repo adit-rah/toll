@@ -75,6 +75,9 @@ public final class AppModel {
     if latest != state { state = latest }
   }
 
+  /// What the user last chose: a held edit if there is one (B-3), else what is in force.
+  var draft: SleepSettings { state.pending ?? state.settings }
+
   public func submit(_ edit: SleepSettings) {
     reconcile(.edit) { $0.submit(edit) }
   }
