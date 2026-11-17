@@ -16,7 +16,7 @@ public enum Reconcile {
   @discardableResult
   public static func run(
     _ state: inout SleepState, wall: Date, monotonic: MonotonicInstant?, calendar: Calendar,
-    cause: ReconcileCause
+    cause: ReconcileCause, config: TollConfig = .defaults
   ) -> Outcome {
     let before = state
     let now = trustedNow(&state, wall: wall, monotonic: monotonic)
@@ -29,13 +29,16 @@ public enum Reconcile {
     }
     state.blockOn = night != nil
     state.blockEndsAt = night?.end
-    let changed = state.blockOn != before.blockOn
+    DoorRules.advance(&state, now: now, config: config)
+    DoorRules.countNights(&state, now: now, calendar: calendar, config: config)
+    let changed = state.blockOn != before.blockOn || state.door?.phase != before.door?.phase
     let inWindow = state.settings.window?.contains(now, calendar: calendar) ?? false
     let line =
       changed || !quietCauses.contains(cause)
       ? Transition(
         at: wall, cause: cause, blockOn: state.blockOn, changed: changed,
-        home: state.presence?.isHome, inWindow: inWindow, entitled: state.entitled)
+        home: state.presence?.isHome, inWindow: inWindow, entitled: state.entitled,
+        door: state.door?.phase)
       : nil
     return Outcome(transition: line, settingsChanged: state.settings != before.settings)
   }

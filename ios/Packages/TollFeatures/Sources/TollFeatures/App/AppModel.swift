@@ -1,4 +1,6 @@
+@preconcurrency import FamilyControls
 import Foundation
+@preconcurrency import ManagedSettings
 import Observation
 import TollCore
 import TollData
@@ -66,6 +68,33 @@ public final class AppModel {
   public func submit(_ edit: SleepSettings) {
     reconcile(.edit) { $0.submit(edit) }
   }
+
+  // MARK: Door
+
+  /// The block screen's "Open" was tapped in the last two minutes, or a door is under way.
+  var showsDoor: Bool {
+    guard state.blockOn else { return false }
+    if state.door != nil { return true }
+    guard let asked = state.doorAskedAt else { return false }
+    return Date().timeIntervalSince(asked) < 120
+  }
+
+  func startDoor(_ app: ApplicationToken) {
+    guard let data = DoorApp.encode(app) else { return }
+    reconcile(.doorChosen) { _ = DoorRules.start(&$0, app: data, now: Date(), config: config) }
+  }
+
+  func cancelDoor() { reconcile(.doorCancelled) { DoorRules.cancel(&$0) } }
+
+  func lockDoor() {
+    reconcile(.doorLocked) { DoorRules.lockAgain(&$0, now: Date(), config: config) }
+  }
+
+  func dismissDoor() { reconcile(.foreground) { $0.doorAskedAt = nil } }
+
+  #if DEBUG
+    func show(_ demo: SleepState) { state = demo }
+  #endif
 
   func finishSetup() {
     reconcile(.edit) { $0.setupFinishedAt = Date() }

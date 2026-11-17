@@ -36,12 +36,23 @@ struct StatusView: View {
   }
 }
 
-/// The lines under the state. Unlocks arrive with the door (step 6), the trial line with step 7.
+/// The lines under the state: unlocks, and when one returns (D-5, D-6). The trial line arrives with
+/// step 7.
 struct StatusFacts: View {
   let state: SleepState
   let now: Date
+  var config = TollConfig.defaults
 
   var body: some View {
-    EmptyView()
+    VStack(alignment: .leading, spacing: TollSpacing.labelGap) {
+      Text(Copy.Door.unlocksLeft(state.unlocks.left(config), of: config.unlocks.max))
+        .tollText(.body)
+        .monospacedDigit()
+      if let nights = state.unlocks.nightsToRefill(config) {
+        Text(Copy.Door.refill(after: nights))
+          .tollText(.subhead)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+    }
   }
 }

@@ -32,7 +32,11 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 11 | Edit the window during a block | Trigger shows "An edit waits…"; it applies after `→ off` | | |
 | 12 | Tap OK on the block screen after the end time (if the block is ever still up) | `blockScreen → off` | | |
 
-Door used, cancelled and regretted are added with step 6.
+| 13 | Door used: block screen → Open → choose one app → wait 90 s → use it | `doorChosen`, `doorStart → on` (door open), then `doorUsed` after 5 min of use (door gone) | | |
+| 14 | Door opened and not used | Door closes at `doorEnd`, 15 min after opening (D20) | | |
+| 15 | Door cancelled during the wait | `doorCancelled`; Status still shows the same unlocks left | | |
+| 16 | Door regretted: Lock again within 2 min | `doorLocked`; unlocks back to where they were | | |
+| 17 | Leave the app during the wait | The app opens anyway at the end of the wait (`doorStart`) | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

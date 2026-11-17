@@ -46,9 +46,19 @@ private struct LiveStatus: View {
   let model: AppModel
   let openSettings: () -> Void
 
+  private var doorShown: Binding<Bool> {
+    Binding(get: { model.showsDoor }, set: { if !$0 { model.dismissDoor() } })
+  }
+
   var body: some View {
     TimelineView(.everyMinute) { context in
       StatusView(state: model.state, now: context.date, openSettings: openSettings)
+        .sheet(isPresented: doorShown) {
+          TimelineView(.periodic(from: .now, by: 1)) { tick in
+            DoorSheet(model: model, now: tick.date)
+          }
+          .interactiveDismissDisabled(model.state.door != nil)
+        }
     }
     .task {
       while !Task.isCancelled {

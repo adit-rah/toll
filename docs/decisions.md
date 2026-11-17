@@ -42,6 +42,12 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D19. Status's state line is the screen title; the gear opens the trigger screen until Settings** (2026-11-17, step 5). The state is the one question Status answers, so it takes the title position every screen shares. "You're away" shows only inside the window; away in the day says when tonight starts. A block whose end has passed is never shown as blocked. Status rereads the shared state every 20 s while open, because extensions change it.
 
+**D20. The door's stored expiry is the end of its 15-minute interval** (2026-11-17, step 6). DeviceActivity intervals are at least 15 minutes, so the door's 5 minutes are a usage threshold inside one (spec §5). Its interval starts when the wait ends, so the interval start opens the door and the threshold closes it. If both callbacks are missed, the next reconcile after the interval end closes it (D-2). Someone who opens the app and does not use it gets up to 15 minutes, never more. The app's own timer opens the door at the end of the wait as well, in case the monitor is late.
+
+**D21. Unlocks are spent at opening and refilled by night ends** (2026-11-17, step 6). The state keeps the number spent, the run of clean nights, the last night end counted and the last spend. A night counts when it ends, whether or not the user was home, like the trial (P-2). A spend inside it resets the run, and seven in a row return one, up to the maximum. Returning an unlock with "Lock again" (D-4) also restores the previous spend time, so that night stays clean.
+
+**D22. The door sheet opens when "Open" was tapped on the block screen in the last two minutes** (2026-11-17, step 6). The block-screen extension records the tap and the app shows the sheet over Status. The system picker cannot be limited to one app, so anything but exactly one app is asked again ("Choose one app."). While a door is waiting or open the sheet stays up; leaving the app changes nothing (D-1).
+
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 
 | # | Unknown | What Apple's docs and staff say | Device check |

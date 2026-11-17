@@ -13,6 +13,10 @@
     case statusBlocked = "status-blocked"
     case statusStarts = "status-starts"
     case statusAway = "status-away"
+    case doorChoosing = "door-choosing"
+    case doorWaiting = "door-waiting"
+    case doorOpen = "door-open"
+    case doorNone = "door-none"
 
     static var current: DemoScenario? {
       UserDefaults.standard.string(forKey: "TollDemo").flatMap(Self.init(rawValue:))
@@ -27,7 +31,7 @@
       case .permissions: [.wake, .home, .permissions]
       case .keepOpen: [.wake, .home, .permissions, .keepOpen]
       case .ready: [.wake, .home, .permissions, .keepOpen, .ready]
-      case .statusBlocked, .statusStarts, .statusAway: nil
+      default: nil
       }
     }
 
@@ -39,11 +43,23 @@
       var state = SleepState()
       state.presence = Presence(isHome: self != .statusAway, at: now)
       switch self {
-      case .statusBlocked:
+      case .statusBlocked, .doorChoosing, .doorWaiting, .doorOpen, .doorNone:
         state.settings.window = SleepWindow(
           start: ClockTime(hour: minute / 60).adding(minutes: -60), end: ClockTime(hour: 7))
         state.blockOn = true
         state.blockEndsAt = calendar.date(byAdding: .hour, value: 8, to: now)
+        state.doorAskedAt = isDoor ? now : nil
+        if self == .doorNone { state.unlocks.spent = 3 }
+        if self == .doorWaiting || self == .doorOpen {
+          state.unlocks.spent = 1
+          var door = Door(
+            app: Data(), waitEndsAt: now.addingTimeInterval(self == .doorWaiting ? 90 : -30))
+          if self == .doorOpen { door.openedAt = now.addingTimeInterval(-30) }
+          state.door = door
+        } else if self != .doorNone {
+          state.unlocks.spent = 1
+          state.unlocks.cleanNights = 3
+        }
       case .statusStarts:
         state.settings.window = SleepWindow(
           start: ClockTime(hour: 22, minute: 30), end: ClockTime(hour: 7))
@@ -59,6 +75,8 @@
       return state
     }
 
+    var isDoor: Bool { rawValue.hasPrefix("door") }
+
     /// The simulator cannot grant Family Controls; screens past the permission step assume it.
     var screenTimeApproved: Bool { self == .keepOpen || self == .ready }
   }
@@ -71,10 +89,30 @@
       if let path = scenario.setupPath {
         DemoSetup(app: app, path: path)
       } else if let state = scenario.status(now: Date()) {
-        StatusView(state: state, now: Date(), openSettings: {})
+        if scenario.isDoor {
+          DemoDoor(app: app, state: state)
+        } else {
+          StatusView(state: state, now: Date(), openSettings: {})
+        }
       } else {
         TollColor.bg.ignoresSafeArea()
       }
+    }
+  }
+
+  /// Status with the door sheet over it, as after "Open" on the block screen.
+  private struct DemoDoor: View {
+    let app: AppModel
+    let state: SleepState
+
+    var body: some View {
+      StatusView(state: state, now: Date(), openSettings: {})
+        .sheet(isPresented: .constant(true)) {
+          TimelineView(.periodic(from: .now, by: 1)) { tick in
+            DoorSheet(model: app, now: tick.date)
+          }
+        }
+        .task { app.show(state) }
     }
   }
 
