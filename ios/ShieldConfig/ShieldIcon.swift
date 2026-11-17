@@ -1,7 +1,7 @@
 import UIKit
 
-/// The placeholder mark from `toll-brand-tbd.md` (a white ring on near-black), drawn in code so the
-/// extension carries no asset until the identity exists.
+/// A placeholder mark (a white ring on near-black), drawn in code so the extension carries no asset
+/// until the product has a name and an identity.
 enum ShieldIcon {
   static let accent = UIColor { traits in
     traits.userInterfaceStyle == .dark

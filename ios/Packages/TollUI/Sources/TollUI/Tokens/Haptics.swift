@@ -4,13 +4,13 @@ import SwiftUI
   import UIKit
 #endif
 
-/// The only three haptics in Toll (design §2.5). No haptic on a pass being granted.
+/// The only three haptics (design §2.5).
 public enum Haptic: Sendable {
-  /// A wait starts or ends.
+  /// The door's wait starts or ends.
   case light
-  /// Confirming a removal or blocking a person.
+  /// Confirming something that cannot be undone.
   case warning
-  /// When tiles and tag chips.
+  /// A picker value changes.
   case selection
 
   public var feedback: SensoryFeedback {

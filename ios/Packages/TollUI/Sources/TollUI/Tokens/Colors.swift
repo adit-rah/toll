@@ -1,5 +1,4 @@
 import SwiftUI
-import TollCore
 import UIKit
 
 /// Design §2.3. Every colour on screen comes from here so the placeholder accent swaps in one place.
@@ -31,45 +30,6 @@ public enum TollColor {
   public static let onAccent = dynamic(light: 0xFFFFFF, dark: 0x0F1115)
   public static let neutralBar = dynamic(
     light: 0xC7C7CC, dark: 0x48484A, lightContrast: 0xAEAEB2, darkContrast: 0x636366)
-
-  public static let heat1 = dynamic(light: 0xE9EEF5, dark: 0x1F2A38)
-  public static let heat2 = dynamic(light: 0xBDCEE1, dark: 0x3B4C63)
-  public static let heat3 = dynamic(light: 0x92AECD, dark: 0x576F8D)
-  public static let heat4 = dynamic(light: 0x668EB9, dark: 0x7391B8)
-  public static let heat5 = dynamic(light: 0x3A6EA5, dark: 0x8FB4E3)
-  public static let heat = [heat1, heat2, heat3, heat4, heat5]
-
-  public static let level1 = dynamic(
-    light: 0x2E8B6E, dark: 0x5FC3A3, lightContrast: 0x22705A, darkContrast: 0x7AD4B7)
-  public static let level2 = dynamic(
-    light: 0xC98A1B, dark: 0xE0B35B, lightContrast: 0x9E6A0F, darkContrast: 0xEBC57A)
-  public static let level3 = dynamic(
-    light: 0xB8532C, dark: 0xE08466, lightContrast: 0x96401F, darkContrast: 0xEC9C82)
-
-  // Avatars keep one palette in both appearances, like a photo would (design §3.17).
-  public static let avatarInitial = Color(uiColor: rgb(0x3A3A3C))
-  public static let avatarTones: [Color] = avatarHexes.map { Color(uiColor: rgb($0)) }
-  private static let avatarHexes: [UInt32] = [
-    0xD9E3EC, 0xE4DCEA, 0xDDE8DC, 0xEDE2D3, 0xE8D9D9, 0xD8E6E6,
-  ]
-
-  /// FNV-1a over UTF-8 rather than `hashValue`, which is seeded per launch and would recolour avatars.
-  public static func avatarTone(for handle: String) -> Color {
-    var hash: UInt32 = 2_166_136_261
-    for byte in handle.lowercased().utf8 {
-      hash ^= UInt32(byte)
-      hash = hash &* 16_777_619
-    }
-    return avatarTones[Int(hash % UInt32(avatarTones.count))]
-  }
-
-  public static func level(_ level: StatusLevel) -> Color {
-    switch level {
-    case .fewer: level1
-    case .usual: level2
-    case .more: level3
-    }
-  }
 
   private static func dynamic(
     light: UInt32, dark: UInt32, lightContrast: UInt32? = nil, darkContrast: UInt32? = nil

@@ -6,23 +6,12 @@ public enum Motion {
     public static let stateChange: TimeInterval = 0.2
     public static let movement: TimeInterval = 0.3
     public static let firstAppearance: TimeInterval = 0.45
-    public static let codeRing: TimeInterval = 0.15
     public static let progressFill: TimeInterval = 0.25
-    public static let calloutExit: TimeInterval = 0.15
-  }
-
-  /// Per-item delays for first-appearance sequences.
-  public enum Stagger {
-    public static let pickerRows: TimeInterval = 0.04
-    public static let weekStrip: TimeInterval = 0.03
-    public static let homeRows: TimeInterval = 0.025
-    public static let chartBars: TimeInterval = 0.02
   }
 
   public static var stateChange: Animation { .easeInOut(duration: Duration.stateChange) }
   public static var movement: Animation { .easeInOut(duration: Duration.movement) }
   public static var firstAppearance: Animation { .easeOut(duration: Duration.firstAppearance) }
-  public static var codeRing: Animation { .easeInOut(duration: Duration.codeRing) }
   public static var progressFill: Animation { .easeOut(duration: Duration.progressFill) }
 
   /// The one spring: no overshoot past 2%.
@@ -32,14 +21,6 @@ public enum Motion {
     _ index: Int, step: TimeInterval, duration: TimeInterval = Duration.firstAppearance
   ) -> Animation {
     .easeOut(duration: duration).delay(Double(index) * step)
-  }
-
-  /// Pinned and device-state lines slide down from under the hero zone; Reduce Motion fades them.
-  public static var pinnedLine: AnyTransition { .move(edge: .top).combined(with: .opacity) }
-
-  /// The wait card leaving as the system switches apps: drops 24 pt and fades.
-  public static var waitCardExit: AnyTransition {
-    .offset(y: 24).combined(with: .opacity)
   }
 }
 

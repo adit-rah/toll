@@ -1,25 +1,24 @@
 # ios
 
-`Toll.xcodeproj` has five targets that each need the Family Controls entitlement (spec §6):
+`Toll.xcodeproj` has four targets that each need the Family Controls entitlement:
 
 | Target | Folder | Role |
 |---|---|---|
-| `Toll` | `App/` | The app. Thin: builds `Dependencies.live` and shows `RootView` from `TollFeatures`. |
-| `TollShieldConfig` | `ShieldConfig/` | Shield text. Reads App Group defaults, writes nothing, returns in milliseconds. |
-| `TollShieldAction` | `ShieldAction/` | "Open Toll": appends `block_hit` to the spool, then opens Toll or posts the fallback notification. |
-| `TollMonitor` | `Monitor/` | DeviceActivity callbacks: schedules, session expiry, daily check-in. Under 6 MB: `TollCore` only. |
-| `TollReport` | `Report/` | DeviceActivityReport (ExtensionKit): draws today's screen time on blocked apps inside Home. Writes nothing; the app never sees the number (ledger A126). |
+| `Toll` | `App/` | The app. Thin: shows `RootView` from `TollFeatures`. |
+| `TollShieldConfig` | `ShieldConfig/` | The block screen's text. Reads App Group state, writes nothing, returns in milliseconds. |
+| `TollShieldAction` | `ShieldAction/` | The block screen's buttons: "Open" opens the app (iOS 26.5+), "OK" closes. |
+| `TollMonitor` | `Monitor/` | DeviceActivity callbacks: window edges, door expiry. Under 6 MB: `TollCore` only. |
 
-Logic lives in `Packages/` (see each package README). Targets use synchronized folders: add a file to the folder, never to `project.pbxproj`.
+The minimum is iOS 26.5, where the block screen can open the app directly (decisions D2). Logic lives in `Packages/` (see each package README). Targets use synchronized folders: add a file to the folder, never to `project.pbxproj`.
 
 ## Configuration
-`Config/Base.xcconfig` holds the bundle id, App Group, link host, API URL and team id. To sign with a different team locally, put `DEVELOPMENT_TEAM = <team id>` in `Config/Signing.xcconfig` (git-ignored).
+`Config/Base.xcconfig` holds the bundle id, App Group and team id. The bundle ids are Toll's: their Family Controls approvals carry over. To sign with a different team locally, put `DEVELOPMENT_TEAM = <team id>` in `Config/Signing.xcconfig` (git-ignored).
 
-## Xcode Cloud (founders, once)
-In Xcode: Product → Xcode Cloud → Create Workflow, on `main`. Actions: Test → `swift test` is covered by GitHub Actions, so use Build + Archive (iOS) and a TestFlight post-action on tags `v*`. Xcode Cloud needs the five Family Controls (Distribution) entitlements approved before the first TestFlight upload. The tag sets the version: `ci_scripts/ci_post_clone.sh` turns `v0.1.4` into version 0.1.4 with Xcode Cloud's run number as the build (ledger A133); `Base.xcconfig`'s 0.1.0 is only for local and untagged builds.
+## Xcode Cloud
+Build + Archive on tags `v*` with a TestFlight post-action. The tag sets the version: `ci_scripts/ci_post_clone.sh` turns `v0.2.0` into version 0.2.0 with Xcode Cloud's run number as the build.
 
 ## Not testable here
-Shield, DeviceActivity and authorization behaviour only run on a device. They are verified with `docs/gate-checklist.md`.
+Shields, DeviceActivity, region monitoring and authorization only run on a device: `docs/device-protocol.md`.
 
 ## Seeing screens without a Mac
 Debug builds open straight into a screen state with `-TollDemo <scenario>`; `scripts/render.sh` screenshots each one on a simulator and `render.yml` runs it on GitHub. See `docs/renders.md`; on a Mac, `docs/local-mac.md`.

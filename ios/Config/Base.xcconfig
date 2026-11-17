@@ -1,8 +1,6 @@
-// Identity and endpoints live here so a rename or a new domain is one edit.
+// Identity lives here so a rename is one edit. The bundle ids keep their Family Controls approvals.
 TOLL_BUNDLE_ID = com.advan.toll
 TOLL_APP_GROUP = group.com.advan.toll
-TOLL_LINK_HOST = toll.alders.dev
-TOLL_API_BASE_URL = https:/$()/toll.alders.dev/v1
 
 // Local and untagged builds. A `vX.Y.Z` tag build gets its version from the tag and its build
 // number from Xcode Cloud, written to Version.xcconfig by ci_scripts/ci_post_clone.sh.
@@ -14,10 +12,3 @@ CURRENT_PROJECT_VERSION = 1
 // A git-ignored Signing.xcconfig can override it to sign with another team locally.
 DEVELOPMENT_TEAM = JAFS73RCH8
 #include? "Signing.xcconfig"
-
-// Observability (spec §12, §16). Empty turns each off.
-TOLL_SENTRY_DSN =
-TOLL_TELEMETRYDECK_APP_ID =
-
-// Settings → Support Toll. Empty hides the row (ledger B: no donation link yet).
-TOLL_DONATION_URL =

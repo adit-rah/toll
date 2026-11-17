@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
   name: "TollCore",
-  platforms: [.iOS(.v18), .macOS(.v15)],
+  platforms: [.iOS("26.5"), .macOS(.v15)],
   products: [
     .library(name: "TollCore", targets: ["TollCore"]),
     .library(name: "TollScreenTime", targets: ["TollScreenTime"]),

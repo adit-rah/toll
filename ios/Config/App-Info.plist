@@ -4,37 +4,7 @@
 <dict>
 	<key>TollAppGroup</key>
 	<string>$(TOLL_APP_GROUP)</string>
-	<key>TollAPIBaseURL</key>
-	<string>$(TOLL_API_BASE_URL)</string>
-	<key>TollLinkHost</key>
-	<string>$(TOLL_LINK_HOST)</string>
-	<key>TollSentryDSN</key>
-	<string>$(TOLL_SENTRY_DSN)</string>
-	<key>TollTelemetryDeckAppID</key>
-	<string>$(TOLL_TELEMETRYDECK_APP_ID)</string>
-	<key>TollDonationURL</key>
-	<string>$(TOLL_DONATION_URL)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>remote-notification</string>
-	</array>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>com.advan.toll.sync</string>
-	</array>
-	<key>NSContactsUsageDescription</key>
-	<string>Toll hashes your contacts' email addresses on this phone and checks which belong to people who chose to be found. Your contacts never leave the phone.</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>toll</string>
-			</array>
-		</dict>
-	</array>
 </dict>
 </plist>

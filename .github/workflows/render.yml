@@ -17,7 +17,7 @@ on:
         default: "light"
   push:
     branches-ignore: ["main", "renders/**"]
-    paths: ["ios/**", "api/**", ".github/workflows/render.yml"]
+    paths: ["ios/**", ".github/workflows/render.yml"]
 
 concurrency:
   group: render-${{ github.ref }}
@@ -64,29 +64,6 @@ jobs:
         if: env.AXE_FRESH == '1'
         uses: actions/cache/save@v4
         with: { path: ~/axe, key: axe-v1 }
-      - uses: actions/setup-node@v5
-        with: { node-version: 22, cache: npm, cache-dependency-path: api/package-lock.json }
-      - name: Restore Swift packages
-        uses: actions/cache/restore@v4
-        with:
-          path: .spm
-          key: spm-${{ hashFiles('ios/Packages/*/Package.swift') }}
-          restore-keys: spm-
-      # Same retry as ios.yml: GitHub releases intermittently return 504 for the Sentry binaries.
-      - name: Resolve packages
-        run: |
-          for attempt in 1 2 3 4 5; do
-            xcodebuild -resolvePackageDependencies -project ios/Toll.xcodeproj -scheme Toll \
-              -clonedSourcePackagesDirPath .spm > resolve.log 2>&1 && exit 0
-            grep -E "error|failed" resolve.log | tail -3
-            sleep $((attempt * 45))
-          done
-          exit 1
-      - name: Start the Worker with the App Review data
-        run: |
-          ios/scripts/render-api.sh > api.env
-          sed -n 's/^TOKEN=/::add-mask::/p' api.env
-          cat api.env >> "$GITHUB_ENV"
       # A push can name its variants too: "[render light ax5]" in the commit message.
       - name: Variants from the commit message
         if: github.event_name == 'push'
@@ -99,11 +76,7 @@ jobs:
         env:
           SCENARIOS: ${{ inputs.scenarios }}
           VARIANTS: ${{ inputs.variants || env.PUSH_VARIANTS || 'light' }}
-          XCODEBUILD_ARGS: -clonedSourcePackagesDirPath ${{ github.workspace }}/.spm -disableAutomaticPackageResolution
         run: ios/scripts/render.sh build/renders
-      - name: Worker log
-        if: always()
-        run: cp /tmp/toll-render-api.log build/renders/api.log 2>/dev/null || true
       - name: Publish to renders/${{ github.ref_name }}
         if: always()
         env:

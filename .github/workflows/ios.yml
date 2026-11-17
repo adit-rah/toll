@@ -23,42 +23,17 @@ jobs:
           sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
           xcodebuild -version
       - name: swift-format
-        run: swift format lint --recursive --parallel ios/Packages ios/App ios/ShieldConfig ios/ShieldAction ios/Monitor ios/Report
+        run: swift format lint --recursive --parallel ios/Packages ios/App ios/ShieldConfig ios/ShieldAction ios/Monitor
       - name: TollCore tests
         run: swift test --package-path ios/Packages/TollCore
-      - name: Restore Swift packages
-        id: spm
-        uses: actions/cache/restore@v4
-        with:
-          path: .spm
-          key: spm-${{ hashFiles('ios/Packages/*/Package.swift') }}
-          restore-keys: spm-
-      # SwiftPM fetches every Sentry binary variant (~1 GB) from GitHub releases, which intermittently
-      # return 504. Retry patiently, and save the cache as soon as resolution succeeds.
-      - name: Resolve packages
-        run: |
-          for attempt in 1 2 3 4 5; do
-            xcodebuild -resolvePackageDependencies -project ios/Toll.xcodeproj -scheme Toll \
-              -clonedSourcePackagesDirPath .spm > resolve.log 2>&1 && exit 0
-            grep -E "error|failed" resolve.log | tail -3
-            sleep $((attempt * 45))
-          done
-          exit 1
-      - name: Save Swift packages
-        if: steps.spm.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: .spm
-          key: spm-${{ hashFiles('ios/Packages/*/Package.swift') }}
       # arm64 only: every iPhone and every Mac runner is arm64, and a second architecture doubled the
       # compile for nothing. No index store: only the editor reads it.
       - name: Build app and extensions
         run: |
           xcodebuild build -project ios/Toll.xcodeproj -scheme Toll \
             -destination 'generic/platform=iOS Simulator' \
-            -clonedSourcePackagesDirPath .spm -disableAutomaticPackageResolution \
             -skipPackagePluginValidation -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO ARCHS=arm64 COMPILER_INDEX_STORE_ENABLE=NO > build.log 2>&1 && status=0 || status=$?
-          grep -E "(error|warning): " build.log | grep -E "/ios/(App|ShieldConfig|ShieldAction|Monitor|Report|Packages)/" | sort -u | head -200 || true
+          grep -E "(error|warning): " build.log | grep -E "/ios/(App|ShieldConfig|ShieldAction|Monitor|Packages)/" | sort -u | head -200 || true
           tail -5 build.log
           exit $status

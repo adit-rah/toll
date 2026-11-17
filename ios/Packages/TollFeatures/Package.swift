@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
   name: "TollFeatures",
-  platforms: [.iOS(.v18)],
+  platforms: [.iOS("26.5")],
   products: [.library(name: "TollFeatures", targets: ["TollFeatures"])],
   dependencies: [
     .package(path: "../TollCore"),

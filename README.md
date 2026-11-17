@@ -1,16 +1,11 @@
-# Toll
+# Toll (sleep pivot; product name not chosen)
 
-A free iPhone app that blocks the apps you choose. Getting past a block costs a wait, spent inside Toll. Your friends can see what you did.
+When you are at home inside your sleep window, everything on the phone is blocked except what you chose to keep open. One scarce door lets one app through for a few minutes. Seven nights free, then one purchase. Everything stays on the device.
 
-- Product and build spec: [`docs/toll-mvp-spec.md`](docs/toll-mvp-spec.md)
-- Every screen and choice: [`docs/toll-user-flows.md`](docs/toll-user-flows.md)
-- Design: [`docs/toll-design.md`](docs/toll-design.md) · Insights: [`docs/toll-insights-spec.md`](docs/toll-insights-spec.md)
-- Decisions and deferrals: [`docs/toll-future-ledger.md`](docs/toll-future-ledger.md)
+- What gets built: [`docs/sleep-pivot-mvp.md`](docs/sleep-pivot-mvp.md)
+- Decisions and findings: [`docs/decisions.md`](docs/decisions.md)
+- Design foundations: [`docs/design.md`](docs/design.md)
 - Working in the repo (people and agents): [`CLAUDE.md`](CLAUDE.md)
-- From here to TestFlight: [`docs/handoff.md`](docs/handoff.md)
+- Apple account setup: [`docs/apple-setup.md`](docs/apple-setup.md)
 
-| Folder | What |
-|---|---|
-| `ios/` | The app, three Screen Time extensions, local Swift packages. See [`ios/README.md`](ios/README.md). |
-| `api/` | Cloudflare Worker. See [`api/README.md`](api/README.md). |
-| `fixtures/` | Test fixtures shared by both. |
+The app, its three Screen Time extensions and the local Swift packages are in [`ios/`](ios/README.md). There is no backend.
