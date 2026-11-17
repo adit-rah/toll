@@ -50,6 +50,10 @@ public final class AppModel {
   }
 
   public func foreground() {
+    #if DEBUG
+      // A demo launch shows a state it built; reading the store would replace it.
+      if DemoScenario.current != nil { return }
+    #endif
     readPermissions()
     reconcile(.foreground)
     Task { setPurchased(await Purchase.isPurchased()) }
@@ -71,6 +75,9 @@ public final class AppModel {
 
   /// Reads what the extensions wrote, without reconciling.
   func refresh() {
+    #if DEBUG
+      if DemoScenario.current != nil { return }
+    #endif
     let latest = reconciler.store.load()
     if latest != state { state = latest }
   }
