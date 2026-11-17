@@ -12,6 +12,7 @@ extension Copy {
     public static let home = "Home"
     public static let away = "Away"
     public static let unknown = "Not known yet"
+    public static let windowOnly = "Location off · the window alone decides"
     public static let inWindow = "Inside the window"
     public static let outsideWindow = "Outside the window"
     public static let entitled = "Entitled"

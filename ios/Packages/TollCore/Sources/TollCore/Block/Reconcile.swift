@@ -52,12 +52,12 @@ public enum Reconcile {
     return wall
   }
 
-  /// B-1: home, inside the window, and entitled. B-4: and the night began after the last night end
+  /// B-1: home (or location not in use, D8), inside the window, and entitled. B-4: and the night began after the last night end
   /// seen, so a clock set back or a flight west after the morning cannot bring the block back.
   static func blockNight(_ state: SleepState, now: Date, calendar: Calendar)
     -> SleepWindow.Night?
   {
-    guard state.entitled, state.presence?.isHome == true,
+    guard state.entitled, state.countsAsHome,
       let night = state.settings.window?.night(containing: now, calendar: calendar)
     else { return nil }
     if let last = state.lastNightEnd, night.start < last { return nil }

@@ -16,11 +16,11 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D6. `TollData` stays as the app-only services package** (2026-11-17). No third-party code (spec §9): GRDB, Sentry and TelemetryDeck are gone, so the project has no remote package dependencies. It keeps the Keychain and will hold location and StoreKit, which extensions must not link.
 
-**D7. Trial form — Open** (2026-11-17). Guideline 3.1.1 allows a free trial on a non-subscription app only as a $0 non-consumable named "XX-day Trial", disclosing before it starts the duration, what stops, and the price after. A timer the app starts by itself risks rejection ("Apps may not use their own mechanisms to unlock content or functionality"). Proposed: Welcome's "Start" buys a $0 "7-day Trial"; trial start is that transaction's `purchaseDate`, which survives reinstalls and new phones (the Keychain copy becomes a fallback, P-4). The trial counts 7 nights and never ends before 7 × 24 h. Store setup: two non-consumables, "7-day Trial" ($0) and the full unlock ($24.99).
+**D7. Trial form: stated in full, starts at once** (2026-11-17; founders). Welcome states the whole deal before anything else ("Seven nights free. Then $24.99 once, or it switches off. No subscription."), and the seven nights start when setup finishes, with no store sheet. Guideline 3.1.1's documented route is a $0 non-consumable named "7-day Trial", and an app-run trial is a review risk. If review objects, the trial start moves to that item's `purchaseDate`. Only `TrialClock` changes; every screen and the night counting stay. The trial start is kept in the Keychain so a reinstall does not reset it (P-4).
 
-**D8. Location and paid features — Open** (2026-11-17). Guideline 5.1.1(ii): "Paid functionality must not be dependent on or require a user to grant access to this data", and 5.1.1(iv): "Where possible, provide alternative solutions for users who don't grant consent." The purchase pays for a block that only turns on at home. Proposed: if location is denied or set to Approximate, the block runs on the window alone ("home" is assumed), and the permissions screen offers that rather than no skip. Without it, review may reject.
+**D8. Without location, the window alone decides** (2026-11-17; founders). Guideline 5.1.1(ii): "Paid functionality must not be dependent on or require a user to grant access to this data." What the purchase pays for is the app's function, not location. If location is denied, set to Approximate, or held at While Using, `homeCheck` is `windowOnly` and the block runs every night in the window wherever the user is. Always with Precise turns the home check back on. Setup's location row offers "Continue without location" after a denial; Screen Time still has no skip.
 
-**D9. Screen Time monetisation risk** (2026-11-17). Guideline 4.10 lists Screen Time APIs among things apps "may not monetize". Similar apps sell their own logic on top. Review notes (step 10) will describe the purchase as the app's sleep window, home rule and door, not access to blocking itself.
+**D9. What the purchase sells** (2026-11-17; founders). Guideline 4.10 lists Screen Time APIs among things apps "may not monetize". The product is the combination: blocking tied to the sleep window and to being home, with the door. Review notes (step 10) say so.
 
 **D10. Home uses `CLMonitor` with Always and a `CLServiceSession`** (2026-11-17). Only Always relaunches a terminated app for region events. From iOS 18, Always is effective only while the app holds a `CLServiceSession`, which can only start in the foreground and is recreated on each background launch. `startMonitoring(for:)` is marked for removal; `CLMonitor` replaces it. Region monitoring needs Precise location.
 
@@ -37,6 +37,8 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 **D16. A trigger screen stands in until setup and Status exist** (2026-11-17). Step 2 must hand over an installable build. Its strings sit in `Copy.Trigger`, apart from the spec's copy, and go with step 5.
 
 **D17. Categories chosen for keep-open cannot be kept open** (2026-11-17). `.all(except:)` takes app and site tokens only. A category picked in the keep-open picker is shown as "not kept open" for now; step 4 decides the setup wording.
+
+**D18. Spec §6 as built** (2026-11-17, step 3). Same shape as the suggestion, with these changes: the sweep schedule after the window (D14); `CLMonitor` with an Always `CLServiceSession` in place of `startMonitoring(for:)` (D10); the window-only mode (D8); a monotonic clock anchor during a block (D12). Door activities follow in step 6. Device results may still change any of this.
 
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 

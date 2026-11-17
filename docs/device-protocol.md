@@ -26,7 +26,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 5 | Force-quit the app mid-window, then leave and return | `left`/`arrived` still arrive with the app force-quit | | |
 | 6 | Low Power Mode all night | 1 and the morning end as normal | | |
 | 7 | Airplane mode overnight | Morning `windowEnd → off` or `sweepStart → off`; note region events after | | |
-| 8 | Location downgraded to While Using mid-window, then leave | Note what happens; expected: no `left` line | | |
+| 8 | Location downgraded to While Using mid-window, open the app, then leave | `permission` line; Trigger shows "Location off"; the block stays on wherever you go until the window ends (D8) | | |
 | 9 | Morning | `windowEnd → off` at the end time, `sweepStart = off` a minute later | | |
 | 10 | Clock moved forward an hour during a block (Settings → General → Date & Time) | Block stays on; it ends at the real end time | | |
 | 11 | Edit the window during a block | Trigger shows "An edit waits…"; it applies after `→ off` | | |

@@ -60,13 +60,24 @@ public struct ClockAnchor: Codable, Hashable, Sendable {
   }
 }
 
+/// How "home" is known (decisions D8). Without Always and Precise location the region cannot run with
+/// the app closed, and the paid block must not depend on location: the window alone decides.
+public enum HomeCheck: String, Codable, Hashable, Sendable {
+  case location
+  case windowOnly
+}
+
 /// Everything the app and the extensions share in the App Group (spec §6).
 public struct SleepState: Codable, Hashable, Sendable {
+  /// True when the block treats the user as home: the region says so, or location is not in use.
+  public var countsAsHome: Bool { homeCheck == .windowOnly || presence?.isHome == true }
+
   public var settings = SleepSettings()
   /// An edit made while the block was on; applied when it next turns off (B-3).
   public var pending: SleepSettings?
   /// Nil until the home region reports, and again after home moves.
   public var presence: Presence?
+  public var homeCheck = HomeCheck.location
   /// Trial or purchase (P-2, P-3). True until the trial is built (§12 step 7).
   public var entitled = true
   public var blockOn = false

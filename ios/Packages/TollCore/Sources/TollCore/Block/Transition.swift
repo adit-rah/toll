@@ -5,7 +5,7 @@ public enum ReconcileCause: String, Codable, Sendable, CaseIterable {
   case launch, foreground
   case windowStart, windowEnd, sweepStart, sweepEnd
   case arrived, left
-  case edit, blockScreen, entitlement
+  case edit, blockScreen, entitlement, permission
 }
 
 /// One line of the transition log (B-6): when, why, and the state that resulted.

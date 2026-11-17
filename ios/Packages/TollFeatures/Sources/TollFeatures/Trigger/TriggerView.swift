@@ -31,7 +31,7 @@ struct TriggerView: View {
       } else {
         Text(Copy.Trigger.notBlocked)
       }
-      Text(presence(state.presence))
+      Text(state.homeCheck == .windowOnly ? Copy.Trigger.windowOnly : presence(state.presence))
       Text(inWindow(state) ? Copy.Trigger.inWindow : Copy.Trigger.outsideWindow)
       Text(state.entitled ? Copy.Trigger.entitled : Copy.Trigger.notEntitled)
       if state.pending != nil { Text(Copy.Trigger.pending) }

@@ -160,4 +160,22 @@ struct ReconcileTests {
     #expect(run(&s, date(2026, 11, 17, 15), .sweepStart).transition?.changed == false)
     #expect(run(&s, date(2026, 11, 17, 23), .foreground).transition?.changed == true)
   }
+
+  @Test func withoutLocationTheWindowAloneDecides() {
+    var s = state(home: false)
+    s.homeCheck = .windowOnly
+    run(&s, date(2026, 11, 17, 23), .permission)
+    #expect(s.blockOn)
+    run(&s, date(2026, 11, 18, 7), .windowEnd)
+    #expect(!s.blockOn)
+  }
+
+  @Test func locationBackInUseNeedsHomeAgain() {
+    var s = state(home: false)
+    s.homeCheck = .windowOnly
+    run(&s, date(2026, 11, 17, 23))
+    s.homeCheck = .location
+    run(&s, date(2026, 11, 17, 23, 5), .permission)
+    #expect(!s.blockOn)
+  }
 }

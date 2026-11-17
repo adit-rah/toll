@@ -70,6 +70,18 @@ public final class AppModel {
   public func readPermissions() {
     screenTime = ScreenTimeAuthorization.state
     location = locationAccess.state
+    let check = Self.homeCheck(location) ?? state.homeCheck
+    if check != state.homeCheck { reconcile(.permission) { $0.homeCheck = check } }
+  }
+
+  /// Region events reach a closed app only with Always and Precise (decisions D8, D10); anything less
+  /// and the window alone decides. Not asked yet leaves it as it was.
+  static func homeCheck(_ location: LocationAccess.State) -> HomeCheck? {
+    switch location {
+    case .always: .location
+    case .whileUsing, .denied, .approximate: .windowOnly
+    case .notDetermined: nil
+    }
   }
 
   /// A home moved in an extension's reconcile (a held edit applied at window end) is picked up here.
