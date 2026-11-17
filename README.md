@@ -6,6 +6,6 @@ When you are at home inside your sleep window, everything on the phone is blocke
 - Decisions and findings: [`docs/decisions.md`](docs/decisions.md)
 - Design foundations: [`docs/design.md`](docs/design.md)
 - Working in the repo (people and agents): [`CLAUDE.md`](CLAUDE.md)
-- Apple account setup: [`docs/apple-setup.md`](docs/apple-setup.md)
+- Apple account setup: [`docs/apple-setup.md`](docs/apple-setup.md) · Store listing and review notes: [`docs/app-store.md`](docs/app-store.md) · Privacy policy: [`docs/privacy.md`](docs/privacy.md)
 
 The app, its three Screen Time extensions and the local Swift packages are in [`ios/`](ios/README.md). There is no backend.

@@ -54,6 +54,8 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D25. Settings replaces the trigger screen** (2026-11-17, step 8). The trigger screen (D16) is gone; the log moved to Settings. The sleep window, home and keep-open rows edit the draft: a held edit if one is waiting, else what is in force. The rows' line, "Changes apply after tonight's block ends", is always shown, as spec §7 has it. The privacy policy URL and the support address come from `Base.xcconfig` (`TOLL_PRIVACY_URL`, `TOLL_SUPPORT_EMAIL`); while empty, their rows are hidden. The founders fill them before review.
 
+**D26. Store text and policy are drafts for the founders** (2026-11-17, step 10). `docs/app-store.md` holds the listing, the review notes, framed per D9 and D8, and the purchase's name. `docs/privacy.md` is the policy page to publish. Both say `[Name]` where the product name goes. The policy needs a support address, and its published URL goes into `TOLL_PRIVACY_URL`.
+
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 
 | # | Unknown | What Apple's docs and staff say | Device check |
