@@ -10,6 +10,9 @@
     case empty, welcome, wake, home, permissions
     case keepOpen = "keep-open"
     case ready
+    case statusBlocked = "status-blocked"
+    case statusStarts = "status-starts"
+    case statusAway = "status-away"
 
     static var current: DemoScenario? {
       UserDefaults.standard.string(forKey: "TollDemo").flatMap(Self.init(rawValue:))
@@ -24,7 +27,36 @@
       case .permissions: [.wake, .home, .permissions]
       case .keepOpen: [.wake, .home, .permissions, .keepOpen]
       case .ready: [.wake, .home, .permissions, .keepOpen, .ready]
+      case .statusBlocked, .statusStarts, .statusAway: nil
       }
+    }
+
+    /// A state built around the current time, so the line reads the same whenever it is rendered.
+    func status(now: Date) -> SleepState? {
+      let calendar = Calendar.current
+      let minute =
+        calendar.component(.hour, from: now) * 60 + calendar.component(.minute, from: now)
+      var state = SleepState()
+      state.presence = Presence(isHome: self != .statusAway, at: now)
+      switch self {
+      case .statusBlocked:
+        state.settings.window = SleepWindow(
+          start: ClockTime(hour: minute / 60).adding(minutes: -60), end: ClockTime(hour: 7))
+        state.blockOn = true
+        state.blockEndsAt = calendar.date(byAdding: .hour, value: 8, to: now)
+      case .statusStarts:
+        state.settings.window = SleepWindow(
+          start: ClockTime(hour: 22, minute: 30), end: ClockTime(hour: 7))
+        if (22 * 60 + 30...1439).contains(minute) || minute < 7 * 60 {
+          state.settings.window = SleepWindow(start: ClockTime(hour: 12), end: ClockTime(hour: 13))
+        }
+      case .statusAway:
+        let start = ClockTime(hour: minute / 60)
+        state.settings.window = SleepWindow(start: start, end: start.adding(minutes: 8 * 60))
+      default:
+        return nil
+      }
+      return state
     }
 
     /// The simulator cannot grant Family Controls; screens past the permission step assume it.
@@ -38,6 +70,8 @@
     var body: some View {
       if let path = scenario.setupPath {
         DemoSetup(app: app, path: path)
+      } else if let state = scenario.status(now: Date()) {
+        StatusView(state: state, now: Date(), openSettings: {})
       } else {
         TollColor.bg.ignoresSafeArea()
       }

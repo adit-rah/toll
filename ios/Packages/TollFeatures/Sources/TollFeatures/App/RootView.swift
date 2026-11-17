@@ -5,6 +5,7 @@ import TollUI
 public struct RootView: View {
   let model: AppModel
   @Environment(\.scenePhase) private var scenePhase
+  @State private var showsSettings = false
 
   public init(model: AppModel) {
     self.model = model
@@ -33,7 +34,27 @@ public struct RootView: View {
     if model.state.setupFinishedAt == nil {
       SetupFlow(app: model)
     } else {
-      TriggerView(model: model)
+      LiveStatus(model: model, openSettings: { showsSettings = true })
+        .sheet(isPresented: $showsSettings) { TriggerView(model: model) }
+    }
+  }
+}
+
+/// Status on the live state. Extensions change the state while the app is open (the window starting,
+/// the block screen's buttons), so it is read again every so often and the clock moves on with it.
+private struct LiveStatus: View {
+  let model: AppModel
+  let openSettings: () -> Void
+
+  var body: some View {
+    TimelineView(.everyMinute) { context in
+      StatusView(state: model.state, now: context.date, openSettings: openSettings)
+    }
+    .task {
+      while !Task.isCancelled {
+        try? await Task.sleep(for: .seconds(20))
+        model.refresh()
+      }
     }
   }
 }

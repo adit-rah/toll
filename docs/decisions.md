@@ -40,6 +40,8 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D18. Spec §6 as built** (2026-11-17, step 3). Same shape as the suggestion, with these changes: the sweep schedule after the window (D14); `CLMonitor` with an Always `CLServiceSession` in place of `startMonitoring(for:)` (D10); the window-only mode (D8); a monotonic clock anchor during a block (D12). Door activities follow in step 6. Device results may still change any of this.
 
+**D19. Status's state line is the screen title; the gear opens the trigger screen until Settings** (2026-11-17, step 5). The state is the one question Status answers, so it takes the title position every screen shares. "You're away" shows only inside the window; away in the day says when tonight starts. A block whose end has passed is never shown as blocked. Status rereads the shared state every 20 s while open, because extensions change it.
+
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 
 | # | Unknown | What Apple's docs and staff say | Device check |

@@ -57,6 +57,12 @@ public final class AppModel {
     Task { await syncRegion() }
   }
 
+  /// Reads what the extensions wrote, without reconciling.
+  func refresh() {
+    let latest = reconciler.store.load()
+    if latest != state { state = latest }
+  }
+
   public func submit(_ edit: SleepSettings) {
     reconcile(.edit) { $0.submit(edit) }
   }

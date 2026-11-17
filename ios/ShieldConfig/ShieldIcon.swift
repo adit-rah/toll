@@ -9,6 +9,12 @@ enum ShieldIcon {
       : UIColor(red: 0x3A / 255, green: 0x6E / 255, blue: 0xA5 / 255, alpha: 1)
   }
 
+  /// White fails contrast on the dark-mode accent (design §3).
+  static let onAccent = UIColor { traits in
+    traits.userInterfaceStyle == .dark
+      ? UIColor(red: 0x0F / 255, green: 0x11 / 255, blue: 0x15 / 255, alpha: 1) : .white
+  }
+
   static let image: UIImage = {
     let size = CGSize(width: 72, height: 72)
     return UIGraphicsImageRenderer(size: size).image { _ in

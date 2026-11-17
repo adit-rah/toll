@@ -28,6 +28,7 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 |---|---|
 | `empty` | The empty window |
 | `welcome` · `wake` · `home` · `permissions` · `keep-open` · `ready` | Each setup screen (spec §7 Setup 1–6); home is placed in London, Screen Time is assumed from `keep-open` on |
+| `status-blocked` · `status-starts` · `status-away` | Status in each of its three states, built around the time of the render |
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):
 ```
