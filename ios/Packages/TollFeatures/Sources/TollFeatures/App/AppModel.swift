@@ -35,6 +35,7 @@ public final class AppModel {
       // Demo launches render screens; opening location would put a prompt over them.
       if DemoScenario.current != nil { return }
     #endif
+    clearTollLeftovers()
     Task {
       await HomeRegion.shared.watch { [weak self] presence in await self?.update(presence) }
     }
@@ -47,6 +48,18 @@ public final class AppModel {
       if state.trialStart == nil, let trialStart { state.trialStart = trialStart }
     }
     Task.detached(priority: .background) { TransitionLog().trim() }
+  }
+
+  /// Decisions D28: an upgrade from Toll must not keep Toll's shields, schedules or data.
+  private func clearTollLeftovers() {
+    TollLeftovers.clear()
+    Keychain().removeTollItems()
+    let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+    for folder in support {
+      for name in ["toll.sqlite", "toll.sqlite-wal", "toll.sqlite-shm"] {
+        try? FileManager.default.removeItem(at: folder.appending(path: name))
+      }
+    }
   }
 
   public func foreground() {

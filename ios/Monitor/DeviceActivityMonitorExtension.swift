@@ -12,7 +12,9 @@ final class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     switch activity {
     case .door: Reconciler().run(.doorStart)
     case .sleepSweep: Reconciler().run(.sweepStart)
-    default: Reconciler().run(.windowStart)
+    case .sleepWindow: Reconciler().run(.windowStart)
+    // Toll's own schedules on an upgraded phone (decisions D28): stopped, never read as a window.
+    default: DeviceActivityCenter().stopMonitoring([activity])
     }
   }
 
@@ -21,7 +23,8 @@ final class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     switch activity {
     case .door: Reconciler().run(.doorEnd)
     case .sleepSweep: Reconciler().run(.sweepEnd)
-    default: Reconciler().run(.windowEnd)
+    case .sleepWindow: Reconciler().run(.windowEnd)
+    default: DeviceActivityCenter().stopMonitoring([activity])
     }
   }
 
