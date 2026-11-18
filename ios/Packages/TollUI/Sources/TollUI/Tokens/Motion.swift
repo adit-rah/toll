@@ -9,6 +9,12 @@ public enum Motion {
     public static let progressFill: TimeInterval = 0.25
   }
 
+  /// Rows returning from the system picker (design §2.5).
+  public enum PickerRows {
+    public static let stagger: TimeInterval = 0.04
+    public static let rise: CGFloat = 6
+  }
+
   public static var stateChange: Animation { .easeInOut(duration: Duration.stateChange) }
   public static var movement: Animation { .easeInOut(duration: Duration.movement) }
   public static var firstAppearance: Animation { .easeOut(duration: Duration.firstAppearance) }

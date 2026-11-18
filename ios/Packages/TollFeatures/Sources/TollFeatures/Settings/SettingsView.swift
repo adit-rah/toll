@@ -1,0 +1,99 @@
+@preconcurrency import FamilyControls
+import SwiftUI
+import TollCore
+import TollScreenTime
+import TollUI
+
+/// Spec §7 Settings: the three things the user chose, then the purchase, the policy, support, the
+/// log and the version. Nothing else.
+struct SettingsView: View {
+  let model: AppModel
+  @Environment(\.dismiss) private var dismiss
+  @State private var picking = false
+  @State private var selection = FamilyActivitySelection()
+  @State private var restoreNote: String?
+  @State private var emptyRefused = false
+
+  var body: some View {
+    NavigationStack {
+      List {
+        Section {
+          NavigationLink(Copy.Settings.window) { WindowSettingsView(model: model) }
+          NavigationLink(Copy.Settings.home) { HomeSettingsView(model: model) }
+          Button {
+            picking = true
+          } label: {
+            LabeledContent(Copy.Settings.blocked, value: blockedSummary)
+          }
+          .foregroundStyle(TollColor.label)
+        } footer: {
+          VStack(alignment: .leading, spacing: TollSpacing.labelGap) {
+            Text(Copy.Settings.changesLater)
+            if emptyRefused { Text(Copy.Settings.notEmpty) }
+          }
+        }
+        Section {
+          Button(Copy.Settings.restore) { Task { await restore() } }
+          if let restoreNote { Text(restoreNote).tollText(.subhead) }
+          if let url = AppLinks.privacy { Link(Copy.Settings.privacy, destination: url) }
+          if let url = AppLinks.support { Link(Copy.Settings.support, destination: url) }
+        }
+        Section {
+          NavigationLink(Copy.Settings.log) { TransitionLogView(model: model) }
+          LabeledContent(Copy.Settings.version, value: AppLinks.version)
+        }
+      }
+      .navigationTitle(Copy.Settings.title)
+      .toolbar {
+        ToolbarItem(placement: .confirmationAction) {
+          Button(Copy.Setup.done) { dismiss() }
+        }
+      }
+    }
+    .tint(TollColor.accent)
+    .familyActivityPicker(isPresented: $picking, selection: $selection)
+    .onAppear { selection = Blocklist.selection(from: model.draft.blocked) }
+    .onChange(of: picking) { _, isOpen in
+      guard !isOpen else { return }
+      // An empty list would leave a block with nothing in it; too long a list iOS refuses (spec §5).
+      emptyRefused = Blocklist.isEmpty(selection) || !Blocklist.fits(selection)
+      guard !emptyRefused else {
+        selection = Blocklist.selection(from: model.draft.blocked)
+        return
+      }
+      var edit = model.draft
+      edit.blocked = Blocklist.encode(selection)
+      model.submit(edit)
+    }
+  }
+
+  private var blockedSummary: String {
+    let list = Blocklist.selection(from: model.draft.blocked)
+    return Copy.Settings.blockedCount(
+      apps: list.applicationTokens.count, sites: list.webDomainTokens.count,
+      categories: list.categoryTokens.count)
+  }
+
+  private func restore() async {
+    restoreNote = await model.restore() ? Copy.Settings.restored : Copy.Trial.nothingToRestore
+  }
+}
+
+/// Where the policy and support live, from Info.plist so they change without a code edit.
+enum AppLinks {
+  static var privacy: URL? { url("TollPrivacyURL") }
+  static var support: URL? {
+    string("TollSupportEmail").flatMap { URL(string: "mailto:\($0)") }
+  }
+  static var version: String {
+    let short = string("CFBundleShortVersionString") ?? "?"
+    let build = string("CFBundleVersion") ?? "?"
+    return "\(short) (\(build))"
+  }
+
+  private static func string(_ key: String) -> String? {
+    (Bundle.main.object(forInfoDictionaryKey: key) as? String).flatMap { $0.isEmpty ? nil : $0 }
+  }
+
+  private static func url(_ key: String) -> URL? { string(key).flatMap(URL.init(string:)) }
+}
