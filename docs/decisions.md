@@ -36,7 +36,7 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D16. A trigger screen stands in until setup and Status exist** (2026-11-17). Step 2 must hand over an installable build. Its strings sit in `Copy.Trigger`, apart from the spec's copy. Removed in step 8 (D25).
 
-**D17. Categories chosen for keep-open cannot be kept open** (2026-11-17). `.all(except:)` takes app and site tokens only. A category picked in the keep-open picker is shown as "not kept open" for now; step 4 decides the setup wording.
+**D17. Categories chosen for keep-open cannot be kept open** (2026-11-17; superseded by D27). `.all(except:)` takes app and site tokens only. A category picked in the keep-open picker is shown as "not kept open" for now; step 4 decides the setup wording.
 
 **D18. Spec §6 as built** (2026-11-17, step 3). Same shape as the suggestion, with these changes: the sweep schedule after the window (D14); `CLMonitor` with an Always `CLServiceSession` in place of `startMonitoring(for:)` (D10); the window-only mode (D8); a monotonic clock anchor during a block (D12). Door activities follow in step 6. Device results may still change any of this.
 
@@ -55,6 +55,13 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 **D25. Settings replaces the trigger screen** (2026-11-17, step 8). The trigger screen (D16) is gone; the log moved to Settings. The sleep window, home and keep-open rows edit the draft: a held edit if one is waiting, else what is in force. The rows' line, "Changes apply after tonight's block ends", is always shown, as spec §7 has it. The privacy policy URL and the support address come from `Base.xcconfig` (`TOLL_PRIVACY_URL`, `TOLL_SUPPORT_EMAIL`); while empty, their rows are hidden. The founders fill them before review.
 
 **D26. Store text and policy are drafts for the founders** (2026-11-17, step 10). `docs/app-store.md` holds the listing, the review notes, framed per D9 and D8, and the purchase's name. `docs/privacy.md` is the policy page to publish. Both say `[Name]` where the product name goes. The policy needs a support address, and its published URL goes into `TOLL_PRIVACY_URL`.
+
+**D27. A blocklist, not "everything except"** (2026-11-18; founders). The thesis: buy back your sleep by blocking the few apps that eat it, when you are home at the time you sleep. Most apps are harmless, so the user picks what to block, and everything else stays open. This replaces spec §3's keep-open list, §5's "everything except" shielding and setup screen 5.
+- **The block:** the shield names the chosen apps and sites and shields the chosen categories with `.specific`.
+- **The 50-item limit:** spec §5 says iOS refuses more than 50 individual apps and sites, so setup and Settings refuse a longer list and suggest a whole category. A list cannot be emptied either.
+- **The door:** it lists the blocked apps by their system names to tap. An app inside a blocked category is not on that list, so "Another app" opens the system picker for it. Its exception is `.specific(categories, except: [app])`.
+- **Unknowns:** spec §5's unknowns 1 and 2 (calls, alarms, Messages) matter less now. They are blocked only if the user picks them.
+- **Copy:** setup 5 reads "Which apps should be blocked at night?" / "Pick the few you lose time to. Everything else stays open."
 
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 

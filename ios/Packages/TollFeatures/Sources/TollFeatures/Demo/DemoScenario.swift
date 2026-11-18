@@ -8,7 +8,7 @@
   /// builds contain none of this.
   enum DemoScenario: String, CaseIterable {
     case empty, welcome, wake, home, permissions
-    case keepOpen = "keep-open"
+    case blocklist
     case ready
     case statusBlocked = "status-blocked"
     case statusStarts = "status-starts"
@@ -30,8 +30,8 @@
       case .wake: [.wake]
       case .home: [.wake, .home]
       case .permissions: [.wake, .home, .permissions]
-      case .keepOpen: [.wake, .home, .permissions, .keepOpen]
-      case .ready: [.wake, .home, .permissions, .keepOpen, .ready]
+      case .blocklist: [.wake, .home, .permissions, .blocklist]
+      case .ready: [.wake, .home, .permissions, .blocklist, .ready]
       default: nil
       }
     }
@@ -79,7 +79,7 @@
     var isDoor: Bool { rawValue.hasPrefix("door") }
 
     /// The simulator cannot grant Family Controls; screens past the permission step assume it.
-    var screenTimeApproved: Bool { self == .keepOpen || self == .ready }
+    var screenTimeApproved: Bool { self == .blocklist || self == .ready }
   }
 
   struct DemoRoot: View {

@@ -6,7 +6,7 @@ Last updated: 17 November 2026. `[Name]` is the app's name once chosen; until th
 
 ## What stays on your iPhone
 
-- **Your sleep window**, the apps and sites you keep open, your unlocks and your trial start. These are stored on your iPhone and are deleted with the app. The trial start date stays in your iPhone's Keychain, so reinstalling does not start a new free week.
+- **Your sleep window**, the apps and sites you block, your unlocks and your trial start. These are stored on your iPhone and are deleted with the app. The trial start date stays in your iPhone's Keychain, so reinstalling does not start a new free week.
 - **Home.** `[Name]` stores the one point you confirm as home and a circle around it. iOS tells the app only whether you are inside that circle, and the app keeps that as a single yes or no. It never records where you go, and it stores no coordinates other than that one point.
 - **Screen Time.** Apple's Screen Time framework does the blocking. The app never learns which apps you use, how long you use them, or the names of the apps you choose: it sees only opaque tokens that iOS gives it, and they never leave your iPhone.
 - **A log** of when the block turned on and off, and why, kept on your iPhone so you can see it in Settings.

@@ -27,7 +27,7 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | Scenario | Opens on |
 |---|---|
 | `empty` | The empty window |
-| `welcome` · `wake` · `home` · `permissions` · `keep-open` · `ready` | Each setup screen (spec §7 Setup 1–6); home is placed in London, Screen Time is assumed from `keep-open` on |
+| `welcome` · `wake` · `home` · `permissions` · `blocklist` · `ready` | Each setup screen (spec §7 Setup 1–6); home is placed in London, Screen Time is assumed from `blocklist` on |
 | `status-blocked` · `status-starts` · `status-away` | Status in each of its three states, built around the time of the render |
 | `door-choosing` · `door-waiting` · `door-open` · `door-none` | The door sheet over a blocked Status in each of its states; no app icon (no tokens in the simulator) |
 | `trial-ended` | The trial-ended screen with a sample week; `status-starts` also shows the trial line |
