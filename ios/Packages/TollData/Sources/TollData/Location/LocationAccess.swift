@@ -3,7 +3,7 @@ import TollCore
 
 /// Location permission and the one reading setup takes to place home (spec §7 Home, §9).
 @MainActor
-public final class LocationAccess {
+public final class LocationAccess: NSObject, CLLocationManagerDelegate {
   public enum State: Sendable, Equatable {
     case notDetermined, whileUsing, always, denied
     /// Approximate location: region monitoring does not run at all (decisions D10).
@@ -11,8 +11,17 @@ public final class LocationAccess {
   }
 
   private let manager = CLLocationManager()
+  /// Runs on the main actor whenever the user answers a prompt or changes the setting.
+  public var onChange: (() -> Void)?
 
-  public init() {}
+  override public init() {
+    super.init()
+    manager.delegate = self
+  }
+
+  nonisolated public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    Task { @MainActor in self.onChange?() }
+  }
 
   public var state: State {
     switch manager.authorizationStatus {
@@ -24,13 +33,17 @@ public final class LocationAccess {
     }
   }
 
-  /// iOS asks for While Using first; Always comes as a second prompt (decisions §5 finding 5).
+  /// iOS asks for While Using first; Always comes as a second prompt, once (decisions §5 finding 5).
   public func request() {
     switch manager.authorizationStatus {
     case .notDetermined: manager.requestWhenInUseAuthorization()
     case .authorizedWhenInUse: manager.requestAlwaysAuthorization()
     default: break
     }
+  }
+
+  public func requestWhileUsing() {
+    if manager.authorizationStatus == .notDetermined { manager.requestWhenInUseAuthorization() }
   }
 
   /// The first fix good enough to centre a region on, or nil after `seconds`.

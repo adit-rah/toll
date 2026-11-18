@@ -28,7 +28,8 @@ final class ShieldActionExtension: ShieldActionDelegate {
   }
 
   private static func response(to action: ShieldAction) -> ShieldActionResponse {
-    Reconciler().run(.blockScreen)
-    return action == .primaryButtonPressed ? .openParentalControlsApp : .close
+    let opensDoor = action == .primaryButtonPressed
+    Reconciler().run(.blockScreen) { if opensDoor { $0.doorAskedAt = Date() } }
+    return opensDoor ? .openParentalControlsApp : .close
   }
 }
