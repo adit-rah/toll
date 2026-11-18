@@ -63,6 +63,13 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 - **Unknowns:** spec §5's unknowns 1 and 2 (calls, alarms, Messages) matter less now. They are blocked only if the user picks them.
 - **Copy:** setup 5 reads "Which apps should be blocked at night?" / "Pick the few you lose time to. Everything else stays open."
 
+**D28. An upgrade from Toll clears what Toll left** (2026-11-18). TestFlight testers upgrade in place, and nothing in this app would otherwise touch Toll's state. Every launch clears the following; each step does nothing once done.
+- Toll's shield store (`blocks`), whose always-on blocks would otherwise stay up for good.
+- Its DeviceActivity schedules (`block.*`, `session.*`, `checkin`). The monitor also stops any schedule that is not one of ours when it fires, instead of reading it as the window.
+- Its App Group files (`gate-state.json`, `spool.jsonl`, `tokens.json`).
+- Its `toll.sqlite` database.
+- Its Keychain session token and device id.
+
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 
 | # | Unknown | What Apple's docs and staff say | Device check |

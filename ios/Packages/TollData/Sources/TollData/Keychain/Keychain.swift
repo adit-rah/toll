@@ -54,6 +54,20 @@ public struct Keychain: Sendable {
     SecItemAdd(query as CFDictionary, nil)
   }
 
+  /// Toll's session token and device id: useless now its server is gone, and the Keychain keeps them
+  /// through reinstalls (decisions D28).
+  public func removeTollItems() {
+    guard memory == nil else { return }
+    for account in ["sessionToken", "deviceId"] {
+      let query: [String: Any] = [
+        kSecClass as String: kSecClassGenericPassword,
+        kSecAttrService as String: service,
+        kSecAttrAccount as String: account,
+      ]
+      SecItemDelete(query as CFDictionary)
+    }
+  }
+
   private func base(_ key: Key) -> [String: Any] {
     [
       kSecClass as String: kSecClassGenericPassword,
