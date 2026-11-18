@@ -1,6 +1,6 @@
 # Toll (sleep pivot)
 
-iPhone app: when the user is home inside their sleep window, everything is blocked except a keep-open list; one scarce door lets one app through. Seven nights free, then one purchase. No backend. `docs/sleep-pivot-mvp.md` is the source of truth; `docs/design.md` carries the visual and motion rules. Decisions, findings and spec conflicts go in `docs/decisions.md`; add yours there.
+iPhone app: buy back your sleep. When the user is home inside their sleep window, the apps on their blocklist are blocked; one scarce door lets one app through. Seven nights free, then one purchase. No backend. `docs/sleep-pivot-mvp.md` is the source of truth; `docs/design.md` carries the visual and motion rules. Decisions, findings and spec conflicts go in `docs/decisions.md`; add yours there.
 
 ## Layout
 - `ios/` — Xcode project (`Toll.xcodeproj`) with four targets: `App/`, `ShieldConfig/`, `ShieldAction/`, `Monitor/`. All logic lives in local packages under `ios/Packages/`:
@@ -18,7 +18,7 @@ A build for a phone is the branch merged into `main`, then a GitHub release with
 
 ## Rules
 - Tunables only in `TollConfig.swift`, with spec §10 defaults. User-facing strings only in `Copy.swift` (the one file allowed past 300 lines); match spec §7 exactly. Info.plist purpose strings are the exception.
-- Name things by spec §3 terms: `SleepWindow`, `Home`, `Block`, `KeepOpen`, `Door`, `Unlock`, `Night`. Cite rule ids (B-1, D-4, P-2…) in commits.
+- Name things by spec §3 terms: `SleepWindow`, `Home`, `Block`, `Blocklist` (decisions D27), `Door`, `Unlock`, `Night`. Cite rule ids (B-1, D-4, P-2…) in commits.
 - Files under ~300 lines; split by feature. Comments say why, never what. No file headers, no commented-out code, no TODO without an issue link.
 - Tests only where spec §11 says, in `TollCore` (Swift Testing). No UI or snapshot tests. Device behaviour goes in `docs/device-protocol.md`.
 - Swift 6 strict concurrency. No force unwraps outside tests. No `@unchecked Sendable` without a one-line reason.

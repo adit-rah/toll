@@ -5,13 +5,13 @@ import TollCore
 import TollData
 import TollScreenTime
 
-/// Setup's draft (spec §7 Setup). Nothing reaches the shared state until the keep-open screen is done,
+/// Setup's draft (spec §7 Setup). Nothing reaches the shared state until the blocklist is done,
 /// so leaving setup halfway arms nothing.
 @MainActor
 @Observable
 final class SetupModel {
   enum Step: Hashable, CaseIterable {
-    case wake, home, permissions, keepOpen, ready
+    case wake, home, permissions, blocklist, ready
 
     /// The progress bar counts the four questions; Ready is not one.
     var number: Int? {
@@ -19,7 +19,7 @@ final class SetupModel {
       case .wake: 1
       case .home: 2
       case .permissions: 3
-      case .keepOpen: 4
+      case .blocklist: 4
       case .ready: nil
       }
     }
@@ -116,12 +116,15 @@ final class SetupModel {
     }
   }
 
-  // MARK: Keep open and finish
+  // MARK: Blocklist and finish
 
-  func keepOpenChosen() {
+  /// At least one thing to block, and no more than iOS takes (spec §5).
+  var blocklistReady: Bool { !Blocklist.isEmpty(selection) && Blocklist.fits(selection) }
+
+  func blocklistChosen() {
     app.submit(
       SleepSettings(
-        window: window, home: locationUsable ? home : nil, keepOpen: KeepOpen.encode(selection)))
+        window: window, home: locationUsable ? home : nil, blocked: Blocklist.encode(selection)))
     go(.ready)
   }
 

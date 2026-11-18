@@ -5,7 +5,7 @@ extension Copy {
     public static let title = "Settings"
     public static let window = "Sleep window"
     public static let home = "Home"
-    public static let keepOpen = "Keep open"
+    public static let blocked = "Blocked apps"
     /// B-3, under the first three rows.
     public static let changesLater = "Changes apply after tonight's block ends."
     public static let restore = "Restore purchase"
@@ -22,11 +22,15 @@ extension Copy {
     public static let moveHome = "Move home here"
     public static let finding = Setup.finding
     public static let noFix = Setup.noFix
-    public static func kept(apps: Int, sites: Int) -> String {
-      let a = apps == 1 ? "1 app" : "\(apps) apps"
-      let s = sites == 1 ? "1 site" : "\(sites) sites"
-      return "\(a)\(middleDot)\(s)"
+    public static func blockedCount(apps: Int, sites: Int, categories: Int) -> String {
+      var parts = [apps == 1 ? "1 app" : "\(apps) apps"]
+      if sites > 0 { parts.append(sites == 1 ? "1 site" : "\(sites) sites") }
+      if categories > 0 {
+        parts.append(categories == 1 ? "1 category" : "\(categories) categories")
+      }
+      return parts.joined(separator: middleDot)
     }
+    public static let notEmpty = "At least one app stays on the list."
     public static let logEmpty = "Nothing yet."
 
     public static func line(_ transition: Transition, in calendar: Calendar = .current) -> String {
