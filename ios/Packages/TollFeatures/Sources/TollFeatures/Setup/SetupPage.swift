@@ -25,6 +25,8 @@ struct SetupPage<Content: View, Actions: View>: View {
       VStack(spacing: TollSpacing.labelGap) { actions }
     }
     .navigationBarTitleDisplayMode(.inline)
+    // Kept even when empty (Welcome, Ready), so the title sits at one position on every screen.
+    .toolbar(.visible, for: .navigationBar)
     .toolbar {
       if let step {
         ToolbarItem(placement: .principal) {

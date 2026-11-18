@@ -17,13 +17,14 @@ public struct HomePoint: Codable, Hashable, Sendable {
 public struct SleepSettings: Codable, Hashable, Sendable {
   public var window: SleepWindow?
   public var home: HomePoint?
-  /// The encoded `FamilyActivitySelection`. Opaque here: only the Screen Time glue can read it.
-  public var keepOpen: Data?
+  /// The blocklist: the apps, sites and categories blocked at night (decisions D27), as the encoded
+  /// `FamilyActivitySelection`. Opaque here: only the Screen Time glue can read it.
+  public var blocked: Data?
 
-  public init(window: SleepWindow? = nil, home: HomePoint? = nil, keepOpen: Data? = nil) {
+  public init(window: SleepWindow? = nil, home: HomePoint? = nil, blocked: Data? = nil) {
     self.window = window
     self.home = home
-    self.keepOpen = keepOpen
+    self.blocked = blocked
   }
 }
 
@@ -78,10 +79,19 @@ public struct SleepState: Codable, Hashable, Sendable {
   /// Nil until the home region reports, and again after home moves.
   public var presence: Presence?
   public var homeCheck = HomeCheck.location
+  public var door: Door?
+  public var unlocks = UnlockSupply()
+  /// When "Open" was last tapped on the block screen; the app opens the door sheet if it is recent.
+  public var doorAskedAt: Date?
   /// Nil until the last setup screen is passed; the app opens on setup until then.
   public var setupFinishedAt: Date?
-  /// Trial or purchase (P-2, P-3). True until the trial is built (§12 step 7).
+  /// Trial or purchase (P-2, P-3), worked out by every reconcile so the trial ends on time with the
+  /// app closed.
   public var entitled = true
+  /// From the Keychain, so a reinstall does not start a new trial (P-4).
+  public var trialStart: Date?
+  /// Mirrors the App Store's answer, so extensions can read it.
+  public var purchased = false
   public var blockOn = false
   /// The end of the night the block is on for. The block screen reads it.
   public var blockEndsAt: Date?
