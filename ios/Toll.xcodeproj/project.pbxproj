@@ -13,12 +13,9 @@
 		701100000000000000000121 /* TollScreenTime in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000221 /* TollScreenTime */; };
 		701100000000000000000130 /* TollCore in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000230 /* TollCore */; };
 		701100000000000000000131 /* TollScreenTime in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000231 /* TollScreenTime */; };
-		701100000000000000000140 /* TollCore in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000240 /* TollCore */; };
-		701100000000000000000141 /* TollScreenTime in Frameworks */ = {isa = PBXBuildFile; productRef = 701100000000000000000241 /* TollScreenTime */; };
 		701100000000000000000060 /* TollShieldConfig.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 701100000000000000000021 /* TollShieldConfig.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		701100000000000000000061 /* TollShieldAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 701100000000000000000022 /* TollShieldAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		701100000000000000000062 /* TollMonitor.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 701100000000000000000023 /* TollMonitor.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		701100000000000000000063 /* TollReport.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 701100000000000000000024 /* TollReport.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,13 +40,6 @@
 			remoteGlobalIDString = 701100000000000000000043;
 			remoteInfo = TollMonitor;
 		};
-		701100000000000000000096 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 701100000000000000000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 701100000000000000000044;
-			remoteInfo = TollReport;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -66,17 +56,6 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		701100000000000000000065 /* Embed ExtensionKit Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
-			dstSubfolderSpec = 16;
-			files = (
-				701100000000000000000063 /* TollReport.appex in Embed ExtensionKit Extensions */,
-			);
-			name = "Embed ExtensionKit Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -85,7 +64,6 @@
 		701100000000000000000021 /* TollShieldConfig.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TollShieldConfig.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		701100000000000000000022 /* TollShieldAction.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TollShieldAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		701100000000000000000023 /* TollMonitor.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TollMonitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		701100000000000000000024 /* TollReport.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = TollReport.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -107,11 +85,6 @@
 		701100000000000000000013 /* Monitor */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Monitor;
-			sourceTree = "<group>";
-		};
-		701100000000000000000014 /* Report */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Report;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -152,15 +125,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		70110000000000000000005D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				701100000000000000000140 /* TollCore in Frameworks */,
-				701100000000000000000141 /* TollScreenTime in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -171,7 +135,6 @@
 				701100000000000000000011 /* ShieldConfig */,
 				701100000000000000000012 /* ShieldAction */,
 				701100000000000000000013 /* Monitor */,
-				701100000000000000000014 /* Report */,
 				701100000000000000000004 /* Config */,
 				701100000000000000000003 /* Products */,
 			);
@@ -192,7 +155,6 @@
 				701100000000000000000021 /* TollShieldConfig.appex */,
 				701100000000000000000022 /* TollShieldAction.appex */,
 				701100000000000000000023 /* TollMonitor.appex */,
-				701100000000000000000024 /* TollReport.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -208,7 +170,6 @@
 				701100000000000000000051 /* Frameworks */,
 				701100000000000000000052 /* Resources */,
 				70110000000000000000005C /* Embed Foundation Extensions */,
-				701100000000000000000065 /* Embed ExtensionKit Extensions */,
 			);
 			buildRules = (
 			);
@@ -216,7 +177,6 @@
 				701100000000000000000093 /* PBXTargetDependency */,
 				701100000000000000000094 /* PBXTargetDependency */,
 				701100000000000000000095 /* PBXTargetDependency */,
-				701100000000000000000097 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				701100000000000000000010 /* App */,
@@ -301,30 +261,6 @@
 			productReference = 701100000000000000000023 /* TollMonitor.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		701100000000000000000044 /* TollReport */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 7011000000000000000000A5 /* Build configuration list for PBXNativeTarget "TollReport" */;
-			buildPhases = (
-				70110000000000000000005E /* Sources */,
-				70110000000000000000005D /* Frameworks */,
-				70110000000000000000005F /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				701100000000000000000014 /* Report */,
-			);
-			name = TollReport;
-			packageProductDependencies = (
-				701100000000000000000240 /* TollCore */,
-				701100000000000000000241 /* TollScreenTime */,
-			);
-			productName = TollReport;
-			productReference = 701100000000000000000024 /* TollReport.appex */;
-			productType = "com.apple.product-type.extensionkit-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -376,7 +312,6 @@
 				701100000000000000000041 /* TollShieldConfig */,
 				701100000000000000000042 /* TollShieldAction */,
 				701100000000000000000043 /* TollMonitor */,
-				701100000000000000000044 /* TollReport */,
 			);
 		};
 /* End PBXProject section */
@@ -404,13 +339,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		70110000000000000000005B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		70110000000000000000005F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -448,13 +376,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		70110000000000000000005E /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -473,11 +394,6 @@
 			target = 701100000000000000000043 /* TollMonitor */;
 			targetProxy = 701100000000000000000092 /* PBXContainerItemProxy */;
 		};
-		701100000000000000000097 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 701100000000000000000044 /* TollReport */;
-			targetProxy = 701100000000000000000096 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -491,7 +407,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 6.0;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -516,7 +432,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 6.0;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -717,52 +633,6 @@
 			};
 			name = Release;
 		};
-		7011000000000000000000BA /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Config/Report.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Config/Report-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "$(TOLL_BUNDLE_ID).Report";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = TollReport;
-				SKIP_INSTALL = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-			};
-			name = Debug;
-		};
-		7011000000000000000000BB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Config/Report.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Config/Report-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "$(TOLL_BUNDLE_ID).Report";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = TollReport;
-				SKIP_INSTALL = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -807,15 +677,6 @@
 			buildConfigurations = (
 				7011000000000000000000B8 /* Debug */,
 				7011000000000000000000B9 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		7011000000000000000000A5 /* Build configuration list for PBXNativeTarget "TollReport" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				7011000000000000000000BA /* Debug */,
-				7011000000000000000000BB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -873,16 +734,6 @@
 			productName = TollCore;
 		};
 		701100000000000000000231 /* TollScreenTime */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */;
-			productName = TollScreenTime;
-		};
-		701100000000000000000240 /* TollCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */;
-			productName = TollCore;
-		};
-		701100000000000000000241 /* TollScreenTime */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 701100000000000000000080 /* XCLocalSwiftPackageReference "Packages/TollCore" */;
 			productName = TollScreenTime;

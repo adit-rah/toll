@@ -1,7 +1,7 @@
 #!/bin/sh
 # Xcode Cloud runs this after cloning (Apple's ci_scripts convention). A build started by a `vX.Y.Z`
 # tag ships as version X.Y.Z, with Xcode Cloud's own run number as the build, so TestFlight always
-# matches the release that made it (ledger A133). Other builds keep Base.xcconfig's values.
+# matches the release that made it. Other builds keep Base.xcconfig's values.
 set -eu
 
 if [ -z "${CI_TAG:-}" ]; then

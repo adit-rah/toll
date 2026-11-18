@@ -1,1 +1,0 @@
-ALTER TABLE `users` ADD `last_home_at` integer;

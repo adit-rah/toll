@@ -5,7 +5,7 @@ import PackageDescription
 // the one consumer (TollFeatures) is iOS only.
 let package = Package(
   name: "TollUI",
-  platforms: [.iOS(.v18)],
+  platforms: [.iOS("26.5")],
   products: [.library(name: "TollUI", targets: ["TollUI"])],
   dependencies: [.package(path: "../TollCore")],
   targets: [

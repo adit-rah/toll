@@ -1,46 +1,32 @@
-# Apple setup (E0.1) — founders
+# Apple setup — founders
 
-Everything here needs the Apple Developer account holder. Nothing in the repo can do it. TestFlight is blocked until the five Family Controls (Distribution) requests are approved (spec §6, ledger D2); the development entitlement works for device builds meanwhile.
+Everything here needs the Apple Developer account holder. Nothing in the repo can do it.
 
-## 1. Identifiers (developer.apple.com → Certificates, Identifiers & Profiles)
+## 1. Identifiers (unchanged from Toll)
 
 | Identifier | Type | Capabilities |
 |---|---|---|
-| `com.advan.toll` | App ID | Family Controls, App Groups, Push Notifications, Sign in with Apple, Associated Domains |
+| `com.advan.toll` | App ID | Family Controls, App Groups, In-App Purchase |
 | `com.advan.toll.ShieldConfig` | App ID | Family Controls, App Groups |
 | `com.advan.toll.ShieldAction` | App ID | Family Controls, App Groups |
 | `com.advan.toll.Monitor` | App ID | Family Controls, App Groups |
-| `com.advan.toll.Report` | App ID | Family Controls (no App Group: it writes nothing) |
-| `group.com.advan.toll` | App Group | assign to the first four App IDs |
+| `group.com.advan.toll` | App Group | the four App IDs above |
 
-If any of these names must change, change `ios/Config/Base.xcconfig` (and `APPLE_BUNDLE_ID` in `api/wrangler.jsonc`); nothing else hard-codes them.
+The pivot keeps these ids so their Family Controls (Distribution) approvals carry over. On `com.advan.toll`, Push Notifications, Sign in with Apple and Associated Domains can be switched off; the app no longer asks for them. `com.advan.toll.Report` is no longer built and can be left or removed. Location needs no capability, only the purpose strings in `ios/Config/App-Info.plist`.
 
-## 2. Family Controls (Distribution) — file five requests
+If a name must change, change `ios/Config/Base.xcconfig`; nothing else hard-codes it. A new bundle id needs a new Family Controls (Distribution) request (developer.apple.com/contact/request/family-controls-distribution).
 
-Form: developer.apple.com/contact/request/family-controls-distribution — one request per bundle id above. Reported turnaround is four business days to several weeks. Paste this justification (adjust the first sentence per extension):
+## 2. App Store Connect
 
-> Toll is a personal self-control app. The person using it chooses apps on their own iPhone to block; when they tap a blocked app, getting past the block costs them a wait spent inside Toll. Toll uses individual (not family) authorization on the user's own device only. It reads no Screen Time usage data and transmits none (the one place minutes appear, Toll's Home screen, is drawn by a DeviceActivityReport extension whose numbers never reach the app): the only data that leaves the device are events Toll records itself (for example, "a pass was taken at 9:10 after a 3-minute wait"), labelled with a name the user picks from a fixed list. Tokens never leave the device. There is no payment of any kind for getting past a block: it costs time, never money (Guideline 4.10). This bundle id is [the app / the ShieldConfiguration extension that renders the shield text / the ShieldAction extension that handles the shield's buttons / the DeviceActivityMonitor extension that applies schedules, ends sessions and records a daily check-in / the DeviceActivityReport extension that draws today's time on the blocked apps on the person's own Home screen and exports nothing].
+- In-app purchase: one non-consumable, product id `com.advan.toll.full`, $24.99 (price tier of the founders' choosing; the app shows the App Store's localized price). Its display name and description: "Keeps the nightly block running after the free week." The trial needs no product (decisions D7); if review asks for one, add a $0 non-consumable named "7-day Trial".
+- Privacy label: Data Not Collected (MVP spec §9).
+- Before review: set `TOLL_PRIVACY_URL` (where `docs/privacy.md` is published) and `TOLL_SUPPORT_EMAIL` in `ios/Config/Base.xcconfig`; Settings hides those rows while they are empty.
+- Review notes: written in §12 step 10.
 
-Record the five request ids here when filed:
+## 3. Toll's services to shut down (outside this repo)
 
-| Bundle id | Request id | Filed | Approved |
-|---|---|---|---|
-| `com.advan.toll` | | | |
-| `com.advan.toll.ShieldConfig` | | | |
-| `com.advan.toll.ShieldAction` | | | |
-| `com.advan.toll.Monitor` | | | |
-| `com.advan.toll.Report` | | | |
+The repo no longer contains the Worker, but deleting the code stopped nothing. Shut down and delete the Cloudflare Worker, D1 database, KV, Queues and R2 at `toll.alders.dev`; the Sentry and TelemetryDeck projects; and revoke the APNs and Sign in with Apple keys. Toll's TestFlight testers' accounts and events live in D1: delete them, and tell testers, before the pivot ships under the same app record.
 
-## 3. Keys
+## 4. Xcode Cloud
 
-- **APNs key** (Keys → +, Apple Push Notifications service): download the `.p8` once. Its key id → `APNS_KEY_ID` in `api/wrangler.jsonc`; the file contents → `wrangler secret put APNS_PRIVATE_KEY`.
-- **Sign in with Apple key** (Keys → +, Sign in with Apple, primary App ID `com.advan.toll`): key id → `APPLE_KEY_ID`; contents → `wrangler secret put APPLE_PRIVATE_KEY`. The Worker uses it to exchange the authorization code and to revoke tokens on account deletion (spec §13).
-- **Team id** → `APPLE_TEAM_ID` in `api/wrangler.jsonc` (both environments) and `DEVELOPMENT_TEAM` in `ios/Config/Base.xcconfig` (committed, because Xcode Cloud reads only committed files).
-
-## 4. Associated domains
-
-The Worker serves `https://toll.alders.dev/.well-known/apple-app-site-association` for `/i/*` once `APPLE_TEAM_ID` is set. If the domain changes, update `TOLL_LINK_HOST` and `TOLL_API_BASE_URL` in `ios/Config/Base.xcconfig` and `PUBLIC_BASE_URL` in `api/wrangler.jsonc`.
-
-## 5. Xcode Cloud
-
-See `ios/README.md`. Needs the approved entitlements before the first TestFlight upload.
+See `ios/README.md`.

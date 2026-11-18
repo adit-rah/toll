@@ -1,52 +1,46 @@
-# App Store submission (E10.45) — draft
+# App Store listing and review notes
 
-Listing copy is the founders' (ledger B1–B3): the thesis sentence, the first screen and the poster are left blank on purpose. Everything else below is drafted from the spec for sign-off.
+`[Name]` stands for the product name, not chosen yet (spec header). Copy rules from spec §8 apply here too: facts, numbers, no adjectives about the user.
 
 ## Listing
 
-- **Name:** Toll
-- **Subtitle (≤ 30):** _founders (B2)_
-- **First screen / promotional text:** _founders (B1, B2)_. Lead with time and friends (spec §10).
-- **Cost sentence (listing and website, never in-app):** "The first wait is 3 minutes. Each one after it is longer. Nothing shortens it."
-- **Price:** Free. No in-app purchases.
-- **Category:** Productivity (secondary: Health & Fitness).
-- **Screenshots:** six, from the mockup canvas: Home (light), the wait card, the session picker, Block these, People, Insights · Me. 6.9" and 6.5" sizes.
+- **Subtitle (30):** Buy back your sleep
+- **Promotional text:** Seven nights free. Then $24.99 once, or it switches off. No subscription.
+- **Description:**
+
+  > Buy back your sleep. When you are home in your sleep window, the apps you lose time to are blocked.
+  >
+  > • Set when you get up. Your nights start 8½ hours earlier, or whenever you choose.
+  > • Set home once. The block turns on when you are home at night, and off when you leave or the night ends.
+  > • Pick the few apps that keep you up. Everything else stays open.
+  > • Need one app? Open it for 5 minutes after a 90-second wait. You have 3 unlocks; one comes back after 7 nights without using any.
+  >
+  > There is no way to end the block for the night.
+  >
+  > Seven nights free. Then $24.99 once, or it switches off. No subscription.
+  >
+  > No account. Nothing leaves your iPhone.
+
+- **Keywords (100):** sleep,bedtime,night,screen time,app blocker,focus,phone,limit,block apps,home,wind down
+- **Category:** Health & Fitness (secondary: Productivity)
+- **Age rating:** 4+
+- **Privacy label:** Data Not Collected
+- **In-app purchase:** `com.advan.toll.full`, non-consumable, $24.99. Display name "Keep it". Description: "Keeps the nightly block running after the free week."
 
 ## Review notes
 
-> Toll is a self-control tool for the person using it, on their own iPhone. It uses FamilyControls individual authorization (not family), ManagedSettings shields and DeviceActivity schedules. It reads no Screen Time usage data and transmits none; it records its own events (a pass, a wait) and nothing else.
+> `[Name]` is a personal self-control tool. The person using it blocks their own iPhone during their own sleep window, with Screen Time's individual authorization. There is no parental or remote control, no account and no server: everything stays on the device.
 >
-> Getting past a block costs time, never money (Guideline 4.10). There are no purchases of any kind.
+> **What the purchase sells (4.10).** The one-time purchase pays for the app's own function: tying a Screen Time block to the user's sleep window and to being at home, with a limited "door" to open one app. It does not sell access to Screen Time or to blocking as such.
 >
-> The shield's "Open Toll" button opens Toll with `ShieldActionResponse.openParentalControlsApp` on iOS 26.5 and later. Below 26.5 it posts a local notification the user taps to open Toll (the documented route). No private API is used.
+> **Trial (3.1.1).** The first screen states the terms before anything else: "Seven nights free. Then $24.99 once, or it switches off. No subscription." The seven nights start when setup ends. After them, without the purchase, the app stops blocking and says so. There is no subscription, and nothing is charged automatically.
 >
-> Test account: sign in with email **review@toll.alders.dev**; the code is **[REVIEW_CODE]** (fixed for this address only). The account has 5 friends, one school and 8 weeks of history.
+> **Location (5.1.1, 5.1.5, 2.5.4).** Location is used for one thing: whether the user is inside one circle around the home they confirmed, so the block can start and stop with the app closed. That is why the app asks for Always. It keeps a single yes or no, never a history, and stores no coordinates but the home point. Location is optional, and the paid function does not depend on it: without it, the block runs every night in the sleep window wherever the user is.
 >
-> To see the gate: Toll → Settings → Blocked apps → Add a block → choose any app → Done. Open that app → "Open Toll". The first two opens each day are free; after that a 3-minute wait runs inside Toll, then you choose a session length.
+> **How to see it work.**
+> 1. Finish setup; on the wake-time screen, tap Change and set the night to start a minute from now.
+> 2. Allow Screen Time and location, and block any app.
+> 3. Once the night starts, any other app shows the block screen. "Open `[Name]`" leads to the door: choose one app, wait 90 seconds, and it opens for 5 minutes. "Lock again" within 2 minutes returns the unlock.
+> 4. Settings → Sleep window changes the night; changes made during a block apply when it ends.
 >
-> Account deletion: Settings → Delete account (re-authentication, then all data is removed and the Apple token is revoked). Report and block: long-press any person, or open them and use Report / Block.
-
-## Privacy nutrition labels
-
-Data linked to you:
-- **Identifiers** — User ID. Purpose: App Functionality.
-- **Usage Data** — Product Interaction (gate events: block hits, waits, passes, with a user-chosen app name from a fixed list). Purpose: App Functionality.
-- **Contact Info** — Email Address, if the user signs in with email or Apple shares one. Purpose: App Functionality (sign-in codes, account recovery).
-- **Contacts** — only if the user uses Find friends from contacts: hashed on the device; hashes are matched and not stored. Purpose: App Functionality.
-- **User Content** — Photos (optional profile photo). Purpose: App Functionality.
-
-Data not linked to you:
-- **Diagnostics** — Crash Data (Sentry), and **Usage Data** — Product Interaction (TelemetryDeck: ten anonymous event names, no identifiers). Purpose: Analytics.
-
-Tracking: none. No ATT prompt.
-
-## Age rating
-
-The 2026 questionnaire answered for **16+**: user-generated content limited to display names, handles and optional profile photos, visible to people the user connects with; report and block are available everywhere a person appears. No other sensitive content. In-app: the Welcome legal line confirms 16 or older (ledger A3).
-
-## Before submitting
-
-- [ ] Four Family Controls (Distribution) entitlements approved (`docs/apple-setup.md`).
-- [ ] Privacy policy and terms signed off (`api/public/privacy.html`, `api/public/terms.html`) and live at toll.alders.dev.
-- [ ] Reviewer account seeded and `REVIEW_CODE` set (`api/DEPLOY.md`).
-- [ ] Gate checklist passed on both phones (`docs/gate-checklist.md`).
+> The block lifts at the end of the sleep window, when the user leaves home, or after the free week without the purchase.

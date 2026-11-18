@@ -1,156 +1,99 @@
+@preconcurrency import FamilyControls
 import SwiftUI
 import TollCore
-import TollData
+import TollScreenTime
 import TollUI
 
-/// Settings (design §4.8, flows §16): a standard grouped list. Delete account is a two-step confirm
-/// with re-authentication.
+/// Spec §7 Settings: the three things the user chose, then the purchase, the policy, support, the
+/// log and the version. Nothing else.
 struct SettingsView: View {
-  let app: AppModel
-  @State private var model: SettingsModel?
-  @State private var legal: URL?
-  @Environment(\.dynamicTypeSize) private var typeSize
+  let model: AppModel
+  @Environment(\.dismiss) private var dismiss
+  @State private var picking = false
+  @State private var selection = FamilyActivitySelection()
+  @State private var restoreNote: String?
+  @State private var emptyRefused = false
 
   var body: some View {
-    ZStack {
-      if let model { list(model) }
-    }
-    // The model arrives a frame after the push; without this the page is white for that frame.
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(TollColor.bgGrouped)
-    .navigationTitle(Copy.Settings.title)
-    .navigationBarTitleDisplayMode(.inline)
-    .task {
-      if model == nil { model = SettingsModel(app: app) }
-      await model?.refresh()
-    }
-    .sheet(item: $legal) { SafariView(url: $0).ignoresSafeArea() }
-  }
-
-  private func list(_ model: SettingsModel) -> some View {
-    @Bindable var bound = model
-    return List {
-      account(model)
-      if app.isSignedIn {
-        school(model)
-        Section(Copy.Settings.notifications) {
-          if app.notificationsAllowed == false {
-            // A switch for a summary the system will not deliver would be a lie; the way to turn
-            // them on takes its place. Two rows, so the button is a full-width target at any text size.
-            Text(Copy.Settings.notificationsOff)
-            Button(Copy.Settings.openSettings) { Task { await model.allowNotifications() } }
-          } else {
-            Toggle(Copy.Settings.dailySummary, isOn: $bound.notifyEnabled)
-            if model.notifyEnabled {
-              Picker(Copy.Settings.time, selection: $bound.notifyHour) {
-                ForEach(0..<24, id: \.self) { Text(Copy.Schedules.time(ClockTime(hour: $0))).tag($0) }
-              }
-            }
+    NavigationStack {
+      List {
+        Section {
+          NavigationLink(Copy.Settings.window) { WindowSettingsView(model: model) }
+          NavigationLink(Copy.Settings.home) { HomeSettingsView(model: model) }
+          Button {
+            picking = true
+          } label: {
+            LabeledContent(Copy.Settings.blocked, value: blockedSummary)
+          }
+          .foregroundStyle(TollColor.label)
+        } footer: {
+          VStack(alignment: .leading, spacing: TollSpacing.labelGap) {
+            Text(Copy.Settings.changesLater)
+            if emptyRefused { Text(Copy.Settings.notEmpty) }
           }
         }
         Section {
-          Toggle(Copy.Settings.letContactsFind, isOn: $bound.discoverable)
-        } header: {
-          Text(Copy.Settings.discoverability)
-        } footer: {
-          // Under the switches that just went back, which is where the eye is.
-          if let error = model.saveError { Text(error) }
+          Button(Copy.Settings.restore) { Task { await restore() } }
+          if let restoreNote { Text(restoreNote).tollText(.subhead) }
+          if let url = AppLinks.privacy { Link(Copy.Settings.privacy, destination: url) }
+          if let url = AppLinks.support { Link(Copy.Settings.support, destination: url) }
+        }
+        Section {
+          NavigationLink(Copy.Settings.log) { TransitionLogView(model: model) }
+          LabeledContent(Copy.Settings.version, value: AppLinks.version)
         }
       }
-      Section(Copy.Blocks.title) {
-        // A value, not a destination: every push in Home's stack goes through its path.
-        NavigationLink(value: HomeRoute.blocks) {
-          if let count = model.blockedAppCount {
-            LabeledContent(Copy.Settings.blockedApps, value: "\(count)")
-          } else {
-            Text(Copy.Settings.blockedApps)
-          }
-        }
-        if !model.blockedPeople.isEmpty {
-          NavigationLink(Copy.Settings.blockedPeople) { BlockedPeopleView(model: model) }
-        }
-      }
-      Section(Copy.Settings.data) {
-        ShareLink(item: model.export, preview: SharePreview(Copy.Settings.export)) {
-          Text(Copy.Settings.export)
-        }
-        if app.isSignedIn {
-          Button(Copy.Settings.delete, role: .destructive) { model.beginDelete() }
-        }
-      }
-      Section(Copy.Settings.about) {
-        Button(Copy.Settings.privacy) { legal = model.legalBase.appending(path: "privacy") }
-        Button(Copy.Settings.terms) { legal = model.legalBase.appending(path: "terms") }
-        if let mail = URL(string: "mailto:\(model.supportEmail)") {
-          Link(model.supportEmail, destination: mail)
-        }
-        LabeledContent(Copy.Settings.version, value: model.version)
-      }
-      if let donation = model.donationURL {
-        Section(Copy.Settings.supportToll) {
-          Link(Copy.Settings.donate, destination: donation)
+      .navigationTitle(Copy.Settings.title)
+      .toolbar {
+        ToolbarItem(placement: .confirmationAction) {
+          Button(Copy.Setup.done) { dismiss() }
         }
       }
     }
-    .listStyle(.insetGrouped)
-    .onChange(of: model.notifyEnabled) { Task { await model.save() } }
-    .onChange(of: model.notifyHour) { Task { await model.save() } }
-    .onChange(of: model.discoverable) { Task { await model.save() } }
-    .confirmationDialog(Copy.Settings.signOutConfirm, isPresented: $bound.confirmSignOut, titleVisibility: .visible) {
-      Button(Copy.Settings.signOut, role: .destructive) { Task { await model.signOut() } }
-    }
-    .confirmationDialog(
-      Copy.Settings.leaveConfirm(app.me?.school?.name ?? ""), isPresented: $bound.confirmLeaveSchool,
-      titleVisibility: .visible
-    ) {
-      Button(Copy.Settings.leave, role: .destructive) { Task { await model.leaveSchool() } }
-    }
-    .sheet(isPresented: $bound.confirmDelete) { DeleteAccountSheet(model: model) }
-  }
-
-  private func account(_ model: SettingsModel) -> some View {
-    Section(Copy.Settings.account) {
-      if let me = app.me, app.isSignedIn {
-        NavigationLink {
-          AccountEditView(app: app)
-        } label: {
-          HStack(spacing: TollSpacing.rowLeadingGap) {
-            Avatar(
-              name: me.displayName ?? "", handle: me.handle ?? "", photoURL: me.photoUrl.flatMap(URL.init(string:)),
-              size: .settings)
-            VStack(alignment: .leading, spacing: 2) {
-              Text(me.displayName ?? "").tollText(.headline)
-              Text("@\(me.handle ?? "")").tollText(.caption)
-            }
-            Spacer(minLength: TollSpacing.labelGap)
-            // At accessibility sizes the name needs the width more than the chevron needs a caption.
-            if !typeSize.isAccessibilitySize {
-              Text(Copy.Settings.edit).tollText(.subhead)
-            }
-          }
-          .padding(.vertical, 4)
-          .accessibilityElement(children: .combine)
-        }
-        Button(Copy.Settings.signOut) { model.confirmSignOut = true }
-      } else {
-        Button(Copy.Settings.signIn) { app.showsSignInSheet = true }
+    .tint(TollColor.accent)
+    .familyActivityPicker(isPresented: $picking, selection: $selection)
+    .onAppear { selection = Blocklist.selection(from: model.draft.blocked) }
+    .onChange(of: picking) { _, isOpen in
+      guard !isOpen else { return }
+      // An empty list would leave a block with nothing in it; too long a list iOS refuses (spec §5).
+      emptyRefused = Blocklist.isEmpty(selection) || !Blocklist.fits(selection)
+      guard !emptyRefused else {
+        selection = Blocklist.selection(from: model.draft.blocked)
+        return
       }
+      var edit = model.draft
+      edit.blocked = Blocklist.encode(selection)
+      model.submit(edit)
     }
   }
 
-  private func school(_ model: SettingsModel) -> some View {
-    Section(Copy.Settings.school) {
-      if let school = app.me?.school {
-        HStack(spacing: TollSpacing.labelGap) {
-          Text(school.name).tollText(.body)
-          Spacer(minLength: 0)
-          // Borderless, or the whole row becomes the button and a tap on the name asks to leave.
-          Button(Copy.Settings.leave, role: .destructive) { model.confirmLeaveSchool = true }
-            .buttonStyle(.borderless)
-        }
-      } else {
-        FindFriendsView(app: app, isSetup: false, parts: [.school], showsHeaders: false)
-      }
-    }
+  private var blockedSummary: String {
+    let list = Blocklist.selection(from: model.draft.blocked)
+    return Copy.Settings.blockedCount(
+      apps: list.applicationTokens.count, sites: list.webDomainTokens.count,
+      categories: list.categoryTokens.count)
   }
+
+  private func restore() async {
+    restoreNote = await model.restore() ? Copy.Settings.restored : Copy.Trial.nothingToRestore
+  }
+}
+
+/// Where the policy and support live, from Info.plist so they change without a code edit.
+enum AppLinks {
+  static var privacy: URL? { url("TollPrivacyURL") }
+  static var support: URL? {
+    string("TollSupportEmail").flatMap { URL(string: "mailto:\($0)") }
+  }
+  static var version: String {
+    let short = string("CFBundleShortVersionString") ?? "?"
+    let build = string("CFBundleVersion") ?? "?"
+    return "\(short) (\(build))"
+  }
+
+  private static func string(_ key: String) -> String? {
+    (Bundle.main.object(forInfoDictionaryKey: key) as? String).flatMap { $0.isEmpty ? nil : $0 }
+  }
+
+  private static func url(_ key: String) -> URL? { string(key).flatMap(URL.init(string:)) }
 }

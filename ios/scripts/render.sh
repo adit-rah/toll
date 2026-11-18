@@ -5,9 +5,8 @@
 #
 #   ios/scripts/render.sh [out-dir]          default out-dir: build/renders
 #   SCENARIOS  one per line: `<scenario>` or `<scenario>: <axe step>; <axe step>…`
-#              (default: every scenario in DemoLaunch.swift)
+#              (default: every scenario in ALL below)
 #   VARIANTS   any of light dark ax5 dark-ax5, space-separated (default: light)
-#   API TOKEN  from render-api.sh; without them the signed-in scenarios land on Welcome
 #   UDID       the simulator to use (default: render-device.sh picks and boots one)
 #   XCODEBUILD_ARGS  extra xcodebuild arguments (CI passes its package cache)
 #   BUILD_ONLY=1     build and stop
@@ -17,7 +16,7 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 OUT=${1:-$ROOT/build/renders}
 DERIVED=$ROOT/build/render-derived
 BUNDLE=com.advan.toll
-ALL="welcome permissions setup-blocks solo-home home insights people gate session pass-ready screen-time-off"
+ALL="welcome wake home permissions blocklist ready status-blocked status-starts status-away door-choosing door-waiting door-open door-none trial-ended"
 SCENARIOS=${SCENARIOS:-$(printf '%s\n' $ALL)}
 VARIANTS=${VARIANTS:-light}
 SETTLE=${SETTLE:-12}
@@ -58,8 +57,8 @@ APP=$DERIVED/Build/Products/Debug-iphonesimulator/Toll.app
 if [ "${BUILD_ONLY:-0}" = 1 ]; then cat "$TIMINGS" >&2; exit 0; fi
 
 # Ad hoc, like Xcode signs for the simulator. No entitlements: the simulator refuses restricted ones in a
-# signature, so the App Group falls back to a temporary folder and demo launches keep the session in
-# memory (Keychain.inMemory). Family Controls has no simulator support at all; DemoLaunch fakes it.
+# signature, so the App Group falls back to a temporary folder and demo launches keep Keychain values in
+# memory (Keychain.inMemory). Family Controls has no simulator support at all; demo launches fake it.
 for inner in "$APP"/Frameworks/* "$APP"/PlugIns/*.appex; do
   if [ -e "$inner" ]; then codesign --force --sign - "$inner"; fi
 done
@@ -119,10 +118,8 @@ capture() {
   xcrun simctl uninstall "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
   first=$(($(lines) + 1))
   # One scenario that will not open is a finding, not a reason to lose the others.
-  # The token goes in the environment, never as an argument: base64url can start with "-".
   if ! { xcrun simctl install "$UDID" "$APP" &&
-    SIMCTL_CHILD_TOLL_DEMO_TOKEN=${TOKEN:-} SIMCTL_CHILD_TOLL_DEMO_API=${API:-} \
-      xcrun simctl launch "$UDID" "$BUNDLE" -TollDemo "$scenario"; } >"$dir/launch.txt" 2>&1; then
+    xcrun simctl launch "$UDID" "$BUNDLE" -TollDemo "$scenario"; } >"$dir/launch.txt" 2>&1; then
     echo "$variant/$(slug "$line"): did not launch" >&2
   fi
   drawn=$(settle)

@@ -1,42 +1,36 @@
-# Toll
+# Toll (sleep pivot)
 
-Free iPhone app blocker with a social layer. Specs in `docs/` are the source of truth: `toll-mvp-spec.md` wins, then `toll-design.md`, then the others. Resolved conflicts and defaults are recorded in `docs/toll-future-ledger.md` §A; add yours there.
+iPhone app: buy back your sleep. When the user is home inside their sleep window, the apps on their blocklist are blocked; one scarce door lets one app through. Seven nights free, then one purchase. No backend. `docs/sleep-pivot-mvp.md` is the source of truth; `docs/design.md` carries the visual and motion rules. Decisions, findings and spec conflicts go in `docs/decisions.md`; add yours there.
 
 ## Layout
-- `api/` — Cloudflare Worker (Hono, Zod, Drizzle on D1, KV, Queues, R2). One folder per feature in `src/features/<name>/` (`routes.ts`, `contract.ts` Zod schemas, `service.ts`). Pure domain logic in `src/domain/`. DB tables in `src/db/schema/*.ts`.
-- `ios/` — Xcode project (`Toll.xcodeproj`) with five targets: `App/`, `ShieldConfig/`, `ShieldAction/`, `Monitor/`, `Report/` (the DeviceActivityReport that draws Home's screen time). All logic lives in local packages under `ios/Packages/`:
-  - `TollCore` — domain model, config, copy, pure logic. Linux-testable. Product `TollScreenTime` = Screen Time glue shared with the extensions.
-  - `TollData` — GRDB store, spool ingest, outbox, API client, Keychain, analytics. Never imported by extensions.
+- `ios/` — Xcode project (`Toll.xcodeproj`) with four targets: `App/`, `ShieldConfig/`, `ShieldAction/`, `Monitor/`. All logic lives in local packages under `ios/Packages/`:
+  - `TollCore` — config, copy, pure logic. Linux-testable. Product `TollScreenTime` = Screen Time glue shared with the extensions.
+  - `TollData` — app-only services: Keychain, location, StoreKit. Never imported by extensions.
   - `TollUI` — tokens and components. `TollFeatures` — one folder per screen.
-- `fixtures/` — JSON fixtures shared by the Swift and TypeScript test suites (same inputs, same expected outputs).
 
 ## Commands
-- Worker: `cd api && npm ci && npm run check` (Biome, tsc, Vitest in workerd). `npm run db:generate` after editing `src/db/schema`.
 - Swift core on Linux or macOS: `swift test --package-path ios/Packages/TollCore`. Format: `swift format --in-place --recursive ios/`.
 - App build (macOS): `xcodebuild build -project ios/Toll.xcodeproj -scheme Toll -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO`. CI does this on every push (`.github/workflows/ios.yml`).
-- Cloud sessions start with Swift 6.3 and `api/node_modules` installed (the environment's setup script), so both test commands run at once.
-- Seeing a screen. In a cloud session: dispatch `render.yml` with only the scenarios you changed (or push with `[render]`, or `[render light ax5]`, in the commit message for all eleven), then run `ios/scripts/fetch-renders.sh` in the background and read the PNGs and `ui.json` it unpacks into `build/renders/`; light by default, add `ax5` (and `dark`) when layout or type changed. Quick start, scenarios, limits: `docs/renders.md` (or the `render` skill). On a Mac: render locally in seconds instead, `docs/local-mac.md`.
+- Seeing a screen. In a cloud session: dispatch `render.yml` with only the scenarios you changed (or push with `[render]`, or `[render light ax5]`, in the commit message), then run `ios/scripts/fetch-renders.sh` in the background and read the PNGs and `ui.json` it unpacks into `build/renders/`. Details: `docs/renders.md` (or the `render` skill). On a Mac: `docs/local-mac.md`.
 
 ## Releasing
-A build for a phone is the branch merged into `main`, then a GitHub release with a new `v*` tag on `main`; an automation picks the tag up, builds it and sends it to TestFlight. Take the next patch number after `git tag -l` (the first was `v0.1.0`, a pre-release). No version edit or workflow change is needed first: the tag is the version (`ios/ci_scripts/ci_post_clone.sh`), so tags must be `vX.Y.Z`. A Claude cloud session can open and merge the pull request when asked, but cannot cut the release: pushing a tag is refused (HTTP 403) and there is no release tool. After the merge, hand the person this, with the next tag filled in: `gh release create vX.Y.Z --target main --prerelease --title vX.Y.Z --generate-notes`.
+A build for a phone is the branch merged into `main`, then a GitHub release with a new `v*` tag on `main`; Xcode Cloud builds it and sends it to TestFlight. The tag is the version (`ios/ci_scripts/ci_post_clone.sh`), so tags must be `vX.Y.Z`; take the next number after `git tag -l`. A cloud session can open and merge the pull request when asked, but cannot push a tag. After the merge, hand the person: `gh release create vX.Y.Z --target main --prerelease --title vX.Y.Z --generate-notes`.
 
 ## Rules
-- Tunables only in `TollConfig.swift` / `api/src/config.ts`, with spec §14 defaults. User-facing strings only in `Copy.swift` (app; the one file allowed past 300 lines) or `api/src/copy.ts` (push and email); match spec §10 exactly, including the middle dot `·`.
-- Name things by spec §4 terms: `GateEvent`, `Pass`, `Wait`, `Session`, `Block`, `AppRef`, `Tag`, `Rollup`.
+- Tunables only in `TollConfig.swift`, with spec §10 defaults. User-facing strings only in `Copy.swift` (the one file allowed past 300 lines); match spec §7 exactly. Info.plist purpose strings are the exception.
+- Name things by spec §3 terms: `SleepWindow`, `Home`, `Block`, `Blocklist` (decisions D27), `Door`, `Unlock`, `Night`. Cite rule ids (B-1, D-4, P-2…) in commits.
 - Files under ~300 lines; split by feature. Comments say why, never what. No file headers, no commented-out code, no TODO without an issue link.
-- Tests only where spec §12 says: `TollCore` (Swift Testing) and `api/` (Vitest). No UI or snapshot tests. Gate behaviour on a phone goes in `docs/gate-checklist.md`.
-- Every read of another person's data in the Worker goes through `src/domain/visibility.ts`.
-- Migrations are additive only; generate them with drizzle-kit, never hand-edit an applied one.
+- Tests only where spec §11 says, in `TollCore` (Swift Testing). No UI or snapshot tests. Device behaviour goes in `docs/device-protocol.md`.
 - Swift 6 strict concurrency. No force unwraps outside tests. No `@unchecked Sendable` without a one-line reason.
-- Accessibility is part of done: Dynamic Type to AX5, VoiceOver labels per design §5, never colour alone.
+- Accessibility is part of done: Dynamic Type to AX5, VoiceOver labels per design §4, never colour alone.
 - Motion only from design §2.5; if a transition is not in that table there is none.
 
 ## Do not
 - Add files to `project.pbxproj`. Targets use synchronized folders: drop a `.swift` file in the folder and it builds.
-- Import `TollData`, GRDB, or anything large in an extension (DeviceActivityMonitor has ~6 MB).
-- Write to the App Group from `ShieldConfig` (ignored on device, review risk), use private APIs, or add the App and Website Usage capability (spec §6).
-- Add libraries, services or SDKs beyond spec §11 without a ledger entry.
-- Send tokens, bundle ids or block names to the server. The server knows app refs and tags only.
+- Import `TollData` or anything large in an extension (the monitor has ~6 MB).
+- Write to the App Group from `ShieldConfig` (ignored on device, review risk), use private APIs, or add the App and Website Usage capability.
+- Add networking beyond StoreKit, analytics, crash reporting or any third-party code (spec §9).
+- Store coordinates other than the home point (spec §9).
 
 ## Branches
-One branch per epic (`claude/toll-eN-…`), stacked in spec §15 order; one commit per task citing requirement ids (G-4, N-9…).
+One branch per build step, `claude/sleep-s<N>-<name>`, stacked in spec §12 order, one pull request each (decisions D3).
