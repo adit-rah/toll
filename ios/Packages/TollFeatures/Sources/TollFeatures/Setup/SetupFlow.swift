@@ -20,13 +20,13 @@ struct SetupFlowContent: View {
 
   var body: some View {
     NavigationStack(path: $model.path) {
-      WelcomeView { model.go(.wake) }
+      WelcomeView(price: model.app.price) { model.go(.wake) }
         .navigationDestination(for: SetupModel.Step.self) { step in
           switch step {
           case .wake: WakeTimeView(model: model)
           case .home: HomeMapView(model: model)
           case .permissions: PermissionsView(model: model)
-          case .keepOpen: KeepOpenView(model: model)
+          case .blocklist: BlocklistView(model: model)
           case .ready: ReadyView(model: model)
           }
         }
@@ -36,11 +36,12 @@ struct SetupFlowContent: View {
 }
 
 struct WelcomeView: View {
+  let price: String
   let start: () -> Void
 
   var body: some View {
     SetupPage(step: nil, title: Copy.name) {
-      SetupLine(Copy.offer(price: Copy.fallbackPrice))
+      SetupLine(Copy.offer(price: price))
     } actions: {
       PrimaryButton(Copy.Setup.start, action: start)
     }

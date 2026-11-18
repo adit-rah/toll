@@ -44,7 +44,7 @@ struct ReconcileTests {
   ])
   func anyMissingPartIsOff(home: Bool?, entitled: Bool) {
     var s = state(home: home)
-    s.entitled = entitled
+    s.trialStart = entitled ? nil : date(2026, 10, 1, 12)
     run(&s, date(2026, 11, 17, 23))
     #expect(!s.blockOn)
   }

@@ -9,11 +9,12 @@ func calendar(_ zone: String) -> Calendar {
 }
 
 func date(
-  _ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int = 0,
+  _ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int = 0, _ second: Int = 0,
   in zone: String = "Europe/London"
 ) -> Date {
   calendar(zone).date(
-    from: DateComponents(year: year, month: month, day: day, hour: hour, minute: minute))
+    from: DateComponents(
+      year: year, month: month, day: day, hour: hour, minute: minute, second: second))
     ?? .distantPast
 }
 

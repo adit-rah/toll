@@ -52,13 +52,14 @@ extension Copy {
       "Not allowed. The block will run every night in your sleep window, wherever you are."
     public static let openSettings = "Open Settings"
 
-    public static let keepOpenTitle = "What should still work at night?"
-    public static let keepOpenLine = "Most people keep messages, maps, music and the clock."
+    public static let blockTitle = "Which apps should be blocked at night?"
+    public static let blockLine = "Pick the few you lose time to. Everything else stays open."
     public static let choose = "Choose"
     public static let chooseAgain = "Change"
     public static let done = "Done"
-    public static let categoriesNotKept =
-      "Whole categories cannot stay open. Choose the apps inside them instead."
+    public static func tooMany(_ max: Int) -> String {
+      "Up to \(max) apps and sites. Choose fewer, or a whole category."
+    }
 
     public static func readyTitle(_ start: String, windowOnly: Bool) -> String {
       windowOnly ? "Tonight at \(start)." : "Tonight at \(start), if you're home."

@@ -34,13 +34,34 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D15. The log records every wake, not only changes** (2026-11-17). Monitor, region and block-screen wakes are logged even when nothing changed, so late and missing callbacks show in the device protocol. Launch and foreground are logged only when they change the block. The log keeps the last 2,000 lines.
 
-**D16. A trigger screen stands in until setup and Status exist** (2026-11-17). Step 2 must hand over an installable build. Its strings sit in `Copy.Trigger`, apart from the spec's copy, and go with step 5.
+**D16. A trigger screen stands in until setup and Status exist** (2026-11-17). Step 2 must hand over an installable build. Its strings sit in `Copy.Trigger`, apart from the spec's copy. Removed in step 8 (D25).
 
-**D17. Categories chosen for keep-open cannot be kept open** (2026-11-17). `.all(except:)` takes app and site tokens only. A category picked in the keep-open picker is shown as "not kept open" for now; step 4 decides the setup wording.
+**D17. Categories chosen for keep-open cannot be kept open** (2026-11-17; superseded by D27). `.all(except:)` takes app and site tokens only. A category picked in the keep-open picker is shown as "not kept open" for now; step 4 decides the setup wording.
 
 **D18. Spec §6 as built** (2026-11-17, step 3). Same shape as the suggestion, with these changes: the sweep schedule after the window (D14); `CLMonitor` with an Always `CLServiceSession` in place of `startMonitoring(for:)` (D10); the window-only mode (D8); a monotonic clock anchor during a block (D12). Door activities follow in step 6. Device results may still change any of this.
 
 **D19. Status's state line is the screen title; the gear opens the trigger screen until Settings** (2026-11-17, step 5). The state is the one question Status answers, so it takes the title position every screen shares. "You're away" shows only inside the window; away in the day says when tonight starts. A block whose end has passed is never shown as blocked. Status rereads the shared state every 20 s while open, because extensions change it.
+
+**D20. The door's stored expiry is the end of its 15-minute interval** (2026-11-17, step 6). DeviceActivity intervals are at least 15 minutes, so the door's 5 minutes are a usage threshold inside one (spec §5). Its interval starts when the wait ends, so the interval start opens the door and the threshold closes it. If both callbacks are missed, the next reconcile after the interval end closes it (D-2). Someone who opens the app and does not use it gets up to 15 minutes, never more. The app's own timer opens the door at the end of the wait as well, in case the monitor is late.
+
+**D21. Unlocks are spent at opening and refilled by night ends** (2026-11-17, step 6). The state keeps the number spent, the run of clean nights, the last night end counted and the last spend. A night counts when it ends, whether or not the user was home, like the trial (P-2). A spend inside it resets the run, and seven in a row return one, up to the maximum. Returning an unlock with "Lock again" (D-4) also restores the previous spend time, so that night stays clean.
+
+**D22. The door sheet opens when "Open" was tapped on the block screen in the last two minutes** (2026-11-17, step 6). The block-screen extension records the tap and the app shows the sheet over Status. The system picker cannot be limited to one app, so anything but exactly one app is asked again ("Choose one app."). While a door is waiting or open the sheet stays up; leaving the app changes nothing (D-1).
+
+**D23. Entitlement is worked out in every reconcile** (2026-11-17, step 7). The state holds the trial start (copied from the Keychain) and whether the purchase is owned (copied from StoreKit). Each reconcile, in the app or an extension, decides `entitled` from them, so the trial ends at the seventh night's end even with the app closed. The trial counts night ends after setup; a setup inside a window makes that night the first. The purchase is the non-consumable `com.advan.toll.full`; StoreKit's `Transaction.updates` covers Ask to Buy, refunds and other phones.
+
+**D24. The trial-ended facts come from the log, and the block screen is counted by its taps** (2026-11-17, step 7). The system draws the block screen without telling the app, and its configuration extension may not write. So "times the block screen came up" counts taps on its buttons, the closest thing the app can see. Nights blocked at home are the distinct nights with a block turned on. Unlocks used is a running count kept with the supply, with returned unlocks taken off.
+
+**D25. Settings replaces the trigger screen** (2026-11-17, step 8). The trigger screen (D16) is gone; the log moved to Settings. The sleep window, home and keep-open rows edit the draft: a held edit if one is waiting, else what is in force. The rows' line, "Changes apply after tonight's block ends", is always shown, as spec §7 has it. The privacy policy URL and the support address come from `Base.xcconfig` (`TOLL_PRIVACY_URL`, `TOLL_SUPPORT_EMAIL`); while empty, their rows are hidden. The founders fill them before review.
+
+**D26. Store text and policy are drafts for the founders** (2026-11-17, step 10). `docs/app-store.md` holds the listing, the review notes, framed per D9 and D8, and the purchase's name. `docs/privacy.md` is the policy page to publish. Both say `[Name]` where the product name goes. The policy needs a support address, and its published URL goes into `TOLL_PRIVACY_URL`.
+
+**D27. A blocklist, not "everything except"** (2026-11-18; founders). The thesis: buy back your sleep by blocking the few apps that eat it, when you are home at the time you sleep. Most apps are harmless, so the user picks what to block, and everything else stays open. This replaces spec §3's keep-open list, §5's "everything except" shielding and setup screen 5.
+- **The block:** the shield names the chosen apps and sites and shields the chosen categories with `.specific`.
+- **The 50-item limit:** spec §5 says iOS refuses more than 50 individual apps and sites, so setup and Settings refuse a longer list and suggest a whole category. A list cannot be emptied either.
+- **The door:** it lists the blocked apps by their system names to tap. An app inside a blocked category is not on that list, so "Another app" opens the system picker for it. Its exception is `.specific(categories, except: [app])`.
+- **Unknowns:** spec §5's unknowns 1 and 2 (calls, alarms, Messages) matter less now. They are blocked only if the user picks them.
+- **Copy:** setup 5 reads "Which apps should be blocked at night?" / "Pick the few you lose time to. Everything else stays open."
 
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 

@@ -7,6 +7,7 @@ import TollUI
 struct StatusView: View {
   let state: SleepState
   let now: Date
+  var trialNight: Int?
   let openSettings: () -> Void
 
   var body: some View {
@@ -16,7 +17,7 @@ struct StatusView: View {
           ScreenTitle(StatusLine(state: state, now: now, calendar: .current).text())
             .contentTransition(.opacity)
             .animation(Motion.stateChange, value: state.blockOn)
-          StatusFacts(state: state, now: now)
+          StatusFacts(state: state, now: now, trialNight: trialNight)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .tollGutter()
@@ -36,12 +37,28 @@ struct StatusView: View {
   }
 }
 
-/// The lines under the state. Unlocks arrive with the door (step 6), the trial line with step 7.
+/// The lines under the state: unlocks, when one returns (D-5, D-6), and the trial's night (P-5).
 struct StatusFacts: View {
   let state: SleepState
   let now: Date
+  var trialNight: Int?
+  var config = TollConfig.defaults
 
   var body: some View {
-    EmptyView()
+    VStack(alignment: .leading, spacing: TollSpacing.labelGap) {
+      Text(Copy.Door.unlocksLeft(state.unlocks.left(config), of: config.unlocks.max))
+        .tollText(.body)
+        .monospacedDigit()
+      if let nights = state.unlocks.nightsToRefill(config) {
+        Text(Copy.Door.refill(after: nights))
+          .tollText(.subhead)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      if let trialNight {
+        Text(Copy.Trial.night(trialNight, of: config.trial.nights))
+          .tollText(.subhead)
+          .monospacedDigit()
+      }
+    }
   }
 }

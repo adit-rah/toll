@@ -16,10 +16,11 @@ public enum Reconcile {
   @discardableResult
   public static func run(
     _ state: inout SleepState, wall: Date, monotonic: MonotonicInstant?, calendar: Calendar,
-    cause: ReconcileCause
+    cause: ReconcileCause, config: TollConfig = .defaults
   ) -> Outcome {
     let before = state
     let now = trustedNow(&state, wall: wall, monotonic: monotonic)
+    state.entitled = Trial.isEntitled(state, now: now, calendar: calendar, config: config)
     noteNightEnd(&state, now: now, calendar: calendar)
     var night = blockNight(state, now: now, calendar: calendar)
     if night == nil, let edit = state.pending {
@@ -29,13 +30,16 @@ public enum Reconcile {
     }
     state.blockOn = night != nil
     state.blockEndsAt = night?.end
-    let changed = state.blockOn != before.blockOn
+    DoorRules.advance(&state, now: now, config: config)
+    DoorRules.countNights(&state, now: now, calendar: calendar, config: config)
+    let changed = state.blockOn != before.blockOn || state.door?.phase != before.door?.phase
     let inWindow = state.settings.window?.contains(now, calendar: calendar) ?? false
     let line =
       changed || !quietCauses.contains(cause)
       ? Transition(
         at: wall, cause: cause, blockOn: state.blockOn, changed: changed,
-        home: state.presence?.isHome, inWindow: inWindow, entitled: state.entitled)
+        home: state.presence?.isHome, inWindow: inWindow, entitled: state.entitled,
+        door: state.door?.phase)
       : nil
     return Outcome(transition: line, settingsChanged: state.settings != before.settings)
   }
@@ -52,8 +56,9 @@ public enum Reconcile {
     return wall
   }
 
-  /// B-1: home (or location not in use, D8), inside the window, and entitled. B-4: and the night began after the last night end
-  /// seen, so a clock set back or a flight west after the morning cannot bring the block back.
+  /// B-1: home (or location not in use, D8), inside the window, and entitled. B-4: and the night
+  /// began after the last night end seen, so a clock set back or a flight west after the morning
+  /// cannot bring the block back.
   static func blockNight(_ state: SleepState, now: Date, calendar: Calendar)
     -> SleepWindow.Night?
   {

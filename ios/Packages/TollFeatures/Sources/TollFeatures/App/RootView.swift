@@ -33,9 +33,14 @@ public struct RootView: View {
   @ViewBuilder private var live: some View {
     if model.state.setupFinishedAt == nil {
       SetupFlow(app: model)
+    } else if !model.state.entitled {
+      TrialEndedView(
+        summary: model.trialSummary(),
+        unlocksUsed: model.state.unlocks.used, price: model.price, buy: model.buy,
+        restore: model.restore)
     } else {
       LiveStatus(model: model, openSettings: { showsSettings = true })
-        .sheet(isPresented: $showsSettings) { TriggerView(model: model) }
+        .sheet(isPresented: $showsSettings) { SettingsView(model: model) }
     }
   }
 }
@@ -46,9 +51,22 @@ private struct LiveStatus: View {
   let model: AppModel
   let openSettings: () -> Void
 
+  private var doorShown: Binding<Bool> {
+    Binding(get: { model.showsDoor }, set: { if !$0 { model.dismissDoor() } })
+  }
+
   var body: some View {
     TimelineView(.everyMinute) { context in
-      StatusView(state: model.state, now: context.date, openSettings: openSettings)
+      StatusView(
+        state: model.state, now: context.date, trialNight: model.trialNight(now: context.date),
+        openSettings: openSettings
+      )
+      .sheet(isPresented: doorShown) {
+        TimelineView(.periodic(from: .now, by: 1)) { tick in
+          DoorSheet(model: model, now: tick.date)
+        }
+        .interactiveDismissDisabled(model.state.door != nil)
+      }
     }
     .task {
       while !Task.isCancelled {
