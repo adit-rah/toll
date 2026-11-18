@@ -15,6 +15,12 @@ struct TrialEndedView: View {
   @State private var note: String?
 
   var body: some View {
+    // A bar like Status's, though empty, so the title sits where Status's does.
+    NavigationStack { page }
+      .tint(TollColor.accent)
+  }
+
+  private var page: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: TollSpacing.groupGap) {
         ScreenTitle(Copy.Trial.endedTitle)
@@ -41,6 +47,8 @@ struct TrialEndedView: View {
           .disabled(working)
       }
     }
+    .navigationBarTitleDisplayMode(.inline)
+    .toolbar(.visible, for: .navigationBar)
   }
 
   private func fact(_ text: String) -> some View {

@@ -6,6 +6,14 @@ import TollUI
 struct WakeTimeView: View {
   let model: SetupModel
   @State private var editingStart = false
+  @Environment(\.dynamicTypeSize) private var typeSize
+
+  /// Side by side, the line and its button squeeze each other at accessibility sizes; stacked there.
+  private var nightsLayout: AnyLayout {
+    typeSize.isAccessibilitySize
+      ? AnyLayout(VStackLayout(alignment: .leading, spacing: TollSpacing.labelGap))
+      : AnyLayout(HStackLayout(alignment: .firstTextBaseline))
+  }
 
   var body: some View {
     SetupPage(step: SetupModel.Step.wake.number, title: Copy.Setup.wakeTitle) {
@@ -16,7 +24,7 @@ struct WakeTimeView: View {
       .datePickerStyle(.wheel)
       .labelsHidden()
       .frame(maxWidth: .infinity)
-      HStack(alignment: .firstTextBaseline) {
+      nightsLayout {
         SetupLine(Copy.Setup.nights(model.window))
         Button(Copy.Setup.changeStart) { editingStart.toggle() }
           .buttonStyle(.tollQuiet)

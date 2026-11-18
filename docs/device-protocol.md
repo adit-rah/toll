@@ -4,7 +4,7 @@ MVP spec §11 and the device checks of §5. Two phones, five nights. Everything 
 
 ## Install
 1. Merge the step 2 pull request, then `gh release create vX.Y.Z --target main --prerelease --title vX.Y.Z --generate-notes` (next number after `git tag -l`). Xcode Cloud sends it to TestFlight.
-2. On each phone, go through setup. Note every location prompt's exact words and when it appeared, for unknown 5. Choose **Allow While Using App**, then **Change to Always Allow** when asked, and check Precise Location is on (Settings → the app → Location). On Keep open, note whether Messages, Phone, Clock and Maps appear in the picker at all.
+2. On each phone, go through setup. Note every location prompt's exact words and when it appeared, for unknown 5. Choose **Allow While Using App**, then **Change to Always Allow** when asked, and check Precise Location is on (Settings → the app → Location). On the blocklist screen, block a few apps and one whole category (decisions D27).
 3. For daytime testing, set Settings → Sleep window to cover the next hour (outside a block it applies at once).
 
 ## Reading the log
@@ -37,8 +37,8 @@ Pass (spec §11): every expected transition within two minutes of the real event
 ## Unknowns (spec §5)
 | # | Check | Result |
 |---|---|---|
-| 1 | During a block, with none of them on the keep-open list: receive and place a phone call; an alarm rings; Emergency SOS screen opens (do not complete a call) | |
-| 2 | During a block, Messages opens without being on the list | |
+| 1 | During a block, with Phone, Messages and Clock not on the blocklist: receive and place a phone call; an alarm rings; Emergency SOS screen opens (do not complete a call) | |
+| 2 | During a block, an app inside a blocked category is blocked; the door can open it through "Another app" | |
 | 3 | Region enter and exit timing with the app closed; after restart; force-quit; Low Power Mode; airplane mode (scenarios 2–7) | |
 | 4 | `windowStart → on` appears for scenario 1 with the app closed (the monitor read the home flag) | |
 | 5 | Exact location prompts, in order, and when the Always prompt appeared | |

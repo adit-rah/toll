@@ -11,18 +11,23 @@ struct DoorSheet: View {
   let model: AppModel
   let now: Date
 
+  @Environment(\.dynamicTypeSize) private var typeSize
+
   var body: some View {
-    VStack(alignment: .leading, spacing: TollSpacing.groupGap) {
-      content
-        .transition(.opacity)
+    // Scrolls so nothing is cut off at accessibility sizes, where the sheet also opens full height.
+    ScrollView {
+      VStack(alignment: .leading, spacing: TollSpacing.groupGap) {
+        content
+          .transition(.opacity)
+      }
+      .frame(maxWidth: .infinity, alignment: .topLeading)
+      .tollGutter()
+      .padding(.vertical, TollSpacing.titleGap)
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .tollGutter()
-    .padding(.top, TollSpacing.titleGap)
     .background(TollColor.bg)
     .animation(Motion.movement, value: model.state.door?.phase)
     .tollHaptic(.light, trigger: model.state.door?.phase)
-    .presentationDetents([.medium, .large])
+    .presentationDetents(typeSize.isAccessibilitySize ? [.large] : [.medium, .large])
   }
 
   @ViewBuilder private var content: some View {
@@ -39,32 +44,52 @@ struct DoorSheet: View {
   }
 }
 
+/// The blocked apps are listed by their system names to tap; one inside a blocked category is not on
+/// the list by itself, so the system picker finds it (decisions D27).
 private struct DoorChoosing: View {
   let model: AppModel
   @State private var picking = false
   @State private var selection = FamilyActivitySelection()
   @State private var tooMany = false
 
+  private var blocked: FamilyActivitySelection {
+    Blocklist.selection(from: model.state.settings.blocked)
+  }
+
   var body: some View {
     DoorTitle(Copy.Door.question(minutes: model.config.door.minutes))
     UnlocksLine(model: model)
+    VStack(alignment: .leading, spacing: 0) {
+      ForEach(Array(blocked.applicationTokens.enumerated()), id: \.offset) { _, token in
+        Button {
+          model.startDoor(token)
+        } label: {
+          Label(token)
+            .frame(maxWidth: .infinity, minHeight: TollSpacing.rowMinHeight, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(TollColor.label)
+      }
+    }
     if tooMany { Text(Copy.Door.chooseOne).tollText(.subhead) }
-    Spacer(minLength: 0)
-    PrimaryButton(Copy.Door.chooseApp) { picking = true }
+    if !blocked.categoryTokens.isEmpty || blocked.applicationTokens.isEmpty {
+      QuietButton(Copy.Door.anotherApp) { picking = true }
+        .familyActivityPicker(isPresented: $picking, selection: $selection)
+        .onChange(of: picking) { _, isOpen in
+          guard !isOpen else { return }
+          // The system picker cannot be limited to one, so anything but one app is asked again.
+          let apps = selection.applicationTokens
+          guard apps.count == 1, let app = apps.first else {
+            tooMany = !apps.isEmpty || !selection.categoryTokens.isEmpty
+            return
+          }
+          tooMany = false
+          model.startDoor(app)
+        }
+    }
     QuietButton(Copy.Door.notNow) { model.dismissDoor() }
       .frame(maxWidth: .infinity)
-      .familyActivityPicker(isPresented: $picking, selection: $selection)
-      .onChange(of: picking) { _, isOpen in
-        guard !isOpen else { return }
-        // The system picker cannot be limited to one, so anything but exactly one app is asked again.
-        let apps = selection.applicationTokens
-        guard apps.count == 1, let app = apps.first else {
-          tooMany = !apps.isEmpty || !selection.categoryTokens.isEmpty
-          return
-        }
-        tooMany = false
-        model.startDoor(app)
-      }
   }
 }
 
@@ -80,7 +105,6 @@ private struct DoorWaiting: View {
     .font(TollFont.screenTitle)
     .foregroundStyle(TollColor.label)
     Text(Copy.Door.cancelFree).tollText(.subhead)
-    Spacer(minLength: 0)
     QuietButton(Copy.Door.cancel) { model.cancelDoor() }
       .frame(maxWidth: .infinity)
       // The monitor opens the door when its interval starts; this covers a late callback.
@@ -104,7 +128,6 @@ private struct DoorOpen: View {
         .tollText(.subhead)
         .transition(.opacity)
     }
-    Spacer(minLength: 0)
     PrimaryButton(Copy.Door.lockAgain) { model.lockDoor() }
   }
 }
@@ -117,7 +140,6 @@ private struct DoorNoneLeft: View {
       Copy.Door.noneLeft(
         nights: model.state.unlocks.nightsToRefill(model.config)
           ?? model.config.unlocks.refillNights))
-    Spacer(minLength: 0)
     QuietButton(Copy.Door.notNow) { model.dismissDoor() }
       .frame(maxWidth: .infinity)
   }

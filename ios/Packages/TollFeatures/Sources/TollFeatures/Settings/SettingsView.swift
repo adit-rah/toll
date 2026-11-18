@@ -12,6 +12,7 @@ struct SettingsView: View {
   @State private var picking = false
   @State private var selection = FamilyActivitySelection()
   @State private var restoreNote: String?
+  @State private var emptyRefused = false
 
   var body: some View {
     NavigationStack {
@@ -22,11 +23,14 @@ struct SettingsView: View {
           Button {
             picking = true
           } label: {
-            LabeledContent(Copy.Settings.keepOpen, value: keptSummary)
+            LabeledContent(Copy.Settings.blocked, value: blockedSummary)
           }
           .foregroundStyle(TollColor.label)
         } footer: {
-          Text(Copy.Settings.changesLater)
+          VStack(alignment: .leading, spacing: TollSpacing.labelGap) {
+            Text(Copy.Settings.changesLater)
+            if emptyRefused { Text(Copy.Settings.notEmpty) }
+          }
         }
         Section {
           Button(Copy.Settings.restore) { Task { await restore() } }
@@ -48,18 +52,26 @@ struct SettingsView: View {
     }
     .tint(TollColor.accent)
     .familyActivityPicker(isPresented: $picking, selection: $selection)
-    .onAppear { selection = KeepOpen.selection(from: model.draft.keepOpen) }
+    .onAppear { selection = Blocklist.selection(from: model.draft.blocked) }
     .onChange(of: picking) { _, isOpen in
       guard !isOpen else { return }
+      // An empty list would leave a block with nothing in it; too long a list iOS refuses (spec §5).
+      emptyRefused = Blocklist.isEmpty(selection) || !Blocklist.fits(selection)
+      guard !emptyRefused else {
+        selection = Blocklist.selection(from: model.draft.blocked)
+        return
+      }
       var edit = model.draft
-      edit.keepOpen = KeepOpen.encode(selection)
+      edit.blocked = Blocklist.encode(selection)
       model.submit(edit)
     }
   }
 
-  private var keptSummary: String {
-    let kept = KeepOpen.selection(from: model.draft.keepOpen)
-    return Copy.Settings.kept(apps: kept.applicationTokens.count, sites: kept.webDomainTokens.count)
+  private var blockedSummary: String {
+    let list = Blocklist.selection(from: model.draft.blocked)
+    return Copy.Settings.blockedCount(
+      apps: list.applicationTokens.count, sites: list.webDomainTokens.count,
+      categories: list.categoryTokens.count)
   }
 
   private func restore() async {

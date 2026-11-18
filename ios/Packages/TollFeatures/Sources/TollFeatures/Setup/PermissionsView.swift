@@ -18,7 +18,7 @@ struct PermissionsView: View {
       }
     } actions: {
       if model.screenTimeReady && model.locationSettled {
-        PrimaryButton(Copy.Setup.continue) { model.go(.keepOpen) }
+        PrimaryButton(Copy.Setup.continue) { model.go(.blocklist) }
       } else {
         PrimaryButton(model.app.screenTime == .denied ? Copy.Setup.tryAgain : Copy.Setup.allow) {
           Task { await model.allow() }
