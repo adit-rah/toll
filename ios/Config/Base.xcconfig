@@ -9,7 +9,7 @@ TOLL_SUPPORT_EMAIL =
 
 // Local and untagged builds. A `vX.Y.Z` tag build gets its version from the tag and its build
 // number from Xcode Cloud, written to Version.xcconfig by ci_scripts/ci_post_clone.sh.
-MARKETING_VERSION = 0.1.0
+MARKETING_VERSION = 0.2.0
 CURRENT_PROJECT_VERSION = 1
 #include? "Version.xcconfig"
 
