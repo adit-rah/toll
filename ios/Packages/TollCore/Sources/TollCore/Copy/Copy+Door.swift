@@ -17,9 +17,10 @@ extension Copy {
     }
 
     public static func question(minutes: Int) -> String { "Open one app for \(minutes) minutes?" }
-    public static let chooseApp = "Choose app"
     public static let notNow = "Not now"
     public static let chooseOne = "Choose one app."
+    /// For an app inside a blocked category, which the list cannot show by itself.
+    public static let anotherApp = "Another app"
 
     public static func opensIn(_ clock: String) -> String { "Opens in \(clock)." }
     public static func opensInSpoken(minutes: Int, seconds: Int) -> String {

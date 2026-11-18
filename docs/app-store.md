@@ -4,15 +4,15 @@
 
 ## Listing
 
-- **Subtitle (30):** Phone blocked at home at night
+- **Subtitle (30):** Buy back your sleep
 - **Promotional text:** Seven nights free. Then $24.99 once, or it switches off. No subscription.
 - **Description:**
 
-  > When you are home in your sleep window, everything on your iPhone is blocked except what you choose to keep open.
+  > Buy back your sleep. When you are home in your sleep window, the apps you lose time to are blocked.
   >
   > • Set when you get up. Your nights start 8½ hours earlier, or whenever you choose.
   > • Set home once. The block turns on when you are home at night, and off when you leave or the night ends.
-  > • Keep open what you need: messages, maps, music, the clock.
+  > • Pick the few apps that keep you up. Everything else stays open.
   > • Need one app? Open it for 5 minutes after a 90-second wait. You have 3 unlocks; one comes back after 7 nights without using any.
   >
   > There is no way to end the block for the night.
@@ -39,7 +39,7 @@
 >
 > **How to see it work.**
 > 1. Finish setup; on the wake-time screen, tap Change and set the night to start a minute from now.
-> 2. Allow Screen Time and location, and keep open any app.
+> 2. Allow Screen Time and location, and block any app.
 > 3. Once the night starts, any other app shows the block screen. "Open `[Name]`" leads to the door: choose one app, wait 90 seconds, and it opens for 5 minutes. "Lock again" within 2 minutes returns the unlock.
 > 4. Settings → Sleep window changes the night; changes made during a block apply when it ends.
 >

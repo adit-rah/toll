@@ -17,13 +17,14 @@ public struct HomePoint: Codable, Hashable, Sendable {
 public struct SleepSettings: Codable, Hashable, Sendable {
   public var window: SleepWindow?
   public var home: HomePoint?
-  /// The encoded `FamilyActivitySelection`. Opaque here: only the Screen Time glue can read it.
-  public var keepOpen: Data?
+  /// The blocklist: the apps, sites and categories blocked at night (decisions D27), as the encoded
+  /// `FamilyActivitySelection`. Opaque here: only the Screen Time glue can read it.
+  public var blocked: Data?
 
-  public init(window: SleepWindow? = nil, home: HomePoint? = nil, keepOpen: Data? = nil) {
+  public init(window: SleepWindow? = nil, home: HomePoint? = nil, blocked: Data? = nil) {
     self.window = window
     self.home = home
-    self.keepOpen = keepOpen
+    self.blocked = blocked
   }
 }
 
