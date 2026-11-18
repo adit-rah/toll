@@ -8,7 +8,7 @@
   /// builds contain none of this.
   enum DemoScenario: String, CaseIterable {
     case empty, welcome, wake, home, permissions
-    case keepOpen = "keep-open"
+    case blocklist
     case ready
     case statusBlocked = "status-blocked"
     case statusStarts = "status-starts"
@@ -17,6 +17,7 @@
     case doorWaiting = "door-waiting"
     case doorOpen = "door-open"
     case doorNone = "door-none"
+    case trialEnded = "trial-ended"
 
     static var current: DemoScenario? {
       UserDefaults.standard.string(forKey: "TollDemo").flatMap(Self.init(rawValue:))
@@ -29,8 +30,8 @@
       case .wake: [.wake]
       case .home: [.wake, .home]
       case .permissions: [.wake, .home, .permissions]
-      case .keepOpen: [.wake, .home, .permissions, .keepOpen]
-      case .ready: [.wake, .home, .permissions, .keepOpen, .ready]
+      case .blocklist: [.wake, .home, .permissions, .blocklist]
+      case .ready: [.wake, .home, .permissions, .blocklist, .ready]
       default: nil
       }
     }
@@ -78,7 +79,7 @@
     var isDoor: Bool { rawValue.hasPrefix("door") }
 
     /// The simulator cannot grant Family Controls; screens past the permission step assume it.
-    var screenTimeApproved: Bool { self == .keepOpen || self == .ready }
+    var screenTimeApproved: Bool { self == .blocklist || self == .ready }
   }
 
   struct DemoRoot: View {
@@ -88,11 +89,17 @@
     var body: some View {
       if let path = scenario.setupPath {
         DemoSetup(app: app, path: path)
+      } else if scenario == .trialEnded {
+        TrialEndedView(
+          summary: TrialSummary(nightsBlocked: 6, blockScreens: 23), unlocksUsed: 2,
+          price: Copy.fallbackPrice, buy: { .cancelled }, restore: { false })
       } else if let state = scenario.status(now: Date()) {
         if scenario.isDoor {
           DemoDoor(app: app, state: state)
         } else {
-          StatusView(state: state, now: Date(), openSettings: {})
+          StatusView(
+            state: state, now: Date(), trialNight: scenario == .statusStarts ? 5 : nil,
+            openSettings: {})
         }
       } else {
         TollColor.bg.ignoresSafeArea()

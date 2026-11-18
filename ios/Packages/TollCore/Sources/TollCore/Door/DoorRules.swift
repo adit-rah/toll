@@ -29,6 +29,7 @@ public enum DoorRules {
     guard let door = state.door else { return }
     if door.phase == .open, let regretEnd = door.regretEndsAt(config), now <= regretEnd {
       state.unlocks.spent = max(0, state.unlocks.spent - 1)
+      state.unlocks.used = max(0, state.unlocks.used - 1)
       state.unlocks.lastSpendAt = door.spendBefore
     }
     state.door = nil
@@ -51,6 +52,7 @@ public enum DoorRules {
       door.expiresAt = now.addingTimeInterval(intervalSeconds(config))
       door.spendBefore = state.unlocks.lastSpendAt
       state.unlocks.spent += 1
+      state.unlocks.used += 1
       state.unlocks.lastSpendAt = now
     }
     if door.usedUp || (door.expiresAt.map { now >= $0 } ?? false) {

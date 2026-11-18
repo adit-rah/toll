@@ -2,6 +2,11 @@
 TOLL_BUNDLE_ID = com.advan.toll
 TOLL_APP_GROUP = group.com.advan.toll
 
+// Settings rows (spec §7). Empty hides the row. The policy page is docs/privacy.md, published by the
+// founders; `//` in a URL needs the `$()` trick because xcconfig treats it as a comment.
+TOLL_PRIVACY_URL =
+TOLL_SUPPORT_EMAIL =
+
 // Local and untagged builds. A `vX.Y.Z` tag build gets its version from the tag and its build
 // number from Xcode Cloud, written to Version.xcconfig by ci_scripts/ci_post_clone.sh.
 MARKETING_VERSION = 0.1.0

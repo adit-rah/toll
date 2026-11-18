@@ -16,6 +16,8 @@ public final class AppModel {
   public private(set) var screenTime = ScreenTimeAuthorization.State.notDetermined
   public private(set) var location = LocationAccess.State.notDetermined
   public let config = TollConfig.defaults
+  /// The App Store's localized price once it answers (P-1).
+  public private(set) var price = Copy.fallbackPrice
   @ObservationIgnored let locationAccess = LocationAccess()
   @ObservationIgnored private let reconciler = Reconciler()
   @ObservationIgnored private var started = false
@@ -36,13 +38,25 @@ public final class AppModel {
     Task {
       await HomeRegion.shared.watch { [weak self] presence in await self?.update(presence) }
     }
-    reconcile(.launch)
+    Task {
+      await Purchase.watch { [weak self] purchased in await self?.setPurchased(purchased) }
+    }
+    Task { if let price = await Purchase.displayPrice() { self.price = price } }
+    let trialStart = TrialClock().start
+    reconcile(.launch) { state in
+      if state.trialStart == nil, let trialStart { state.trialStart = trialStart }
+    }
     Task.detached(priority: .background) { TransitionLog().trim() }
   }
 
   public func foreground() {
+    #if DEBUG
+      // A demo launch shows a state it built; reading the store would replace it.
+      if DemoScenario.current != nil { return }
+    #endif
     readPermissions()
     reconcile(.foreground)
+    Task { setPurchased(await Purchase.isPurchased()) }
     Task {
       // A region event can land while nothing was listening, such as before the first unlock after a
       // restart; the monitor's last word fills that in.
@@ -61,9 +75,15 @@ public final class AppModel {
 
   /// Reads what the extensions wrote, without reconciling.
   func refresh() {
+    #if DEBUG
+      if DemoScenario.current != nil { return }
+    #endif
     let latest = reconciler.store.load()
     if latest != state { state = latest }
   }
+
+  /// What the user last chose: a held edit if there is one (B-3), else what is in force.
+  var draft: SleepSettings { state.pending ?? state.settings }
 
   public func submit(_ edit: SleepSettings) {
     reconcile(.edit) { $0.submit(edit) }
@@ -97,7 +117,43 @@ public final class AppModel {
   #endif
 
   func finishSetup() {
-    reconcile(.edit) { $0.setupFinishedAt = Date() }
+    let now = Date()
+    let trialStart = TrialClock().begin(now: now)
+    reconcile(.edit) {
+      $0.setupFinishedAt = now
+      $0.trialStart = trialStart
+    }
+  }
+
+  // MARK: Purchase
+
+  func setPurchased(_ purchased: Bool) {
+    guard purchased != state.purchased else { return }
+    reconcile(.entitlement) { $0.purchased = purchased }
+  }
+
+  func buy() async -> Purchase.Outcome {
+    let outcome = await Purchase.buy()
+    if outcome == .purchased { setPurchased(true) }
+    return outcome
+  }
+
+  func restore() async -> Bool {
+    let found = await Purchase.restore()
+    setPurchased(found)
+    return found
+  }
+
+  /// The whole log, not the 200 lines the trigger screen keeps.
+  func trialSummary() -> TrialSummary {
+    TrialSummary(log: reconciler.log.read(), calendar: .current)
+  }
+
+  /// "Night 5 of 7 free." during the trial; nil once purchased or over (P-5).
+  func trialNight(now: Date) -> Int? {
+    guard !state.purchased, let start = state.trialStart else { return nil }
+    return Trial.night(
+      since: start, now: now, window: state.settings.window, calendar: .current, config: config)
   }
 
   func update(_ presence: Presence) {

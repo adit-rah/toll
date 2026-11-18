@@ -46,7 +46,7 @@
         return (state, outcome)
       }
       SleepShield.apply(
-        on: state.blockOn, keepOpen: state.settings.keepOpen,
+        on: state.blockOn, blocked: state.settings.blocked,
         doorApp: state.door?.phase == .open ? state.door?.app : nil)
       if let line = outcome.transition { log.append(line) }
       if reschedule { schedule(state.settings.window) }

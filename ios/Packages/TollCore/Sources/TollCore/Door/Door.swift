@@ -39,6 +39,8 @@ public struct UnlockSupply: Codable, Hashable, Sendable {
   /// The last night end already counted.
   public var countedThrough: Date?
   public var lastSpendAt: Date?
+  /// Every unlock ever kept (returned ones excluded), for the trial-ended summary.
+  public var used = 0
 
   public init() {}
 
