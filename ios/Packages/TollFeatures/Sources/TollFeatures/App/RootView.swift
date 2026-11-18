@@ -40,7 +40,7 @@ public struct RootView: View {
         restore: model.restore)
     } else {
       LiveStatus(model: model, openSettings: { showsSettings = true })
-        .sheet(isPresented: $showsSettings) { TriggerView(model: model) }
+        .sheet(isPresented: $showsSettings) { SettingsView(model: model) }
     }
   }
 }

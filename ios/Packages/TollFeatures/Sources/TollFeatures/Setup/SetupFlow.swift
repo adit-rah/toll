@@ -26,7 +26,7 @@ struct SetupFlowContent: View {
           case .wake: WakeTimeView(model: model)
           case .home: HomeMapView(model: model)
           case .permissions: PermissionsView(model: model)
-          case .keepOpen: KeepOpenView(model: model)
+          case .blocklist: BlocklistView(model: model)
           case .ready: ReadyView(model: model)
           }
         }
