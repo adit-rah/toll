@@ -5,7 +5,8 @@ public enum ReconcileCause: String, Codable, Sendable, CaseIterable {
   case launch, foreground
   case windowStart, windowEnd, sweepStart, sweepEnd
   case arrived, left
-  case edit, blockScreen, entitlement
+  case edit, blockScreen, entitlement, permission
+  case doorChosen, doorCancelled, doorLocked, doorStart, doorUsed, doorEnd
 }
 
 /// One line of the transition log (B-6): when, why, and the state that resulted.
@@ -18,10 +19,12 @@ public struct Transition: Codable, Hashable, Sendable {
   public var home: Bool?
   public var inWindow: Bool
   public var entitled: Bool
+  /// The door after this reconcile, nil when there is none.
+  public var door: Door.Phase?
 
   public init(
     at: Date, cause: ReconcileCause, blockOn: Bool, changed: Bool, home: Bool?, inWindow: Bool,
-    entitled: Bool
+    entitled: Bool, door: Door.Phase? = nil
   ) {
     self.at = at
     self.cause = cause
@@ -30,5 +33,6 @@ public struct Transition: Codable, Hashable, Sendable {
     self.home = home
     self.inWindow = inWindow
     self.entitled = entitled
+    self.door = door
   }
 }

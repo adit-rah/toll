@@ -71,6 +71,24 @@ public struct SleepWindow: Codable, Hashable, Sendable {
       .min()
   }
 
+  /// Every night end in (`after`, `through`], oldest first. Counting nights by their ends (spec §3).
+  public func ends(after start: Date, through end: Date, calendar: Calendar) -> [Date] {
+    guard start < end, let first = calendar.date(byAdding: .day, value: -1, to: start) else {
+      return []
+    }
+    var result: [Date] = []
+    var day = first
+    while day <= end {
+      if let night = night(startingOn: day, calendar: calendar), night.end > start, night.end <= end
+      {
+        result.append(night.end)
+      }
+      guard let next = calendar.date(byAdding: .day, value: 1, to: day) else { break }
+      day = next
+    }
+    return result
+  }
+
   private func nights(around date: Date, offsets: [Int], calendar: Calendar) -> [Night] {
     offsets.compactMap { offset in
       calendar.date(byAdding: .day, value: offset, to: date).flatMap {
