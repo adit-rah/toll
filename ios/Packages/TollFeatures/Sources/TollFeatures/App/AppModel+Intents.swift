@@ -73,6 +73,9 @@ extension AppModel {
   func lockDoor() { send(.doorLocked, [.lockDoor]) }
   func dismissDoor() { send(.foreground, [.askDoor(nil)]) }
 
+  /// Home's "Open one app": the same door the block screen opens.
+  func askDoor() { send(.foreground, [.askDoor(Date())]) }
+
   // MARK: Purchase
 
   func setPurchased(_ purchased: Bool) {
