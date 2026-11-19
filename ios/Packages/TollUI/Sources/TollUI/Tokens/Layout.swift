@@ -3,7 +3,7 @@ import SwiftUI
 /// Design §2.1 and §4.3. An 8 pt grid; the odd values are the ones the design names explicitly.
 public enum TollSpacing {
   public static let grid: CGFloat = 8
-  public static let gutter: CGFloat = 20
+  public static let gutter: CGFloat = 24
   public static let narrowGutter: CGFloat = 16
   public static let sectionGap: CGFloat = 32
   public static let cardPadding: CGFloat = 16
@@ -23,11 +23,11 @@ public enum TollSpacing {
 
 /// Design §2.4. Inner radii are the outer radius minus the padding between them.
 public enum TollRadius {
-  public static let card: CGFloat = 16
+  public static let card: CGFloat = 18
   public static let rowInCard: CGFloat = 12
   public static let sheet: CGFloat = 20
   public static let chip: CGFloat = 8
-  public static let button: CGFloat = 12
+  public static let button: CGFloat = 16
 }
 
 extension View {

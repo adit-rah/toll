@@ -1,35 +1,35 @@
 import SwiftUI
 import UIKit
 
-/// Design §2.3. Every colour on screen comes from here so the placeholder accent swaps in one place.
+/// Dusk's palette (the design canvas; decisions D36): dark first, warm grays, one amber accent. Light
+/// values come from the canvas's *Home · light*. Every colour on screen comes from here.
 public enum TollColor {
-  public static let bg = Color(uiColor: .systemBackground)
-  public static let bgGrouped = Color(uiColor: .systemGroupedBackground)
-  public static let surface = Color(uiColor: .secondarySystemGroupedBackground)
-  public static let surfaceRaised = Color(uiColor: .tertiarySystemGroupedBackground)
-  /// Home's state bar (design §3.18): `#F2F2F7` on the white page, `#1C1C1E` on the black one, so it
-  /// stands off the page in both without glass.
-  public static let floating = Color(uiColor: .secondarySystemBackground)
-  /// Translucent, so it reads on `bg`, `bgGrouped` and `surface` alike. For controls that can sit on
-  /// any of them: a disabled button, a field inside a list row.
-  public static let fill = Color(uiColor: .tertiarySystemFill)
+  public static let bg = dynamic(light: 0xF6F5F1, dark: 0x0D1015)
+  /// Grouped lists sit on the page colour; cards carry the grouping.
+  public static let bgGrouped = bg
+  /// Cards and rows.
+  public static let surface = dynamic(light: 0xFFFFFF, dark: 0x161A21)
+  /// Selected rows, picker highlights, progress tracks.
+  public static let surfaceRaised = dynamic(light: 0xEDEBE5, dark: 0x1F242C)
+  /// Disabled buttons and switched-off controls.
+  public static let fill = dynamic(light: 0xE3E1DA, dark: 0x2C323C)
 
-  public static let label = Color(uiColor: .label)
-  public static let label2 = Color(uiColor: .secondaryLabel)
-  public static let label3 = Color(uiColor: .tertiaryLabel)
-  public static let separator = Color(uiColor: .separator)
+  public static let label = dynamic(light: 0x1A1C20, dark: 0xEEECE6)
+  public static let label2 = dynamic(light: 0x5B6068, dark: 0xA2A8B2)
+  public static let label3 = dynamic(light: 0x9A9EA5, dark: 0x646B76)
+  public static let separator = dynamic(light: 0xD9D6CE, dark: 0x262B34)
   public static let destructive = Color(uiColor: .systemRed)
+  /// A number going the right way (fewer stops, less phone after bedtime).
+  public static let positive = dynamic(light: 0x2E7D5B, dark: 0x5FC3A3)
 
-  // Placeholder accent (toll-brand-tbd.md). Increased-contrast values darken in light and lighten in
-  // dark so 17 pt text stays above 4.5:1 with margin.
+  /// Amber. Light mode darkens it so text on the page stays above 4.5:1; increased contrast goes
+  /// further.
   public static let accent = dynamic(
-    light: 0x3A6EA5, dark: 0x8FB4E3, lightContrast: 0x2B5683, darkContrast: 0xB0CBEE)
+    light: 0x8E5E14, dark: 0xE9B96E, lightContrast: 0x6E480F, darkContrast: 0xF2CD91)
   public static let accentSoft = dynamic(
-    light: 0x3A6EA5, dark: 0x8FB4E3, lightAlpha: 0.12, darkAlpha: 0.18, contrastAlphaBoost: 0.08)
-  // White fails contrast on the light dark-mode accent (design §3.12).
-  public static let onAccent = dynamic(light: 0xFFFFFF, dark: 0x0F1115)
-  public static let neutralBar = dynamic(
-    light: 0xC7C7CC, dark: 0x48484A, lightContrast: 0xAEAEB2, darkContrast: 0x636366)
+    light: 0xD9A24A, dark: 0xE9B96E, lightAlpha: 0.16, darkAlpha: 0.14, contrastAlphaBoost: 0.08)
+  /// Dark text on the light amber; white on the dark amber.
+  public static let onAccent = dynamic(light: 0xFFFFFF, dark: 0x1C1408)
 
   private static func dynamic(
     light: UInt32, dark: UInt32, lightContrast: UInt32? = nil, darkContrast: UInt32? = nil

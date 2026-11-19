@@ -13,6 +13,7 @@ struct SettingsView: View {
   @State private var selection = FamilyActivitySelection()
   @State private var restoreNote: String?
   @State private var emptyRefused = false
+  @AppStorage(Appearance.key) private var appearance = Appearance.standard
 
   var body: some View {
     NavigationStack {
@@ -39,10 +40,17 @@ struct SettingsView: View {
           if let url = AppLinks.support { Link(Copy.Settings.support, destination: url) }
         }
         Section {
+          Picker(Copy.Settings.appearance, selection: $appearance) {
+            ForEach(Appearance.allCases) { Text($0.title).tag($0) }
+          }
+        }
+        Section {
           NavigationLink(Copy.Settings.log) { TransitionLogView(model: model) }
           LabeledContent(Copy.Settings.version, value: AppLinks.version)
         }
       }
+      .scrollContentBackground(.hidden)
+      .background(TollColor.bg)
       .navigationTitle(Copy.Settings.title)
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
@@ -51,6 +59,7 @@ struct SettingsView: View {
       }
     }
     .tint(TollColor.accent)
+    .preferredColorScheme(appearance.scheme)
     .familyActivityPicker(isPresented: $picking, selection: $selection)
     .onAppear { selection = Blocklist.selection(from: model.sleepDraft?.apps) }
     .onChange(of: picking) { _, isOpen in

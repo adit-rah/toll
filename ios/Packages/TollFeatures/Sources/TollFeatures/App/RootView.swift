@@ -6,6 +6,7 @@ public struct RootView: View {
   let model: AppModel
   @Environment(\.scenePhase) private var scenePhase
   @State private var showsSettings = false
+  @AppStorage(Appearance.key) private var appearance = Appearance.standard
 
   public init(model: AppModel) {
     self.model = model
@@ -13,6 +14,7 @@ public struct RootView: View {
 
   public var body: some View {
     content
+      .preferredColorScheme(appearance.scheme)
       .onChange(of: scenePhase, initial: true) { _, phase in
         if phase == .active { model.foreground() }
       }
