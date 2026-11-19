@@ -15,7 +15,10 @@
     case homeLastNight = "home-last-night"
     case homePaused = "home-paused"
     case homeLocation = "home-location"
-    case purchase
+    case purchase, settings
+    case blocks
+    case blockNew = "block-new"
+    case blockEdit = "block-edit"
     case doorChoosing = "door-choosing"
     case doorWaiting = "door-waiting"
     case doorOpen = "door-open"
@@ -41,7 +44,10 @@
     /// The simulator cannot grant Family Controls; screens past the permission step assume it.
     var screenTimeApproved: Bool { self == .blocklist || self == .ready }
     var isDoor: Bool { rawValue.hasPrefix("door") }
-    var isHome: Bool { rawValue.hasPrefix("home-") || self == .purchase || isDoor }
+    var isHome: Bool {
+      rawValue.hasPrefix("home-") || rawValue.hasPrefix("block") || isDoor
+        || [.purchase, .settings].contains(self)
+    }
   }
 
   struct DemoRoot: View {

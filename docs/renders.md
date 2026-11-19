@@ -29,7 +29,7 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `empty` | The empty window |
 | `welcome` · `wake` · `home` · `permissions` · `always` · `blocklist` · `ready` | Each onboarding screen; home is placed in London, Screen Time is assumed from `blocklist` on |
 | `home-evening` · `home-blocked` · `home-away` · `home-first-week` · `home-last-night` · `home-paused` · `home-location` | Home in each state, with a Sleep and a Study block and a sample week of log, built around the time of the render |
-| `purchase` | The purchase sheet over Home |
+| `purchase` · `settings` · `blocks` · `block-new` · `block-edit` | The purchase sheet, Settings, the blocks list and the block editor (new, and editing Study), over Home |
 | `door-choosing` · `door-waiting` · `door-open` · `door-none` | The door sheet over a blocked Home; no app icon (no tokens in the simulator) |
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):

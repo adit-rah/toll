@@ -205,3 +205,16 @@ struct Week {
     blocked = counting.filter(on.contains).count
   }
 }
+
+/// Settings' "Last night" (the design canvas): when the block last came on, and when it went off.
+public struct LastNight: Equatable, Sendable {
+  public var on: Date
+  public var off: Date?
+
+  /// The latest stretch with the block on, from the log (newest last).
+  public init?(log: [Transition]) {
+    guard let start = log.lastIndex(where: { $0.blockOn && $0.changed }) else { return nil }
+    on = log[start].at
+    off = log[start...].first(where: { !$0.blockOn && $0.changed })?.at
+  }
+}
