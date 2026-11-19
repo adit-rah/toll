@@ -78,10 +78,14 @@
         home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},
         fixLocation: {}
       )
-      .sheet(isPresented: .constant(scenario.isDoor || scenario == .purchase)) {
-        if scenario == .purchase {
-          PurchaseSheet(model: app, home: home)
-        } else {
+      .sheet(isPresented: .constant(!scenario.rawValue.hasPrefix("home-"))) {
+        switch scenario {
+        case .purchase: PurchaseSheet(model: app, home: home)
+        case .settings: SettingsView(model: app)
+        case .blocks: NavigationStack { BlocksView(model: app) }
+        case .blockNew: BlockEditorView(app: app, editing: nil)
+        case .blockEdit: BlockEditorView(app: app, editing: BlockID("study"))
+        default:
           TimelineView(.periodic(from: .now, by: 1)) { tick in DoorSheet(model: app, now: tick.date)
           }
         }
