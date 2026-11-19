@@ -146,10 +146,16 @@ public struct HomeSnapshot: Equatable, Sendable {
     } else if state.runtime.active[block.id] != nil {
       trailing = (Copy.Home.onNow, true)
     } else if let next = block.schedule.nextStart(after: now, calendar: calendar) {
-      let soon = next.timeIntervalSince(now) < 18 * 3600
+      // "Tonight" and "Today" only for today; a Sleep night starting after midnight still counts as
+      // tonight. Anything later is its weekday.
+      let today = calendar.isDate(next, inSameDayAs: now)
+      let afterMidnight =
+        block.isSleep
+        && calendar.isDate(next, inSameDayAs: now.addingTimeInterval(86_400))
+        && calendar.component(.hour, from: next) < 6
       trailing =
-        soon
-        ? (Copy.Home.tonight, true)
+        today || afterMidnight
+        ? (block.isSleep ? Copy.Home.tonight : Copy.Home.today, true)
         : (
           next.formatted(
             Date.FormatStyle(calendar: calendar, timeZone: calendar.timeZone).weekday(.abbreviated)),
