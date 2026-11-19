@@ -26,10 +26,12 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 9 | Morning | `windowEnd → off` at the end time, `sweepStart = off` a minute later | | |
 | 10 | Clock moved forward an hour during a block (Settings → General → Date & Time) | Block stays on; it ends at the real end time | | |
 | 11 | Edit the window during a block | Settings shows the edit; it applies after `→ off` | | |
-| 12 | Tap OK on the block screen after the end time (if the block is ever still up) | `blockScreen → off` | | |
+| 12 | Tap Never mind on the block screen after the end time (if the block is ever still up) | `blockScreen → off` | | |
+| 18 | A second block (Study at another place, 15 min from now) | `windowStart` with `active` naming both while they overlap; each ends on its own | | |
+| 19 | Upgrade from v0.2.0 (single Sleep block) | Sleep block and Home carried over; `windowStart` names new schedules; no `sleep.window` lines after | | |
 
-| 13 | Door used: block screen → Open → choose one app → wait 90 s → use it | `doorChosen`, `doorStart → on` (door open), then `doorUsed` after 5 min of use (door gone) | | |
-| 14 | Door opened and not used | Door closes at `doorEnd`, 15 min after opening (D20) | | |
+| 13 | Door used: block screen → Unlock in Dusk → choose one app → wait 90 s → use it with the app closed | `doorChosen`, `doorStart` (door open), then `doorEnd` 5 min after it opened, on the clock (D31) | | |
+| 14 | Door opened, then the phone locked for 10 min | `doorEnd` still 5 min after opening; the app is blocked again when unlocked | | |
 | 15 | Door cancelled during the wait | `doorCancelled`; Status still shows the same unlocks left | | |
 | 16 | Door regretted: Lock again within 2 min | `doorLocked`; unlocks back to where they were | | |
 | 17 | Leave the app during the wait | The app opens anyway at the end of the wait (`doorStart`) | | |

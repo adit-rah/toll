@@ -1,0 +1,24 @@
+import Foundation
+
+/// What the application layer needs from outside (docs/architecture.md). Adapters implement these:
+/// the App Group file, ManagedSettings, DeviceActivity, the transition log. Tests use fakes.
+public protocol StatePort: Sendable {
+  func load() -> DuskState
+  /// Read, change and write as one step, so two processes never interleave.
+  func update<T>(_ body: (inout DuskState) -> T) -> T
+}
+
+public protocol ShieldPort: Sendable {
+  func apply(_ plan: ShieldPlan)
+}
+
+public protocol SchedulePort: Sendable {
+  /// Replaces every window schedule with these (and a sweep after each).
+  func monitor(windows: [TimeWindow]) throws
+  func startDoor(_ door: Door, config: TollConfig) throws
+  func stopDoor()
+}
+
+public protocol LogPort: Sendable {
+  func append(_ line: Transition)
+}

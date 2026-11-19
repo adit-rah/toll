@@ -26,6 +26,16 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var refillNights = 7
   }
 
+  public struct Blocks: Codable, Sendable, Equatable {
+    public init() {}
+    public var max = 6
+    /// Across every block (D29); iOS refuses a shield of more than 50 by name.
+    public var maxApps = 40
+    /// Distinct time windows across every block: each needs a window and a sweep schedule, and
+    /// DeviceActivity monitors at most 20 (docs/architecture.md).
+    public var maxWindows = 8
+  }
+
   public struct Trial: Codable, Sendable, Equatable {
     public init() {}
     public var nights = 7
@@ -36,6 +46,7 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public var door = Door()
   public var unlocks = Unlocks()
   public var trial = Trial()
+  public var blocks = Blocks()
 
   public init() {}
 

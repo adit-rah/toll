@@ -46,9 +46,15 @@ public final class LocationAccess: NSObject, CLLocationManagerDelegate {
     if manager.authorizationStatus == .notDetermined { manager.requestWhenInUseAuthorization() }
   }
 
+  /// Where the user is, to centre a place on.
+  public struct Coordinate: Sendable, Equatable {
+    public var latitude: Double
+    public var longitude: Double
+  }
+
   /// The first fix good enough to centre a region on, or nil after `seconds`.
-  public func here(radiusMeters: Double, within seconds: Double = 20) async -> HomePoint? {
-    await withTaskGroup(of: HomePoint?.self) { group in
+  public func here(radiusMeters: Double, within seconds: Double = 20) async -> Coordinate? {
+    await withTaskGroup(of: Coordinate?.self) { group in
       group.addTask { await Self.firstFix(radiusMeters: radiusMeters) }
       group.addTask {
         try? await Task.sleep(for: .seconds(seconds))
@@ -61,15 +67,14 @@ public final class LocationAccess: NSObject, CLLocationManagerDelegate {
   }
 
   /// A fix within a third of the radius, so the region's edge is where the user thinks it is.
-  nonisolated private static func firstFix(radiusMeters: Double) async -> HomePoint? {
+  nonisolated private static func firstFix(radiusMeters: Double) async -> Coordinate? {
     do {
       for try await update in CLLocationUpdate.liveUpdates() {
         guard let location = update.location, location.horizontalAccuracy >= 0,
           location.horizontalAccuracy <= radiusMeters / 3
         else { continue }
-        return HomePoint(
-          latitude: location.coordinate.latitude, longitude: location.coordinate.longitude,
-          radiusMeters: radiusMeters)
+        return Coordinate(
+          latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
       }
     } catch {}
     return nil

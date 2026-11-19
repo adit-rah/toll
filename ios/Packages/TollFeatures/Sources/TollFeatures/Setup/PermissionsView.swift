@@ -3,22 +3,27 @@ import TollCore
 import TollUI
 import UIKit
 
-/// Setup 4 (spec §7): one button runs the prompts. Screen Time has no skip; location can be left off,
-/// and then the window alone decides (decisions D8).
+/// Setup 3 (the canvas): one button runs Apple's prompts. Screen Time has no skip; location can stay
+/// short of Always, and then blocks run on their hours alone (decisions D8, D37).
 struct PermissionsView: View {
   let model: SetupModel
 
   var body: some View {
-    SetupPage(step: SetupModel.Step.permissions.number, title: Copy.Setup.permissionsTitle) {
-      PermissionRow(
-        title: Copy.Setup.screenTime, why: Copy.Setup.screenTimeWhy, status: screenTimeStatus)
-      PermissionRow(title: Copy.Setup.location, why: Copy.Setup.locationWhy, status: locationStatus)
-      if needsSettings {
-        QuietButton(Copy.Setup.openSettings) { openSettings() }
+    SetupPage(
+      step: SetupModel.Step.permissions.number, title: Copy.Setup.permissionsTitle,
+      subtitle: Copy.Setup.permissionsLine
+    ) {
+      Card {
+        PermissionRow(
+          symbol: "hourglass", title: Copy.Setup.screenTime, why: Copy.Setup.screenTimeWhy,
+          status: screenTimeStatus)
+        PermissionRow(
+          symbol: "location.fill", title: Copy.Setup.location, why: Copy.Setup.locationWhy,
+          status: locationStatus)
       }
     } actions: {
       if model.screenTimeReady && model.locationSettled {
-        PrimaryButton(Copy.Setup.continue) { model.go(.blocklist) }
+        PrimaryButton(Copy.Setup.continue) { model.go(model.afterPermissions) }
       } else {
         PrimaryButton(model.app.screenTime == .denied ? Copy.Setup.tryAgain : Copy.Setup.allow) {
           Task { await model.allow() }
@@ -38,38 +43,74 @@ struct PermissionsView: View {
   private var locationStatus: String? {
     switch model.app.location {
     case .always: Copy.Setup.allowed
-    case .whileUsing: model.askedAlways ? Copy.Setup.locationAlwaysNeeded : nil
     case .approximate: Copy.Setup.locationApproximate
     case .denied: Copy.Setup.locationDenied
-    case .notDetermined: nil
+    case .whileUsing, .notDetermined: nil
     }
-  }
-
-  private var needsSettings: Bool {
-    model.screenTimeReady && model.app.location != .always && model.locationSettled
-  }
-
-  private func openSettings() {
-    guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-    UIApplication.shared.open(url)
   }
 }
 
 private struct PermissionRow: View {
+  let symbol: String
   let title: String
   let why: String
   let status: String?
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 4) {
-      Text(title).tollText(.headline)
-      SetupLine(why, .subhead)
-      if let status {
-        SetupLine(status)
-          .transition(.opacity)
+    CardRow(title, detail: status ?? why) { IconTile(symbol, size: 44) }
+      .animation(Motion.stateChange, value: status)
+      .accessibilityElement(children: .combine)
+  }
+}
+
+/// The canvas's Always step: While Using can't start a block with the app closed. Says what happens
+/// without it instead of warning (D37), and shows where the setting is.
+struct AlwaysView: View {
+  let model: SetupModel
+
+  var body: some View {
+    SetupPage(
+      step: SetupModel.Step.always.number, title: Copy.Setup.alwaysTitle,
+      subtitle: Copy.Setup.alwaysLine
+    ) {
+      VStack(spacing: 0) {
+        Text(Copy.Setup.alwaysHeader.uppercased())
+          .font(TollFont.captionMedium)
+          .foregroundStyle(TollColor.label2)
+          .frame(maxWidth: .infinity, minHeight: 40, alignment: .leading)
+        ForEach(Copy.Setup.alwaysOptions, id: \.self) { option in
+          Hairline()
+          Text(option)
+            .font(TollFont.subhead)
+            .foregroundStyle(TollColor.label)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        }
+        Hairline()
+        HStack {
+          Text(Copy.Setup.alwaysChoice).font(TollFont.subheadSemibold)
+          Spacer()
+          Image(systemName: "checkmark").foregroundStyle(TollColor.accent)
+        }
+        .foregroundStyle(TollColor.label)
+        .frame(minHeight: 48)
+        .padding(.horizontal, TollSpacing.cardPadding)
+        .background(TollColor.accentSoft)
+        .padding(.horizontal, -TollSpacing.cardPadding)
       }
+      .padding(.horizontal, TollSpacing.cardPadding)
+      .background(TollColor.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+      .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel(Copy.Setup.alwaysPath)
+      Footnote(Copy.Setup.alwaysPath)
+    } actions: {
+      PrimaryButton(Copy.Setup.openSettings) {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+          UIApplication.shared.open(url)
+        }
+        model.go(.blocklist)
+      }
+      QuietButton(Copy.Setup.alwaysLater, tone: .secondary) { model.go(.blocklist) }
     }
-    .accessibilityElement(children: .combine)
-    .animation(Motion.stateChange, value: status)
   }
 }

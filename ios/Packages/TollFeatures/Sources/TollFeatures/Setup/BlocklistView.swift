@@ -5,52 +5,54 @@ import TollCore
 import TollScreenTime
 import TollUI
 
-/// Setup 5: the blocklist (decisions D27). The app cannot tell which app is which, so the user picks;
-/// whatever they pick is blocked at night and everything else stays open.
+/// Setup 4 (the canvas, D27): the apps that keep the user up. Whatever they pick is blocked at night;
+/// everything else stays open.
 struct BlocklistView: View {
   @Bindable var model: SetupModel
   @State private var picking = false
 
   var body: some View {
-    SetupPage(step: SetupModel.Step.blocklist.number, title: Copy.Setup.blockTitle) {
-      SetupLine(Copy.Setup.blockLine, .subhead)
-      ChosenList(selection: model.selection)
-      if !Blocklist.fits(model.selection) {
-        SetupLine(Copy.Setup.tooMany(Blocklist.maxItems))
+    SetupPage(
+      step: SetupModel.Step.blocklist.number, title: Copy.Setup.blockTitle,
+      subtitle: Copy.Setup.blockLine
+    ) {
+      Card {
+        ForEach(rows.indices, id: \.self) { index in
+          rows[index]
+            .font(TollFont.bodyMedium)
+            .foregroundStyle(TollColor.label)
+            .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+            .staggeredAppearance(
+              index: index, step: Motion.PickerRows.stagger, rise: Motion.PickerRows.rise)
+        }
+        Button {
+          picking = true
+        } label: {
+          Label(
+            Blocklist.isEmpty(model.selection) ? Copy.Setup.chooseApps : Copy.Setup.chooseMore,
+            systemImage: "plus"
+          )
+          .font(TollFont.bodyMedium)
+          .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+        }
+        .foregroundStyle(TollColor.accent)
       }
+      if Blocklist.items(model.selection) > model.app.config.blocks.maxApps {
+        SetupLine(Copy.Setup.tooMany(model.app.config.blocks.maxApps))
+      }
+      Footnote(Copy.Setup.pickerNote)
     } actions: {
-      if Blocklist.isEmpty(model.selection) {
-        PrimaryButton(Copy.Setup.choose) { picking = true }
-      } else {
-        PrimaryButton(Copy.Setup.done) { model.blocklistChosen() }
-          .disabled(!model.blocklistReady)
-        QuietButton(Copy.Setup.chooseAgain) { picking = true }
-      }
+      PrimaryButton(Copy.Setup.continue) { model.blocklistChosen() }
+        .disabled(!model.blocklistReady)
     }
     .familyActivityPicker(isPresented: $picking, selection: $model.selection)
   }
-}
 
-/// The chosen apps, sites and categories, with their system names and icons (`Label(token)`), never
-/// strings.
-struct ChosenList: View {
-  let selection: FamilyActivitySelection
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: TollSpacing.labelGap) {
-      ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
-        row
-          .staggeredAppearance(
-            index: index, step: Motion.PickerRows.stagger, rise: Motion.PickerRows.rise)
-      }
-    }
-    .font(TollFont.body)
-    .frame(maxWidth: .infinity, alignment: .leading)
-  }
-
+  /// The system's own names and icons (`Label(token)`), never strings: the app can't tell which app
+  /// is which.
   private var rows: [AnyView] {
-    selection.categoryTokens.map { AnyView(Label($0)) }
-      + selection.applicationTokens.map { AnyView(Label($0)) }
-      + selection.webDomainTokens.map { AnyView(Label($0)) }
+    model.selection.categoryTokens.map { AnyView(Label($0)) }
+      + model.selection.applicationTokens.map { AnyView(Label($0)) }
+      + model.selection.webDomainTokens.map { AnyView(Label($0)) }
   }
 }

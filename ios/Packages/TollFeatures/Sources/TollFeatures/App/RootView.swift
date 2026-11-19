@@ -1,11 +1,13 @@
 import SwiftUI
+import TollCore
 import TollUI
+import UIKit
 
-/// The one window: setup until it is finished, then the main screen.
+/// The one window: setup until it is finished, then Home.
 public struct RootView: View {
   let model: AppModel
   @Environment(\.scenePhase) private var scenePhase
-  @State private var showsSettings = false
+  @AppStorage(Appearance.key) private var appearance = Appearance.standard
 
   public init(model: AppModel) {
     self.model = model
@@ -13,6 +15,7 @@ public struct RootView: View {
 
   public var body: some View {
     content
+      .preferredColorScheme(appearance.scheme)
       .onChange(of: scenePhase, initial: true) { _, phase in
         if phase == .active { model.foreground() }
       }
@@ -33,34 +36,45 @@ public struct RootView: View {
   @ViewBuilder private var live: some View {
     if model.state.setupFinishedAt == nil {
       SetupFlow(app: model)
-    } else if !model.state.entitled {
-      TrialEndedView(
-        summary: model.trialSummary(),
-        unlocksUsed: model.state.unlocks.used, price: model.price, buy: model.buy,
-        restore: model.restore)
     } else {
-      LiveStatus(model: model, openSettings: { showsSettings = true })
-        .sheet(isPresented: $showsSettings) { SettingsView(model: model) }
+      LiveHome(model: model)
     }
   }
 }
 
-/// Status on the live state. Extensions change the state while the app is open (the window starting,
-/// the block screen's buttons), so it is read again every so often and the clock moves on with it.
-private struct LiveStatus: View {
+/// Home on the live state, with its sheets. Extensions change the state while the app is open (a
+/// window starting, the block screen's buttons), so it is read again every so often and the clock
+/// moves on with it.
+struct LiveHome: View {
   let model: AppModel
-  let openSettings: () -> Void
-
-  private var doorShown: Binding<Bool> {
-    Binding(get: { model.showsDoor }, set: { if !$0 { model.dismissDoor() } })
-  }
+  @State private var sheet: HomeSheet?
+  @State private var editing: BlockRef?
 
   var body: some View {
     TimelineView(.everyMinute) { context in
-      StatusView(
-        state: model.state, now: context.date, trialNight: model.trialNight(now: context.date),
-        openSettings: openSettings
+      let home = HomeSnapshot(
+        state: model.state, log: model.log, now: context.date, calendar: .current)
+      HomeView(
+        home: home, price: model.price,
+        openSettings: { sheet = .settings }, openDoor: { model.askDoor() },
+        openPurchase: { sheet = .purchase }, fixLocation: openSystemSettings,
+        openBlock: { editing = BlockRef(id: $0) }, openInsights: { sheet = .insights }
       )
+      .sheet(item: $editing) { ref in BlockEditorView(app: model, editing: ref.block) }
+      .sheet(item: $sheet) { which in
+        switch which {
+        case .settings:
+          SettingsView(model: model) {
+            // Settings closes itself first; the purchase sheet opens once it has gone.
+            Task {
+              try? await Task.sleep(for: .milliseconds(450))
+              sheet = .purchase
+            }
+          }
+        case .purchase: PurchaseSheet(model: model, home: home)
+        case .insights: InsightsView(log: model.trialSummaryLog())
+        }
+      }
       .sheet(isPresented: doorShown) {
         TimelineView(.periodic(from: .now, by: 1)) { tick in
           DoorSheet(model: model, now: tick.date)
@@ -75,4 +89,18 @@ private struct LiveStatus: View {
       }
     }
   }
+
+  private var doorShown: Binding<Bool> {
+    Binding(get: { model.showsDoor }, set: { if !$0 { model.dismissDoor() } })
+  }
+
+  private func openSystemSettings() {
+    guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+    UIApplication.shared.open(url)
+  }
+}
+
+enum HomeSheet: String, Identifiable {
+  case settings, purchase, insights
+  var id: String { rawValue }
 }

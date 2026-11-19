@@ -30,8 +30,8 @@ struct TransitionLogTests {
   }
 
   @Test func storeRoundTrips() {
-    let store = SleepStore(url: freshURL())
-    store.update { $0.settings.window = usual }
-    #expect(store.load().settings.window == usual)
+    let store = DuskStore(url: freshURL())
+    store.update { $0.blocks = [sleepBlock()] }
+    #expect(store.load().sleepBlock == sleepBlock())
   }
 }
