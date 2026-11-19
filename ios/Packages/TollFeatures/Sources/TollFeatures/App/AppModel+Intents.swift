@@ -73,6 +73,9 @@ extension AppModel {
   func lockDoor() { send(.doorLocked, [.lockDoor]) }
   func dismissDoor() { send(.foreground, [.askDoor(nil)]) }
 
+  /// Home's "Open one app": the same door the block screen opens.
+  func askDoor() { send(.foreground, [.askDoor(Date())]) }
+
   // MARK: Purchase
 
   func setPurchased(_ purchased: Bool) {
@@ -92,9 +95,9 @@ extension AppModel {
     return found
   }
 
-  /// The whole log, not the 200 lines Settings keeps.
-  func trialSummary() -> TrialSummary {
-    TrialSummary(log: TransitionLog().read(), calendar: .current)
+  /// The whole log, oldest first, not the 200 lines Settings keeps.
+  func trialSummaryLog() -> [Transition] {
+    TransitionLog().read().reversed()
   }
 
   /// "Night 5 of 7 free." during the trial; nil once purchased or over (D33).
