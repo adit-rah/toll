@@ -5,20 +5,19 @@ import TollCore
 import TollScreenTime
 import TollUI
 
-/// The door (spec §7 Door), a sheet over Status opened from the block screen: choosing, waiting, open,
-/// or none left. Its parts crossfade inside the sheet; the sheet itself does not move (design §2.5).
+/// The door (the design canvas; D-1 to D-7, D31), a sheet over Home opened from the block screen's
+/// "Unlock in Dusk" or Home's "Open one app": choosing, waiting, open, or none left. Its parts crossfade
+/// inside the sheet; the sheet itself does not move (design §2.5).
 struct DoorSheet: View {
   let model: AppModel
   let now: Date
-
   @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
     // Scrolls so nothing is cut off at accessibility sizes, where the sheet also opens full height.
     ScrollView {
       VStack(alignment: .leading, spacing: TollSpacing.groupGap) {
-        content
-          .transition(.opacity)
+        content.transition(.opacity)
       }
       .frame(maxWidth: .infinity, alignment: .topLeading)
       .tollGutter()
@@ -45,35 +44,36 @@ struct DoorSheet: View {
 }
 
 /// The blocked apps are listed by their system names to tap; one inside a blocked category is not on
-/// the list by itself, so the system picker finds it (decisions D27).
+/// the list by itself, so "Another app" opens the system picker for it (D27).
 private struct DoorChoosing: View {
   let model: AppModel
   @State private var picking = false
   @State private var selection = FamilyActivitySelection()
   @State private var tooMany = false
 
-  private var blocked: FamilyActivitySelection {
-    model.doorChoices
-  }
-
   var body: some View {
+    let choices = model.doorChoices
     DoorTitle(Copy.Door.question(minutes: model.config.door.minutes))
-    UnlocksLine(model: model)
-    VStack(alignment: .leading, spacing: 0) {
-      ForEach(Array(blocked.applicationTokens.enumerated()), id: \.offset) { _, token in
-        Button {
-          model.startDoor(token)
-        } label: {
-          Label(token)
-            .frame(maxWidth: .infinity, minHeight: TollSpacing.rowMinHeight, alignment: .leading)
-            .contentShape(Rectangle())
+    UnlockPips(left: model.state.unlocks.left(model.config), max: model.config.unlocks.max)
+    Footnote(Copy.Door.waitFirst(seconds: model.config.door.waitSeconds))
+    if !choices.applicationTokens.isEmpty {
+      Card {
+        ForEach(Array(choices.applicationTokens.enumerated()), id: \.offset) { _, token in
+          Button {
+            model.startDoor(token)
+          } label: {
+            Label(token)
+              .font(TollFont.bodyMedium)
+              .foregroundStyle(TollColor.label)
+              .frame(maxWidth: .infinity, minHeight: TollSpacing.rowMinHeight, alignment: .leading)
+              .contentShape(Rectangle())
+          }
+          .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
-        .foregroundStyle(TollColor.label)
       }
     }
-    if tooMany { Text(Copy.Door.chooseOne).tollText(.subhead) }
-    if !blocked.categoryTokens.isEmpty || blocked.applicationTokens.isEmpty {
+    if tooMany { Footnote(Copy.Door.chooseOne) }
+    if !choices.categoryTokens.isEmpty || choices.applicationTokens.isEmpty {
       QuietButton(Copy.Door.anotherApp) { picking = true }
         .familyActivityPicker(isPresented: $picking, selection: $selection)
         .onChange(of: picking) { _, isOpen in
@@ -88,7 +88,7 @@ private struct DoorChoosing: View {
           model.startDoor(app)
         }
     }
-    QuietButton(Copy.Door.notNow) { model.dismissDoor() }
+    QuietButton(Copy.Door.notNow, tone: .secondary) { model.dismissDoor() }
       .frame(maxWidth: .infinity)
   }
 }
@@ -98,20 +98,21 @@ private struct DoorWaiting: View {
   let door: Door
 
   var body: some View {
-    AppIcon(app: door.app)
-    Countdown(
-      endsAt: door.waitEndsAt, text: Copy.Door.opensIn, spoken: Copy.Door.opensInSpoken
-    )
-    .font(TollFont.screenTitle)
-    .foregroundStyle(TollColor.label)
-    Text(Copy.Door.cancelFree).tollText(.subhead)
-    QuietButton(Copy.Door.cancel) { model.cancelDoor() }
+    AppName(app: door.app)
+    Footnote(Copy.Door.onceWaitEnds(minutes: model.config.door.minutes))
+    Countdown(endsAt: door.waitEndsAt, text: { $0 }, spoken: Copy.Door.opensInSpoken)
+      .font(.system(size: 64, weight: .semibold, design: .rounded))
+      .foregroundStyle(TollColor.label)
       .frame(maxWidth: .infinity)
       // The monitor opens the door when its interval starts; this covers a late callback.
       .task(id: door.waitEndsAt) {
         try? await Task.sleep(for: .seconds(max(0, door.waitEndsAt.timeIntervalSinceNow)))
         model.send(.doorStart)
       }
+    Footnote(Copy.Door.leaveFreely)
+    QuietButton(Copy.Door.cancel) { model.cancelDoor() }
+      .frame(maxWidth: .infinity)
+    Footnote(Copy.Door.cancelFree)
   }
 }
 
@@ -121,10 +122,15 @@ private struct DoorOpen: View {
   let now: Date
 
   var body: some View {
-    AppIcon(app: door.app)
-    DoorTitle(Copy.Door.open(minutes: model.config.door.minutes))
+    AppName(app: door.app, detail: Copy.Door.isOpen)
+    Text(Copy.Door.forMinutes(model.config.door.minutes))
+      .font(TollFont.subhead).foregroundStyle(TollColor.label2)
     if let expiresAt = door.expiresAt {
       // On the clock (D31): the monitor closes it at this moment even with the app closed.
+      let total = TimeInterval(model.config.door.minutes * 60)
+      ProgressView(value: max(0, min(total, expiresAt.timeIntervalSince(now))), total: total)
+        .tint(TollColor.accent)
+        .accessibilityHidden(true)
       Countdown(endsAt: expiresAt, text: Copy.Door.left, spoken: Copy.Door.leftSpoken)
         .font(TollFont.title)
         .foregroundStyle(TollColor.label)
@@ -134,8 +140,9 @@ private struct DoorOpen: View {
         }
     }
     if let regretEnd = door.regretEndsAt(model.config), now < regretEnd {
-      Text(Copy.Door.regret(minutes: model.config.door.regretSeconds / 60))
-        .tollText(.subhead)
+      Countdown(endsAt: regretEnd, text: Copy.Door.regretFor, spoken: Copy.Door.leftSpoken)
+        .font(TollFont.subhead)
+        .foregroundStyle(TollColor.label2)
         .transition(.opacity)
     }
     PrimaryButton(Copy.Door.lockAgain) { model.lockDoor() }
@@ -146,30 +153,41 @@ private struct DoorNoneLeft: View {
   let model: AppModel
 
   var body: some View {
-    DoorTitle(
-      Copy.Door.noneLeft(
-        nights: model.state.unlocks.nightsToRefill(model.config)
-          ?? model.config.unlocks.refillNights))
-    QuietButton(Copy.Door.notNow) { model.dismissDoor() }
-      .frame(maxWidth: .infinity)
+    DoorTitle(Copy.Door.noneTitle)
+    UnlockPips(left: 0, max: model.config.unlocks.max)
+    Footnote(
+      Copy.Door.refillLine(
+        model.state.unlocks.nightsToRefill(model.config) ?? model.config.unlocks.refillNights,
+        after: model.config.unlocks.refillNights))
+    Footnote(Copy.Door.othersWork)
+    PrimaryButton(Copy.Door.ok) { model.dismissDoor() }
   }
 }
 
-struct UnlocksLine: View {
-  let model: AppModel
+/// Unlocks as dots, with the count beside them in words (never the dots alone).
+struct UnlockPips: View {
+  let left: Int
+  let max: Int
 
   var body: some View {
-    Text(
-      Copy.Door.unlocksLeft(model.state.unlocks.left(model.config), of: model.config.unlocks.max)
-    )
-    .tollText(.body)
-    .monospacedDigit()
+    HStack(spacing: 10) {
+      HStack(spacing: 6) {
+        ForEach(0..<max, id: \.self) { index in
+          Circle()
+            .fill(index < left ? TollColor.accent : TollColor.fill)
+            .frame(width: 10, height: 10)
+        }
+      }
+      Text(Copy.Door.unlocksOf(left, max)).font(TollFont.subhead).monospacedDigit()
+        .foregroundStyle(TollColor.label2)
+    }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(Copy.Door.unlocksOf(left, max))
   }
 }
 
 private struct DoorTitle: View {
   let text: String
-
   init(_ text: String) { self.text = text }
 
   var body: some View {
@@ -181,16 +199,19 @@ private struct DoorTitle: View {
   }
 }
 
-/// The system's icon for the chosen app; the app never learns which app it is.
-private struct AppIcon: View {
+/// The chosen app by the system's own icon and name; the app never learns which app it is.
+private struct AppName: View {
   let app: Data
+  var detail: String?
 
   var body: some View {
     if let token = DoorApp.token(from: app) {
-      Label(token)
-        .labelStyle(.iconOnly)
-        .scaleEffect(2, anchor: .leading)
-        .frame(height: 64, alignment: .leading)
+      VStack(alignment: .leading, spacing: 4) {
+        Label(token).font(TollFont.title).foregroundStyle(TollColor.label)
+        if let detail { Text(detail).font(TollFont.subhead).foregroundStyle(TollColor.accent) }
+      }
+      .accessibilityElement(children: .combine)
+      .accessibilityAddTraits(.isHeader)
     }
   }
 }
