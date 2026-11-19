@@ -3,7 +3,7 @@ import StoreKit
 
 /// The one non-consumable (P-4). StoreKit is the only network the app uses (spec §2).
 public enum Purchase {
-  /// Set up in App Store Connect as a non-consumable at $24.99 (docs/apple-setup.md).
+  /// Set up in App Store Connect as a non-consumable at $9.99 (docs/apple-setup.md).
   public static let productID = "com.advan.toll.full"
 
   public enum Outcome: Sendable, Equatable {

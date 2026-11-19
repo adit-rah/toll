@@ -25,3 +25,20 @@ extension Copy {
     public static let nothingToRestore = "No purchase found for this Apple Account."
   }
 }
+
+extension Copy {
+  /// The purchase sheet (the design canvas): the week's facts, what it keeps, the price.
+  public enum Purchase {
+    public static let eyebrow = "Your free week"
+    public static let title = "Keep your nights."
+    public static let benefits = [
+      "Every night, for good", "No subscription, ever", "No account", "Nothing leaves your phone",
+    ]
+    public static let once = "once"
+    public static let keep = "Keep it"
+    public static let restore = "Restore purchase"
+    public static let notNow = "Not now"
+    public static let footnote = "Without it, nothing is blocked. Your settings stay."
+    public static let close = "Close"
+  }
+}
