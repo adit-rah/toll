@@ -7,13 +7,17 @@ import TollUI
 struct SetupPage<Content: View, Actions: View>: View {
   let step: Int?
   let title: String
+  var subtitle: String? = nil
   @ViewBuilder let content: Content
   @ViewBuilder let actions: Actions
 
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: TollSpacing.groupGap) {
-        ScreenTitle(title)
+        VStack(alignment: .leading, spacing: 12) {
+          ScreenTitle(title)
+          if let subtitle { SetupLine(subtitle, .subhead) }
+        }
         content
       }
       .frame(maxWidth: .infinity, alignment: .leading)

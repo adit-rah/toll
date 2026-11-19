@@ -1,37 +1,53 @@
 import Foundation
 
 extension Copy {
+  /// Settings (the design canvas).
   public enum Settings {
     public static let title = "Settings"
-    public static let window = "Sleep window"
-    public static let home = "Home"
-    public static let blocked = "Blocked apps"
-    /// B-3, under the first three rows.
-    public static let changesLater = "Changes apply after tonight's block ends."
-    public static let restore = "Restore purchase"
-    public static let restored = "Purchase restored."
-    public static let privacy = "Privacy policy"
-    public static let support = "Support"
-    public static let log = "Transition log"
-    public static let version = "Version"
-    public static let save = "Save"
-    public static let wake = "Wake time"
-    public static let start = "Nights start at"
-    public static let homeSet = "Home is set."
-    public static let homeNotSet = "No home set. The block runs every night in your sleep window."
-    public static let moveHome = "Move home here"
-    public static let finding = Setup.finding
-    public static let noFix = Setup.noFix
-    public static func blockedCount(apps: Int, sites: Int, categories: Int) -> String {
-      var parts = [apps == 1 ? "1 app" : "\(apps) apps"]
-      if sites > 0 { parts.append(sites == 1 ? "1 site" : "\(sites) sites") }
-      if categories > 0 {
-        parts.append(categories == 1 ? "1 category" : "\(categories) categories")
-      }
-      return parts.joined(separator: middleDot)
+    public static let working = "Is everything working?"
+    public static let screenTime = "Screen Time"
+    public static let location = "Location"
+    public static let on = "On"
+    public static let off = "Off"
+    public static let always = "Always"
+    public static let whileUsing = "While Using"
+    public static let approximate = "Approximate"
+    public static let lastNight = "Last night"
+    public static func blocked(_ from: String, _ until: String?) -> String {
+      until.map { "Blocked \(from) – \($0)" } ?? "Blocked from \(from)"
     }
-    public static let notEmpty = "At least one app stays on the list."
+    public static let notYet = "Not yet"
+
+    public static let yourWeek = "Your week"
+    public static let freeNights = "Free nights"
+    public static func nightsUsed(_ night: Int, of nights: Int) -> String {
+      "\(night) of \(nights) used"
+    }
+    public static let purchased = "Kept for good"
+    public static let keepIt = Purchase.keep
+    public static let restore = Purchase.restore
+    public static let restored = "Purchase restored."
+
+    public static let blocks = Blocks.title
+    public static let appearance = "Appearance"
+    public static let dark = "Dark"
+    public static let light = "Light"
+    public static let matchPhone = "Match iPhone"
+
+    public static let help = "Help"
+    public static let howItWorks = "How blocking works"
+    public static let howItWorksLines = [
+      "A block is on when you're at its place, in its hours.",
+      "Apps on its list don't open. Everything else works.",
+      "Unlock in \(name) opens one app for 5 minutes after a short wait. You have 3; one comes back after 7 nights without using any.",
+      "Without location set to Always, blocks run on their hours, wherever you are.",
+    ]
+    public static let privacy = "Privacy"
+    public static let privacyLine = "Nothing leaves your phone"
+    public static let contact = "Contact"
+    public static let log = "Transition log"
     public static let logEmpty = "Nothing yet."
+    public static let version = "Version"
 
     public static func line(_ transition: Transition, in calendar: Calendar = .current) -> String {
       let day = transition.at.formatted(
@@ -42,11 +58,12 @@ extension Copy {
       let window = transition.inWindow ? "window" : "no window"
       let change = transition.changed ? "→ \(result)" : "= \(result)"
       let door = transition.door.map { "door \($0.rawValue)" }
+      let blocks = transition.active.map { "blocks \($0.map(\.raw).joined(separator: ","))" }
       return
         ([
           "\(day) \(time(transition.at, in: calendar))", transition.cause.rawValue, change, home,
           window,
-        ] + [door].compactMap { $0 }).joined(separator: middleDot)
+        ] + [door, blocks].compactMap { $0 }).joined(separator: middleDot)
     }
   }
 }

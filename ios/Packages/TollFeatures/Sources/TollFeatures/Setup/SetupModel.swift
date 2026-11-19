@@ -11,14 +11,14 @@ import TollScreenTime
 @Observable
 final class SetupModel {
   enum Step: Hashable, CaseIterable {
-    case wake, home, permissions, blocklist, ready
+    case wake, home, permissions, always, blocklist, ready
 
-    /// The progress bar counts the four questions; Ready is not one.
+    /// The progress bar counts the four questions; Always is part of permissions, Ready is not one.
     var number: Int? {
       switch self {
       case .wake: 1
       case .home: 2
-      case .permissions: 3
+      case .permissions, .always: 3
       case .blocklist: 4
       case .ready: nil
       }
@@ -32,6 +32,11 @@ final class SetupModel {
   private(set) var wake = ClockTime(hour: 7)
   private(set) var start: ClockTime
   private var startMoved = false
+  /// Friday and Saturday nights end later (the canvas's "Different on weekends").
+  var weekendsDiffer = false
+  private(set) var weekendWake = ClockTime(hour: 9)
+  /// Home is being dragged under the circle (the canvas's "Move").
+  var moving = false
   var home: Place?
   /// Demo launches place home themselves: the simulator has no one to answer the prompt.
   var placesHome = true
@@ -48,6 +53,35 @@ final class SetupModel {
   }
 
   var window: TimeWindow { TimeWindow(start: start, end: wake) }
+
+  var weekendWindow: TimeWindow {
+    TimeWindow(wake: weekendWake, leadHours: app.config.window.leadHours)
+  }
+
+  var schedule: WeeklySchedule {
+    guard weekendsDiffer else { return .everyDay(window) }
+    return WeeklySchedule(rules: [
+      .init(days: Weekday.schoolNights, window: window),
+      .init(days: Weekday.weekendNights, window: weekendWindow),
+    ])
+  }
+
+  func setWeekendWake(_ time: ClockTime) { weekendWake = time }
+
+  /// The morning the free week ends: the seventh night end from now (P-2).
+  func trialEnds(after now: Date, calendar: Calendar = .current) -> Date? {
+    let horizon = now.addingTimeInterval(14 * 86_400)
+    let ends = schedule.ends(after: now, through: horizon, calendar: calendar)
+    return ends.count >= app.config.trial.nights ? ends[app.config.trial.nights - 1] : nil
+  }
+
+  /// The map was dragged: home follows its centre.
+  func moveHome(latitude: Double, longitude: Double) {
+    guard var place = home else { return }
+    place.latitude = latitude
+    place.longitude = longitude
+    home = place
+  }
 
   func setWake(_ time: ClockTime) {
     wake = time
@@ -135,9 +169,12 @@ final class SetupModel {
   var sleepBlock: Block {
     let place = locationUsable ? home : nil
     return Block(
-      name: Copy.Setup.sleepName, kind: .sleep, place: place?.id, schedule: .everyDay(window),
+      name: Copy.Setup.sleepName, kind: .sleep, place: place?.id, schedule: schedule,
       apps: Blocklist.encode(selection))
   }
+
+  /// After the prompts: While Using gets one more screen asking for Always (the canvas).
+  var afterPermissions: Step { app.location == .whileUsing ? .always : .blocklist }
 
   func finish() { app.finishSetup(sleep: sleepBlock, home: locationUsable ? home : nil) }
 }
