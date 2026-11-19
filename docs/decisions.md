@@ -70,6 +70,26 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 - Its `toll.sqlite` database.
 - Its Keychain session token and device id.
 
+**D29. Multiple blocks** (2026-11-19; founders, from the design canvas). Sleep plus blocks like Study, each with its own apps, place, weekly hours and days; unlocks are shared; at most 40 apps and sites across all blocks. This supersedes spec §2's "multiple places or schedules" and "insights" exclusions. The model and rules are in `docs/architecture.md`.
+
+**D30. Layered inside the app** (2026-11-19; founders). There is no server, but the app is split like one: a pure domain, an application layer that turns commands into state and effects, ports, adapters for Apple's frameworks, and screens that read snapshots. See `docs/architecture.md`. Package names keep the Toll prefix until the name is final.
+
+**D31. The door is 5 minutes on the clock** (2026-11-19). iOS never reports live usage, so "5 minutes of use" (D-2) could not be shown or counted down. The door's DeviceActivity interval (15 minutes, the minimum) warns at the door's minutes, which wakes the monitor on time with the app closed. That gives a real countdown, and the stored expiry stays as the fallback. Supersedes D20.
+
+**D32. Block screen buttons follow Opal** (2026-11-19; founders). Primary "Never mind" closes; secondary "Unlock in Dusk" opens the app at the door.
+
+**D33. Selling during the trial** (2026-11-19; founders let engineering set the direction). Never at night. During the day a quiet "Night 5 of 7 free" pill; on the last day, "Last free night tonight" opens the purchase sheet when tapped. After the trial Home stays useful and shows one card to turn it back on. P-5 is relaxed to allow exactly that.
+
+**D34. Price $9.99 once** (2026-11-19; founders). Conversion comes first. Supersedes the spec's $24.99.
+
+**D35. Working name Dusk** (2026-11-19; founders). Shown name, copy and docs say Dusk; bundle ids stay, to keep the Family Controls approvals.
+
+**D36. Dark first, switchable** (2026-11-19; founders). Default dark; Settings → Appearance: Dark · Light · Match iPhone.
+
+**D37. Without location, every block runs on its hours alone** (2026-11-19). D8 extended to all blocks: the paid function must not depend on location (5.1.1), so a block with a place behaves as if the user were there. Home says so as a fact, with "Fix in Settings".
+
+**D38. "Try it" is dropped** (2026-11-19; founders).
+
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 
 | # | Unknown | What Apple's docs and staff say | Device check |

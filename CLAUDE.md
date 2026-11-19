@@ -1,6 +1,6 @@
 # Toll (sleep pivot)
 
-iPhone app: buy back your sleep. When the user is home inside their sleep window, the apps on their blocklist are blocked; one scarce door lets one app through. Seven nights free, then one purchase. No backend. `docs/sleep-pivot-mvp.md` is the source of truth; `docs/design.md` carries the visual and motion rules. Decisions, findings and spec conflicts go in `docs/decisions.md`; add yours there.
+iPhone app: buy back your sleep. When the user is home inside their sleep window, the apps on their blocklist are blocked; one scarce door lets one app through. Seven nights free, then one purchase. No backend. `docs/sleep-pivot-mvp.md` is the source of truth as amended by `docs/decisions.md` (multiple blocks, D29 onward); `docs/architecture.md` is the layering every change follows; `docs/design.md` carries the visual and motion rules. Decisions, findings and spec conflicts go in `docs/decisions.md`; add yours there.
 
 ## Layout
 - `ios/` — Xcode project (`Toll.xcodeproj`) with four targets: `App/`, `ShieldConfig/`, `ShieldAction/`, `Monitor/`. All logic lives in local packages under `ios/Packages/`:
@@ -17,6 +17,7 @@ iPhone app: buy back your sleep. When the user is home inside their sleep window
 A build for a phone is the branch merged into `main`, then a GitHub release with a new `v*` tag on `main`; Xcode Cloud builds it and sends it to TestFlight. The tag is the version (`ios/ci_scripts/ci_post_clone.sh`), so tags must be `vX.Y.Z`; take the next number after `git tag -l`. The sleep pivot starts at `v0.2.0` (Toll was `v0.1.x`); keep `MARKETING_VERSION` in `ios/Config/Base.xcconfig` on the same minor. A cloud session can open and merge the pull request when asked, but cannot push a tag. After the merge, hand the person: `gh release create vX.Y.Z --target main --prerelease --title vX.Y.Z --generate-notes`.
 
 ## Rules
+- Layers (`docs/architecture.md`): screens send commands and read snapshots; rules live in pure TollCore `Domain`/`App` and are tested; only adapters touch Apple frameworks. No rule in a view, no framework call in the domain.
 - Tunables only in `TollConfig.swift`, with spec §10 defaults. User-facing strings only in `Copy.swift` (the one file allowed past 300 lines); match spec §7 exactly. Info.plist purpose strings are the exception.
 - Name things by spec §3 terms: `SleepWindow`, `Home`, `Block`, `Blocklist` (decisions D27), `Door`, `Unlock`, `Night`. Cite rule ids (B-1, D-4, P-2…) in commits.
 - Files under ~300 lines; split by feature. Comments say why, never what. No file headers, no commented-out code, no TODO without an issue link.
