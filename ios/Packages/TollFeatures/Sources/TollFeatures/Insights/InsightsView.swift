@@ -6,7 +6,7 @@ import TollUI
 /// Your nights (the design canvas): from the log on this phone. "Phone after bedtime" is Apple's
 /// number and can only be shown by Apple's own report view; it comes with that extension.
 struct InsightsView: View {
-  let log: [Transition]
+  let log: [TollCore.Transition]
   @State private var range = InsightsSnapshot.Range.all
   @Environment(\.dismiss) private var dismiss
 
