@@ -7,7 +7,7 @@
   /// Debug builds open straight into a screen with `-TollDemo <scenario>` (docs/renders.md). Release
   /// builds contain none of this.
   enum DemoScenario: String, CaseIterable {
-    case empty, welcome, wake, home, permissions
+    case empty, welcome, wake, home, permissions, always
     case blocklist
     case ready
     case statusBlocked = "status-blocked"
@@ -30,6 +30,7 @@
       case .wake: [.wake]
       case .home: [.wake, .home]
       case .permissions: [.wake, .home, .permissions]
+      case .always: [.wake, .home, .permissions, .always]
       case .blocklist: [.wake, .home, .permissions, .blocklist]
       case .ready: [.wake, .home, .permissions, .blocklist, .ready]
       default: nil
