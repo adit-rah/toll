@@ -15,7 +15,7 @@
     case homeLastNight = "home-last-night"
     case homePaused = "home-paused"
     case homeLocation = "home-location"
-    case purchase, settings
+    case purchase, settings, insights
     case blocks
     case blockNew = "block-new"
     case blockEdit = "block-edit"
@@ -46,7 +46,7 @@
     var isDoor: Bool { rawValue.hasPrefix("door") }
     var isHome: Bool {
       rawValue.hasPrefix("home-") || rawValue.hasPrefix("block") || isDoor
-        || [.purchase, .settings].contains(self)
+        || [.purchase, .settings, .insights].contains(self)
     }
   }
 
@@ -82,6 +82,7 @@
         switch scenario {
         case .purchase: PurchaseSheet(model: app, home: home)
         case .settings: SettingsView(model: app)
+        case .insights: InsightsView(log: fixture.log)
         case .blocks: NavigationStack { BlocksView(model: app) }
         case .blockNew: BlockEditorView(app: app, editing: nil)
         case .blockEdit: BlockEditorView(app: app, editing: BlockID("study"))

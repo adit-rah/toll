@@ -95,9 +95,9 @@ extension AppModel {
     return found
   }
 
-  /// The whole log, not the 200 lines Settings keeps.
-  func trialSummary() -> TrialSummary {
-    TrialSummary(log: TransitionLog().read(), calendar: .current)
+  /// The whole log, oldest first, not the 200 lines Settings keeps.
+  func trialSummaryLog() -> [Transition] {
+    TransitionLog().read().reversed()
   }
 
   /// "Night 5 of 7 free." during the trial; nil once purchased or over (D33).

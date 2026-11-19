@@ -93,6 +93,11 @@ struct HomeSnapshotTests {
     #expect(rows[0].trailing == "Tonight")
     #expect(rows[1].detail.hasSuffix("Weekdays"))
     #expect(rows[1].trailing == "Mon")
+    // Thursday evening: Study is tomorrow, not tonight.
+    let thursday = snapshot(s, date(2026, 11, 19, 18)).blocks
+    #expect(thursday[0].trailing == "Tonight")
+    #expect(thursday[1].trailing == "Fri")
+    #expect(snapshot(s, date(2026, 11, 20, 7)).blocks[1].trailing == "Today")
   }
 
   @Test func theBannerOnlyWithoutLocation() {

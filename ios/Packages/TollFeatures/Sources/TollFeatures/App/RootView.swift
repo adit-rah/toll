@@ -58,7 +58,7 @@ struct LiveHome: View {
         home: home, price: model.price,
         openSettings: { sheet = .settings }, openDoor: { model.askDoor() },
         openPurchase: { sheet = .purchase }, fixLocation: openSystemSettings,
-        openBlock: { editing = BlockRef(id: $0) }
+        openBlock: { editing = BlockRef(id: $0) }, openInsights: { sheet = .insights }
       )
       .sheet(item: $editing) { ref in BlockEditorView(app: model, editing: ref.block) }
       .sheet(item: $sheet) { which in
@@ -72,6 +72,7 @@ struct LiveHome: View {
             }
           }
         case .purchase: PurchaseSheet(model: model, home: home)
+        case .insights: InsightsView(log: model.trialSummaryLog())
         }
       }
       .sheet(isPresented: doorShown) {
@@ -100,6 +101,6 @@ struct LiveHome: View {
 }
 
 enum HomeSheet: String, Identifiable {
-  case settings, purchase
+  case settings, purchase, insights
   var id: String { rawValue }
 }
