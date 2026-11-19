@@ -1,29 +1,33 @@
 import UIKit
 
-/// A placeholder mark (a white ring on near-black), drawn in code so the extension carries no asset
-/// until the product has a name and an identity.
+/// Dusk's block screen colours and mark (the design canvas: amber on near-black, a moon), drawn in
+/// code so the extension carries no asset. Always dark: the block screen is mostly seen at night.
 enum ShieldIcon {
-  static let accent = UIColor { traits in
-    traits.userInterfaceStyle == .dark
-      ? UIColor(red: 0x8F / 255, green: 0xB4 / 255, blue: 0xE3 / 255, alpha: 1)
-      : UIColor(red: 0x3A / 255, green: 0x6E / 255, blue: 0xA5 / 255, alpha: 1)
-  }
+  static let background = rgb(0x0D1015)
+  static let label = rgb(0xEEECE6)
+  static let secondaryLabel = rgb(0xA2A8B2)
+  static let accent = rgb(0xE9B96E)
+  static let onAccent = rgb(0x1C1408)
 
-  /// White fails contrast on the dark-mode accent (design §3).
-  static let onAccent = UIColor { traits in
-    traits.userInterfaceStyle == .dark
-      ? UIColor(red: 0x0F / 255, green: 0x11 / 255, blue: 0x15 / 255, alpha: 1) : .white
-  }
-
+  /// An amber crescent on a soft amber tile.
   static let image: UIImage = {
     let size = CGSize(width: 72, height: 72)
     return UIGraphicsImageRenderer(size: size).image { _ in
-      UIColor(red: 0x1C / 255, green: 0x1C / 255, blue: 0x1E / 255, alpha: 1).setFill()
-      UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 18).fill()
-      let ring = UIBezierPath(ovalIn: CGRect(x: 24, y: 24, width: 24, height: 24))
-      ring.lineWidth = 4
-      UIColor.white.setStroke()
-      ring.stroke()
+      accent.withAlphaComponent(0.14).setFill()
+      UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 20).fill()
+      // A disc with a smaller one cut out of its upper right: clip everything but the cut, then fill.
+      let cut = UIBezierPath(rect: CGRect(origin: .zero, size: size))
+      cut.append(UIBezierPath(ovalIn: CGRect(x: 30, y: 10, width: 32, height: 32)))
+      cut.usesEvenOddFillRule = true
+      cut.addClip()
+      accent.setFill()
+      UIBezierPath(ovalIn: CGRect(x: 18, y: 18, width: 36, height: 36)).fill()
     }
   }()
+
+  private static func rgb(_ hex: UInt32) -> UIColor {
+    UIColor(
+      red: CGFloat((hex >> 16) & 0xFF) / 255, green: CGFloat((hex >> 8) & 0xFF) / 255,
+      blue: CGFloat(hex & 0xFF) / 255, alpha: 1)
+  }
 }

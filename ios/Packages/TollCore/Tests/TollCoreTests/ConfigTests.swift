@@ -13,5 +13,6 @@ struct ConfigTests {
     #expect(config.unlocks.max == 3)
     #expect(config.unlocks.refillNights == 7)
     #expect(config.trial.nights == 7)
+    #expect(config.blocks.maxApps == 40)
   }
 }

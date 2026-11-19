@@ -43,23 +43,26 @@ Never more than three sizes on one screen. Line length ≤ 60 characters.
 
 ### 2.3 Colour
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `bg` | systemBackground | system | Screen background |
-| `bgGrouped` | systemGroupedBackground | system | Settings |
-| `surface` | secondarySystemGroupedBackground | `#1C1C1E` | Cards, rows |
-| `surfaceRaised` | tertiarySystemGroupedBackground | `#2C2C2E` | Cards on `bg` |
-| `fill` | tertiarySystemFill | tertiarySystemFill | Disabled buttons |
-| `label` / `label2` / `label3` | system tiers | system tiers | Text |
-| `separator` | system | system | Hairlines |
-| `accent` | `#3A6EA5` | `#8FB4E3` | Primary action, selected state. **Placeholder.** |
-| `accentSoft` | accent @ 12% | accent @ 18% | Selected backgrounds |
+Dusk's palette from the design canvas (decisions D36): dark first, warm grays, one amber accent. Light values are the canvas's *Home · light*. Tokens live in `TollColor`.
 
-All text ≥ 4.5:1 in both modes; hero ≥ 3:1; Increase Contrast variants on the accent.
+| Token | Dark | Light | Use |
+|---|---|---|---|
+| `bg` | `#0D1015` | `#F6F5F1` | Page |
+| `surface` | `#161A21` | `#FFFFFF` | Cards, rows |
+| `surfaceRaised` | `#1F242C` | `#EDEBE5` | Selected rows, picker highlight, progress track |
+| `fill` | `#2C323C` | `#E3E1DA` | Disabled buttons, switched-off controls |
+| `label` / `label2` / `label3` | `#EEECE6` / `#A2A8B2` / `#646B76` | `#1A1C20` / `#5B6068` / `#9A9EA5` | Text |
+| `separator` | `#262B34` | `#D9D6CE` | Hairlines |
+| `accent` | `#E9B96E` | `#8E5E14` | The one accent: primary buttons, links, selected state |
+| `accentSoft` | accent @ 14% | `#D9A24A` @ 16% | Icon tiles, selected backgrounds |
+| `onAccent` | `#1C1408` | `#FFFFFF` | Text on the accent |
+| `positive` | `#5FC3A3` | `#2E7D5B` | A number going the right way |
+
+All text ≥ 4.5:1 in both; Increase Contrast pushes the accent further. Appearance: Dark (default) · Light · Match iPhone, in Settings.
 
 ### 2.4 Shape and depth
 
-Radii: card 16, row in card 12, sheet 20, chip 8, button 12. No elevation in light mode; dark mode uses surface tiers, no shadows. Materials on system bars only.
+Radii: card 18, row in card 12, sheet 20, chip 8, button 16. Gutter 24. No elevation in light mode; dark mode uses surface tiers, no shadows. Materials on system bars only.
 
 ### 2.5 Motion and haptics
 
@@ -88,7 +91,7 @@ SF Symbols, monochrome. A gear for Settings, chevrons in lists. No coloured icon
 
 ## 3. Buttons
 
-- `PrimaryButton`: full width, 50 pt, `accent` fill, `headline` label (white in light; `#0F1115` in dark, where white fails on the light accent). One per screen. Disabled: `fill` with a `label3` title.
+- `PrimaryButton`: full width, 54 pt, 16 pt corners, `accent` fill, `headline` label in `onAccent`. One per screen. Disabled: `fill` with a `label3` title.
 - `QuietButton`: text only, `accent`, body medium, 44 pt hit area. "Not now", "Cancel", "Restore purchase".
 - `DestructiveQuiet`: text only, systemRed. Not used yet.
 

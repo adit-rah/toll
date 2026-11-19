@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Design §3.12. Full width, 50 pt, accent fill. One per screen.
+/// Design §3. Full width, 54 pt, amber fill, 16 pt corners (the canvas). One per screen.
 public struct PrimaryButtonStyle: ButtonStyle {
   public init() {}
 
@@ -22,7 +22,7 @@ private struct PrimaryButtonBody<Label: View>: View {
       .multilineTextAlignment(.center)
       .padding(.horizontal, 16)
       .padding(.vertical, 8)
-      .frame(maxWidth: .infinity, minHeight: 50)
+      .frame(maxWidth: .infinity, minHeight: 54)
       .background(
         isEnabled ? TollColor.accent : TollColor.fill,
         in: RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous)
@@ -45,7 +45,7 @@ public struct SecondaryButtonStyle: ButtonStyle {
       .multilineTextAlignment(.center)
       .padding(.horizontal, 16)
       .padding(.vertical, 8)
-      .frame(maxWidth: .infinity, minHeight: 50)
+      .frame(maxWidth: .infinity, minHeight: 54)
       .background(
         TollColor.fill, in: RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous)
       )
