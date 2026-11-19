@@ -1,35 +1,36 @@
 import Foundation
 @preconcurrency import ManagedSettings
+import TollCore
 import TollScreenTime
 
-/// The block screen's two buttons (MVP spec §7). The primary one opens the app, where the door is.
-/// Either one reconciles first: a block still up after the window ended comes down at the first tap
-/// (B-4, B-5).
+/// The block screen's buttons (D32, after Opal): "Never mind" closes; "Unlock in Dusk" opens the app at
+/// the door. Either reconciles first, so a block still up after it should have ended comes down at the
+/// first tap (B-4, B-5). Taps are what "times it stopped you" counts (D24).
 final class ShieldActionExtension: ShieldActionDelegate {
   override func handle(
     action: ShieldAction, for application: ApplicationToken,
     completionHandler: @escaping (ShieldActionResponse) -> Void
   ) {
-    completionHandler(Self.response(to: action))
+    completionHandler(Self.respond(to: action))
   }
 
   override func handle(
     action: ShieldAction, for webDomain: WebDomainToken,
     completionHandler: @escaping (ShieldActionResponse) -> Void
   ) {
-    completionHandler(Self.response(to: action))
+    completionHandler(Self.respond(to: action))
   }
 
   override func handle(
     action: ShieldAction, for category: ActivityCategoryToken,
     completionHandler: @escaping (ShieldActionResponse) -> Void
   ) {
-    completionHandler(Self.response(to: action))
+    completionHandler(Self.respond(to: action))
   }
 
-  private static func response(to action: ShieldAction) -> ShieldActionResponse {
-    let opensDoor = action == .primaryButtonPressed
-    Reconciler().run(.blockScreen) { if opensDoor { $0.doorAskedAt = Date() } }
-    return opensDoor ? .openParentalControlsApp : .close
+  private static func respond(to action: ShieldAction) -> ShieldActionResponse {
+    let unlocks = action == .secondaryButtonPressed
+    Coordinator.live().wake(.blockScreen, unlocks ? [.askDoor(Date())] : [])
+    return unlocks ? .openParentalControlsApp : .close
   }
 }

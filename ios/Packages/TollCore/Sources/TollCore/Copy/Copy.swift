@@ -20,7 +20,7 @@ public enum Copy {
       ?? String(format: "%02d:%02d", clock.hour, clock.minute)
   }
 
-  public static func window(_ window: SleepWindow, in calendar: Calendar = .current) -> String {
+  public static func window(_ window: TimeWindow, in calendar: Calendar = .current) -> String {
     "\(time(window.start, in: calendar)) to \(time(window.end, in: calendar))"
   }
 }

@@ -37,18 +37,22 @@
     }
 
     /// A state built around the current time, so the line reads the same whenever it is rendered.
-    func status(now: Date) -> SleepState? {
+    func status(now: Date) -> DuskState? {
       let calendar = Calendar.current
       let minute =
         calendar.component(.hour, from: now) * 60 + calendar.component(.minute, from: now)
-      var state = SleepState()
-      state.presence = Presence(isHome: self != .statusAway, at: now)
+      let home = Place(
+        id: PlaceID("home"), name: Copy.Setup.homeName, latitude: 51.5246, longitude: -0.0786,
+        radiusMeters: 150)
+      var window = TimeWindow(start: ClockTime(hour: 22, minute: 30), end: ClockTime(hour: 7))
+      var state = DuskState()
+      state.places = [home]
+      state.presence[home.id] = Presence(isInside: self != .statusAway, at: now)
       switch self {
       case .statusBlocked, .doorChoosing, .doorWaiting, .doorOpen, .doorNone:
-        state.settings.window = SleepWindow(
+        window = TimeWindow(
           start: ClockTime(hour: minute / 60).adding(minutes: -60), end: ClockTime(hour: 7))
-        state.blockOn = true
-        state.blockEndsAt = calendar.date(byAdding: .hour, value: 8, to: now)
+        state.runtime.active[BlockID("sleep")] = calendar.date(byAdding: .hour, value: 8, to: now)
         state.doorAskedAt = isDoor ? now : nil
         if self == .doorNone { state.unlocks.spent = 3 }
         if self == .doorWaiting || self == .doorOpen {
@@ -62,17 +66,20 @@
           state.unlocks.cleanNights = 3
         }
       case .statusStarts:
-        state.settings.window = SleepWindow(
-          start: ClockTime(hour: 22, minute: 30), end: ClockTime(hour: 7))
         if (22 * 60 + 30...1439).contains(minute) || minute < 7 * 60 {
-          state.settings.window = SleepWindow(start: ClockTime(hour: 12), end: ClockTime(hour: 13))
+          window = TimeWindow(start: ClockTime(hour: 12), end: ClockTime(hour: 13))
         }
       case .statusAway:
         let start = ClockTime(hour: minute / 60)
-        state.settings.window = SleepWindow(start: start, end: start.adding(minutes: 8 * 60))
+        window = TimeWindow(start: start, end: start.adding(minutes: 8 * 60))
       default:
         return nil
       }
+      state.blocks = [
+        Block(
+          id: BlockID("sleep"), name: Copy.Setup.sleepName, kind: .sleep, place: home.id,
+          schedule: .everyDay(window), apps: nil)
+      ]
       return state
     }
 
@@ -110,7 +117,7 @@
   /// Status with the door sheet over it, as after "Open" on the block screen.
   private struct DemoDoor: View {
     let app: AppModel
-    let state: SleepState
+    let state: DuskState
 
     var body: some View {
       StatusView(state: state, now: Date(), openSettings: {})
@@ -129,7 +136,8 @@
     init(app: AppModel, path: [SetupModel.Step]) {
       let model = SetupModel(app: app, path: path)
       model.placesHome = false
-      model.home = HomePoint(latitude: 51.5246, longitude: -0.0786, radiusMeters: 150)
+      model.home = Place(
+        name: Copy.Setup.homeName, latitude: 51.5246, longitude: -0.0786, radiusMeters: 150)
       _model = State(initialValue: model)
     }
 

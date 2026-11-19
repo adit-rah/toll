@@ -13,7 +13,7 @@ struct HomeSettingsView: View {
   var body: some View {
     List {
       Section {
-        if let home = model.draft.home {
+        if let home = model.draftPlace(model.sleepDraft?.place) {
           HomeMap(home: home)
             .listRowInsets(EdgeInsets())
           Text(Copy.Settings.homeSet)
@@ -38,20 +38,30 @@ struct HomeSettingsView: View {
     model.locationAccess.requestWhileUsing()
     locating = true
     defer { locating = false }
-    guard let point = await model.locationAccess.here(radiusMeters: model.config.home.radiusMeters)
-    else {
+    let radius = model.config.home.radiusMeters
+    guard let here = await model.locationAccess.here(radiusMeters: radius) else {
       noFix = true
       return
     }
     noFix = false
-    var edit = model.draft
-    edit.home = point
-    model.submit(edit)
+    // Home is a place blocks share: moving it moves every block at Home.
+    if var home = model.draftPlace(model.sleepDraft?.place) {
+      home.latitude = here.latitude
+      home.longitude = here.longitude
+      model.save(home)
+    } else if var sleep = model.sleepDraft {
+      let home = Place(
+        name: Copy.Setup.homeName, latitude: here.latitude, longitude: here.longitude,
+        radiusMeters: radius)
+      model.save(home)
+      sleep.place = home.id
+      model.save(sleep)
+    }
   }
 }
 
 struct HomeMap: View {
-  let home: HomePoint
+  let home: Place
 
   var body: some View {
     let center = CLLocationCoordinate2D(latitude: home.latitude, longitude: home.longitude)

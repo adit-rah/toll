@@ -13,14 +13,14 @@ public struct TransitionLog: Sendable {
   }
 
   public func append(_ transition: Transition) {
-    guard var line = try? SleepStore.encoder.encode(transition) else { return }
+    guard var line = try? DuskStore.encoder.encode(transition) else { return }
     line.append(0x0A)
     CoordinatedFile.append(line, to: url)
   }
 
   /// Newest first.
   public func read(limit: Int = maxLines) -> [Transition] {
-    let decoder = SleepStore.decoder
+    let decoder = DuskStore.decoder
     return Array(
       lines().compactMap { try? decoder.decode(Transition.self, from: $0) }.suffix(limit)
     )

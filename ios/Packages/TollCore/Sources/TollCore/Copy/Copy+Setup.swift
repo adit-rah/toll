@@ -1,10 +1,10 @@
 import Foundation
 
 extension Copy {
-  /// The product name is not chosen (spec header); every line that says it reads it from here.
-  public static let name = "Toll"
-  /// Shown until StoreKit returns the localized price (step 7).
-  public static let fallbackPrice = "$24.99"
+  /// The working name (decisions D35); every line that says it reads it from here.
+  public static let name = "Dusk"
+  /// Shown until StoreKit returns the localized price (decisions D34).
+  public static let fallbackPrice = "$9.99"
 
   /// P-1: the same words on the first screen and in the store listing.
   public static func offer(price: String) -> String {
@@ -15,10 +15,12 @@ extension Copy {
     public static func step(_ index: Int, of count: Int) -> String { "Step \(index) of \(count)" }
 
     public static let start = "Start"
+    public static let sleepName = "Sleep"
+    public static let homeName = "Home"
     public static let `continue` = "Continue"
 
     public static let wakeTitle = "When do you get up?"
-    public static func nights(_ window: SleepWindow, in calendar: Calendar = .current) -> String {
+    public static func nights(_ window: TimeWindow, in calendar: Calendar = .current) -> String {
       "Your nights: \(Copy.window(window, in: calendar))"
     }
     public static let nightsStart = "Nights start at"

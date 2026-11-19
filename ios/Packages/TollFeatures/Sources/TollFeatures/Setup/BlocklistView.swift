@@ -15,8 +15,8 @@ struct BlocklistView: View {
     SetupPage(step: SetupModel.Step.blocklist.number, title: Copy.Setup.blockTitle) {
       SetupLine(Copy.Setup.blockLine, .subhead)
       ChosenList(selection: model.selection)
-      if !Blocklist.fits(model.selection) {
-        SetupLine(Copy.Setup.tooMany(Blocklist.maxItems))
+      if Blocklist.items(model.selection) > model.app.config.blocks.maxApps {
+        SetupLine(Copy.Setup.tooMany(model.app.config.blocks.maxApps))
       }
     } actions: {
       if Blocklist.isEmpty(model.selection) {

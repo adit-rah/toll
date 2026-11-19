@@ -62,7 +62,7 @@ struct ReadyView: View {
 
   private var title: String {
     let now = Date()
-    let windowOnly = model.app.state.homeCheck == .windowOnly
+    let windowOnly = !model.locationUsable || model.home == nil
     if let night = model.window.night(containing: now, calendar: .current) {
       return Copy.Setup.readyNow(Copy.time(night.end), windowOnly: windowOnly)
     }

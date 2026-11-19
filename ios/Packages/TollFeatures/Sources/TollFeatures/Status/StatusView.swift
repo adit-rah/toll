@@ -5,7 +5,7 @@ import TollUI
 /// The only main screen (spec §7 Status): the state in one line, the facts beneath, a gear. Nothing
 /// else.
 struct StatusView: View {
-  let state: SleepState
+  let state: DuskState
   let now: Date
   var trialNight: Int?
   let openSettings: () -> Void
@@ -16,7 +16,7 @@ struct StatusView: View {
         VStack(alignment: .leading, spacing: TollSpacing.groupGap) {
           ScreenTitle(StatusLine(state: state, now: now, calendar: .current).text())
             .contentTransition(.opacity)
-            .animation(Motion.stateChange, value: state.blockOn)
+            .animation(Motion.stateChange, value: state.isBlocking)
           StatusFacts(state: state, now: now, trialNight: trialNight)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -39,7 +39,7 @@ struct StatusView: View {
 
 /// The lines under the state: unlocks, when one returns (D-5, D-6), and the trial's night (P-5).
 struct StatusFacts: View {
-  let state: SleepState
+  let state: DuskState
   let now: Date
   var trialNight: Int?
   var config = TollConfig.defaults

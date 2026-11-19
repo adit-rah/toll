@@ -52,23 +52,18 @@ struct SettingsView: View {
     }
     .tint(TollColor.accent)
     .familyActivityPicker(isPresented: $picking, selection: $selection)
-    .onAppear { selection = Blocklist.selection(from: model.draft.blocked) }
+    .onAppear { selection = Blocklist.selection(from: model.sleepDraft?.apps) }
     .onChange(of: picking) { _, isOpen in
-      guard !isOpen else { return }
-      // An empty list would leave a block with nothing in it; too long a list iOS refuses (spec §5).
-      emptyRefused = Blocklist.isEmpty(selection) || !Blocklist.fits(selection)
-      guard !emptyRefused else {
-        selection = Blocklist.selection(from: model.draft.blocked)
-        return
-      }
-      var edit = model.draft
-      edit.blocked = Blocklist.encode(selection)
-      model.submit(edit)
+      guard !isOpen, var sleep = model.sleepDraft else { return }
+      // An empty list would leave a block with nothing in it; too long a one the engine refuses (D29).
+      sleep.apps = Blocklist.encode(selection)
+      emptyRefused = Blocklist.isEmpty(selection) || model.save(sleep) != nil
+      if emptyRefused { selection = Blocklist.selection(from: model.sleepDraft?.apps) }
     }
   }
 
   private var blockedSummary: String {
-    let list = Blocklist.selection(from: model.draft.blocked)
+    let list = Blocklist.selection(from: model.sleepDraft?.apps)
     return Copy.Settings.blockedCount(
       apps: list.applicationTokens.count, sites: list.webDomainTokens.count,
       categories: list.categoryTokens.count)

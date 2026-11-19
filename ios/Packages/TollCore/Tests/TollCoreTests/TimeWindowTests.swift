@@ -3,14 +3,12 @@ import Testing
 
 @testable import TollCore
 
-struct SleepWindowTests {
-  let london = calendar("Europe/London")
-
+struct TimeWindowTests {
   @Test func startIsWakeMinusLead() {
-    #expect(SleepWindow(wake: time(7), leadHours: 8.5) == usual)
-    #expect(SleepWindow(wake: time(6, 15), leadHours: 8.5).start == time(21, 45))
-    #expect(SleepWindow(wake: time(3), leadHours: 8.5).start == time(18, 30))
-    #expect(SleepWindow(wake: time(11), leadHours: 8.5).start == time(2, 30))
+    #expect(TimeWindow(wake: time(7), leadHours: 8.5) == usual)
+    #expect(TimeWindow(wake: time(6, 15), leadHours: 8.5).start == time(21, 45))
+    #expect(TimeWindow(wake: time(3), leadHours: 8.5).start == time(18, 30))
+    #expect(TimeWindow(wake: time(11), leadHours: 8.5).start == time(2, 30))
   }
 
   @Test func crossesMidnight() {
@@ -31,7 +29,7 @@ struct SleepWindowTests {
   }
 
   @Test func sameDayWindow() {
-    let late = SleepWindow(start: time(1), end: time(9))
+    let late = TimeWindow(start: time(1), end: time(9))
     #expect(!late.crossesMidnight)
     #expect(late.contains(date(2026, 11, 18, 1), calendar: london))
     #expect(!late.contains(date(2026, 11, 18, 0, 59), calendar: london))
@@ -39,10 +37,10 @@ struct SleepWindowTests {
   }
 
   @Test func tooShortIsNoWindow() {
-    let short = SleepWindow(start: time(22), end: time(22, 10))
+    let short = TimeWindow(start: time(22), end: time(22, 10))
     #expect(!short.isValid)
     #expect(!short.contains(date(2026, 11, 17, 22, 5), calendar: london))
-    #expect(!SleepWindow(start: time(22), end: time(22)).isValid)
+    #expect(!TimeWindow(start: time(22), end: time(22)).isValid)
   }
 
   @Test func springForwardNightIsAnHourShorter() {
@@ -58,13 +56,13 @@ struct SleepWindowTests {
   }
 
   @Test func skippedStartBecomesTheFirstRealTime() {
-    let window = SleepWindow(start: time(1, 30), end: time(8))
+    let window = TimeWindow(start: time(1, 30), end: time(8))
     let night = window.night(startingOn: date(2026, 3, 29, 12), calendar: london)
     #expect(night?.start == date(2026, 3, 29, 2))
   }
 
   @Test func repeatedStartIsTheFirst() {
-    let window = SleepWindow(start: time(1, 30), end: time(8))
+    let window = TimeWindow(start: time(1, 30), end: time(8))
     let night = window.night(startingOn: date(2026, 10, 25, 12), calendar: london)
     #expect(night?.start == Date(timeIntervalSince1970: 1_792_888_200))
   }

@@ -53,7 +53,7 @@ private struct DoorChoosing: View {
   @State private var tooMany = false
 
   private var blocked: FamilyActivitySelection {
-    Blocklist.selection(from: model.state.settings.blocked)
+    model.doorChoices
   }
 
   var body: some View {

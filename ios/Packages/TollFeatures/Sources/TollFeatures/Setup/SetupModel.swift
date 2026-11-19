@@ -32,7 +32,7 @@ final class SetupModel {
   private(set) var wake = ClockTime(hour: 7)
   private(set) var start: ClockTime
   private var startMoved = false
-  var home: HomePoint?
+  var home: Place?
   /// Demo launches place home themselves: the simulator has no one to answer the prompt.
   var placesHome = true
   private(set) var locating = false
@@ -44,14 +44,14 @@ final class SetupModel {
   init(app: AppModel, path: [Step] = []) {
     self.app = app
     self.path = path
-    start = SleepWindow(wake: ClockTime(hour: 7), leadHours: app.config.window.leadHours).start
+    start = TimeWindow(wake: ClockTime(hour: 7), leadHours: app.config.window.leadHours).start
   }
 
-  var window: SleepWindow { SleepWindow(start: start, end: wake) }
+  var window: TimeWindow { TimeWindow(start: start, end: wake) }
 
   func setWake(_ time: ClockTime) {
     wake = time
-    if !startMoved { start = SleepWindow(wake: time, leadHours: app.config.window.leadHours).start }
+    if !startMoved { start = TimeWindow(wake: time, leadHours: app.config.window.leadHours).start }
   }
 
   func setStart(_ time: ClockTime) {
@@ -73,7 +73,12 @@ final class SetupModel {
       guard home == nil, !locating else { return }
       locating = true
       defer { locating = false }
-      home = await app.locationAccess.here(radiusMeters: app.config.home.radiusMeters)
+      let radius = app.config.home.radiusMeters
+      home = await app.locationAccess.here(radiusMeters: radius).map {
+        Place(
+          name: Copy.Setup.homeName, latitude: $0.latitude, longitude: $0.longitude,
+          radiusMeters: radius)
+      }
       noFix = home == nil
     case .denied, .approximate:
       return
@@ -118,15 +123,21 @@ final class SetupModel {
 
   // MARK: Blocklist and finish
 
-  /// At least one thing to block, and no more than iOS takes (spec §5).
-  var blocklistReady: Bool { !Blocklist.isEmpty(selection) && Blocklist.fits(selection) }
-
-  func blocklistChosen() {
-    app.submit(
-      SleepSettings(
-        window: window, home: locationUsable ? home : nil, blocked: Blocklist.encode(selection)))
-    go(.ready)
+  /// At least one thing to block, and no more than the limit across blocks (D29).
+  var blocklistReady: Bool {
+    !Blocklist.isEmpty(selection) && Blocklist.items(selection) <= app.config.blocks.maxApps
   }
 
-  func finish() { app.finishSetup() }
+  func blocklistChosen() { go(.ready) }
+
+  /// The Sleep block, at Home if location is in use (D37). Built here, sent once at the end, so leaving
+  /// setup halfway arms nothing.
+  var sleepBlock: Block {
+    let place = locationUsable ? home : nil
+    return Block(
+      name: Copy.Setup.sleepName, kind: .sleep, place: place?.id, schedule: .everyDay(window),
+      apps: Blocklist.encode(selection))
+  }
+
+  func finish() { app.finishSetup(sleep: sleepBlock, home: locationUsable ? home : nil) }
 }

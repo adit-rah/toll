@@ -1,33 +1,30 @@
 import Foundation
 
 /// P-2, P-3: the first nights after setup are free, home or not; after them only a purchase turns
-/// the block on. Counted by night ends, like every other night (spec §3).
+/// blocks on. Nights are the Sleep block's occurrences, counted by their ends (spec §3).
 public enum Trial {
-  /// Nights already ended since the trial started.
   public static func nightsEnded(
-    since start: Date, now: Date, window: SleepWindow?, calendar: Calendar
+    since start: Date, now: Date, sleep: WeeklySchedule?, calendar: Calendar
   ) -> Int {
-    window?.ends(after: start, through: now, calendar: calendar).count ?? 0
+    sleep?.ends(after: start, through: now, calendar: calendar).count ?? 0
   }
 
   /// The night that is free now or next, counting from 1; nil once the trial is over.
   public static func night(
-    since start: Date, now: Date, window: SleepWindow?, calendar: Calendar, config: TollConfig
+    since start: Date, now: Date, sleep: WeeklySchedule?, calendar: Calendar, config: TollConfig
   ) -> Int? {
-    let ended = nightsEnded(since: start, now: now, window: window, calendar: calendar)
+    let ended = nightsEnded(since: start, now: now, sleep: sleep, calendar: calendar)
     return ended < config.trial.nights ? ended + 1 : nil
   }
 
   public static func isEntitled(
-    _ state: SleepState, now: Date, calendar: Calendar, config: TollConfig
-  )
-    -> Bool
-  {
-    if state.purchased { return true }
+    _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig
+  ) -> Bool {
+    if state.trial.purchased { return true }
     // Before setup there is no trial and nothing to block.
-    guard let start = state.trialStart else { return true }
+    guard let start = state.trial.start else { return true }
     return night(
-      since: start, now: now, window: state.settings.window, calendar: calendar, config: config)
+      since: start, now: now, sleep: state.sleepBlock?.schedule, calendar: calendar, config: config)
       != nil
   }
 }

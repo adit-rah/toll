@@ -22,18 +22,19 @@ struct WindowSettingsView: View {
     .toolbar {
       ToolbarItem(placement: .confirmationAction) {
         Button(Copy.Settings.save) {
-          var edit = model.draft
-          edit.window = SleepWindow(start: ClockTime(date: start), end: ClockTime(date: wake))
-          model.submit(edit)
+          guard var sleep = model.sleepDraft else { return }
+          sleep.schedule = .everyDay(
+            TimeWindow(start: ClockTime(date: start), end: ClockTime(date: wake)))
+          model.save(sleep)
           dismiss()
         }
-        .disabled(!SleepWindow(start: ClockTime(date: start), end: ClockTime(date: wake)).isValid)
+        .disabled(!TimeWindow(start: ClockTime(date: start), end: ClockTime(date: wake)).isValid)
       }
     }
     .onAppear {
       let window =
-        model.draft.window
-        ?? SleepWindow(wake: ClockTime(hour: 7), leadHours: model.config.window.leadHours)
+        model.sleepDraft?.schedule.windows.first
+        ?? TimeWindow(wake: ClockTime(hour: 7), leadHours: model.config.window.leadHours)
       wake = window.end.date()
       start = window.start.date()
     }

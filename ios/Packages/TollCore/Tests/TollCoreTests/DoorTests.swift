@@ -3,43 +3,55 @@ import Testing
 
 @testable import TollCore
 
-/// D-1 to D-7 (spec §11: door spend, regret return and refill counting).
+/// D-1 to D-7 with the door on the clock (D31), across blocks.
 struct DoorTests {
-  let london = calendar("Europe/London")
   let config = TollConfig.defaults
-  let app = Data([1, 2, 3])
+  let app = Data([9])
 
-  func blocked(at now: Date = date(2026, 11, 17, 23)) -> SleepState {
-    var state = SleepState()
-    state.settings = SleepSettings(window: usual)
-    state.presence = Presence(isHome: true, at: now)
+  func blocked(at now: Date = date(2026, 11, 17, 23)) -> DuskState {
+    var state = setUp()
     run(&state, now)
     return state
   }
 
-  func run(_ state: inout SleepState, _ now: Date, _ cause: ReconcileCause = .foreground) {
-    Reconcile.run(
-      &state, wall: now,
-      monotonic: MonotonicInstant(bootID: "b", seconds: now.timeIntervalSinceReferenceDate),
-      calendar: london, cause: cause, config: config)
+  func open(at now: Date) -> DuskState {
+    var s = blocked(at: now)
+    _ = apply(.startDoor(app: app), &s, now)
+    run(&s, now.addingTimeInterval(90), .doorStart)
+    return s
   }
 
   @Test func spendsWhenTheAppOpensNotWhenTheWaitStarts() {
     var s = blocked()
     let chosen = date(2026, 11, 17, 23)
-    #expect(DoorRules.start(&s, app: app, now: chosen, config: config) == nil)
+    #expect(apply(.startDoor(app: app), &s, chosen) == nil)
+    let started = run(&s, chosen, .doorChosen)
+    #expect(started.door == .start(Door(app: app, waitEndsAt: chosen.addingTimeInterval(90))))
     #expect(s.unlocks.left(config) == 3)
     run(&s, chosen.addingTimeInterval(89))
     #expect(s.door?.phase == .waiting)
-    run(&s, chosen.addingTimeInterval(90), .doorStart)
+    let opened = run(&s, chosen.addingTimeInterval(90), .doorStart)
     #expect(s.door?.phase == .open)
     #expect(s.unlocks.left(config) == 2)
+    #expect(opened.shield.doorApp == app)
+  }
+
+  @Test func closesAfterFiveMinutesOnTheClock() {
+    var s = open(at: date(2026, 11, 17, 23))
+    #expect(s.door?.expiresAt == date(2026, 11, 17, 23, 6, 30))
+    run(&s, date(2026, 11, 17, 23, 6, 29))
+    #expect(s.door?.phase == .open)
+    let closed = run(&s, date(2026, 11, 17, 23, 6, 30), .doorEnd)
+    #expect(s.door == nil)
+    #expect(closed.door == .stop)
+    #expect(closed.shield.doorApp == nil)
+    #expect(s.isBlocking)
   }
 
   @Test func cancellingTheWaitCostsNothing() {
     var s = blocked()
-    _ = DoorRules.start(&s, app: app, now: date(2026, 11, 17, 23), config: config)
-    DoorRules.cancel(&s)
+    _ = apply(.startDoor(app: app), &s, date(2026, 11, 17, 23))
+    _ = apply(.cancelDoor, &s, date(2026, 11, 17, 23, 1))
     run(&s, date(2026, 11, 17, 23, 5))
     #expect(s.door == nil)
     #expect(s.unlocks.left(config) == 3)
@@ -47,53 +59,34 @@ struct DoorTests {
 
   @Test func lockAgainWithinTwoMinutesReturnsTheUnlock() {
     var s = open(at: date(2026, 11, 17, 23))
-    DoorRules.lockAgain(&s, now: date(2026, 11, 17, 23, 3, 29), config: config)
+    _ = apply(.lockDoor, &s, date(2026, 11, 17, 23, 3, 29))
     #expect(s.door == nil)
     #expect(s.unlocks.left(config) == 3)
     #expect(s.unlocks.lastSpendAt == nil)
+    #expect(s.unlocks.used == 0)
   }
 
   @Test func lockAgainLaterKeepsItSpent() {
     var s = open(at: date(2026, 11, 17, 23))
-    DoorRules.lockAgain(&s, now: date(2026, 11, 17, 23, 3, 31), config: config)
-    #expect(s.door == nil)
+    _ = apply(.lockDoor, &s, date(2026, 11, 17, 23, 3, 31))
     #expect(s.unlocks.left(config) == 2)
+    #expect(s.unlocks.used == 1)
   }
 
-  @Test func usageThresholdClosesTheDoor() {
-    var s = open(at: date(2026, 11, 17, 23))
-    DoorRules.usedUp(&s)
-    run(&s, date(2026, 11, 17, 23, 7), .doorUsed)
-    #expect(s.door == nil)
-    #expect(s.blockOn)
-  }
-
-  @Test func missedCallbacksCloseAtTheStoredExpiry() {
-    var s = open(at: date(2026, 11, 17, 23))
-    run(&s, date(2026, 11, 17, 23, 16))
-    #expect(s.door?.phase == .open)
-    run(&s, date(2026, 11, 17, 23, 17))
-    #expect(s.door == nil)
-  }
-
-  @Test func oneDoorAtATimeAndOnlyDuringABlock() {
+  @Test func refusals() {
     var s = blocked()
-    _ = DoorRules.start(&s, app: app, now: date(2026, 11, 17, 23), config: config)
-    #expect(
-      DoorRules.start(&s, app: app, now: date(2026, 11, 17, 23), config: config) == .alreadyOpen)
-    var day = SleepState()
-    #expect(
-      DoorRules.start(&day, app: app, now: date(2026, 11, 17, 15), config: config) == .notBlocked)
-  }
-
-  @Test func noDoorWithNoneLeft() {
-    var s = blocked()
-    s.unlocks.spent = 3
-    #expect(DoorRules.start(&s, app: app, now: date(2026, 11, 17, 23), config: config) == .noneLeft)
+    #expect(apply(.startDoor(app: app), &s, date(2026, 11, 17, 23)) == nil)
+    #expect(apply(.startDoor(app: app), &s, date(2026, 11, 17, 23)) == .door(.alreadyOpen))
+    var day = setUp()
+    run(&day, date(2026, 11, 17, 15))
+    #expect(apply(.startDoor(app: app), &day, date(2026, 11, 17, 15)) == .door(.notBlocked))
+    var none = blocked()
+    none.unlocks.spent = 3
+    #expect(apply(.startDoor(app: app), &none, date(2026, 11, 17, 23)) == .door(.noneLeft))
   }
 
   @Test func theBlockEndingEndsTheDoor() {
-    var s = open(at: date(2026, 11, 18, 6, 58))
+    var s = open(at: date(2026, 11, 18, 6, 57))
     run(&s, date(2026, 11, 18, 7), .windowEnd)
     #expect(s.door == nil)
     #expect(s.unlocks.left(config) == 2)
@@ -111,37 +104,22 @@ struct DoorTests {
     #expect(s.unlocks.nightsToRefill(config) == nil)
   }
 
-  @Test func aSpendResetsTheRun() {
+  @Test func aSpendInAnyBlockResetsTheRun() {
     var s = open(at: date(2026, 11, 17, 23))
     for day in 18...22 { run(&s, date(2026, 11, day, 8)) }
     #expect(s.unlocks.cleanNights == 4)
-    s.presence = Presence(isHome: true, at: date(2026, 11, 22, 23))
-    run(&s, date(2026, 11, 22, 23))
-    _ = DoorRules.start(&s, app: app, now: date(2026, 11, 22, 23), config: config)
-    run(&s, date(2026, 11, 22, 23, 2))
-    run(&s, date(2026, 11, 23, 8))
+    s.places.append(libraryPlace)
+    s.blocks.append(studyBlock())
+    arrive(&s, libraryPlace, date(2026, 11, 23, 9))
+    run(&s, date(2026, 11, 23, 10))
+    _ = apply(.startDoor(app: app), &s, date(2026, 11, 23, 10))
+    run(&s, date(2026, 11, 23, 10, 2))
+    run(&s, date(2026, 11, 24, 8))
     #expect(s.unlocks.cleanNights == 0)
     #expect(s.unlocks.left(config) == 1)
   }
 
-  @Test func nightsCountWhenAwayToo() {
-    var s = open(at: date(2026, 11, 17, 23))
-    s.presence = Presence(isHome: false, at: date(2026, 11, 18, 9))
-    run(&s, date(2026, 11, 18, 8))
-    run(&s, date(2026, 11, 21, 8))
-    #expect(s.unlocks.cleanNights == 3)
-  }
-
-  @Test func countsNightEndsAcrossAGap() {
-    let ends = usual.ends(
-      after: date(2026, 11, 17, 7), through: date(2026, 11, 20, 7), calendar: london)
-    #expect(ends == [date(2026, 11, 18, 7), date(2026, 11, 19, 7), date(2026, 11, 20, 7)])
-  }
-
-  private func open(at now: Date) -> SleepState {
-    var s = blocked(at: now)
-    _ = DoorRules.start(&s, app: app, now: now, config: config)
-    run(&s, now.addingTimeInterval(90), .doorStart)
-    return s
+  @Test func doorIntervalIsThePlatformMinimum() {
+    #expect(DoorRules.intervalMinutes(config) == 15)
   }
 }

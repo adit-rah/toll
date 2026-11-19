@@ -17,7 +17,13 @@ extension Copy {
     public static let title = "Blocked."
     public static let subtitle = "You're home and it's your sleep time."
     public static let subtitleWindowOnly = "It's your sleep time."
-    public static let open = "Open \(name)"
-    public static let ok = "OK"
+    public static func blockTitle(_ block: String, until end: String) -> String {
+      "\(block) · until \(end)"
+    }
+    public static func atPlace(_ place: String) -> String { "You're at \(place)." }
+    public static func blockOn(_ block: String) -> String { "\(block) is on." }
+    /// D32, after Opal: the easy way out is the first button.
+    public static let neverMind = "Never mind"
+    public static let unlock = "Unlock in \(name)"
   }
 }

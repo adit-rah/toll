@@ -1,6 +1,6 @@
 import Foundation
 
-/// One use of the door (spec §3, D-1 to D-4): one app, a wait, then a few minutes of use.
+/// One use of the door (spec §3, D-1 to D-4): one app, a wait, then a few minutes on the clock (D31).
 public struct Door: Codable, Hashable, Sendable {
   public enum Phase: String, Codable, Hashable, Sendable {
     case waiting, open
@@ -10,10 +10,9 @@ public struct Door: Codable, Hashable, Sendable {
   public var app: Data
   public var waitEndsAt: Date
   public var openedAt: Date?
-  /// The stored expiry (D-2): when the door's DeviceActivity interval ends, whatever its callbacks did.
+  /// The end of its minutes (D31): the wait's end plus the door's minutes, the moment the door's
+  /// DeviceActivity warning fires.
   public var expiresAt: Date?
-  /// Set by the usage threshold callback; the next reconcile closes the door.
-  public var usedUp = false
   /// The previous spend time, put back if the unlock is returned (D-4).
   var spendBefore: Date?
 

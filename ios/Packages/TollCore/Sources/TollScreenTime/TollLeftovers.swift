@@ -21,8 +21,10 @@
       }
     }
 
+    /// Step 2's single-window names ("sleep.window", "sleep.sweep", "sleep.door") count as leftovers
+    /// too: the block engine schedules by window (docs/architecture.md).
     public static func isOurs(_ activity: DeviceActivityName) -> Bool {
-      activity == .sleepWindow || activity == .sleepSweep || activity == .door
+      Activity(activity) != .unknown
     }
   }
 #endif

@@ -33,7 +33,7 @@ public struct RootView: View {
   @ViewBuilder private var live: some View {
     if model.state.setupFinishedAt == nil {
       SetupFlow(app: model)
-    } else if !model.state.entitled {
+    } else if !model.state.trial.entitled {
       TrialEndedView(
         summary: model.trialSummary(),
         unlocksUsed: model.state.unlocks.used, price: model.price, buy: model.buy,

@@ -1,9 +1,9 @@
 import Foundation
 
-/// The nightly window, in local wall-clock times (MVP spec §3). It may cross midnight. Each night's
-/// dates are worked out from the calendar it is given, so a time zone change or a daylight-saving jump
-/// moves the window with the wall clock.
-public struct SleepWindow: Codable, Hashable, Sendable {
+/// A daily window in local wall-clock times: the Sleep block's night, a Study block's 9 to 5. It may
+/// cross midnight. Each occurrence's dates are worked out from the calendar it is given, so a time zone
+/// change or a daylight-saving jump moves the window with the wall clock.
+public struct TimeWindow: Codable, Hashable, Sendable {
   public var start: ClockTime
   public var end: ClockTime
 
@@ -29,7 +29,7 @@ public struct SleepWindow: Codable, Hashable, Sendable {
 
   public var isValid: Bool { minutes >= Self.minimumMinutes }
 
-  /// One night: from this start to the end that follows it.
+  /// One occurrence: from this start to the end that follows it.
   public struct Night: Hashable, Sendable {
     public var start: Date
     public var end: Date

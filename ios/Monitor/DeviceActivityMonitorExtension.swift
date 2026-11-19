@@ -3,36 +3,33 @@ import Foundation
 import TollCore
 import TollScreenTime
 
-/// Wakes on the sleep window's edges, the sweep after it, and the door. Keeps under ~6 MB: TollCore
-/// only, no database (spec §5). Every wake reconciles, so a late or missing callback is corrected by
-/// the next.
+/// Wakes on every block window's edges, the sweep after each, and the door. Keeps under ~6 MB:
+/// TollCore only (spec §5). Every wake reconciles, so a late or missing callback is corrected by the
+/// next; names that are not ours are stopped (decisions D28).
 final class DeviceActivityMonitorExtension: DeviceActivityMonitor {
   override func intervalDidStart(for activity: DeviceActivityName) {
     super.intervalDidStart(for: activity)
-    switch activity {
-    case .door: Reconciler().run(.doorStart)
-    case .sleepSweep: Reconciler().run(.sweepStart)
-    case .sleepWindow: Reconciler().run(.windowStart)
-    // Toll's own schedules on an upgraded phone (decisions D28): stopped, never read as a window.
-    default: DeviceActivityCenter().stopMonitoring([activity])
+    switch Activity(activity) {
+    case .window: Coordinator.live().wake(.windowStart)
+    case .sweep: Coordinator.live().wake(.sweepStart)
+    case .door: Coordinator.live().wake(.doorStart)
+    case .unknown: DeviceActivityCenter().stopMonitoring([activity])
     }
   }
 
   override func intervalDidEnd(for activity: DeviceActivityName) {
     super.intervalDidEnd(for: activity)
-    switch activity {
-    case .door: Reconciler().run(.doorEnd)
-    case .sleepSweep: Reconciler().run(.sweepEnd)
-    case .sleepWindow: Reconciler().run(.windowEnd)
-    default: DeviceActivityCenter().stopMonitoring([activity])
+    switch Activity(activity) {
+    case .window: Coordinator.live().wake(.windowEnd)
+    case .sweep: Coordinator.live().wake(.sweepEnd)
+    case .door: Coordinator.live().wake(.doorEnd)
+    case .unknown: DeviceActivityCenter().stopMonitoring([activity])
     }
   }
 
-  override func eventDidReachThreshold(
-    _ event: DeviceActivityEvent.Name, activity: DeviceActivityName
-  ) {
-    super.eventDidReachThreshold(event, activity: activity)
-    guard event == .doorUse else { return }
-    Reconciler().run(.doorUsed) { DoorRules.usedUp(&$0) }
+  /// The door's warning is its timer: it fires at the door's minutes (D31).
+  override func intervalWillEndWarning(for activity: DeviceActivityName) {
+    super.intervalWillEndWarning(for: activity)
+    if Activity(activity) == .door { Coordinator.live().wake(.doorEnd) }
   }
 }
