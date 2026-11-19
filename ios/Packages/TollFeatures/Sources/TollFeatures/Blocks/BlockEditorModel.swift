@@ -33,7 +33,8 @@ final class BlockEditorModel {
         ]), apps: nil)
       place = nil
     }
-    selection = Blocklist.selection(from: block.apps)
+    // A new block has no apps yet; `block` cannot be read before every property is set.
+    selection = Blocklist.selection(from: id.flatMap { app.draft($0) }?.apps)
   }
 
   var isSleep: Bool { block.isSleep }
