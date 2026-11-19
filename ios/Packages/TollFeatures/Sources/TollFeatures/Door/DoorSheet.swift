@@ -110,7 +110,7 @@ private struct DoorWaiting: View {
       // The monitor opens the door when its interval starts; this covers a late callback.
       .task(id: door.waitEndsAt) {
         try? await Task.sleep(for: .seconds(max(0, door.waitEndsAt.timeIntervalSinceNow)))
-        model.reconcile(.doorStart)
+        model.send(.doorStart)
       }
   }
 }
@@ -123,6 +123,16 @@ private struct DoorOpen: View {
   var body: some View {
     AppIcon(app: door.app)
     DoorTitle(Copy.Door.open(minutes: model.config.door.minutes))
+    if let expiresAt = door.expiresAt {
+      // On the clock (D31): the monitor closes it at this moment even with the app closed.
+      Countdown(endsAt: expiresAt, text: Copy.Door.left, spoken: Copy.Door.leftSpoken)
+        .font(TollFont.title)
+        .foregroundStyle(TollColor.label)
+        .task(id: expiresAt) {
+          try? await Task.sleep(for: .seconds(max(0, expiresAt.timeIntervalSinceNow)))
+          model.send(.doorEnd)
+        }
+    }
     if let regretEnd = door.regretEndsAt(model.config), now < regretEnd {
       Text(Copy.Door.regret(minutes: model.config.door.regretSeconds / 60))
         .tollText(.subhead)

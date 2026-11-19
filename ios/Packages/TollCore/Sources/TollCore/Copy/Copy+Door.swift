@@ -33,7 +33,15 @@ extension Copy {
     public static let cancel = "Cancel"
     public static let cancelFree = "Cancelling costs nothing."
 
-    public static func open(minutes: Int) -> String { "Open for \(minutes) minutes of use." }
+    public static func open(minutes: Int) -> String { "Open for \(minutes) minutes." }
+    public static func left(_ clock: String) -> String { "\(clock) left" }
+    public static func leftSpoken(minutes: Int, seconds: Int) -> String {
+      switch (minutes, seconds) {
+      case (0, let s): "\(s) seconds left"
+      case (let m, 0): m == 1 ? "1 minute left" : "\(m) minutes left"
+      case (let m, let s): "\(m) minute\(m == 1 ? "" : "s") \(s) seconds left"
+      }
+    }
     public static let lockAgain = "Lock again"
     /// D-4: said here and nowhere else.
     public static func regret(minutes: Int) -> String {
