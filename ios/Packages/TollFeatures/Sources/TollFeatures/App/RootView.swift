@@ -48,6 +48,7 @@ public struct RootView: View {
 struct LiveHome: View {
   let model: AppModel
   @State private var sheet: HomeSheet?
+  @State private var editing: BlockRef?
 
   var body: some View {
     TimelineView(.everyMinute) { context in
@@ -56,12 +57,22 @@ struct LiveHome: View {
       HomeView(
         home: home, price: model.price,
         openSettings: { sheet = .settings }, openDoor: { model.askDoor() },
-        openPurchase: { sheet = .purchase }, fixLocation: openSystemSettings
+        openPurchase: { sheet = .purchase }, fixLocation: openSystemSettings,
+        openBlock: { editing = BlockRef(id: $0) }, openInsights: { sheet = .insights }
       )
+      .sheet(item: $editing) { ref in BlockEditorView(app: model, editing: ref.block) }
       .sheet(item: $sheet) { which in
         switch which {
-        case .settings: SettingsView(model: model)
+        case .settings:
+          SettingsView(model: model) {
+            // Settings closes itself first; the purchase sheet opens once it has gone.
+            Task {
+              try? await Task.sleep(for: .milliseconds(450))
+              sheet = .purchase
+            }
+          }
         case .purchase: PurchaseSheet(model: model, home: home)
+        case .insights: InsightsView(log: model.trialSummaryLog())
         }
       }
       .sheet(isPresented: doorShown) {
@@ -90,6 +101,6 @@ struct LiveHome: View {
 }
 
 enum HomeSheet: String, Identifiable {
-  case settings, purchase
+  case settings, purchase, insights
   var id: String { rawValue }
 }

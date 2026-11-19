@@ -15,7 +15,10 @@
     case homeLastNight = "home-last-night"
     case homePaused = "home-paused"
     case homeLocation = "home-location"
-    case purchase
+    case purchase, settings, insights
+    case blocks
+    case blockNew = "block-new"
+    case blockEdit = "block-edit"
     case doorChoosing = "door-choosing"
     case doorWaiting = "door-waiting"
     case doorOpen = "door-open"
@@ -41,7 +44,10 @@
     /// The simulator cannot grant Family Controls; screens past the permission step assume it.
     var screenTimeApproved: Bool { self == .blocklist || self == .ready }
     var isDoor: Bool { rawValue.hasPrefix("door") }
-    var isHome: Bool { rawValue.hasPrefix("home-") || self == .purchase || isDoor }
+    var isHome: Bool {
+      rawValue.hasPrefix("home-") || rawValue.hasPrefix("block") || isDoor
+        || [.purchase, .settings, .insights].contains(self)
+    }
   }
 
   struct DemoRoot: View {
@@ -72,10 +78,15 @@
         home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},
         fixLocation: {}
       )
-      .sheet(isPresented: .constant(scenario.isDoor || scenario == .purchase)) {
-        if scenario == .purchase {
-          PurchaseSheet(model: app, home: home)
-        } else {
+      .sheet(isPresented: .constant(!scenario.rawValue.hasPrefix("home-"))) {
+        switch scenario {
+        case .purchase: PurchaseSheet(model: app, home: home)
+        case .settings: SettingsView(model: app)
+        case .insights: InsightsView(log: fixture.log)
+        case .blocks: NavigationStack { BlocksView(model: app) }
+        case .blockNew: BlockEditorView(app: app, editing: nil)
+        case .blockEdit: BlockEditorView(app: app, editing: BlockID("study"))
+        default:
           TimelineView(.periodic(from: .now, by: 1)) { tick in DoorSheet(model: app, now: tick.date)
           }
         }

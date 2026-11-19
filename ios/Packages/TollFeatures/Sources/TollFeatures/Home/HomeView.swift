@@ -11,6 +11,8 @@ struct HomeView: View {
   let openDoor: () -> Void
   let openPurchase: () -> Void
   let fixLocation: () -> Void
+  var openBlock: ((BlockID?) -> Void)?
+  var openInsights: (() -> Void)?
 
   var body: some View {
     ScrollView {
@@ -29,10 +31,19 @@ struct HomeView: View {
         if let timeline = home.timeline {
           TimelineStrip(timeline: timeline).padding(.top, 20)
         }
-        SectionHeader(Copy.Home.thisWeek).padding(.top, 30)
+        SectionHeader(
+          Copy.Home.thisWeek, action: openInsights.map { (title: Copy.Home.seeAll, run: $0) }
+        )
+        .padding(.top, 30)
         WeekCard(home: home).padding(.top, 12)
-        SectionHeader(Copy.Home.blocks).padding(.top, 26)
-        BlockList(rows: home.blocks).padding(.top, 10)
+        SectionHeader(
+          Copy.Home.blocks,
+          action: openBlock.map { open in (title: Copy.Home.new, run: { open(nil) }) }
+        )
+        .padding(.top, 26)
+        BlockList(
+          rows: home.blocks, open: openBlock.map { open in { (id: BlockID) in open(id) } }
+        ).padding(.top, 10)
       }
       .tollGutter()
       .padding(.bottom, TollSpacing.sectionGap)

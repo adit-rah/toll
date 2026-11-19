@@ -93,6 +93,11 @@ struct HomeSnapshotTests {
     #expect(rows[0].trailing == "Tonight")
     #expect(rows[1].detail.hasSuffix("Weekdays"))
     #expect(rows[1].trailing == "Mon")
+    // Thursday evening: Study is tomorrow, not tonight.
+    let thursday = snapshot(s, date(2026, 11, 19, 18)).blocks
+    #expect(thursday[0].trailing == "Tonight")
+    #expect(thursday[1].trailing == "Fri")
+    #expect(snapshot(s, date(2026, 11, 20, 7)).blocks[1].trailing == "Today")
   }
 
   @Test func theBannerOnlyWithoutLocation() {
@@ -101,5 +106,43 @@ struct HomeSnapshotTests {
     #expect(!snapshot(s, date(2026, 11, 17, 15)).locationBanner)
     s.location = .scheduleOnly
     #expect(snapshot(s, date(2026, 11, 17, 15)).locationBanner)
+  }
+}
+
+struct LastNightTests {
+  func line(_ at: Date, on: Bool, changed: Bool = true) -> Transition {
+    Transition(
+      at: at, cause: .windowStart, blockOn: on, changed: changed, home: true, inWindow: true,
+      entitled: true)
+  }
+
+  @Test func theLatestStretch() {
+    let log = [
+      line(date(2026, 11, 16, 22, 31), on: true), line(date(2026, 11, 17, 7), on: false),
+      line(date(2026, 11, 17, 22, 31), on: true),
+      line(date(2026, 11, 17, 23), on: true, changed: false),
+      line(date(2026, 11, 18, 7), on: false),
+    ]
+    #expect(
+      LastNight(log: log) == LastNight(on: date(2026, 11, 17, 22, 31), off: date(2026, 11, 18, 7)))
+    #expect(LastNight(log: []) == nil)
+  }
+}
+
+extension LastNight {
+  init(on: Date, off: Date?) {
+    self.init(
+      log: [
+        Transition(
+          at: on, cause: .windowStart, blockOn: true, changed: true, home: nil, inWindow: true,
+          entitled: true)
+      ]
+        + (off.map {
+          [
+            Transition(
+              at: $0, cause: .windowEnd, blockOn: false, changed: true, home: nil, inWindow: false,
+              entitled: true)
+          ]
+        } ?? []))!
   }
 }

@@ -69,10 +69,11 @@
             at: evening, cause: .windowStart, blockOn: true, changed: true, home: true,
             inWindow: true,
             entitled: true))
+        let late = calendar.date(bySettingHour: 23, minute: 0, second: 0, of: evening) ?? evening
         for tap in 0..<(5 - min(back, 4)) {
           log.append(
             Transition(
-              at: evening.addingTimeInterval(Double(tap + 1) * 1200), cause: .blockScreen,
+              at: late.addingTimeInterval(Double(tap) * 1500), cause: .blockScreen,
               blockOn: true, changed: false, home: true, inWindow: true, entitled: true))
         }
       }

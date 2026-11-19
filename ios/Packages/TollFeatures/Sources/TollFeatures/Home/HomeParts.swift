@@ -4,13 +4,26 @@ import TollUI
 
 struct SectionHeader: View {
   let title: String
-  init(_ title: String) { self.title = title }
+  var action: (title: String, run: () -> Void)?
+
+  init(_ title: String, action: (title: String, run: () -> Void)? = nil) {
+    self.title = title
+    self.action = action
+  }
 
   var body: some View {
-    Text(title)
-      .font(TollFont.captionMedium)
-      .foregroundStyle(TollColor.label2)
-      .accessibilityAddTraits(.isHeader)
+    HStack {
+      Text(title)
+        .font(TollFont.captionMedium)
+        .foregroundStyle(TollColor.label2)
+        .accessibilityAddTraits(.isHeader)
+      Spacer()
+      if let action {
+        Button(action.title, action: action.run)
+          .font(TollFont.subheadSemibold)
+          .foregroundStyle(TollColor.accent)
+      }
+    }
   }
 }
 
@@ -154,17 +167,24 @@ struct NightBars: View {
 
 struct BlockList: View {
   let rows: [HomeSnapshot.BlockRow]
+  var open: ((BlockID) -> Void)?
 
   var body: some View {
     Card {
       ForEach(rows) { row in
-        CardRow(row.name, detail: row.detail) {
-          IconTile(BlockSymbol.name(row.kind), accent: row.trailingIsAccent)
-        } trailing: {
-          Text(row.trailing)
-            .font(TollFont.captionMedium)
-            .foregroundStyle(row.trailingIsAccent ? TollColor.accent : TollColor.label3)
+        Button {
+          open?(row.id)
+        } label: {
+          CardRow(row.name, detail: row.detail) {
+            IconTile(BlockSymbol.name(row.kind), accent: row.trailingIsAccent)
+          } trailing: {
+            Text(row.trailing)
+              .font(TollFont.captionMedium)
+              .foregroundStyle(row.trailingIsAccent ? TollColor.accent : TollColor.label3)
+          }
         }
+        .buttonStyle(.plain)
+        .disabled(open == nil)
       }
     }
   }

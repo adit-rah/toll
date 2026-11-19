@@ -146,10 +146,16 @@ public struct HomeSnapshot: Equatable, Sendable {
     } else if state.runtime.active[block.id] != nil {
       trailing = (Copy.Home.onNow, true)
     } else if let next = block.schedule.nextStart(after: now, calendar: calendar) {
-      let soon = next.timeIntervalSince(now) < 18 * 3600
+      // "Tonight" and "Today" only for today; a Sleep night starting after midnight still counts as
+      // tonight. Anything later is its weekday.
+      let today = calendar.isDate(next, inSameDayAs: now)
+      let afterMidnight =
+        block.isSleep
+        && calendar.isDate(next, inSameDayAs: now.addingTimeInterval(86_400))
+        && calendar.component(.hour, from: next) < 6
       trailing =
-        soon
-        ? (Copy.Home.tonight, true)
+        today || afterMidnight
+        ? (block.isSleep ? Copy.Home.tonight : Copy.Home.today, true)
         : (
           next.formatted(
             Date.FormatStyle(calendar: calendar, timeZone: calendar.timeZone).weekday(.abbreviated)),
@@ -203,5 +209,18 @@ struct Week {
     let counting = days.filter { day in first.map { day >= $0 } ?? true && day < tonight }
     counted = counting.count
     blocked = counting.filter(on.contains).count
+  }
+}
+
+/// Settings' "Last night" (the design canvas): when the block last came on, and when it went off.
+public struct LastNight: Equatable, Sendable {
+  public var on: Date
+  public var off: Date?
+
+  /// The latest stretch with the block on, from the log (newest last).
+  public init?(log: [Transition]) {
+    guard let start = log.lastIndex(where: { $0.blockOn && $0.changed }) else { return nil }
+    on = log[start].at
+    off = log[start...].first(where: { !$0.blockOn && $0.changed })?.at
   }
 }

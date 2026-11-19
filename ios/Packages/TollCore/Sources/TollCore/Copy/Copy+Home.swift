@@ -10,6 +10,7 @@ extension Copy {
     public static let lastNightPill = "Last free night tonight"
 
     public static let tonight = "Tonight"
+    public static let today = "Today"
     public static let blockedUntil = "Blocked until"
     public static let awayLabel = "Away from home"
     public static let paused = "Paused"
