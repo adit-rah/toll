@@ -39,9 +39,11 @@
       ]
       state.presence[home.id] = Presence(isInside: scenario != .homeAway, at: now)
       let firstWeek = scenario == .homeFirstWeek
-      let nightsAgo = firstWeek ? 1 : scenario == .homeLastNight ? 6 : 4
+      let later = scenario == .homeWeek
+      let nightsAgo = firstWeek ? 1 : scenario == .homeLastNight ? 6 : later ? 20 : 4
       state.setupFinishedAt = calendar.date(byAdding: .day, value: -nightsAgo, to: now)
       state.trial.start = state.setupFinishedAt
+      state.trial.purchased = later
       if scenario == .homePaused {
         state.trial.start = calendar.date(byAdding: .day, value: -8, to: now)
         state.trial.entitled = false
@@ -62,7 +64,16 @@
           state.door = door
         }
       }
+      // Tonight's block counts as tonight's bar once it has come on.
+      if blocked {
+        log.append(
+          Transition(
+            at: now.addingTimeInterval(-3600), cause: .windowStart, blockOn: true, changed: true,
+            home: true, inWindow: true, entitled: true))
+      }
       for back in 1...nightsAgo {
+        // A later week has one night away: drawn as a dash.
+        if later && back == 4 { continue }
         guard let evening = calendar.date(byAdding: .day, value: -back, to: now) else { continue }
         log.append(
           Transition(
@@ -70,13 +81,14 @@
             inWindow: true,
             entitled: true))
         let late = calendar.date(bySettingHour: 23, minute: 0, second: 0, of: evening) ?? evening
-        for tap in 0..<(5 - min(back, 4)) {
+        for tap in 0..<(later ? back % 4 : 5 - min(back, 4)) {
           log.append(
             Transition(
               at: late.addingTimeInterval(Double(tap) * 1500), cause: .blockScreen,
               blockOn: true, changed: false, home: true, inWindow: true, entitled: true))
         }
       }
+      log.sort { $0.at < $1.at }
     }
   }
 #endif

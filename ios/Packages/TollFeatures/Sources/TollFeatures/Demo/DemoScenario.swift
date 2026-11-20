@@ -18,6 +18,7 @@
     case homeAway = "home-away"
     case homeFirstWeek = "home-first-week"
     case homeLastNight = "home-last-night"
+    case homeWeek = "home-week"
     case homePaused = "home-paused"
     case homeLocation = "home-location"
     case purchase, settings, insights
