@@ -99,6 +99,10 @@ private struct WeeksCard: View {
           .accessibilityElement(children: .ignore)
           .accessibilityLabel("\(Copy.Insights.weekLabel(index + 1)), \(count)")
         }
+        // Four slots, as the board: a first week's bar keeps a quarter of the width.
+        ForEach(0..<max(0, 4 - insights.weeks.count), id: \.self) { _ in
+          Color.clear.frame(maxWidth: .infinity, maxHeight: 1).accessibilityHidden(true)
+        }
       }
       .frame(height: 96, alignment: .bottom)
     }
