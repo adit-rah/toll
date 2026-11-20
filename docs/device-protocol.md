@@ -3,7 +3,7 @@
 MVP spec §11 and the device checks of §5. Two phones, five nights. Everything is read from the transition log (Settings → Transition log). Write results in the tables below and anything that changes the mechanism in `docs/decisions.md`. **A missed or late transition is a stop-and-ask (spec §13): report it before building on it.**
 
 ## Install
-1. Merge the step 2 pull request, then `gh release create vX.Y.Z --target main --prerelease --title vX.Y.Z --generate-notes` (next number after `git tag -l`). Xcode Cloud sends it to TestFlight.
+1. Merge the pull request. The `release` workflow tags the next version once CI passes, and Xcode Cloud sends it to TestFlight (`docs/releasing.md`).
 2. On each phone, go through setup. Note every location prompt's exact words and when it appeared, for unknown 5. Choose **Allow While Using App**, then **Change to Always Allow** when asked, and check Precise Location is on (Settings → the app → Location). On the blocklist screen, block a few apps and one whole category (decisions D27).
 3. For daytime testing, set Settings → Sleep window to cover the next hour (outside a block it applies at once).
 
