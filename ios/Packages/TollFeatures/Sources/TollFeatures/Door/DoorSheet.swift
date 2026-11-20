@@ -211,6 +211,7 @@ private struct DoorOpen: View {
             .dynamicTypeSize(...DynamicTypeSize.accessibility2)
           Text(Copy.Door.leftWord).tollType(.bar, TollColor.label2).accessibilityHidden(true)
         }
+        .frame(maxWidth: .infinity)
         .padding(.top, 24)
         .task(id: expiresAt) {
           try? await Task.sleep(for: .seconds(max(0, expiresAt.timeIntervalSinceNow)))
@@ -231,7 +232,7 @@ private struct DoorOpen: View {
       }
       if let regretEnd = door.regretEndsAt(model.config), now < regretEnd {
         HStack(alignment: .top, spacing: 10) {
-          Image(systemName: "arrow.uturn.backward")
+          Image(systemName: "clock")
             .font(.system(size: 15, weight: .semibold))
             .foregroundStyle(TollColor.accent)
             .frame(width: 18, height: 21)
