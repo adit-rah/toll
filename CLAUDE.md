@@ -13,6 +13,9 @@ iPhone app: buy back your sleep. When the user is home inside their sleep window
 - App build (macOS): `xcodebuild build -project ios/Toll.xcodeproj -scheme Toll -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO`. CI does this on every push (`.github/workflows/ios.yml`).
 - Seeing a screen. In a cloud session: dispatch `render.yml` with only the scenarios you changed (or push with `[render]`, or `[render light ax5]`, in the commit message), then run `ios/scripts/fetch-renders.sh` in the background and read the PNGs and `ui.json` it unpacks into `build/renders/`. Details: `docs/renders.md` (or the `render` skill). On a Mac: `docs/local-mac.md`.
 
+## Tracking work
+Every piece of work is a GitHub issue labelled with its team (`team:software-engineering`, `team:design`, `team:data-science`, `team:product`, `team:qa`) and a priority (`P0`–`P3`); `docs/teams.md` says what each owns and how a ticket moves. Write tickets so the team can start cold. When a PR leaves something undone, file it as a new ticket and close the original.
+
 ## Releasing
 A build for a phone is a `vX.Y.Z` tag on `main`, and it is made for you: when a merge to `main` that changes `ios/**` passes CI, the `release` workflow tags the next version (`ios/scripts/next-version.sh`) and Xcode Cloud sends it to TestFlight (`docs/releasing.md`). Never pick a version number or create a tag by hand. For a minor release, raise `MARKETING_VERSION` in `ios/Config/Base.xcconfig` (0.2.0 → 0.3.0) in the pull request; patches count up from the tags. After merging, tell the person which version the merge will become (`ios/scripts/next-version.sh` on `main`).
 
