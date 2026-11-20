@@ -7,9 +7,12 @@ iPhone app: buy back your sleep. When the user is home inside their sleep window
   - `TollCore` — config, copy, pure logic. Linux-testable. Product `TollScreenTime` = Screen Time glue shared with the extensions.
   - `TollData` — app-only services: Keychain, location, StoreKit. Never imported by extensions.
   - `TollUI` — tokens and components. `TollFeatures` — one folder per screen.
+  - `SleepModel` — the sleep model's phone half: pure Swift, reads the exported artifact (decisions D47).
+- `datascience/` — the sleep model in Python: reference, simulator, replay, export. Never imported by the app (`datascience/README.md`).
 
 ## Commands
 - Swift core on Linux or macOS: `swift test --package-path ios/Packages/TollCore`. Format: `swift format --in-place --recursive ios/`.
+- Sleep model: `cd datascience && uv run pytest`; after changing the model, `uv run python -m export` then `ios/scripts/sync-model.sh`, and `swift test --package-path ios/Packages/SleepModel`.
 - App build (macOS): `xcodebuild build -project ios/Toll.xcodeproj -scheme Toll -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO`. CI does this on every push (`.github/workflows/ios.yml`).
 - Seeing a screen. In a cloud session: dispatch `render.yml` with only the scenarios you changed (or push with `[render]`, or `[render light ax5]`, in the commit message), then run `ios/scripts/fetch-renders.sh` in the background and read the PNGs and `ui.json` it unpacks into `build/renders/`. Details: `docs/renders.md` (or the `render` skill). On a Mac: `docs/local-mac.md`.
 

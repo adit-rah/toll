@@ -20,3 +20,8 @@ ios/Config/Version.xcconfig
 
 # Render output (ios/scripts/render.sh)
 /build/
+
+# Python (datascience/)
+.venv/
+__pycache__/
+.pytest_cache/

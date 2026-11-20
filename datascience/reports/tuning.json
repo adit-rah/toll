@@ -1,0 +1,595 @@
+{
+  "v0 as specced (\u03c3 30, effect sd 15, floor 0.10, clip 90, zero test 90%)": {
+    "changes": {
+      "zero": 0.9
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": false
+    },
+    "coverage_end": {
+      "same": 0.903,
+      "differ": 0.84,
+      "nonresponders": 0.887,
+      "worse": 0.886,
+      "nonlinear": 0.851,
+      "null": 0.899
+    },
+    "fade_coverage_end": 0.854,
+    "median_first_insight_differ": 52.0,
+    "shown_by_28_differ": 0.308,
+    "ever_shown_null": 0.215,
+    "thompson_minus_fixed": {
+      "same": -0.43,
+      "differ": -5.51,
+      "nonresponders": -1.81,
+      "worse": -3.46,
+      "nonlinear": -3.72,
+      "null": 0.0
+    }
+  },
+  "\u03c3 35": {
+    "changes": {
+      "noise_sd": 35.0,
+      "zero": 0.9
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": false
+    },
+    "coverage_end": {
+      "same": 0.953,
+      "differ": 0.872,
+      "nonresponders": 0.94,
+      "worse": 0.936,
+      "nonlinear": 0.905,
+      "null": 0.956
+    },
+    "fade_coverage_end": 0.923,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.208,
+    "ever_shown_null": 0.102,
+    "thompson_minus_fixed": {
+      "same": -0.39,
+      "differ": -5.23,
+      "nonresponders": -1.72,
+      "worse": -3.26,
+      "nonlinear": -3.51,
+      "null": 0.0
+    }
+  },
+  "\u03c3 40": {
+    "changes": {
+      "noise_sd": 40.0,
+      "zero": 0.9
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": true
+    },
+    "coverage_end": {
+      "same": 0.977,
+      "differ": 0.898,
+      "nonresponders": 0.958,
+      "worse": 0.957,
+      "nonlinear": 0.927,
+      "null": 0.985
+    },
+    "fade_coverage_end": 0.963,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.123,
+    "ever_shown_null": 0.03,
+    "thompson_minus_fixed": {
+      "same": -0.36,
+      "differ": -4.94,
+      "nonresponders": -1.61,
+      "worse": -3.01,
+      "nonlinear": -3.27,
+      "null": 0.0
+    }
+  },
+  "effect prior sd 10": {
+    "changes": {
+      "prior.sd1": 10.0,
+      "zero": 0.9
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": false
+    },
+    "coverage_end": {
+      "same": 0.934,
+      "differ": 0.751,
+      "nonresponders": 0.881,
+      "worse": 0.86,
+      "nonlinear": 0.814,
+      "null": 0.936
+    },
+    "fade_coverage_end": 0.897,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.27,
+    "ever_shown_null": 0.149,
+    "thompson_minus_fixed": {
+      "same": -0.4,
+      "differ": -5.28,
+      "nonresponders": -1.74,
+      "worse": -3.32,
+      "nonlinear": -3.57,
+      "null": 0.0
+    }
+  },
+  "effect prior sd 20": {
+    "changes": {
+      "prior.sd1": 20.0,
+      "zero": 0.9
+    },
+    "checks": {
+      "Ranges are honest": true,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": false
+    },
+    "coverage_end": {
+      "same": 0.885,
+      "differ": 0.861,
+      "nonresponders": 0.881,
+      "worse": 0.893,
+      "nonlinear": 0.859,
+      "null": 0.887
+    },
+    "fade_coverage_end": 0.838,
+    "median_first_insight_differ": 54.5,
+    "shown_by_28_differ": 0.303,
+    "ever_shown_null": 0.214,
+    "thompson_minus_fixed": {
+      "same": -0.43,
+      "differ": -5.62,
+      "nonresponders": -1.85,
+      "worse": -3.56,
+      "nonlinear": -3.84,
+      "null": 0.0
+    }
+  },
+  "floor 0.20": {
+    "changes": {
+      "min_prob": 0.2,
+      "zero": 0.9
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": false
+    },
+    "coverage_end": {
+      "same": 0.912,
+      "differ": 0.843,
+      "nonresponders": 0.887,
+      "worse": 0.886,
+      "nonlinear": 0.847,
+      "null": 0.904
+    },
+    "fade_coverage_end": 0.86,
+    "median_first_insight_differ": 50.0,
+    "shown_by_28_differ": 0.309,
+    "ever_shown_null": 0.213,
+    "thompson_minus_fixed": {
+      "same": -0.28,
+      "differ": -3.37,
+      "nonresponders": -1.17,
+      "worse": -2.17,
+      "nonlinear": -2.29,
+      "null": 0.0
+    }
+  },
+  "floor 0.33 (uniform)": {
+    "changes": {
+      "min_prob": 0.3333333333333333,
+      "zero": 0.9
+    },
+    "checks": {
+      "Ranges are honest": true,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": false
+    },
+    "coverage_end": {
+      "same": 0.902,
+      "differ": 0.851,
+      "nonresponders": 0.881,
+      "worse": 0.881,
+      "nonlinear": 0.863,
+      "null": 0.904
+    },
+    "fade_coverage_end": 0.878,
+    "median_first_insight_differ": 52.0,
+    "shown_by_28_differ": 0.276,
+    "ever_shown_null": 0.213,
+    "thompson_minus_fixed": {
+      "same": -0.13,
+      "differ": -0.55,
+      "nonresponders": -0.32,
+      "worse": -0.45,
+      "nonlinear": -0.36,
+      "null": 0.0
+    }
+  },
+  "clip 60": {
+    "changes": {
+      "clip": 60.0,
+      "zero": 0.9
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": false
+    },
+    "coverage_end": {
+      "same": 0.936,
+      "differ": 0.816,
+      "nonresponders": 0.904,
+      "worse": 0.882,
+      "nonlinear": 0.85,
+      "null": 0.941
+    },
+    "fade_coverage_end": 0.893,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.258,
+    "ever_shown_null": 0.151,
+    "thompson_minus_fixed": {
+      "same": -0.42,
+      "differ": -5.35,
+      "nonresponders": -1.77,
+      "worse": -3.32,
+      "nonlinear": -3.6,
+      "null": 0.0
+    }
+  },
+  "clip 45": {
+    "changes": {
+      "clip": 45.0,
+      "zero": 0.9
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": false
+    },
+    "coverage_end": {
+      "same": 0.955,
+      "differ": 0.766,
+      "nonresponders": 0.921,
+      "worse": 0.862,
+      "nonlinear": 0.839,
+      "null": 0.966
+    },
+    "fade_coverage_end": 0.947,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.202,
+    "ever_shown_null": 0.081,
+    "thompson_minus_fixed": {
+      "same": -0.4,
+      "differ": -5.09,
+      "nonresponders": -1.68,
+      "worse": -3.08,
+      "nonlinear": -3.36,
+      "null": 0.0
+    }
+  },
+  "forgetting 0.98": {
+    "changes": {
+      "forgetting": 0.98,
+      "zero": 0.9
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": false
+    },
+    "coverage_end": {
+      "same": 0.956,
+      "differ": 0.886,
+      "nonresponders": 0.931,
+      "worse": 0.932,
+      "nonlinear": 0.902,
+      "null": 0.957
+    },
+    "fade_coverage_end": 0.947,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.261,
+    "ever_shown_null": 0.142,
+    "thompson_minus_fixed": {
+      "same": -0.4,
+      "differ": -5.32,
+      "nonresponders": -1.73,
+      "worse": -3.28,
+      "nonlinear": -3.54,
+      "null": 0.0
+    }
+  },
+  "zero test 95%": {
+    "changes": {
+      "zero": 0.95
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": false
+    },
+    "coverage_end": {
+      "same": 0.903,
+      "differ": 0.84,
+      "nonresponders": 0.887,
+      "worse": 0.886,
+      "nonlinear": 0.851,
+      "null": 0.899
+    },
+    "fade_coverage_end": 0.854,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.232,
+    "ever_shown_null": 0.103,
+    "thompson_minus_fixed": {
+      "same": -0.43,
+      "differ": -5.51,
+      "nonresponders": -1.81,
+      "worse": -3.46,
+      "nonlinear": -3.72,
+      "null": 0.0
+    }
+  },
+  "zero test 98%": {
+    "changes": {
+      "zero": 0.98
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": true
+    },
+    "coverage_end": {
+      "same": 0.903,
+      "differ": 0.84,
+      "nonresponders": 0.887,
+      "worse": 0.886,
+      "nonlinear": 0.851,
+      "null": 0.899
+    },
+    "fade_coverage_end": 0.854,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.15,
+    "ever_shown_null": 0.036,
+    "thompson_minus_fixed": {
+      "same": -0.43,
+      "differ": -5.51,
+      "nonresponders": -1.81,
+      "worse": -3.46,
+      "nonlinear": -3.72,
+      "null": 0.0
+    }
+  },
+  "zero test 99%": {
+    "changes": {
+      "zero": 0.99
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": true
+    },
+    "coverage_end": {
+      "same": 0.903,
+      "differ": 0.84,
+      "nonresponders": 0.887,
+      "worse": 0.886,
+      "nonlinear": 0.851,
+      "null": 0.899
+    },
+    "fade_coverage_end": 0.854,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.117,
+    "ever_shown_null": 0.021,
+    "thompson_minus_fixed": {
+      "same": -0.43,
+      "differ": -5.51,
+      "nonresponders": -1.81,
+      "worse": -3.46,
+      "nonlinear": -3.72,
+      "null": 0.0
+    }
+  },
+  "\u03c3 32.5, zero test 98%": {
+    "changes": {
+      "noise_sd": 32.5,
+      "zero": 0.98
+    },
+    "checks": {
+      "Ranges are honest": true,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": true
+    },
+    "coverage_end": {
+      "same": 0.932,
+      "differ": 0.856,
+      "nonresponders": 0.91,
+      "worse": 0.915,
+      "nonlinear": 0.877,
+      "null": 0.939
+    },
+    "fade_coverage_end": 0.893,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.116,
+    "ever_shown_null": 0.017,
+    "thompson_minus_fixed": {
+      "same": -0.41,
+      "differ": -5.38,
+      "nonresponders": -1.76,
+      "worse": -3.36,
+      "nonlinear": -3.6,
+      "null": 0.0
+    }
+  },
+  "\u03c3 32.5, effect sd 20, zero test 98%": {
+    "changes": {
+      "noise_sd": 32.5,
+      "prior.sd1": 20.0,
+      "zero": 0.98
+    },
+    "checks": {
+      "Ranges are honest": true,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": true
+    },
+    "coverage_end": {
+      "same": 0.918,
+      "differ": 0.88,
+      "nonresponders": 0.908,
+      "worse": 0.909,
+      "nonlinear": 0.883,
+      "null": 0.916
+    },
+    "fade_coverage_end": 0.862,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.11,
+    "ever_shown_null": 0.024,
+    "thompson_minus_fixed": {
+      "same": -0.42,
+      "differ": -5.5,
+      "nonresponders": -1.81,
+      "worse": -3.43,
+      "nonlinear": -3.72,
+      "null": 0.0
+    }
+  },
+  "\u03c3 35, zero test 95%": {
+    "changes": {
+      "noise_sd": 35.0,
+      "zero": 0.95
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": true
+    },
+    "coverage_end": {
+      "same": 0.953,
+      "differ": 0.872,
+      "nonresponders": 0.94,
+      "worse": 0.936,
+      "nonlinear": 0.905,
+      "null": 0.956
+    },
+    "fade_coverage_end": 0.923,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.135,
+    "ever_shown_null": 0.03,
+    "thompson_minus_fixed": {
+      "same": -0.39,
+      "differ": -5.23,
+      "nonresponders": -1.72,
+      "worse": -3.26,
+      "nonlinear": -3.51,
+      "null": 0.0
+    }
+  },
+  "\u03c3 32.5, forgetting 0.99, zero test 98%": {
+    "changes": {
+      "noise_sd": 32.5,
+      "forgetting": 0.99,
+      "zero": 0.98
+    },
+    "checks": {
+      "Ranges are honest": false,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": true
+    },
+    "coverage_end": {
+      "same": 0.958,
+      "differ": 0.877,
+      "nonresponders": 0.934,
+      "worse": 0.93,
+      "nonlinear": 0.908,
+      "null": 0.959
+    },
+    "fade_coverage_end": 0.932,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.096,
+    "ever_shown_null": 0.01,
+    "thompson_minus_fixed": {
+      "same": -0.4,
+      "differ": -5.27,
+      "nonresponders": -1.72,
+      "worse": -3.26,
+      "nonlinear": -3.52,
+      "null": 0.0
+    }
+  },
+  "\u03c3 30, effect sd 20, forgetting 0.99, zero test 98%": {
+    "changes": {
+      "prior.sd1": 20.0,
+      "forgetting": 0.99,
+      "zero": 0.98
+    },
+    "checks": {
+      "Ranges are honest": true,
+      "Learns fast enough": false,
+      "Helps when people differ": true,
+      "Does little harm when they don't": true,
+      "No false insights": true
+    },
+    "coverage_end": {
+      "same": 0.923,
+      "differ": 0.893,
+      "nonresponders": 0.922,
+      "worse": 0.915,
+      "nonlinear": 0.886,
+      "null": 0.933
+    },
+    "fade_coverage_end": 0.888,
+    "median_first_insight_differ": null,
+    "shown_by_28_differ": 0.129,
+    "ever_shown_null": 0.028,
+    "thompson_minus_fixed": {
+      "same": -0.42,
+      "differ": -5.54,
+      "nonresponders": -1.82,
+      "worse": -3.47,
+      "nonlinear": -3.75,
+      "null": 0.0
+    }
+  }
+}

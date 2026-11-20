@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "version": "sleep-model.v0",
+  "features": [
+    "intercept",
+    "offset_per_30",
+    "weekend",
+    "late"
+  ],
+  "base": {
+    "theta": [
+      15.0,
+      0.0,
+      30.0,
+      20.0
+    ]
+  },
+  "prior": {
+    "mean": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "cov_diag_sd": [
+      20.0,
+      20.0,
+      20.0,
+      20.0
+    ]
+  },
+  "noise_sd": 30.0,
+  "forgetting": 0.99,
+  "actions": [
+    -30,
+    0,
+    30
+  ],
+  "policy": {
+    "min_prob": 0.1,
+    "prob_draws": 1000
+  },
+  "context": {
+    "late_home_within_min": 60.0
+  },
+  "usable_night": {
+    "max_onset_from_plan_min": 240.0,
+    "residual_clip_min": 90.0
+  },
+  "insight": {
+    "interval": 0.9,
+    "zero_test_interval": 0.98,
+    "max_width_min": 30.0,
+    "min_nights": 14
+  },
+  "sha256": "e5ac487c9e27e81f1f3e5662f784646aa5f944f331243f76337e357f2ca95f84"
+}

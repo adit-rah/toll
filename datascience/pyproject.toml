@@ -1,0 +1,19 @@
+[project]
+name = "dusk-datascience"
+version = "0.1.0"
+description = "Dusk's sleep model: reference implementation, simulator, replay and export. Never imported by the app."
+requires-python = ">=3.12"
+dependencies = [
+  "numpy==2.3.5",
+  "matplotlib==3.10.7",
+]
+
+[dependency-groups]
+dev = ["pytest==8.4.2"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
