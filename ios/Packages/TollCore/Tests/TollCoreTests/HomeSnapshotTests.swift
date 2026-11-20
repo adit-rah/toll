@@ -86,10 +86,10 @@ struct HomeSnapshotTests {
     #expect(home.timesStopped == 3)
     #expect(home.bars.count == 7)
     #expect(home.bars.prefix(3).map(\.night) == [.stopped(2), .stopped(1), .ahead])
-    #expect(home.bars[2].isToday)
+    #expect(home.bars.map(\.isLatest) == [false, true, false, false, false, false, false])
     #expect(home.bars.suffix(4).allSatisfy { $0.night == .ahead })
     #expect(!home.showsTrends)
-    #expect(home.stopsChange == nil)
+    #expect(home.firstWeekLine == "2 nights blocked")
   }
 
   @Test func laterTheLastSevenNightsWithDashesAndZeros() {
@@ -106,11 +106,11 @@ struct HomeSnapshotTests {
     let home = snapshot(s, date(2026, 11, 16, 23), log: log)
     #expect(
       home.bars.map(\.night) == [
-        .stopped(0), .stopped(1), .stopped(0), .noBlock, .stopped(0), .stopped(0), .stopped(0),
+        .stopped(0), .stopped(1), .stopped(0), .missed, .stopped(0), .stopped(0), .stopped(0),
       ])
     #expect(home.nightsBlocked == 6)
     #expect(home.nightsCounted == 7)
-    #expect(home.stopsChange == -3)
+    #expect(home.bars.last?.isLatest == true)
   }
 
   @Test func withoutLocationTheHeroSaysWhereverYouAre() {

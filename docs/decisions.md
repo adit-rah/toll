@@ -104,6 +104,8 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D45. Up to 8 blocks** (2026-11-20). The canvas draws seven blocks on Blocks · 8 time windows; the time windows are the limit that bites (D40), so the block count only stops runaway lists. Was 6 (D29).
 
+**D46. Home's This week counts Sleep nights and "Never mind" taps, and its third number is the unlocks** (2026-11-20, #44). The chart is "by night", so only lines with Sleep among the blocks on count; a day block's taps and wakes belong to Insights. The block screen's two buttons now log apart: "Never mind" is `blockScreen`, the one tap that counts as being stopped (amends D24); "Unlock in Dusk" is `doorAsked`. A night away from home or after the trial is named ("away", "off") and left out of "N of M"; a night Sleep was due at home and didn't run is a dash and counts. The latest night with data is amber: last night until tonight's block comes on. The ▲▼ change is gone from Home (trends need more weeks, so they belong in Insights). The third column, held empty for Apple's "screen time after bedtime" tile, shows "2 of 3 · unlocks left", with "One returns after N more nights without using any." under the card while one is spent (spec §7); Apple's tile gets its own row once its report extension exists. Home reads the whole log (2000 lines) instead of the newest 200.
+
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 
 | # | Unknown | What Apple's docs and staff say | Device check |

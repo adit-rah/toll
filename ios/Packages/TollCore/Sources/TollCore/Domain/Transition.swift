@@ -5,7 +5,11 @@ public enum ReconcileCause: String, Codable, Sendable, CaseIterable {
   case launch, foreground
   case windowStart, windowEnd, sweepStart, sweepEnd
   case arrived, left
-  case edit, blockScreen, entitlement, permission
+  case edit, entitlement, permission
+  /// The block screen's "Never mind": the one tap that counts as being stopped (D24).
+  case blockScreen
+  /// The block screen's "Unlock in Dusk" (D32); older logs wrote these as `blockScreen` too.
+  case doorAsked
   case doorChosen, doorCancelled, doorLocked, doorStart, doorEnd
 }
 
