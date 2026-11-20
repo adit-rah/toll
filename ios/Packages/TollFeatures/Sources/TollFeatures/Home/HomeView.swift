@@ -44,7 +44,7 @@ struct HomeView: View {
           }
           .padding(.top, home.pill == nil ? 4 : 12)
         }
-        HomeHero(hero: home.hero, openDoor: home.unlocksLeft == nil ? nil : openDoor)
+        HomeHero(hero: home.hero, openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil)
           .padding(.top, heroGap)
         if case .paused = home.hero {
           PausedCard(price: price, open: openPurchase).padding(.top, 18)

@@ -131,7 +131,10 @@ public struct HomeSnapshot: Equatable, Sendable {
         value: "\(free.unlocksUsed)", label: Copy.Purchase.usedLabel(free.unlocksUsed))
       supply.nightsToRefill = nil
     }
-    blocks = state.blocks.map { Self.row($0, state: state, now: now, calendar: calendar) }
+    let blocking = !screenTimeOff
+    blocks = state.blocks.map {
+      Self.row($0, state: state, now: now, calendar: calendar, blocking: blocking)
+    }
   }
 
   // MARK: Parts
@@ -236,8 +239,11 @@ public struct HomeSnapshot: Equatable, Sendable {
         start: Copy.time(night.start, in: calendar), end: Copy.time(night.end, in: calendar)))
   }
 
-  static func row(_ block: Block, state: DuskState, now: Date, calendar: Calendar) -> BlockRow {
-    if let end = state.runtime.active[block.id], state.trial.entitled,
+  /// `blocking` is false with Screen Time off: nothing is on, whatever the schedule says (#45).
+  static func row(
+    _ block: Block, state: DuskState, now: Date, calendar: Calendar, blocking: Bool = true
+  ) -> BlockRow {
+    if blocking, let end = state.runtime.active[block.id], state.trial.entitled,
       let held = BlocksSnapshot.held(block, state: state, at: Copy.time(end, in: calendar))
     {
       return BlockRow(
@@ -251,7 +257,7 @@ public struct HomeSnapshot: Equatable, Sendable {
     }
     if let days = Self.days(block.schedule) { parts.append(days) }
     let trailing: (String, Bool)
-    if !block.isOn || !state.trial.entitled {
+    if !block.isOn || !state.trial.entitled || !blocking {
       trailing = (block.isOn ? Copy.Home.paused : Copy.Home.off, false)
     } else if state.runtime.active[block.id] != nil {
       trailing = (Copy.Home.onNow, true)
