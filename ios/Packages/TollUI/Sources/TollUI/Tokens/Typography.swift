@@ -15,6 +15,19 @@ public struct TollType: Sendable, Equatable {
   public var uppercase = false
   public var tabular = false
 
+  public init(
+    size: CGFloat, lineHeight: CGFloat, weight: Font.Weight, style: Font.TextStyle,
+    tracking: CGFloat = 0, uppercase: Bool = false, tabular: Bool = false
+  ) {
+    self.size = size
+    self.lineHeight = lineHeight
+    self.weight = weight
+    self.style = style
+    self.tracking = tracking
+    self.uppercase = uppercase
+    self.tabular = tabular
+  }
+
   /// Welcome's title: 40/47 semibold.
   public static let display = TollType(
     size: 40, lineHeight: 47, weight: .semibold, style: .largeTitle)
