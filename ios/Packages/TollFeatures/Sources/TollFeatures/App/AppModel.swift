@@ -106,6 +106,12 @@ public final class AppModel {
 
   public func readPermissions() {
     screenTime = ScreenTimeAuthorization.state
+    // Recorded in the shared state, so every log line after it, the monitor's too, says whether
+    // anything could block (#60). Before setup there's nothing to record.
+    let allowed = screenTime == .approved
+    if state.setupFinishedAt != nil, state.screenTimeAllowed != allowed {
+      send(.permission, [.screenTime(allowed)])
+    }
     location = locationAccess.state
     if let mode = Self.locationMode(location), mode != state.location {
       send(.permission, [.location(mode)])

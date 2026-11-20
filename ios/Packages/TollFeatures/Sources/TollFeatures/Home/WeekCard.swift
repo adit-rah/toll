@@ -95,7 +95,7 @@ struct NightBars: View {
       Text("\(count)").tollType(.microNumber, TollColor.label2).padding(.bottom, 4)
     case .away:
       Text(Copy.Home.awayNight).tollType(.micro, TollColor.label3).padding(.bottom, 4)
-    case .off:
+    case .off, .noScreenTime:
       Text(Copy.Home.offNight).tollType(.micro, TollColor.label3).padding(.bottom, 4)
     case .missed, .noBlock:
       Text(Copy.Home.noBlockNight).tollType(.microNumber, TollColor.label3).padding(.bottom, 4)
@@ -111,7 +111,7 @@ struct NightBars: View {
       shape
         .fill(bar.isLatest ? TollColor.accent : TollColor.bar)
         .frame(height: count == 0 ? 3 : max(4, 64 * CGFloat(count) / CGFloat(top)))
-    case .missed, .noBlock, .away, .off:
+    case .missed, .noBlock, .away, .off, .noScreenTime:
       RoundedRectangle(cornerRadius: 1).fill(TollColor.separator).frame(height: 2)
     case .ahead:
       shape
@@ -131,6 +131,7 @@ enum NightSpoken {
       case .missed: Copy.Home.missedSpoken
       case .away: Copy.Home.awaySpoken
       case .off: Copy.Home.offNight
+      case .noScreenTime: Copy.Home.noScreenTimeSpoken
       case .noBlock: Copy.Home.noBlockSpoken
       case .ahead: Copy.Home.aheadSpoken
       }
@@ -168,7 +169,7 @@ struct FirstNights: View {
         .overlay(Image(systemName: "checkmark").font(.system(size: 14, weight: .semibold)))
         .foregroundStyle(TollColor.accent)
         .frame(height: 40)
-    case .away, .off:
+    case .away, .off, .noScreenTime:
       shape.fill(TollColor.surfaceRaised)
         .overlay(
           Text(bar.night == .away ? Copy.Home.awayNight : Copy.Home.offNight)

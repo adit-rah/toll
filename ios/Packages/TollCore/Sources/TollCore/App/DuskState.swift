@@ -23,6 +23,9 @@ public struct DuskState: Codable, Hashable, Sendable {
   public var unlocks = UnlockSupply()
   public var trial = TrialState()
   public var setupFinishedAt: Date?
+  /// Screen Time access for Dusk as the app last read it; nil until it has. Extensions can't read it,
+  /// so they log what the app saw, and a night with it off is recorded as such (#60).
+  public var screenTimeAllowed: Bool?
   public var runtime = RuntimeState()
 
   public init() {}

@@ -105,4 +105,25 @@ struct HomeWeekTests {
     #expect(home.supply == .init(left: 2, max: 3, nightsToRefill: 4))
     #expect(home.unlocksLeft == nil)
   }
+
+  /// With Screen Time off nothing blocked, whatever the engine thought: the night is named, not a
+  /// blocked night and not a miss, and it still counts toward the free week (#60).
+  @Test func screenTimeOffNightsAreLoggedAsSuch() {
+    var log = nights([11, 12, 13, 15, 16])
+    var noAccess = line(date(2026, 11, 14, 22, 30), .windowStart, active: [sleep])
+    noAccess.screenTime = false
+    log.append(noAccess)
+    let home = week(state(), date(2026, 11, 17, 9), log)
+    #expect(home.bars.map(\.night)[4] == .noScreenTime)
+    #expect(home.nightsBlocked == 5)
+    #expect(home.nightsCounted == 6)
+  }
+
+  @Test func theEngineLogsScreenTimeAccess() {
+    var s = setUp()
+    _ = apply(.screenTime(false), &s, date(2026, 11, 17, 20))
+    #expect(s.screenTimeAllowed == false)
+    let effects = run(&s, date(2026, 11, 17, 23))
+    #expect(effects.log?.screenTime == false)
+  }
 }

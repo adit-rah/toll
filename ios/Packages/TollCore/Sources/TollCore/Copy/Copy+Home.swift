@@ -46,6 +46,7 @@ extension Copy {
     public static let awayNight = "away"
     public static let awaySpoken = "away, nothing blocked"
     public static let offNight = "off"
+    public static let noScreenTimeSpoken = "Screen Time off, nothing blocked"
     public static let blockedSpoken = "blocked"
     public static let aheadSpoken = "still to come"
     public static func stoppedSpoken(_ n: Int) -> String {

@@ -51,6 +51,8 @@ public enum Engine {
       state.presence[id] = presence
     case .location(let mode):
       state.location = mode
+    case .screenTime(let allowed):
+      state.screenTimeAllowed = allowed
     case .trialStart(let start):
       state.trial.start = state.trial.start.map { min($0, start) } ?? start
     case .purchased(let purchased):
@@ -205,7 +207,7 @@ public enum Engine {
         home: sleepPlace.flatMap { state.presence[$0]?.isInside },
         inWindow: state.sleepBlock?.schedule.occurrence(containing: now, calendar: calendar) != nil,
         entitled: state.trial.entitled, door: state.door?.phase,
-        active: state.runtime.active.keys.sorted())
+        active: state.runtime.active.keys.sorted(), screenTime: state.screenTimeAllowed)
     }
     return effects
   }
