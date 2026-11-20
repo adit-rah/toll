@@ -51,6 +51,10 @@ extension Copy {
       "One comes back after \(after) nights in a row without using any. \(nights) \(nights == 1 ? "night" : "nights") to go."
     }
     public static let othersWork = "Everything you didn't block still works."
+    public static let fromHomeScreen = "Open it from your Home Screen."
+    public static let notBlockedTitle = "That app isn't blocked right now"
+    public static let notBlockedBody =
+      "It opens as usual, so no unlock was used. Pick one of the apps you blocked."
     public static let ok = "OK"
 
     public static func opensIn(_ clock: String) -> String { "Opens in \(clock)." }

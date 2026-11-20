@@ -17,6 +17,8 @@ struct DoorSheet: View {
   @State private var refused: FamilyActivitySelection?
   /// "Choose a different app" sets the block screen's app aside.
   @State private var otherApp = false
+  /// The app picked isn't on a block that's on.
+  @State private var notBlocked = false
 
   var body: some View {
     content
@@ -24,6 +26,7 @@ struct DoorSheet: View {
       .animation(Motion.movement, value: model.state.door?.phase)
       .animation(Motion.movement, value: refused)
       .animation(Motion.movement, value: otherApp)
+      .animation(Motion.movement, value: notBlocked)
       .tollHaptic(.light, trigger: model.state.door?.phase)
       .familyActivityPicker(isPresented: $picking, selection: $selection)
       .onChange(of: picking) { _, isOpen in
@@ -32,7 +35,7 @@ struct DoorSheet: View {
         let apps = selection.applicationTokens
         if apps.count == 1, let app = apps.first, selection.categoryTokens.isEmpty {
           refused = nil
-          model.startDoor(app)
+          notBlocked = !model.startDoor(app)
         } else if !apps.isEmpty || !selection.categoryTokens.isEmpty {
           refused = selection
         }
@@ -48,6 +51,11 @@ struct DoorSheet: View {
       }
     } else if model.state.unlocks.left(model.config) == 0 {
       DoorNoneLeft(model: model)
+    } else if notBlocked {
+      DoorNotBlocked(model: model) {
+        notBlocked = false
+        picking = true
+      }
     } else if let refused {
       DoorChooseOne(model: model, picked: refused) { picking = true }
     } else if !otherApp, let app = DoorApp.token(from: model.state.doorAskedFor) {
@@ -83,15 +91,17 @@ private struct DoorFromShield: View {
   let chooseDifferent: () -> Void
 
   var body: some View {
-    SheetPage(height: 464, overhang: 16) {
+    // The board's 464 plus a 44 pt row for Not now, which the board lacks (#47).
+    SheetPage(height: 508, overhang: 16) {
       Label(app).labelStyle(DoorAppStyle(size: 40, radius: 10, title: .sheetApp))
       SheetTitle(Copy.Door.openFor(minutes: model.config.door.minutes)).padding(.top, 18)
       UnlockPips(left: model.state.unlocks.left(model.config), max: model.config.unlocks.max)
         .padding(.top, 14)
       WaitNote(seconds: model.config.door.waitSeconds).padding(.top, 18)
     } actions: {
-      PrimaryButton(Copy.Door.startWait) { model.startDoor(app) }
+      PrimaryButton(Copy.Door.startWait) { _ = model.startDoor(app) }
       QuietButton(Copy.Door.chooseDifferent, action: chooseDifferent).frame(maxWidth: .infinity)
+      QuietButton(Copy.Door.notNow) { model.dismissDoor() }.frame(maxWidth: .infinity)
     }
   }
 }
@@ -200,6 +210,8 @@ private struct DoorOpen: View {
         Text(Copy.Door.locksAt(Copy.time(expiresAt)))
           .tollType(.body, TollColor.label2)
           .padding(.top, 4)
+        // iOS can't open another app from its token, so say where it is.
+        Text(Copy.Door.fromHomeScreen).tollType(.body, TollColor.label2)
         // On the clock (D31): the monitor closes it at this moment even with the app closed.
         HStack(alignment: .firstTextBaseline, spacing: 8) {
           Countdown(endsAt: expiresAt, text: { $0 }, spoken: Copy.Door.leftSpoken)
@@ -254,112 +266,5 @@ private struct DoorOpen: View {
     } actions: {
       PrimaryButton(Copy.Door.lockAgain) { model.lockDoor() }
     }
-  }
-}
-
-/// Door · none left: the empty supply, when one comes back, and that nothing else is blocked.
-private struct DoorNoneLeft: View {
-  let model: AppModel
-
-  var body: some View {
-    SheetPage(height: 374) {
-      SheetTitle(Copy.Door.noneTitle)
-      UnlockPips(left: 0, max: model.config.unlocks.max).padding(.top, 16)
-      Text(
-        Copy.Door.refillLine(
-          model.state.unlocks.nightsToRefill(model.config) ?? model.config.unlocks.refillNights,
-          after: model.config.unlocks.refillNights)
-      )
-      .tollType(.sheetBody, TollColor.label)
-      .fixedSize(horizontal: false, vertical: true)
-      .padding(.top, 18)
-      Text(Copy.Door.othersWork)
-        .tollType(TollType(size: 14, lineHeight: 20, weight: .regular, style: .subheadline))
-        .foregroundStyle(TollColor.label2)
-        .padding(.top, 8)
-    } actions: {
-      PrimaryButton(Copy.Door.ok) { model.dismissDoor() }
-    }
-  }
-}
-
-/// "You wait 90 seconds first. Cancelling costs nothing." on `surfaceRaised`.
-private struct WaitNote: View {
-  let seconds: Int
-
-  var body: some View {
-    Text(Copy.Door.waitFirst(seconds: seconds))
-      .tollType(.body, TollColor.label2)
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.vertical, TollSpacing.noteCardVertical)
-      .padding(.horizontal, TollSpacing.cardPadding)
-      .background(
-        TollColor.surfaceRaised,
-        in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
-  }
-}
-
-/// Unlocks as 12 pt dots, filled amber for each left and outlined for each used, with the count
-/// in words beside them (never the dots alone).
-struct UnlockPips: View {
-  let left: Int
-  let max: Int
-
-  var body: some View {
-    HStack(spacing: 12) {
-      HStack(spacing: 6) {
-        ForEach(0..<max, id: \.self) { index in
-          if index < left {
-            Circle().fill(TollColor.accent).frame(width: 12, height: 12)
-          } else {
-            Circle().strokeBorder(TollColor.label3, lineWidth: 1.5).frame(width: 12, height: 12)
-          }
-        }
-      }
-      Text(left == 0 ? Copy.Door.noneOf(max) : Copy.Door.unlocksOf(left, max))
-        .tollType(.heroLine, TollColor.label2)
-    }
-    .accessibilityElement(children: .ignore)
-    .accessibilityLabel(Copy.Door.unlocksOf(left, max))
-  }
-}
-
-/// The chosen app as iOS draws it: its icon at the board's size, its name beside it. The app never
-/// learns which app it is.
-private struct DoorAppStyle: LabelStyle {
-  enum Title {
-    /// 17 semibold, beside a 40 pt icon.
-    case sheetApp
-    /// 16 semibold, beside a 32 pt icon.
-    case rowApp
-  }
-
-  let size: CGFloat
-  let radius: CGFloat
-  let title: Title
-  var gap: CGFloat = 10
-  var detail: String?
-
-  func makeBody(configuration: Configuration) -> some View {
-    HStack(spacing: gap) {
-      configuration.icon
-        .font(.system(size: size - 6))
-        .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
-        .accessibilityHidden(true)
-      VStack(alignment: .leading, spacing: 0) {
-        configuration.title
-          .tollType(
-            title == .sheetApp
-              ? TollType(size: 17, lineHeight: 22, weight: .semibold, style: .body)
-              : TollType(size: 16, lineHeight: 21, weight: .semibold, style: .callout)
-          )
-          .foregroundStyle(TollColor.label)
-        if let detail { Text(detail).tollType(.detail, TollColor.label2) }
-      }
-    }
-    .accessibilityElement(children: .combine)
-    .accessibilityAddTraits(.isHeader)
   }
 }
