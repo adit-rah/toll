@@ -76,7 +76,7 @@ private struct WeeksCard: View {
       if let change = insights.change {
         Text(Copy.Insights.change(change))
           .font(TollFont.captionMedium)
-          .foregroundStyle(change <= 0 ? TollColor.positive : TollColor.label2)
+          .foregroundStyle(change <= 0 ? TollColor.ok : TollColor.label2)
       }
       let top = max(1, insights.weeks.max() ?? 1)
       ForEach(Array(insights.weeks.enumerated()), id: \.offset) { index, count in
@@ -85,7 +85,7 @@ private struct WeeksCard: View {
             .foregroundStyle(TollColor.label2).frame(width: 64, alignment: .leading)
           GeometryReader { proxy in
             Capsule()
-              .fill(index == insights.weeks.count - 1 ? TollColor.accent : TollColor.fill)
+              .fill(index == insights.weeks.count - 1 ? TollColor.accent : TollColor.bar)
               .frame(width: max(6, proxy.size.width * CGFloat(count) / CGFloat(top)))
           }
           .frame(height: 10)
@@ -113,7 +113,7 @@ private struct HoursCard: View {
       HStack(alignment: .bottom, spacing: 4) {
         ForEach(Array(insights.byHour.enumerated()), id: \.offset) { index, count in
           RoundedRectangle(cornerRadius: 4, style: .continuous)
-            .fill(count == top && count > 0 ? TollColor.accent : TollColor.fill)
+            .fill(count == top && count > 0 ? TollColor.accent : TollColor.bar)
             .frame(height: max(4, 60 * CGFloat(count) / CGFloat(top)))
             .frame(maxWidth: .infinity)
         }

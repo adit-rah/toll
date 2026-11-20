@@ -174,7 +174,7 @@ struct UnlockPips: View {
       HStack(spacing: 6) {
         ForEach(0..<max, id: \.self) { index in
           Circle()
-            .fill(index < left ? TollColor.accent : TollColor.fill)
+            .fill(index < left ? TollColor.accent : TollColor.bar)
             .frame(width: 10, height: 10)
         }
       }

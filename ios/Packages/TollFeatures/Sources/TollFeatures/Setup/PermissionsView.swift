@@ -57,7 +57,7 @@ private struct PermissionRow: View {
   let status: String?
 
   var body: some View {
-    CardRow(title, detail: status ?? why) { IconTile(symbol, size: 44) }
+    CardRow(title, detail: status ?? why) { IconTile(symbol, size: .permission) }
       .animation(Motion.stateChange, value: status)
       .accessibilityElement(children: .combine)
   }

@@ -58,7 +58,7 @@ struct WelcomeView: View {
       Spacer(minLength: TollSpacing.sectionGap)
       Card {
         CardRow(Copy.Setup.offerTitle, detail: Copy.Setup.offerDetail(price: model.app.price)) {
-          IconTile("moon.fill", size: 40)
+          IconTile("moon.fill", size: .large)
         }
       }
     }

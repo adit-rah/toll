@@ -90,6 +90,18 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D38. "Try it" is dropped** (2026-11-19; founders).
 
+**D39. Whole categories don't count toward the 40** (2026-11-20; design reply). Apple limits a shield to 50 apps and 50 sites; categories are a separate list with no such limit. The 40 counts apps plus sites across all blocks; a category shows as "Whole category".
+
+**D40. A time window is one start-and-end pair** (2026-11-20; design reply). Days don't change the count, and blocks with the same hours share one window, because each distinct pair is one DeviceActivity window and one sweep (20 monitored at most). At 8, "New block" is off and the Hours sheet refuses a change that would make a ninth.
+
+**D41. The door knows the app from the block screen** (2026-11-20; design reply, Door · from the block screen). "Unlock in Dusk" records which app, site or category the block screen was showing (the shield action may write to the App Group; the shield configuration may not). The door then opens with that app chosen: "Open for 5 minutes?", "Start the wait", "Choose a different app". Apple's picker can't be limited to one app, so picking two, or a whole category, asks again.
+
+**D42. The privacy line** (2026-11-20; design reply, founders to confirm). Place search and the map go through Apple Maps, so "Nothing leaves your phone" is not strictly true. Settings and the purchase sheet say "No servers. We never see your data"; Onboarding-Home says "Location only tells blocks whether you're there. We never see it."
+
+**D43. Built to the boards** (2026-11-20; founders). Screens match the canvas's spacing, sizes and positions. SF Pro replaces the boards' Inter at the same sizes, weights and line heights, without their letter spacing; Apple's controls keep Apple's shape; small phones and large text scroll with the main button pinned. Where a board can't be built as drawn, engineering says so to the design team before building something else.
+
+**D44. Times read "10:30 pm"** (2026-11-20). The phone's 12- or 24-hour setting decides the format; English sets "am" and "pm" lowercase as the canvas does, and Home's block rows drop ":00" when both ends are whole hours ("9 am – 5 pm").
+
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 
 | # | Unknown | What Apple's docs and staff say | Device check |

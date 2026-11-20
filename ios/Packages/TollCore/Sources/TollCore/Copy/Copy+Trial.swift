@@ -32,7 +32,8 @@ extension Copy {
     public static let eyebrow = "Your free week"
     public static let title = "Keep your nights."
     public static let benefits = [
-      "Every night, for good", "No subscription, ever", "No account", "Nothing leaves your phone",
+      "Every night, for good", "No subscription, ever", "No account",
+      "No servers. We never see your data",
     ]
     public static let once = "once"
     public static let keep = "Keep it"

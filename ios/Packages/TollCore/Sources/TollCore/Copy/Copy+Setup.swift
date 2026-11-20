@@ -18,9 +18,14 @@ extension Copy {
     return rest == 0 ? "\(hours) h" : "\(hours) h \(rest) m"
   }
 
-  /// "10:30 pm – 7:00 am".
-  public static func span(_ window: TimeWindow, in calendar: Calendar = .current) -> String {
-    "\(time(window.start, in: calendar)) – \(time(window.end, in: calendar))"
+  /// "10:30 pm – 7:00 am". `short` reads "9 am – 5 pm" when both ends are whole hours, as Home's rows
+  /// do; one half-hour keeps both ends long so they read alike.
+  public static func span(
+    _ window: TimeWindow, in calendar: Calendar = .current, short: Bool = false
+  ) -> String {
+    let whole = short && window.start.minute == 0 && window.end.minute == 0
+    return
+      "\(time(window.start, in: calendar, short: whole)) – \(time(window.end, in: calendar, short: whole))"
   }
 
   /// The canvas's onboarding, as amended by docs/design-brief.md.

@@ -138,7 +138,9 @@ public struct HomeSnapshot: Equatable, Sendable {
   static func row(_ block: Block, state: DuskState, now: Date, calendar: Calendar) -> BlockRow {
     var parts: [String] = []
     if let place = state.place(block.place) { parts.append(place.name) }
-    if let window = block.schedule.windows.first { parts.append(Copy.span(window, in: calendar)) }
+    if let window = block.schedule.windows.first {
+      parts.append(Copy.span(window, in: calendar, short: true))
+    }
     if let days = Self.days(block.schedule) { parts.append(days) }
     let trailing: (String, Bool)
     if !block.isOn || !state.trial.entitled {

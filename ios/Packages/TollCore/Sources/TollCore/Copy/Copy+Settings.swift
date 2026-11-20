@@ -43,7 +43,7 @@ extension Copy {
       "Without location set to Always, blocks run on their hours, wherever you are.",
     ]
     public static let privacy = "Privacy"
-    public static let privacyLine = "Nothing leaves your phone"
+    public static let privacyLine = "No servers. We never see your data"
     public static let contact = "Contact"
     public static let log = "Transition log"
     public static let logEmpty = "Nothing yet."

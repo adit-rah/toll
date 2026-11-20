@@ -2,31 +2,6 @@ import SwiftUI
 import TollCore
 import TollUI
 
-struct SectionHeader: View {
-  let title: String
-  var action: (title: String, run: () -> Void)?
-
-  init(_ title: String, action: (title: String, run: () -> Void)? = nil) {
-    self.title = title
-    self.action = action
-  }
-
-  var body: some View {
-    HStack {
-      Text(title)
-        .font(TollFont.captionMedium)
-        .foregroundStyle(TollColor.label2)
-        .accessibilityAddTraits(.isHeader)
-      Spacer()
-      if let action {
-        Button(action.title, action: action.run)
-          .font(TollFont.subheadSemibold)
-          .foregroundStyle(TollColor.accent)
-      }
-    }
-  }
-}
-
 struct UnlockRow: View {
   let left: Int
   let open: () -> Void
@@ -150,7 +125,7 @@ struct NightBars: View {
           Text(bar.count > 0 ? "\(bar.count)" : " ")
             .font(TollFont.micro).monospacedDigit().foregroundStyle(TollColor.label2)
           RoundedRectangle(cornerRadius: 6, style: .continuous)
-            .fill(bar.isToday ? TollColor.accent : TollColor.fill)
+            .fill(bar.isToday ? TollColor.accent : TollColor.bar)
             .frame(height: max(4, 64 * CGFloat(bar.count) / CGFloat(top)))
           Text(bar.day)
             .font(TollFont.micro)

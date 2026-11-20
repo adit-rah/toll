@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// The setup bar: 2 or 4 segments. Segments before `current` are full; `current` fills left to right
 /// over 250 ms as its screen lands (design §2.5). Keep one instance across the setup steps so moving
@@ -60,40 +61,64 @@ public struct ProgressSegments: View {
   }
 }
 
-/// A setup or sign-in title: 34 pt semibold, 28 pt under the 44 pt bar (design §4.3). The gap beneath
-/// belongs to the caller, so a subtitle can sit closer than a field does.
+/// A screen's title. Setup titles are 32/38, 28 pt under the bar; pushed screens' titles are 30/35,
+/// 8 pt under it (sticky note s1). The gap beneath belongs to the caller.
 public struct ScreenTitle: View {
-  let text: String
+  public enum Kind: Sendable {
+    case setup
+    case pushed
+  }
 
-  public init(_ text: String) {
+  let text: String
+  let kind: Kind
+
+  public init(_ text: String, kind: Kind = .setup) {
     self.text = text
+    self.kind = kind
   }
 
   public var body: some View {
     Text(text)
-      .font(TollFont.screenTitle)
-      .foregroundStyle(TollColor.label)
+      .tollType(kind == .setup ? .setupTitle : .screenTitle, TollColor.label)
       .fixedSize(horizontal: false, vertical: true)
       .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.top, TollSpacing.titleGap)
+      .padding(.top, kind == .setup ? TollSpacing.setupTitleGap : TollSpacing.pushedTitleGap)
       .accessibilityAddTraits(.isHeader)
   }
 }
 
 extension View {
-  /// A bottom action pinned above the safe area, on the page's own colour so scrolled content ends
-  /// cleanly at it instead of showing through around the button.
+  /// The bottom of a screen pinned above the home indicator, on the page's colour so scrolled
+  /// content ends at it. The main button's bottom edge sits on the safe area, as on every board;
+  /// a quiet link under it ("Already bought it? Restore") reaches 16 pt into the indicator's space,
+  /// and phones without an indicator keep 16 pt.
   public func tollBottomBar<Bar: View>(
-    background: Color = TollColor.bgGrouped, @ViewBuilder content: () -> Bar
+    background: Color = TollColor.bg, endsWithLink: Bool = false,
+    @ViewBuilder content: () -> Bar
   ) -> some View {
     let bar = content()
+    let indicator = HomeIndicator.present
+    let bottom: CGFloat =
+      indicator
+      ? (endsWithLink ? -16 : 0)
+      : TollSpacing.bottomWithoutIndicator
     return safeAreaInset(edge: .bottom, spacing: 0) {
       bar
         .tollGutter()
-        .padding(.top, TollSpacing.labelGap)
-        .padding(.bottom, TollSpacing.footerBottom)
+        .padding(.top, 8)
+        .padding(.bottom, bottom)
         .frame(maxWidth: .infinity)
         .background(background)
     }
+  }
+}
+
+/// Whether this phone has a home indicator (Face ID phones) rather than a Home button.
+enum HomeIndicator {
+  @MainActor static var present: Bool {
+    let windows = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .flatMap(\.windows)
+    return (windows.first(where: \.isKeyWindow) ?? windows.first)?.safeAreaInsets.bottom ?? 34 > 0
   }
 }
