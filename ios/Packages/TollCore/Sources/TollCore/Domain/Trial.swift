@@ -17,6 +17,41 @@ public enum Trial {
     return ended < config.trial.nights ? ended + 1 : nil
   }
 
+  /// The morning the free week ends: the seventh night end after the start (P-2).
+  public static func lastEnd(
+    since start: Date, sleep: WeeklySchedule, calendar: Calendar, config: TollConfig
+  ) -> Date? {
+    guard let horizon = calendar.date(byAdding: .day, value: 30, to: start) else { return nil }
+    let ends = sleep.ends(after: start, through: horizon, calendar: calendar)
+    return ends.count >= config.trial.nights ? ends[config.trial.nights - 1] : nil
+  }
+
+  /// What setup can promise (#46). The trial's start survives a reinstall in the Keychain (P-4), so
+  /// a phone that used its free week isn't offered another.
+  public enum Offer: Equatable, Sendable {
+    /// No trial yet: it starts when setup ends.
+    case fresh(endsAt: Date?)
+    /// Started on this phone before and still running.
+    case running(endsAt: Date)
+    /// Used on this phone; it ended that morning.
+    case used(endedAt: Date)
+    case purchased
+  }
+
+  public static func offer(
+    start: Date?, purchased: Bool, now: Date, sleep: WeeklySchedule, calendar: Calendar,
+    config: TollConfig
+  ) -> Offer {
+    if purchased { return .purchased }
+    guard let start else {
+      return .fresh(endsAt: lastEnd(since: now, sleep: sleep, calendar: calendar, config: config))
+    }
+    guard let end = lastEnd(since: start, sleep: sleep, calendar: calendar, config: config) else {
+      return .fresh(endsAt: nil)
+    }
+    return end <= now ? .used(endedAt: end) : .running(endsAt: end)
+  }
+
   /// The free nights as This week keys them (the day each starts, noon to noon): the first
   /// `trial.nights` occurrences to end after the start, ended or not.
   static func nightKeys(

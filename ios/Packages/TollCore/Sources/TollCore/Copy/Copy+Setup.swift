@@ -46,6 +46,14 @@ extension Copy {
       "Then \(price) once. No subscription. No account."
     }
     public static let start = "Start my free week"
+    /// When this phone's free week is used or bought (#46).
+    public static let setUp = "Set up \(name)"
+    public static let offerUsedTitle = "Free week used"
+    public static func offerUsedDetail(_ day: String, price: String) -> String {
+      "It ended \(day) on this phone. \(price) once, no subscription."
+    }
+    public static let offerPurchasedTitle = "Purchased"
+    public static let offerPurchasedDetail = "Every night is yours. No subscription."
     public static let restore = "Already bought it? Restore"
 
     public static let wakeTitle = "When do you need to be up?"
@@ -150,6 +158,9 @@ extension Copy {
     public static func unlocks(_ n: Int) -> String { n == 1 ? "1 unlock" : "\(n) unlocks" }
     public static func unlocksDetail(minutes: Int) -> String {
       "Open one app for \(minutes) minutes"
+    }
+    public static func freeWeekEnded(_ day: String, price: String) -> String {
+      "The free week ended \(day). Blocks start after the \(price) purchase."
     }
     public static func freeUntil(_ day: String, price: String) -> String {
       "Free until the morning of \(day). Then \(price) once, or it switches off."

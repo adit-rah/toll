@@ -91,4 +91,19 @@ struct TrialTests {
     #expect(day8?.timesStopped == 2)
     #expect(day8?.unlocksUsed == 1)
   }
+
+  /// A reinstall after the free week isn't promised another (#46, P-4).
+  @Test func setupOffersWhatThisPhoneHasLeft() {
+    let sleep = WeeklySchedule.everyDay(usual)
+    let now = date(2026, 11, 20, 15)
+    func offer(_ start: Date?, purchased: Bool = false) -> Trial.Offer {
+      Trial.offer(
+        start: start, purchased: purchased, now: now, sleep: sleep, calendar: london,
+        config: .defaults)
+    }
+    #expect(offer(nil) == .fresh(endsAt: date(2026, 11, 27, 7)))
+    #expect(offer(date(2026, 11, 18, 15)) == .running(endsAt: date(2026, 11, 25, 7)))
+    #expect(offer(date(2026, 11, 5, 15)) == .used(endedAt: date(2026, 11, 12, 7)))
+    #expect(offer(date(2026, 11, 5, 15), purchased: true) == .purchased)
+  }
 }
