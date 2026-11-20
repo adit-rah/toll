@@ -32,22 +32,17 @@ struct SettingsView: View {
         SettingsSection(Copy.Settings.app) {
           Card {
             NavigationLink(value: HomeRoute.blocks) {
-              SettingsRow(Copy.Settings.blocks, detail: blocksSummary)
+              SettingsRow(Copy.Settings.blocks, detail: blocksSummary) { Chevron() }
             }
             .buttonStyle(.plain)
             SettingsRow(Copy.Settings.appearance, minHeight: 50) {
-              Picker(Copy.Settings.appearance, selection: $appearance) {
-                ForEach(Appearance.allCases) { Text($0.title).tag($0) }
-              }
-              .pickerStyle(.segmented)
-              .fixedSize()
-              .labelsHidden()
+              AppearancePicker(selection: $appearance)
             }
             freeNights
             Button {
               Task { await restore() }
             } label: {
-              SettingsRow(Copy.Settings.restore)
+              SettingsRow(Copy.Settings.restore) { Chevron() }
             }
             .buttonStyle(.plain)
             .disabled(restoring)
@@ -58,17 +53,17 @@ struct SettingsView: View {
             Button {
               explaining = true
             } label: {
-              SettingsRow(Copy.Settings.howItWorks)
+              SettingsRow(Copy.Settings.howItWorks) { Chevron() }
             }
             .buttonStyle(.plain)
             link(AppLinks.privacy) {
-              SettingsRow(Copy.Settings.privacy, detail: Copy.Settings.privacyLine)
+              SettingsRow(Copy.Settings.privacy, detail: Copy.Settings.privacyLine) { Chevron() }
             }
             if let address = AppLinks.supportAddress {
               link(AppLinks.support) { SettingsRow(Copy.Settings.contact, detail: address) }
             }
             NavigationLink(value: HomeRoute.log) {
-              SettingsRow(Copy.Settings.log, detail: Copy.Settings.testingOnly)
+              SettingsRow(Copy.Settings.log, detail: Copy.Settings.testingOnly) { Chevron() }
             }
             .buttonStyle(.plain)
           }
@@ -197,6 +192,43 @@ private struct SettingsRow<Trailing: View>: View {
 extension SettingsRow where Trailing == EmptyView {
   init(_ title: String, detail: String? = nil, minHeight: CGFloat? = nil) {
     self.init(title, detail: detail, minHeight: minHeight) { EmptyView() }
+  }
+}
+
+/// Dark · Light · Match iPhone as the board draws it: 13 pt segments in a 32 pt track, the chosen
+/// one raised. Apple's segmented control is too wide to sit beside the row's title.
+private struct AppearancePicker: View {
+  @Binding var selection: Appearance
+
+  var body: some View {
+    HStack(spacing: 0) {
+      ForEach(Appearance.allCases) { option in
+        let chosen = option == selection
+        Button {
+          selection = option
+        } label: {
+          Text(option.title)
+            .tollType(
+              TollType(
+                size: 13, lineHeight: 18, weight: chosen ? .semibold : .medium, style: .footnote)
+            )
+            .foregroundStyle(chosen ? TollColor.label : TollColor.label2)
+            .lineLimit(1)
+            .padding(.horizontal, 10)
+            .frame(maxHeight: .infinity)
+            .background(
+              chosen ? TollColor.surface : .clear,
+              in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(chosen ? .isSelected : [])
+      }
+    }
+    .padding(2)
+    .frame(height: 32)
+    .background(TollColor.surfaceRaised, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+    .fixedSize(horizontal: true, vertical: false)
+    .tollHaptic(.selection, trigger: selection)
   }
 }
 
