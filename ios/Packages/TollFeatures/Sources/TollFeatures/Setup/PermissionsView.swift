@@ -53,7 +53,7 @@ struct PermissionsView: View {
     switch model.app.location {
     case .always: PermissionState(text: Copy.Setup.always, tone: .good)
     case .whileUsing: PermissionState(text: Copy.Setup.whileUsing, tone: .neutral)
-    case .approximate: PermissionState(text: Copy.Setup.whileUsing, tone: .neutral)
+    case .approximate: PermissionState(text: Copy.Settings.approximate, tone: .neutral)
     case .denied: PermissionState(text: Copy.Setup.never, tone: .neutral)
     case .notDetermined: nil
     }
@@ -94,7 +94,9 @@ struct AlwaysView: View {
         openSystemSettings()
         model.go(.blocklist)
       }
-      QuietButton(Copy.Setup.alwaysLater, type: .smallQuiet) { model.go(.locationOff) }
+      // Its label already says what Not now means; the location-off screen is for Never and
+      // Approximate, where there's something to see (#46).
+      QuietButton(Copy.Setup.alwaysLater, type: .smallQuiet) { model.go(.blocklist) }
     }
   }
 }
