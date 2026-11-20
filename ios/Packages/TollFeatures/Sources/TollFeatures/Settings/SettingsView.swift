@@ -100,7 +100,7 @@ struct SettingsView: View {
       SettingsRow(
         Copy.Settings.freeNights,
         detail: model.trialNight(now: Date()).map {
-          Copy.Settings.nightsUsed($0, of: model.config.trial.nights)
+          Copy.Settings.night($0, of: model.config.trial.nights)
         }
       ) {
         Button(Copy.Settings.once(model.price), action: openPurchase)

@@ -17,9 +17,7 @@ struct WeekCard: View {
               home.nightsBlocked, of: max(home.nightsCounted, home.nightsBlocked)),
             label: Copy.Home.nightsBlockedLabel)
           Stat(value: "\(home.timesStopped)", label: Copy.Home.stoppedLabel)
-          Stat(
-            value: Copy.Home.unlocks(home.supply.left, of: home.supply.max),
-            label: Copy.Home.unlocksLeftLabel)
+          Stat(value: home.unlockStat.value, label: home.unlockStat.label)
         }
         Text(Copy.Home.byNight)
           .tollType(.microEyebrow, TollColor.label2)

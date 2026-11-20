@@ -17,6 +17,20 @@ public enum Trial {
     return ended < config.trial.nights ? ended + 1 : nil
   }
 
+  /// The free nights as This week keys them (the day each starts, noon to noon): the first
+  /// `trial.nights` occurrences to end after the start, ended or not.
+  static func nightKeys(
+    since start: Date, sleep: WeeklySchedule?, calendar: Calendar, config: TollConfig
+  ) -> [Date] {
+    guard let sleep, let horizon = calendar.date(byAdding: .day, value: 30, to: start) else {
+      return []
+    }
+    return sleep.ends(after: start, through: horizon, calendar: calendar)
+      .prefix(config.trial.nights)
+      .compactMap { sleep.occurrence(containing: $0.addingTimeInterval(-1), calendar: calendar) }
+      .map { calendar.startOfDay(for: $0.start.addingTimeInterval(-12 * 3600)) }
+  }
+
   public static func isEntitled(
     _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig
   ) -> Bool {
@@ -26,29 +40,5 @@ public enum Trial {
     return night(
       since: start, now: now, sleep: state.sleepBlock?.schedule, calendar: calendar, config: config)
       != nil
-  }
-}
-
-/// The trial-ended screen's facts (spec §7), read from the transition log.
-public struct TrialSummary: Equatable, Sendable {
-  public var nightsBlocked: Int
-  public var blockScreens: Int
-
-  public init(nightsBlocked: Int, blockScreens: Int) {
-    self.nightsBlocked = nightsBlocked
-    self.blockScreens = blockScreens
-  }
-
-  /// Nights with the block on at home: distinct nights, keyed by the date twelve hours before, so one
-  /// night's on, off and on again counts once. The block screen is counted by its button taps: the
-  /// system draws it without telling the app (decisions D24).
-  public init(log: [Transition], calendar: Calendar) {
-    var nights = Set<DateComponents>()
-    for line in log where line.blockOn && line.changed {
-      let noonBefore = line.at.addingTimeInterval(-12 * 3600)
-      nights.insert(calendar.dateComponents([.year, .month, .day], from: noonBefore))
-    }
-    nightsBlocked = nights.count
-    blockScreens = log.filter { $0.cause == .blockScreen }.count
   }
 }

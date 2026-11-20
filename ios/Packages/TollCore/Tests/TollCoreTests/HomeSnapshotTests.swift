@@ -53,6 +53,7 @@ struct HomeSnapshotTests {
     run(&s, date(2026, 11, 17, 15))
     let home = snapshot(s, date(2026, 11, 17, 15))
     #expect(home.hero == .paused(endedToday: false))
+    #expect(home.weekTitle == "Your free week")
     #expect(home.timeline?.phase == .paused)
     #expect(home.blocks.first?.trailing == Copy.Home.paused)
   }

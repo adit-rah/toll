@@ -30,6 +30,12 @@ extension HomeSnapshot {
     }
   }
 
+  /// A number and what it counts.
+  public struct Figure: Equatable, Sendable {
+    public var value: String
+    public var label: String
+  }
+
   /// The unlocks, always shown (spec §7): how many are left, and when one comes back.
   public struct Supply: Equatable, Sendable {
     public var left: Int
@@ -52,8 +58,15 @@ struct Week {
   var blocked = 0
   /// Nights Sleep ran or was due at home; away and paused nights are left out.
   var counted = 0
+  /// Unlocks kept in these nights: a door that opened while Sleep was on, less one locked again
+  /// within the regret time (D-4).
+  var unlocks = 0
 
-  init(log: [Transition], now: Date, calendar: Calendar, since setup: Date?, sleep: Block?) {
+  /// `slots` replaces the rolling week with given nights, such as the free week's.
+  init(
+    log: [Transition], now: Date, calendar: Calendar, since setup: Date?, sleep: Block?,
+    slots given: [Date]? = nil, regret: TimeInterval = 120
+  ) {
     func key(_ date: Date) -> Date { calendar.startOfDay(for: date.addingTimeInterval(-12 * 3600)) }
     func day(_ offset: Int, from base: Date) -> Date? {
       calendar.date(byAdding: .day, value: offset, to: base)
@@ -67,14 +80,31 @@ struct Week {
     let sinceSetup = first.map { calendar.dateComponents([.day], from: $0, to: tonight).day ?? 0 }
     let firstWeek = sinceSetup.map { $0 < 7 } ?? false
     let slots: [Date] =
-      firstWeek
-      ? (0..<7).compactMap { offset in first.flatMap { day(offset, from: $0) } }
-      : (0..<7).reversed().compactMap { day(-$0, from: tonight) }
+      given
+      ?? (firstWeek
+        ? (0..<7).compactMap { offset in first.flatMap { day(offset, from: $0) } }
+        : (0..<7).reversed().compactMap { day(-$0, from: tonight) })
 
     var stops: [Date: Int] = [:]
     var ran = Set<Date>()
     var away = Set<Date>()
     var off = Set<Date>()
+    var kept: [Date: Int] = [:]
+    var opened: (at: Date, night: Date)?
+    var wasOpen = false
+    for line in log.sorted(by: { $0.at < $1.at }) {
+      let isOpen = line.door == .open
+      if isOpen, !wasOpen, isSleep(line) {
+        opened = (line.at, key(line.at))
+        kept[key(line.at), default: 0] += 1
+      }
+      if line.cause == .doorLocked, let door = opened, line.at.timeIntervalSince(door.at) <= regret
+      {
+        kept[door.night, default: 0] -= 1
+        opened = nil
+      }
+      wasOpen = isOpen
+    }
     for line in log {
       let night = key(line.at)
       let sleeping = isSleep(line)
@@ -115,6 +145,36 @@ struct Week {
     }
     blocked = nights.filter { if case .stopped = $0 { true } else { false } }.count
     counted = blocked + nights.filter { $0 == .missed }.count
+    unlocks = slots.map { max(0, kept[$0] ?? 0) }.reduce(0, +)
+  }
+}
+
+/// The free week's facts (spec §7, P-2): its seven nights, counted as This week counts (#44), and
+/// frozen once they've ended, so the purchase sheet on day 20 says what it said on day 8 (#48).
+public struct FreeWeek: Equatable, Sendable {
+  public var bars: [HomeSnapshot.Bar]
+  public var nightsBlocked: Int
+  /// Nights Sleep ran or was due at home; away nights are left out.
+  public var nightsCounted: Int
+  public var timesStopped: Int
+  public var unlocksUsed: Int
+
+  public init?(
+    state: DuskState, log: [Transition], now: Date, calendar: Calendar,
+    config: TollConfig = .defaults
+  ) {
+    guard let start = state.trial.start else { return nil }
+    let slots = Trial.nightKeys(
+      since: start, sleep: state.sleepBlock?.schedule, calendar: calendar, config: config)
+    guard !slots.isEmpty else { return nil }
+    let week = Week(
+      log: log, now: now, calendar: calendar, since: state.setupFinishedAt,
+      sleep: state.sleepBlock, slots: slots, regret: TimeInterval(config.door.regretSeconds))
+    bars = week.bars
+    nightsBlocked = week.blocked
+    nightsCounted = week.counted
+    timesStopped = week.bars.map(\.count).reduce(0, +)
+    unlocksUsed = week.unlocks
   }
 }
 

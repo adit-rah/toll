@@ -40,7 +40,9 @@
       state.presence[home.id] = Presence(isInside: scenario != .homeAway, at: now)
       let firstWeek = scenario == .homeFirstWeek
       let later = scenario == .homeWeek
-      let nightsAgo = firstWeek ? 1 : scenario == .homeLastNight ? 6 : later ? 20 : 4
+      let paused = scenario == .homePaused
+      let nightsAgo =
+        firstWeek ? 1 : scenario == .homeLastNight ? 6 : later ? 20 : paused ? 8 : 4
       state.setupFinishedAt = calendar.date(byAdding: .day, value: -nightsAgo, to: now)
       state.trial.start = state.setupFinishedAt
       state.trial.purchased = later

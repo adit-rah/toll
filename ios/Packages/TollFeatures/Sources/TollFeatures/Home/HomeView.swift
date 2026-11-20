@@ -53,7 +53,7 @@ struct HomeView: View {
           TimelineStrip(timeline: timeline).padding(.top, home.locationBanner ? 20 : 16)
         }
         SectionHeader(
-          Copy.Home.thisWeek, action: openInsights.map { (title: Copy.Home.seeAll, run: $0) }
+          home.weekTitle, action: openInsights.map { (title: Copy.Home.seeAll, run: $0) }
         )
         .padding(.top, 24)
         WeekCard(home: home).padding(.top, 16)
