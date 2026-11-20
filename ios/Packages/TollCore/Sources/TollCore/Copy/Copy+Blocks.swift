@@ -17,6 +17,7 @@ extension Copy {
     public static let timeWindows = "Time windows"
     public static func used(_ used: Int, of max: Int) -> String { "\(used) of \(max)" }
     public static let unlocksShared = "Unlocks are shared by all blocks."
+    public static func blocksFull(_ max: Int) -> String { "Up to \(max) blocks." }
     public static func windowsFull(_ max: Int) -> String {
       "Up to \(max) time windows across all blocks."
     }
@@ -52,7 +53,18 @@ extension Copy {
     public static let explainer = "During these hours, at this place, these apps won't open."
     public static let save = "Save block"
     public static let saveEdit = "Save"
-    public static let saveForTomorrow = "Save for tomorrow"
+    public static func saveAfter(_ time: String) -> String { "Save for after \(time)" }
+    /// A held delete or edit, on the block's row (B-3, #49).
+    public static func deletedAt(_ time: String) -> String { "Deleted at \(time)" }
+    public static func changesAt(_ time: String) -> String { "Changes apply at \(time)" }
+    public static func deleteHeld(_ block: String, until time: String) -> String {
+      "\(block) is on until \(time). It's deleted then; until then its apps stay blocked."
+    }
+    public static func deleteAt(_ time: String) -> String { "Delete at \(time)" }
+    /// D37: without Always and Precise every block runs on its hours wherever the user is (#49).
+    public static func placeIgnored(_ block: String, span: String) -> String {
+      "Location is set to While Using, so \(block) runs \(span) wherever you are."
+    }
     public static func activeNote(_ block: String, until time: String) -> String {
       "\(block) is on until \(time). Changes apply when this block ends."
     }

@@ -16,4 +16,4 @@ Foundation only (no UIKit, HealthKit, Accelerate or simd), so `swift test --pack
 
 Never edit `Resources/sleep-model.v0.json` or the fixtures by hand: run `uv run python -m export` in `datascience/`, then `ios/scripts/sync-model.sh`. CI fails if they differ (`ios/scripts/sync-model.sh --check`) or the checksum is wrong (`ios/scripts/check-model-artifact.sh`).
 
-The app does not link this package yet; what it owes the model is listed in `docs/decisions.md` D47.
+The app does not link this package yet; what it owes the model is listed in `docs/decisions.md` D52.

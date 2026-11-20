@@ -45,7 +45,7 @@ jobs:
         run: |
           ../ios/scripts/check-model-artifact.sh artifacts/sleep-model.v0.json
           ../ios/scripts/sync-model.sh --check
-      - name: Pass criteria (fails on any check not waived in decisions D48)
+      - name: Pass criteria (fails on any check not waived in decisions D53)
         run: uv run python -m sim.criteria --people 2000 --safety-people 10000 --out criteria.json --strict
       - uses: actions/upload-artifact@v4
         if: always()

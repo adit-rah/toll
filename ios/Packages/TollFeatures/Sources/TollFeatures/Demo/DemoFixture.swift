@@ -19,7 +19,7 @@
         id: PlaceID("library"), name: "Robarts Library", latitude: 43.6644, longitude: -79.3995,
         radiusMeters: 150)
       // Starts three hours from now, or is on now, whatever the clock says.
-      let blocked = scenario == .homeBlocked || scenario.isDoor
+      let blocked = scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario.isDoor
       let startHour = blocked ? minute / 60 : (minute / 60 + 3) % 24
       let night = TimeWindow(
         start: ClockTime(hour: startHour, minute: blocked ? 0 : 30),
@@ -40,7 +40,9 @@
       state.presence[home.id] = Presence(isInside: scenario != .homeAway, at: now)
       let firstWeek = scenario == .homeFirstWeek
       let later = scenario == .homeWeek
-      let nightsAgo = firstWeek ? 1 : scenario == .homeLastNight ? 6 : later ? 20 : 4
+      let paused = scenario == .homePaused
+      let nightsAgo =
+        firstWeek ? 1 : scenario == .homeLastNight ? 6 : later ? 20 : paused ? 8 : 4
       state.setupFinishedAt = calendar.date(byAdding: .day, value: -nightsAgo, to: now)
       state.trial.start = state.setupFinishedAt
       state.trial.purchased = later

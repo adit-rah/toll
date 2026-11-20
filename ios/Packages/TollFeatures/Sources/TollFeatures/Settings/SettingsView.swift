@@ -20,8 +20,23 @@ struct SettingsView: View {
         ScreenTitle(Copy.Settings.title, kind: .pushed)
         SettingsSection(Copy.Settings.working, top: 16) {
           Card {
-            SettingsRow(Copy.Settings.screenTime) {
-              PermissionState(text: screenTime.0, tone: screenTime.1)
+            if model.screenTime == .approved {
+              SettingsRow(Copy.Settings.screenTime) {
+                PermissionState(text: screenTime.0, tone: screenTime.1)
+              }
+            } else {
+              // Off is the one setting that stops everything, so it's a button (#45).
+              Button {
+                Task { await model.turnOnScreenTime() }
+              } label: {
+                SettingsRow(Copy.Settings.screenTime) {
+                  HStack(spacing: 8) {
+                    PermissionState(text: screenTime.0, tone: screenTime.1)
+                    Text(Copy.Home.turnOn).tollType(.action, TollColor.accent)
+                  }
+                }
+              }
+              .buttonStyle(.plain)
             }
             SettingsRow(Copy.Settings.location) {
               PermissionState(text: location.0, tone: location.1)
@@ -85,7 +100,7 @@ struct SettingsView: View {
       SettingsRow(
         Copy.Settings.freeNights,
         detail: model.trialNight(now: Date()).map {
-          Copy.Settings.nightsUsed($0, of: model.config.trial.nights)
+          Copy.Settings.night($0, of: model.config.trial.nights)
         }
       ) {
         Button(Copy.Settings.once(model.price), action: openPurchase)

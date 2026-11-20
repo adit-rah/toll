@@ -21,6 +21,7 @@
     case homeWeek = "home-week"
     case homePaused = "home-paused"
     case homeLocation = "home-location"
+    case homeScreenTimeOff = "home-screen-time-off"
     case purchase, settings, insights
     case purchasePending = "purchase-pending"
     case purchaseFailed = "purchase-failed"
@@ -109,7 +110,9 @@
 
     var body: some View {
       let fixture = DemoFixture(scenario: scenario, now: now)
-      let home = HomeSnapshot(state: fixture.state, log: fixture.log, now: now, calendar: .current)
+      let home = HomeSnapshot(
+        state: fixture.state, log: fixture.log, now: now, calendar: .current,
+        screenTime: scenario != .homeScreenTimeOff)
       NavigationStack(path: .constant(scenario.routes)) {
         HomeView(
           home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},

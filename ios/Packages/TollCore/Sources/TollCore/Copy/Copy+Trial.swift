@@ -41,9 +41,12 @@ extension Copy {
     public static let notNow = "Not now"
     public static let footnote = "Without it, nothing is blocked. Your blocks and settings stay."
     public static let unlocksUsedLabel = "unlocks used"
-    public static func unlocksUsed(_ used: Int, of max: Int) -> String { "\(used) of \(max)" }
+    public static func usedLabel(_ n: Int) -> String { n == 1 ? "unlock used" : "unlocks used" }
 
     public static let pendingTitle = "Waiting for approval"
+    /// During the trial nothing is off yet (#48).
+    public static let pendingTrialBody =
+      "Someone in your family group needs to approve this. Your free nights continue until then."
     public static let pendingBody =
       "Someone in your family group needs to approve this. \(name) turns back on as soon as they do."
     public static let failedTitle = "The purchase didn't go through"

@@ -43,6 +43,7 @@ struct SetupFlowContent: View {
 struct WelcomeView: View {
   let model: SetupModel
   @State private var restoring = false
+  @State private var nothingToRestore = false
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -63,35 +64,68 @@ struct WelcomeView: View {
     .background(TollColor.bg)
     .tollBottomBar(endsWithLink: true) {
       VStack(spacing: 0) {
-        OfferCard(price: model.app.price).padding(.bottom, 16)
-        PrimaryButton(Copy.Setup.start) { model.go(.wake) }
+        let offer = model.offer(now: Date())
+        OfferCard(offer: offer, price: model.app.price).padding(.bottom, 16)
+        PrimaryButton(offer.isFree ? Copy.Setup.start : Copy.Setup.setUp) { model.go(.wake) }
+        // Found, the card says Purchased and setup goes on from the button; not found, the user is
+        // told and stays here (#46).
         QuietButton(Copy.Setup.restore, type: .smallQuiet) {
           Task {
             restoring = true
-            _ = await model.app.restore()
+            nothingToRestore = !(await model.app.restore())
             restoring = false
-            model.go(.wake)
           }
         }
-        .disabled(restoring)
+        .disabled(restoring || offer == .purchased)
+        .opacity(offer == .purchased ? 0 : 1)
       }
     }
     .toolbar(.hidden, for: .navigationBar)
+    .sheet(isPresented: $nothingToRestore) { RestoreNoneSheet() }
   }
 }
 
-/// "7 nights free · Then $9.99 once. No subscription. No account."
+extension Trial.Offer {
+  var isFree: Bool {
+    switch self {
+    case .fresh, .running: true
+    case .used, .purchased: false
+    }
+  }
+}
+
+/// "7 nights free · Then $9.99 once. No subscription. No account.", or what this phone already
+/// used or bought (#46).
 private struct OfferCard: View {
+  let offer: Trial.Offer
   let price: String
+
+  private var title: String {
+    switch offer {
+    case .fresh, .running: Copy.Setup.offerTitle
+    case .used: Copy.Setup.offerUsedTitle
+    case .purchased: Copy.Setup.offerPurchasedTitle
+    }
+  }
+
+  private var detail: String {
+    switch offer {
+    case .fresh, .running: Copy.Setup.offerDetail(price: price)
+    case .used(let ended):
+      Copy.Setup.offerUsedDetail(
+        ended.formatted(.dateTime.month(.abbreviated).day()), price: price)
+    case .purchased: Copy.Setup.offerPurchasedDetail
+    }
+  }
 
   var body: some View {
     HStack(spacing: TollSpacing.rowGap) {
-      IconTile("moon", size: .large)
+      IconTile(offer == .purchased ? "checkmark" : "moon", size: .large)
       VStack(alignment: .leading, spacing: 0) {
-        Text(Copy.Setup.offerTitle)
+        Text(title)
           .tollType(TollType(size: 16, lineHeight: 21, weight: .semibold, style: .callout))
           .foregroundStyle(TollColor.label)
-        Text(Copy.Setup.offerDetail(price: price))
+        Text(detail)
           .tollType(TollType(size: 14, lineHeight: 20, weight: .regular, style: .subheadline))
           .foregroundStyle(TollColor.label2)
       }
@@ -135,21 +169,28 @@ struct ReadyView: View {
       }
       .padding(.top, TollSpacing.lineToContent)
     } actions: {
-      if let end = model.trialEnds(after: Date()) {
-        Footnote(
-          Copy.Setup.freeUntil(
-            end.formatted(.dateTime.month(.abbreviated).day()), price: model.app.price),
-          alignment: .center
-        )
-        .padding(.horizontal, 12)
-        .padding(.bottom, TollSpacing.aboveButton)
+      if let footnote {
+        Footnote(footnote, alignment: .center)
+          .padding(.horizontal, 12)
+          .padding(.bottom, TollSpacing.aboveButton)
       }
       PrimaryButton(Copy.Setup.done) { model.finish() }
     }
     .navigationBarBackButtonHidden()
   }
 
-  private var atHome: Bool { model.locationUsable && model.home != nil }
+  private var atHome: Bool { model.blocksAtHome }
+
+  /// From the stored trial start, so a reinstall isn't promised a new week (#46).
+  private var footnote: String? {
+    let day = { (date: Date) in date.formatted(.dateTime.month(.abbreviated).day()) }
+    switch model.offer(now: Date()) {
+    case .fresh(let end?), .running(let end):
+      return Copy.Setup.freeUntil(day(end), price: model.app.price)
+    case .used(let ended): return Copy.Setup.freeWeekEnded(day(ended), price: model.app.price)
+    case .fresh(nil), .purchased: return nil
+    }
+  }
 
   private var line: String {
     let now = Date()

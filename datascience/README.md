@@ -1,6 +1,6 @@
 # datascience
 
-Dusk's sleep model, built, fitted and tested in Python, following the founders' model spec ("Dusk internal: sleep model spec"; decisions D47 and D48). The app gets only a small JSON file of numbers (`artifacts/sleep-model.v0.json`) and the pure Swift package `ios/Packages/SleepModel`, which must give the same numbers as the reference here. Nothing in this folder is imported by the app, and nothing here needs the app.
+Dusk's sleep model, built, fitted and tested in Python, following the founders' model spec ("Dusk internal: sleep model spec"; decisions D52 and D53). The app gets only a small JSON file of numbers (`artifacts/sleep-model.v0.json`) and the pure Swift package `ios/Packages/SleepModel`, which must give the same numbers as the reference here. Nothing in this folder is imported by the app, and nothing here needs the app.
 
 ```
 dusk_model/   reference implementation: rng, artifact, night records, model, policy, insights
@@ -60,7 +60,7 @@ CI (`.github/workflows/model.yml`) checks every step: the unit tests, that the c
 | No false insights | At most 5% shown an effect under the null | 3.7% | Pass |
 | Never unsafe | No start outside the allowed ones; wake time never moves | 0 and 0 in 476,209 block nights | Pass |
 | Same numbers on the phone | Every fixture passes | 8,853 values over 323 nights, identical on Linux | Pass |
-| Learns fast enough (spec) | Median person gets an insight by night 28 | 13% by night 28 | Waived (D48) |
+| Learns fast enough (spec) | Median person gets an insight by night 28 | 13% by night 28 | Waived (D53) |
 | Learns fast enough (proposed) | Half of people with an effect of 15 min or more, by night 56 | 56% | Pass |
 | Better than the base | Lower error after 3 weeks (replay) | Synthetic Health exports: 78% of people; founders' and pilot data pending | Not yet run on real data |
 

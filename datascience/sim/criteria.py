@@ -140,7 +140,7 @@ def checks(out: dict) -> list[dict]:
     ]
     big = [r for r in s["differ"]["first_insight_by_effect"] if r["effect_low"] >= 15]
     big_share = sum(r["shown_by_56"] * r["people"] for r in big) / max(1, sum(r["people"] for r in big))
-    rows.append(("Learns fast enough (proposed, decisions D48)", "differ",
+    rows.append(("Learns fast enough (proposed, decisions D53)", "differ",
                  "at least half of people with a true effect of 15 min or more get an insight by night 56",
                  big_share >= 0.5, round(big_share, 3)))
     if "safety" in out:
@@ -171,7 +171,7 @@ def main() -> None:
         "--waive",
         action="append",
         default=["Learns fast enough"],
-        help="a check reported but not enforced, pending the founders (docs/decisions.md D48)",
+        help="a check reported but not enforced, pending the founders (docs/decisions.md D53)",
     )
     args = ap.parse_args()
     params = Params.from_artifact(artifact.load(Path(args.artifact)))

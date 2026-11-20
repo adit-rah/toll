@@ -59,15 +59,24 @@ public enum Engine {
       if let refusal = DoorRules.start(&state, app: app, now: now, config: config) {
         return .door(refusal)
       }
+      // The ask is answered: once this door ends, nothing reopens the choice (#47).
+      clearAsk(&state)
     case .cancelDoor:
       DoorRules.cancel(&state)
+      clearAsk(&state)
     case .lockDoor:
       DoorRules.lockAgain(&state, now: now, config: config)
+      clearAsk(&state)
     case .askDoor(let at, let app):
       state.doorAskedAt = at
       state.doorAskedFor = at == nil ? nil : app
     }
     return nil
+  }
+
+  static func clearAsk(_ state: inout DuskState) {
+    state.doorAskedAt = nil
+    state.doorAskedFor = nil
   }
 
   @discardableResult

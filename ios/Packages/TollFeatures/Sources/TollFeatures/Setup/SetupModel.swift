@@ -68,11 +68,14 @@ final class SetupModel {
 
   func setWeekendWake(_ time: ClockTime) { weekendWake = time }
 
-  /// The morning the free week ends: the seventh night end from now (P-2).
-  func trialEnds(after now: Date, calendar: Calendar = .current) -> Date? {
-    let horizon = now.addingTimeInterval(14 * 86_400)
-    let ends = schedule.ends(after: now, through: horizon, calendar: calendar)
-    return ends.count >= app.config.trial.nights ? ends[app.config.trial.nights - 1] : nil
+  /// The trial's start from the Keychain: a reinstall keeps it (P-4).
+  let trialStart = TrialClock().start
+
+  /// What Welcome and Ready can promise this phone (#46).
+  func offer(now: Date, calendar: Calendar = .current) -> Trial.Offer {
+    Trial.offer(
+      start: trialStart, purchased: app.state.trial.purchased, now: now, sleep: schedule,
+      calendar: calendar, config: app.config)
   }
 
   /// The map was dragged: home follows its centre.
@@ -125,6 +128,10 @@ final class SetupModel {
   }
 
   var locationUsable: Bool { app.location == .whileUsing || app.location == .always }
+
+  /// Blocks wait for home only with Always and Precise: the engine's rule, so Ready says what Home
+  /// will (D37, #46).
+  var blocksAtHome: Bool { AppModel.locationMode(app.location) == .places && home != nil }
 
   // MARK: Permissions
 

@@ -7,7 +7,7 @@ iPhone app: buy back your sleep. When the user is home inside their sleep window
   - `TollCore` — config, copy, pure logic. Linux-testable. Product `TollScreenTime` = Screen Time glue shared with the extensions.
   - `TollData` — app-only services: Keychain, location, StoreKit. Never imported by extensions.
   - `TollUI` — tokens and components. `TollFeatures` — one folder per screen.
-  - `SleepModel` — the sleep model's phone half: pure Swift, reads the exported artifact (decisions D47).
+  - `SleepModel` — the sleep model's phone half: pure Swift, reads the exported artifact (decisions D52).
 - `datascience/` — the sleep model in Python: reference, simulator, replay, export. Never imported by the app (`datascience/README.md`).
 
 ## Commands
