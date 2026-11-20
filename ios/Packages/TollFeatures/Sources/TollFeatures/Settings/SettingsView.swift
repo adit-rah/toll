@@ -178,7 +178,7 @@ private struct SettingsRow<Trailing: View>: View {
   }
 
   var body: some View {
-    HStack(spacing: TollSpacing.rowGap) {
+    AdaptiveStack(spacing: TollSpacing.rowGap) {
       RowText(title: title, detail: detail)
       trailing
     }
@@ -228,6 +228,7 @@ private struct AppearancePicker: View {
     .frame(height: 32)
     .background(TollColor.surfaceRaised, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
     .fixedSize(horizontal: true, vertical: false)
+    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     .tollHaptic(.selection, trigger: selection)
   }
 }
