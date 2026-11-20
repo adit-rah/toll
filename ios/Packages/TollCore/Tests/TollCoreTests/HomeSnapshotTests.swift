@@ -125,6 +125,7 @@ struct HomeSnapshotTests {
     #expect(home.hero == .screenTimeOff)
     #expect(home.unlocksLeft == nil)
     #expect(home.timeline?.phase == .paused)
+    #expect(home.blocks.first?.trailing == Copy.Home.paused)
     #expect(!snapshot(s, date(2026, 11, 17, 23)).screenTimeOff)
   }
 
