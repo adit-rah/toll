@@ -109,8 +109,9 @@ public struct HomeSnapshot: Equatable, Sendable {
     bars = week.bars
     showsTrends = week.bars.filter { $0.night != .ahead && $0.night != .noBlock }.count >= 3
     firstWeekLine = Self.firstWeekLine(week.bars, hero: hero, calendar: calendar)
+    let blocking = !screenTimeOff
     blocks = state.blocks.map {
-      Self.row($0, state: state, now: now, calendar: calendar, blocking: !screenTimeOff)
+      Self.row($0, state: state, now: now, calendar: calendar, blocking: blocking)
     }
   }
 
