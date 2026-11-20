@@ -77,6 +77,14 @@
       return block
     }
 
+    /// Whether the door can open this app: a block that's on names it, or blocks a whole category,
+    /// which may hold it (FamilyControls can't tell which apps a category holds). An app nothing
+    /// blocks would spend an unlock for nothing (#47).
+    public static func doorCanOpen(_ app: ApplicationToken, in blocks: [Block]) -> Bool {
+      blocks.contains { $0.categoryCount > 0 }
+        || !Self.blocks(blocks, containing: app, category: nil).isEmpty
+    }
+
     /// The blocks whose selection names this app, directly or by its category.
     public static func blocks(
       _ blocks: [Block], containing app: ApplicationToken?, category: ActivityCategoryToken?

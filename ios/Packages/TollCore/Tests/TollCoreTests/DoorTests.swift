@@ -134,4 +134,19 @@ struct DoorTests {
     _ = apply(.askDoor(nil, app: app), &s, date(2026, 11, 17, 23, 7))
     #expect(s.doorAskedFor == nil)
   }
+
+  /// Cancel and Lock again close the sheet instead of offering the same app again (#47).
+  @Test func startingCancellingOrLockingAnswersTheAsk() {
+    var s = blocked()
+    _ = apply(.askDoor(date(2026, 11, 17, 23), app: app), &s, date(2026, 11, 17, 23))
+    _ = apply(.startDoor(app: app), &s, date(2026, 11, 17, 23))
+    #expect(s.doorAskedAt == nil && s.doorAskedFor == nil)
+    _ = apply(.askDoor(date(2026, 11, 17, 23, 1), app: app), &s, date(2026, 11, 17, 23, 1))
+    _ = apply(.cancelDoor, &s, date(2026, 11, 17, 23, 1))
+    #expect(s.door == nil && s.doorAskedAt == nil && s.doorAskedFor == nil)
+    var opened = open(at: date(2026, 11, 17, 23))
+    _ = apply(.askDoor(date(2026, 11, 17, 23, 2)), &opened, date(2026, 11, 17, 23, 2))
+    _ = apply(.lockDoor, &opened, date(2026, 11, 17, 23, 2))
+    #expect(opened.door == nil && opened.doorAskedAt == nil)
+  }
 }
