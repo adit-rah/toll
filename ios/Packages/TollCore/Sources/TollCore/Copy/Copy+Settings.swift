@@ -66,11 +66,12 @@ extension Copy {
       let change = transition.changed ? "→ \(result)" : "= \(result)"
       let door = transition.door.map { "door \($0.rawValue)" }
       let blocks = transition.active.map { "blocks \($0.map(\.raw).joined(separator: ","))" }
+      let access = transition.screenTime == false ? "Screen Time off" : nil
       return
         ([
           "\(day) \(time(transition.at, in: calendar))", transition.cause.rawValue, change, home,
           window,
-        ] + [door, blocks].compactMap { $0 }).joined(separator: middleDot)
+        ] + [door, blocks, access].compactMap { $0 }).joined(separator: middleDot)
     }
   }
 }

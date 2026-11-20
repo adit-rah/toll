@@ -15,6 +15,8 @@ public enum Command: Sendable {
   case location(LocationMode)
   case trialStart(Date)
   case purchased(Bool)
+  /// Screen Time access as the app read it (#60).
+  case screenTime(Bool)
   case startDoor(app: Data)
   case cancelDoor
   case lockDoor

@@ -27,10 +27,13 @@ public struct Transition: Codable, Hashable, Sendable {
   public var door: Door.Phase?
   /// The blocks on after this reconcile; nil in lines written before blocks (D29).
   public var active: [BlockID]?
+  /// Screen Time access as the app last read it; false means nothing could block, whatever `active`
+  /// says. Nil in older lines and before the app has read it (#60).
+  public var screenTime: Bool?
 
   public init(
     at: Date, cause: ReconcileCause, blockOn: Bool, changed: Bool, home: Bool?, inWindow: Bool,
-    entitled: Bool, door: Door.Phase? = nil, active: [BlockID]? = nil
+    entitled: Bool, door: Door.Phase? = nil, active: [BlockID]? = nil, screenTime: Bool? = nil
   ) {
     self.at = at
     self.cause = cause
@@ -41,5 +44,6 @@ public struct Transition: Codable, Hashable, Sendable {
     self.entitled = entitled
     self.door = door
     self.active = active
+    self.screenTime = screenTime
   }
 }

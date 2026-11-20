@@ -43,6 +43,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 25 | At the door, pick an app that no block lists (#47) | "That app isn't blocked right now"; no wait starts and nothing is spent | | |
 | 26 | Stay on "Open one app for 5 minutes?" for 3 minutes (#47) | The sheet stays until Not now | | |
 | 27 | After setup, switch Screen Time off for Dusk (Settings › Screen Time, or remove its access), then open Dusk (#45) | Home says "Screen Time off · Not blocking" with a "Turn on" card; Turn on shows the prompt again, or opens Settings if it can't. Note which | | |
+| 28 | Screen Time off for a night, then back on (#60) | Settings › Transition log shows "Screen Time off" on that night's lines; This week shows the night as "off", not as blocked | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

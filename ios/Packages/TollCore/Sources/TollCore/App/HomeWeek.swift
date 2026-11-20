@@ -12,6 +12,9 @@ extension HomeSnapshot {
       case away
       /// After the trial, nothing blocks: named, and not counted.
       case off
+      /// Screen Time was off for Dusk, so nothing could block: named "off", spoken as what it was,
+      /// counted toward the free week (P-2) but not in "N of M" (#60).
+      case noScreenTime
       /// No Sleep that night, or before setup: a dash, not counted.
       case noBlock
       /// Still to come, or tonight before its block: a dashed empty slot.
@@ -72,6 +75,8 @@ struct Week {
       calendar.date(byAdding: .day, value: offset, to: base)
     }
     func isSleep(_ line: Transition) -> Bool {
+      // With Screen Time off the engine still thinks it blocks; nothing did (#60).
+      if line.screenTime == false { return false }
       guard let active = line.active else { return line.blockOn }
       return sleep.map { active.contains($0.id) } ?? false
     }
@@ -89,6 +94,7 @@ struct Week {
     var ran = Set<Date>()
     var away = Set<Date>()
     var off = Set<Date>()
+    var noAccess = Set<Date>()
     var kept: [Date: Int] = [:]
     var opened: (at: Date, night: Date)?
     var wasOpen = false
@@ -111,6 +117,7 @@ struct Week {
       if sleeping { ran.insert(night) }
       if sleeping, line.cause == .blockScreen { stops[night, default: 0] += 1 }
       if !line.entitled { off.insert(night) }
+      if line.screenTime == false { noAccess.insert(night) }
       if !sleeping, line.inWindow, line.home == false { away.insert(night) }
     }
 
@@ -130,6 +137,7 @@ struct Week {
       if slot == tonight, due.map({ $0.end > now }) ?? true { return .ahead }
       if let first, slot < first { return .noBlock }
       if off.contains(slot) { return .off }
+      if noAccess.contains(slot) { return .noScreenTime }
       if away.contains(slot) { return .away }
       guard let due else { return .noBlock }
       if let setup, slot == first, due.start < setup { return .noBlock }

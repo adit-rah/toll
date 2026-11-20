@@ -87,7 +87,7 @@ extension DuskState {
   enum CodingKeys: String, CodingKey {
     case schema, blocks, places, presence, location, pending, pendingPlaces, door, doorAskedAt
     case doorAskedFor
-    case unlocks, trial, setupFinishedAt, runtime
+    case unlocks, trial, setupFinishedAt, runtime, screenTimeAllowed
   }
 
   public init(from decoder: Decoder) throws {
@@ -107,6 +107,7 @@ extension DuskState {
     trial = try c.decodeIfPresent(TrialState.self, forKey: .trial) ?? TrialState()
     setupFinishedAt = try c.decodeIfPresent(Date.self, forKey: .setupFinishedAt)
     runtime = try c.decodeIfPresent(RuntimeState.self, forKey: .runtime) ?? RuntimeState()
+    screenTimeAllowed = try c.decodeIfPresent(Bool.self, forKey: .screenTimeAllowed)
   }
 }
 
