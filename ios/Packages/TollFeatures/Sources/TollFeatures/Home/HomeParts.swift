@@ -58,6 +58,7 @@ struct TimelineStrip: View {
       .padding(.top, 26)
       HourLabels()
     }
+    .tollChartTypeLimit()
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(timeline.label)
   }
@@ -108,7 +109,7 @@ struct WeekCard: View {
     VStack(alignment: .leading, spacing: 0) {
       if home.showsTrends {
         // Three equal columns, as the board: the third is kept for Apple's tile.
-        HStack(alignment: .top, spacing: 12) {
+        AdaptiveStack(spacing: 12) {
           Stat(
             value: Copy.Home.nightsBlocked(
               home.nightsBlocked, of: max(home.nightsCounted, home.nightsBlocked)),
@@ -186,6 +187,7 @@ struct NightBars: View {
       }
     }
     .frame(height: 104, alignment: .bottom)
+    .tollChartTypeLimit()
   }
 
   @ViewBuilder private func value(_ bar: HomeSnapshot.Bar) -> some View {
@@ -241,6 +243,7 @@ struct FirstNights: View {
         .accessibilityLabel(bar.day)
       }
     }
+    .tollChartTypeLimit()
   }
 
   @ViewBuilder private func slot(_ bar: HomeSnapshot.Bar) -> some View {
