@@ -173,3 +173,32 @@ public struct Hairline: View {
       .accessibilityHidden(true)
   }
 }
+
+/// Side by side, as the boards draw it; one under the other at accessibility text sizes, where
+/// side by side would squeeze the words to a letter a line.
+public struct AdaptiveStack<Content: View>: View {
+  let spacing: CGFloat
+  let content: Content
+  @Environment(\.dynamicTypeSize) private var typeSize
+
+  public init(spacing: CGFloat, @ViewBuilder content: () -> Content) {
+    self.spacing = spacing
+    self.content = content()
+  }
+
+  public var body: some View {
+    let layout =
+      typeSize.isAccessibilitySize
+      ? AnyLayout(VStackLayout(alignment: .leading, spacing: spacing))
+      : AnyLayout(HStackLayout(alignment: .top, spacing: spacing))
+    layout { content }
+  }
+}
+
+extension View {
+  /// Charts and strips are drawn at most this large: their numbers are read out whole by
+  /// VoiceOver, and larger labels would collide.
+  public func tollChartTypeLimit() -> some View {
+    dynamicTypeSize(...DynamicTypeSize.xLarge)
+  }
+}

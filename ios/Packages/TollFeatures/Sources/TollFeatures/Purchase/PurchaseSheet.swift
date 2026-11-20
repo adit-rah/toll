@@ -62,7 +62,7 @@ struct PurchaseSheet: View {
         .foregroundStyle(TollColor.label)
         .accessibilityAddTraits(.isHeader)
         .padding(.top, 8)
-      HStack(alignment: .top, spacing: 12) {
+      AdaptiveStack(spacing: 12) {
         Stat(
           value: Copy.Home.nightsBlocked(
             home.nightsBlocked, of: max(home.nightsCounted, home.nightsBlocked)),

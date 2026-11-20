@@ -23,10 +23,9 @@ struct InsightsView: View {
         if insights.isEmpty {
           Footnote(Copy.Insights.empty).padding(.top, 20)
         } else {
-          HStack(alignment: .top, spacing: 28) {
-            Stat(value: "\(insights.nights)", label: since(insights)).fixedSize()
+          AdaptiveStack(spacing: 28) {
+            Stat(value: "\(insights.nights)", label: since(insights))
             Stat(value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel)
-              .fixedSize()
           }
           .padding(.top, 20)
           VStack(spacing: 12) {
@@ -105,6 +104,7 @@ private struct WeeksCard: View {
         }
       }
       .frame(height: 96, alignment: .bottom)
+      .tollChartTypeLimit()
     }
   }
 }
@@ -137,6 +137,7 @@ private struct HoursCard: View {
       }
       .tollType(.micro, TollColor.label2)
       .padding(.top, -4)
+      .tollChartTypeLimit()
     }
   }
 }
