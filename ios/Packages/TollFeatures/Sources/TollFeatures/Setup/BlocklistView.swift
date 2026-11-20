@@ -19,28 +19,22 @@ struct BlocklistView: View {
       Card {
         ForEach(rows.indices, id: \.self) { index in
           rows[index]
-            .font(TollFont.bodyMedium)
-            .foregroundStyle(TollColor.label)
-            .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
             .staggeredAppearance(
               index: index, step: Motion.PickerRows.stagger, rise: Motion.PickerRows.rise)
         }
-        Button {
-          picking = true
-        } label: {
-          Label(
-            Blocklist.isEmpty(model.selection) ? Copy.Setup.chooseApps : Copy.Setup.chooseMore,
-            systemImage: "plus"
-          )
-          .font(TollFont.bodyMedium)
-          .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
-        }
-        .foregroundStyle(TollColor.accent)
+        ChooseMoreRow(
+          Blocklist.isEmpty(model.selection) ? Copy.Setup.chooseApps : Copy.Setup.chooseMore
+        ) { picking = true }
       }
+      .padding(.top, 24)
       if Blocklist.items(model.selection) > model.app.config.blocks.maxApps {
-        SetupLine(Copy.Setup.tooMany(model.app.config.blocks.maxApps))
+        NoteCard(
+          Copy.Setup.tooMany(model.app.config.blocks.maxApps), symbol: "exclamationmark.shield",
+          tint: TollColor.warn
+        )
+        .padding(.top, 12)
       }
-      Footnote(Copy.Setup.pickerNote)
+      Footnote(Copy.Setup.pickerNote).padding(.top, TollSpacing.underCard)
     } actions: {
       PrimaryButton(Copy.Setup.continue) { model.blocklistChosen() }
         .disabled(!model.blocklistReady)
@@ -51,8 +45,14 @@ struct BlocklistView: View {
   /// The system's own names and icons (`Label(token)`), never strings: the app can't tell which app
   /// is which.
   private var rows: [AnyView] {
-    model.selection.categoryTokens.map { AnyView(Label($0)) }
-      + model.selection.applicationTokens.map { AnyView(Label($0)) }
-      + model.selection.webDomainTokens.map { AnyView(Label($0)) }
+    model.selection.categoryTokens.map {
+      AnyView(Label($0).labelStyle(AppRowLabelStyle(detail: Copy.Blocks.wholeCategory)))
+    }
+      + model.selection.applicationTokens.map {
+        AnyView(Label($0).labelStyle(AppRowLabelStyle()))
+      }
+      + model.selection.webDomainTokens.map {
+        AnyView(Label($0).labelStyle(AppRowLabelStyle(detail: Copy.Blocks.website)))
+      }
   }
 }

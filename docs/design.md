@@ -17,52 +17,60 @@ Carried over from Toll's design doc §2 (MVP spec §7: "Visual foundations and m
 
 ### 2.1 Layout
 
-- **Grid:** 8 pt base. Horizontal gutter 20 pt (16 pt at 375 pt wide). Section gap 32 pt. Card padding 16 pt. Row height ≥ 52 pt.
-- **Titles sit at one position on every screen** (MVP spec §7): 34 pt semibold, 28 pt under the 44 pt bar, leading-aligned to the gutter (`ScreenTitle`).
-- **Weight falls monotonically.** One title or state line, then facts of equal weight beneath.
-- **Group with whitespace first, separators second, cards third.** Settings uses a standard grouped list.
-- **A fill must differ from its page.** `surfaceRaised` on `bg`, `surface` on `bgGrouped`; `fill` where the host varies.
-- **Nothing stretches to fill.** Spare room on a tall phone becomes space above the bottom action.
-- **Bottom actions** sit 12 pt above the bottom safe area on a bar of the page's own colour (`tollBottomBar`).
+The design canvas (**Sleep App Screens**, linked in `docs/design-brief.md`) is the measure: build each screen at the board's spacing, and where a gap is not in `TollSpacing`, add it there under the name the board uses it for (decisions D43).
+
+- **Gutter** 24 pt (16 pt at 375 pt wide). Content starts under the 59 pt status area, in a 44 pt bar.
+- **Titles:** setup 32/38, 28 pt under the bar; pushed screens 30/35, 8 pt under the bar, then 20 pt to the first card (`ScreenTitle`).
+- **Cards:** `surface`, 18 pt corners, 16 pt sides. Rows 60 pt with a 36 pt tile (editors, Ready, Settings), 58 pt (Home's blocks), 56 pt and 52 pt with a 32 pt tile (apps lists); 14 pt from tile to text; detail 1 pt under the title. Note cards 14/16 padding; the stats card 18/16.
+- **The main button's bottom edge sits on the bottom safe area** (34 pt on Face ID phones; 16 pt above the edge without a home indicator). A quiet link under it reaches 16 pt into the indicator's space (`tollBottomBar`, `SheetPage`).
+- **Sheets:** iOS's shape and grabber; title 37 pt from the top; the board's height at the default text size, taller with larger text, full height at accessibility sizes.
+- **Small phones and large text scroll;** the main button stays pinned.
 
 ### 2.2 Type
 
-SF Pro via Dynamic Type styles only. Countdown numerals use `.rounded`, semibold, `.monospacedDigit()`; all other numbers `.monospacedDigit()`.
+SF Pro at the boards' sizes, weights and line heights, with no extra letter spacing (the boards' Inter tracking does not carry over). Each size scales with Dynamic Type like the text style nearest it. Tokens are `TollType`, applied with `.tollType(_:)`, which also sets the line height the way CSS does.
 
-| Token | Style | Use |
-|---|---|---|
-| `hero` | 72 pt rounded semibold, tracking −2.5, scales with `@ScaledMetric`, caps at AX2 | The door's countdown |
-| `screenTitle` | Large Title 34 semibold | Screen titles |
-| `title` | Title2 22 semibold | Status's state line |
-| `headline` | Headline 17 semibold | Buttons |
-| `body` | Body 17 regular | Lines, settings rows |
-| `subhead` | Subheadline 15, secondaryLabel | One-line explanations |
-| `caption` | Footnote 13, secondaryLabel | Quiet facts |
+| Token | Size / line | Weight | Use |
+|---|---|---|---|
+| `display` | 40/47 | semibold | Welcome's title |
+| `setupTitle` · `screenTitle` | 32/38 · 30/35 | semibold | Setup titles · pushed screens' titles |
+| `sheetTitle` | 24/28 | semibold | Sheet titles |
+| `hero` · `heroSuffix` | 64/70 · 24 | semibold · medium | Home's big time and its am/pm; caps at AX2 |
+| `stat` | 22/28 | semibold | This week's numbers |
+| `lead` | 18/26 | regular | Welcome's line |
+| `button` · `bar` | 17 | semibold · regular | Buttons · the back button |
+| `rowTitle` · `sheetBody` | 16/21 · 16/23 | medium · regular | Row titles · a sheet's sentence |
+| `body` · `heroLine` · `link` · `quiet` | 15/21 · 15/20 | regular · regular · semibold · medium | Lines under titles · the hero's line · text links · quiet actions |
+| `note` · `action` | 14/19 | regular · semibold | Note cards · "See all", "New" |
+| `detail` · `trailing` | 13/18 | regular · semibold | A row's second line, footnotes · "On now" |
+| `eyebrow` · `caption` | 12/16 | semibold uppercase, 0.8 apart · regular | Section headers · labels under stats |
+| `micro` · `microNumber` · `microEyebrow` | 11/14 | medium · regular · semibold uppercase | Chart labels and values |
 
-Never more than three sizes on one screen. Line length ≤ 60 characters.
+Times are the phone's 12- or 24-hour format with "am"/"pm" lowercase; Home's rows drop ":00" when both ends are whole hours ("9 am – 5 pm").
 
 ### 2.3 Colour
 
-Dusk's palette from the design canvas (decisions D36): dark first, warm grays, one amber accent. Light values are the canvas's *Home · light*. Tokens live in `TollColor`.
+The canvas's tokens (sticky note s4), dark first (decisions D36). Light mode is worked out from the same names. Tokens live in `TollColor`.
 
 | Token | Dark | Light | Use |
 |---|---|---|---|
 | `bg` | `#0D1015` | `#F6F5F1` | Page |
-| `surface` | `#161A21` | `#FFFFFF` | Cards, rows |
-| `surfaceRaised` | `#1F242C` | `#EDEBE5` | Selected rows, picker highlight, progress track |
-| `fill` | `#2C323C` | `#E3E1DA` | Disabled buttons, switched-off controls |
+| `surface` | `#161A21` | `#FFFFFF` | Cards, rows, sheets |
+| `surfaceRaised` | `#1F242C` | `#EDEBE5` | Icon tiles, tracks, the Apple tile, disabled and neutral buttons |
+| `separator` | `#262B34` | `#E3E1DA` | Hairlines |
+| `bar` | `#2C323C` | `#D9D6CE` | Chart bars, dashed empty slots |
 | `label` / `label2` / `label3` | `#EEECE6` / `#A2A8B2` / `#646B76` | `#1A1C20` / `#5B6068` / `#9A9EA5` | Text |
-| `separator` | `#262B34` | `#D9D6CE` | Hairlines |
-| `accent` | `#E9B96E` | `#8E5E14` | The one accent: primary buttons, links, selected state |
-| `accentSoft` | accent @ 14% | `#D9A24A` @ 16% | Icon tiles, selected backgrounds |
+| `accent` | `#E9B96E` | `#8E5E14` | The one accent: main buttons, links, what is on |
+| `accentSoft` | accent @ 14% | accent @ 14% | Leading tiles, "on" backgrounds |
 | `onAccent` | `#1C1408` | `#FFFFFF` | Text on the accent |
-| `positive` | `#5FC3A3` | `#2E7D5B` | A number going the right way |
+| `ok` | `#86C9A9` | `#2E7D5B` | A number going the right way |
+| `warn` · `warnSoft` | `#EE9E74` · @ 12% | `#B4542C` · @ 12% | Over a limit; deleting |
 
 All text ≥ 4.5:1 in both; Increase Contrast pushes the accent further. Appearance: Dark (default) · Light · Match iPhone, in Settings.
 
 ### 2.4 Shape and depth
 
-Radii: card 18, row in card 12, sheet 20, chip 8, button 16. Gutter 24. No elevation in light mode; dark mode uses surface tiers, no shadows. Materials on system bars only.
+Radii: card 18, button 16, field 12, chart bar 6; tiles 8/10/11/12/13 by size (`TileSize`). No shadows; surface tiers carry depth. Apple's own controls (sheets, wheels, segmented control, back button, alerts, the block screen) keep Apple's shape; we match colour and content.
 
 ### 2.5 Motion and haptics
 
@@ -87,13 +95,13 @@ Never: confetti, pulsing, looping, parallax, rings that fill, typewriter text, s
 
 ### 2.6 Iconography
 
-SF Symbols, monochrome. A gear for Settings, chevrons in lists. No coloured icon circles. App icons on the door come from the system (`Label(token)`), never drawn by us.
+SF Symbols, monochrome, outline where the canvas draws outlines. A gear for Settings, chevrons in lists. No coloured icon circles. App icons on the door come from the system (`Label(token)`), never drawn by us.
 
 ## 3. Buttons
 
-- `PrimaryButton`: full width, 54 pt, 16 pt corners, `accent` fill, `headline` label in `onAccent`. One per screen. Disabled: `fill` with a `label3` title.
-- `QuietButton`: text only, `accent`, body medium, 44 pt hit area. "Not now", "Cancel", "Restore purchase".
-- `DestructiveQuiet`: text only, systemRed. Not used yet.
+- `PrimaryButton`: full width, 54 pt, 16 pt corners, 17 semibold. Tones: `accent` (one per screen), `neutral` (`surfaceRaised`, `label`: "Choose again", "Cancel" while waiting), `warn` (`warnSoft`, `warn`: "Delete block" in its sheet). Disabled: `surfaceRaised` with a `label3` title.
+- `QuietButton`: text only, 44 pt hit area, 15 medium in `label2` ("Not now", "Cancel", "Restore purchase"); accent links are 15 semibold.
+- `DestructiveQuiet`: trash symbol and text in `warn`, 15 semibold: "Delete block".
 
 ## 4. Accessibility
 

@@ -38,8 +38,24 @@ final class BlockEditorModel {
   }
 
   var isSleep: Bool { block.isSleep }
-  /// Saving an active block waits until it ends (B-3); the editor says so.
-  var isActive: Bool { app.state.runtime.active[block.id] != nil }
+  /// When the block being edited ends, if it is on: saving waits until then (B-3), and the editor
+  /// says so.
+  var activeUntil: Date? { isNew ? nil : app.state.runtime.active[block.id] }
+
+  /// "2 categories · 2 apps", counted, since iOS never gives the app the names (D41).
+  var appsSummary: String {
+    Copy.Blocks.summary(
+      categories: selection.categoryTokens.count, apps: Blocklist.items(selection))
+  }
+
+  /// The limits with this draft in place, and with one of its rules changed (the hours sheet).
+  func limits(with rule: WeeklySchedule.Rule? = nil, at index: Int = 0) -> BlockLimits {
+    var draft = block
+    draft.appCount = Blocklist.items(selection)
+    draft.categoryCount = selection.categoryTokens.count
+    if let rule, draft.schedule.rules.indices.contains(index) { draft.schedule.rules[index] = rule }
+    return BlockLimits(state: app.state, draft: draft, config: app.config)
+  }
   var kinds: [Block.Kind] { [.study, .work, .gym, .other] }
 
   func choose(_ kind: Block.Kind) {

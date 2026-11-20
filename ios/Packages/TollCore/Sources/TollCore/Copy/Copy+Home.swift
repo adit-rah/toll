@@ -4,6 +4,8 @@ extension Copy {
   /// Home, in every state (the design canvas, amended by docs/design-brief.md).
   public enum Home {
     public static let settings = "Settings"
+    /// Home's name on the back button of the screens it opens.
+    public static let backTitle = "Home"
     public static func nightPill(_ night: Int, of nights: Int) -> String {
       "Night \(night) of \(nights) free"
     }
@@ -21,10 +23,31 @@ extension Copy {
       atHome ? "At home · starts in \(duration)" : "Starts in \(duration)"
     }
     public static let youreHome = "You're home"
+    /// "You're home · 3 unlocks left" under "Blocked until".
+    public static func blockedDetail(atHome: Bool, unlocksLeft: Int) -> String {
+      "\(atHome ? youreHome : onNow)\(middleDot)\(unlocksLeft == 0 ? noUnlocksLeft : Self.unlocksLeft(unlocksLeft))"
+    }
+    public static let noUnlocksLeft = "No unlocks left"
+    /// Without location (D37): "Starts at 10:30 pm, wherever you are".
+    public static func startsAtAnywhere(_ time: String) -> String {
+      "Starts at \(time), wherever you are"
+    }
     public static let onNow = "On now"
     public static let startsWhenHome = "Starts when you're home"
     public static let notBlocking = "Not blocking"
     public static let trialEnded = "Your free week ended."
+    public static let trialEndedToday = "Your free week ended this morning."
+    public static func onceEveryNight(_ price: String) -> String {
+      "\(price) once · every night after"
+    }
+    public static let noBlockNight = "–"
+    public static let noBlockSpoken = "no block"
+    public static let aheadSpoken = "still to come"
+    public static let now = "Now"
+    public static func change(_ delta: Int) -> String { delta < 0 ? "▼ \(-delta)" : "▲ \(delta)" }
+    public static func changeSpoken(_ delta: Int) -> String {
+      delta < 0 ? "\(-delta) fewer than the week before" : "\(delta) more than the week before"
+    }
     public static func unlocksLeft(_ n: Int) -> String {
       n == 1 ? "1 unlock left" : "\(n) unlocks left"
     }
@@ -32,8 +55,8 @@ extension Copy {
     public static let turnBackOn = "Turn it back on"
     public static func once(_ price: String) -> String { "\(price) once" }
 
-    public static let locationBannerTitle = "Location is set to While Using"
-    public static let locationBanner = "Your blocks run on their hours, wherever you are."
+    public static let locationBanner =
+      "Location is set to While Using. Your blocks run on their hours, wherever you are."
     public static let fixInSettings = "Fix in Settings"
 
     public static let thisWeek = "This week"

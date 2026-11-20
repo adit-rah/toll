@@ -11,15 +11,10 @@ public struct ShieldText: Equatable, Sendable {
     let time = end.map { Copy.time($0, in: calendar) }
     guard let block, !block.isSleep else {
       title = time.map(Copy.Shield.title(until:)) ?? Copy.Shield.title
-      let atHome = state.location == .places && state.sleepBlock?.place != nil
-      subtitle = atHome ? Copy.Shield.subtitle : Copy.Shield.subtitleWindowOnly
+      subtitle = Copy.Shield.subtitle
       return
     }
     title = time.map { Copy.Shield.blockTitle(block.name, until: $0) } ?? block.name
-    if state.location == .places, let place = state.place(block.place) {
-      subtitle = Copy.Shield.atPlace(place.name)
-    } else {
-      subtitle = Copy.Shield.blockOn(block.name)
-    }
+    subtitle = Copy.Shield.blockOn(block.name)
   }
 }

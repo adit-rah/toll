@@ -19,7 +19,7 @@ Dusk stands for the product name, not chosen yet (spec header). Copy rules from 
   >
   > Seven nights free. Then $9.99 once, or it switches off. No subscription.
   >
-  > No account. Nothing leaves your iPhone.
+  > No account, no servers. We never see your data.
 
 - **Keywords (100):** sleep,bedtime,night,screen time,app blocker,focus,phone,limit,block apps,home,wind down
 - **Category:** Health & Fitness (secondary: Productivity)

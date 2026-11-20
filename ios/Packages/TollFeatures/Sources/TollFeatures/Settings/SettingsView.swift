@@ -4,96 +4,117 @@ import TollData
 import TollScreenTime
 import TollUI
 
-/// Settings (the design canvas): is everything working, the week and the purchase, blocks, how it
-/// looks, help, privacy, contact; the log while we test.
+/// Settings (the canvas's Settings), pushed from Home: is everything working, the app, help, and the
+/// log while we test. Three cards of plain rows at the board's heights.
 struct SettingsView: View {
   let model: AppModel
-  var openPurchase: (() -> Void)?
-  @Environment(\.dismiss) private var dismiss
-  @State private var restoreNote: String?
+  var openPurchase: () -> Void = {}
   @State private var explaining = false
+  @State private var nothingToRestore = false
+  @State private var restoring = false
   @AppStorage(Appearance.key) private var appearance = Appearance.standard
 
   var body: some View {
-    NavigationStack {
-      List {
-        Section(Copy.Settings.working) {
-          LabeledContent(Copy.Settings.screenTime, value: screenTime)
-          LabeledContent(Copy.Settings.location, value: location)
-          LabeledContent(Copy.Settings.lastNight, value: lastNight)
-        }
-        .listRowBackground(TollColor.surface)
-        Section(Copy.Settings.yourWeek) {
-          if model.state.trial.purchased {
-            LabeledContent(Copy.Settings.freeNights, value: Copy.Settings.purchased)
-          } else {
-            if let night = model.trialNight(now: Date()) {
-              LabeledContent(
-                Copy.Settings.freeNights,
-                value: Copy.Settings.nightsUsed(night, of: model.config.trial.nights))
+    ScrollView {
+      VStack(alignment: .leading, spacing: 0) {
+        ScreenTitle(Copy.Settings.title, kind: .pushed)
+        SettingsSection(Copy.Settings.working, top: 16) {
+          Card {
+            SettingsRow(Copy.Settings.screenTime) {
+              PermissionState(text: screenTime.0, tone: screenTime.1)
             }
-            if let openPurchase {
-              Button(Copy.Settings.keepIt) {
-                dismiss()
-                openPurchase()
-              }
+            SettingsRow(Copy.Settings.location) {
+              PermissionState(text: location.0, tone: location.1)
             }
-          }
-          Button(Copy.Settings.restore) { Task { await restore() } }
-          if let restoreNote { Text(restoreNote).tollText(.subhead) }
-        }
-        .listRowBackground(TollColor.surface)
-        Section {
-          NavigationLink(Copy.Settings.blocks) { BlocksView(model: model) }
-          Picker(Copy.Settings.appearance, selection: $appearance) {
-            ForEach(Appearance.allCases) { Text($0.title).tag($0) }
+            SettingsRow(Copy.Settings.lastNight, detail: lastNight)
           }
         }
-        .listRowBackground(TollColor.surface)
-        Section(Copy.Settings.help) {
-          Button(Copy.Settings.howItWorks) { explaining = true }
-          if let url = AppLinks.privacy {
-            Link(destination: url) {
-              LabeledContent(Copy.Settings.privacy, value: Copy.Settings.privacyLine)
+        SettingsSection(Copy.Settings.app) {
+          Card {
+            NavigationLink(value: HomeRoute.blocks) {
+              SettingsRow(Copy.Settings.blocks, detail: blocksSummary) { Chevron() }
             }
-          } else {
-            LabeledContent(Copy.Settings.privacy, value: Copy.Settings.privacyLine)
-          }
-          if let url = AppLinks.support, let address = AppLinks.supportAddress {
-            Link(destination: url) { LabeledContent(Copy.Settings.contact, value: address) }
+            .buttonStyle(.plain)
+            SettingsRow(Copy.Settings.appearance, minHeight: 50) {
+              AppearancePicker(selection: $appearance)
+            }
+            freeNights
+            Button {
+              Task { await restore() }
+            } label: {
+              SettingsRow(Copy.Settings.restore) { Chevron() }
+            }
+            .buttonStyle(.plain)
+            .disabled(restoring)
           }
         }
-        .listRowBackground(TollColor.surface)
-        Section {
-          NavigationLink(Copy.Settings.log) { TransitionLogView(model: model) }
-          LabeledContent(Copy.Settings.version, value: AppLinks.version)
-        }
-        .listRowBackground(TollColor.surface)
-      }
-      .scrollContentBackground(.hidden)
-      .background(TollColor.bg)
-      .navigationTitle(Copy.Settings.title)
-      .toolbar {
-        ToolbarItem(placement: .confirmationAction) {
-          Button(Copy.Setup.done) { dismiss() }
+        SettingsSection(Copy.Settings.help) {
+          Card {
+            Button {
+              explaining = true
+            } label: {
+              SettingsRow(Copy.Settings.howItWorks) { Chevron() }
+            }
+            .buttonStyle(.plain)
+            link(AppLinks.privacy) {
+              SettingsRow(Copy.Settings.privacy, detail: Copy.Settings.privacyLine) { Chevron() }
+            }
+            if let address = AppLinks.supportAddress {
+              link(AppLinks.support) { SettingsRow(Copy.Settings.contact, detail: address) }
+            }
+            NavigationLink(value: HomeRoute.log) {
+              SettingsRow(Copy.Settings.log, detail: Copy.Settings.testingOnly) { Chevron() }
+            }
+            .buttonStyle(.plain)
+          }
         }
       }
-      .sheet(isPresented: $explaining) { HowItWorks() }
+      .tollGutter()
+      .padding(.bottom, 32)
     }
-    .tint(TollColor.accent)
-    .preferredColorScheme(appearance.scheme)
+    .background(TollColor.bg)
+    .tollPushed(Copy.Settings.title)
+    .sheet(isPresented: $explaining) { HowItWorks() }
+    .sheet(isPresented: $nothingToRestore) { RestoreNoneSheet() }
   }
 
-  private var screenTime: String {
-    model.screenTime == .approved ? Copy.Settings.on : Copy.Settings.off
+  @ViewBuilder private var freeNights: some View {
+    if model.state.trial.purchased {
+      SettingsRow(Copy.Settings.freeNights, detail: Copy.Settings.purchased)
+    } else {
+      SettingsRow(
+        Copy.Settings.freeNights,
+        detail: model.trialNight(now: Date()).map {
+          Copy.Settings.nightsUsed($0, of: model.config.trial.nights)
+        }
+      ) {
+        Button(Copy.Settings.once(model.price), action: openPurchase)
+          .tollType(.link, TollColor.accent)
+          .frame(minHeight: TollSpacing.minTapTarget)
+      }
+    }
   }
 
-  private var location: String {
+  @ViewBuilder private func link<Content: View>(_ url: URL?, @ViewBuilder content: () -> Content)
+    -> some View
+  {
+    if let url {
+      Link(destination: url) { content() }.buttonStyle(.plain)
+    } else {
+      content()
+    }
+  }
+
+  private var screenTime: (String, PermissionState.Tone) {
+    model.screenTime == .approved ? (Copy.Settings.on, .good) : (Copy.Settings.off, .bad)
+  }
+
+  private var location: (String, PermissionState.Tone) {
     switch model.location {
-    case .always: Copy.Settings.always
-    case .whileUsing: Copy.Settings.whileUsing
-    case .approximate: Copy.Settings.approximate
-    case .denied, .notDetermined: Copy.Settings.off
+    case .always: (Copy.Settings.always, .good)
+    case .whileUsing: (Copy.Settings.whileUsing, .neutral)
+    case .approximate: (Copy.Settings.approximate, .neutral)
+    case .denied, .notDetermined: (Copy.Settings.off, .neutral)
     }
   }
 
@@ -104,27 +125,128 @@ struct SettingsView: View {
     return Copy.Settings.blocked(Copy.time(night.on), night.off.map { Copy.time($0) })
   }
 
+  private var blocksSummary: String {
+    Copy.Settings.blocksSummary(
+      blocks: model.state.blocks.count, items: model.state.blocks.map(\.appCount).reduce(0, +),
+      max: model.config.blocks.maxApps)
+  }
+
   private func restore() async {
-    restoreNote = await model.restore() ? Copy.Settings.restored : Copy.Trial.nothingToRestore
+    restoring = true
+    defer { restoring = false }
+    if !(await model.restore()) { nothingToRestore = true }
   }
 }
 
+/// An eyebrow 4 pt in, 8 pt over its card; 14 pt between one card and the next eyebrow.
+private struct SettingsSection<Content: View>: View {
+  let title: String
+  var top: CGFloat = 14
+  @ViewBuilder let content: Content
+
+  init(_ title: String, top: CGFloat = 14, @ViewBuilder content: () -> Content) {
+    self.title = title
+    self.top = top
+    self.content = content()
+  }
+
+  var body: some View {
+    Text(title)
+      .tollType(.eyebrow, TollColor.label2)
+      .padding(.horizontal, 4)
+      .padding(.top, top)
+      .accessibilityAddTraits(.isHeader)
+    content.padding(.top, 8)
+  }
+}
+
+/// A plain row: 46 pt for one line, 54 pt with a detail, and whatever sits at its end.
+private struct SettingsRow<Trailing: View>: View {
+  let title: String
+  let detail: String?
+  let minHeight: CGFloat?
+  let trailing: Trailing
+
+  init(
+    _ title: String, detail: String? = nil, minHeight: CGFloat? = nil,
+    @ViewBuilder trailing: () -> Trailing
+  ) {
+    self.title = title
+    self.detail = detail
+    self.minHeight = minHeight
+    self.trailing = trailing()
+  }
+
+  var body: some View {
+    AdaptiveStack(spacing: TollSpacing.rowGap) {
+      RowText(title: title, detail: detail)
+      trailing
+    }
+    .padding(.vertical, 8)
+    .frame(minHeight: minHeight ?? (detail == nil ? 46 : 54))
+    .contentShape(Rectangle())
+    .accessibilityElement(children: .combine)
+  }
+}
+
+extension SettingsRow where Trailing == EmptyView {
+  init(_ title: String, detail: String? = nil, minHeight: CGFloat? = nil) {
+    self.init(title, detail: detail, minHeight: minHeight) { EmptyView() }
+  }
+}
+
+/// Dark · Light · Match iPhone as the board draws it: 13 pt segments in a 32 pt track, the chosen
+/// one raised. Apple's segmented control is too wide to sit beside the row's title.
+private struct AppearancePicker: View {
+  @Binding var selection: Appearance
+
+  var body: some View {
+    HStack(spacing: 0) {
+      ForEach(Appearance.allCases) { option in
+        let chosen = option == selection
+        Button {
+          selection = option
+        } label: {
+          Text(option.title)
+            .tollType(
+              TollType(
+                size: 13, lineHeight: 18, weight: chosen ? .semibold : .medium, style: .footnote)
+            )
+            .foregroundStyle(chosen ? TollColor.label : TollColor.label2)
+            .lineLimit(1)
+            .padding(.horizontal, 10)
+            .frame(maxHeight: .infinity)
+            .background(
+              chosen ? TollColor.surface : .clear,
+              in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(chosen ? .isSelected : [])
+      }
+    }
+    .padding(2)
+    .frame(height: 32)
+    .background(TollColor.surfaceRaised, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+    .fixedSize(horizontal: true, vertical: false)
+    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+    .tollHaptic(.selection, trigger: selection)
+  }
+}
+
+/// How blocking works, as a sheet.
 private struct HowItWorks: View {
   var body: some View {
-    VStack(alignment: .leading, spacing: TollSpacing.groupGap) {
-      Text(Copy.Settings.howItWorks).font(TollFont.title).foregroundStyle(TollColor.label)
-        .accessibilityAddTraits(.isHeader)
+    SheetPage(height: 420) {
+      SheetTitle(Copy.Settings.howItWorks)
       ForEach(Copy.Settings.howItWorksLines, id: \.self) { line in
-        Text(line).font(TollFont.body).foregroundStyle(TollColor.label)
+        Text(line)
+          .tollType(.sheetBody, TollColor.label)
           .fixedSize(horizontal: false, vertical: true)
+          .padding(.top, 12)
       }
-      Spacer(minLength: 0)
+    } actions: {
+      EmptyView()
     }
-    .tollGutter()
-    .padding(.top, TollSpacing.titleGap)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(TollColor.bg)
-    .presentationDetents([.medium, .large])
   }
 }
 

@@ -18,7 +18,8 @@ public enum Command: Sendable {
   case startDoor(app: Data)
   case cancelDoor
   case lockDoor
-  case askDoor(Date?)
+  /// When the door was asked for, and the app the block screen was showing (D41); nil clears it.
+  case askDoor(Date?, app: Data? = nil)
 }
 
 public enum CommandError: Error, Equatable, Sendable {

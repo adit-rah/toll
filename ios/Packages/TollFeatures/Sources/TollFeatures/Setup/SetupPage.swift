@@ -2,34 +2,69 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Every setup screen's frame: the progress bar in the navigation bar, so the title sits at one
-/// position on every screen (spec §7), the content beneath it, and the actions pinned at the bottom.
+/// Every setup screen's frame (the canvas): the 44 pt bar with Apple's back button and the progress
+/// segments between it and the right edge, the title 28 pt under the bar, the content, and the
+/// actions pinned at the bottom. Screens set their own gaps; the boards differ by screen.
 struct SetupPage<Content: View, Actions: View>: View {
   let step: Int?
   let title: String
-  var subtitle: String? = nil
-  @ViewBuilder let content: Content
-  @ViewBuilder let actions: Actions
+  let eyebrow: String?
+  let subtitle: String?
+  let endsWithLink: Bool
+  let content: Content
+  let actions: Actions
+  @State private var width: CGFloat = 390
+
+  init(
+    step: Int?, title: String, eyebrow: String? = nil, subtitle: String? = nil,
+    endsWithLink: Bool = false, @ViewBuilder content: () -> Content,
+    @ViewBuilder actions: () -> Actions
+  ) {
+    self.step = step
+    self.title = title
+    self.eyebrow = eyebrow
+    self.subtitle = subtitle
+    self.endsWithLink = endsWithLink
+    self.content = content()
+    self.actions = actions()
+  }
 
   var body: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: TollSpacing.groupGap) {
-        VStack(alignment: .leading, spacing: 12) {
+      VStack(alignment: .leading, spacing: 0) {
+        if let eyebrow {
+          Text(eyebrow)
+            .tollType(.eyebrow, TollColor.label2)
+            .padding(.top, TollSpacing.setupTitleGap)
+          Text(title)
+            .tollType(.setupTitle, TollColor.label)
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityAddTraits(.isHeader)
+            .padding(.top, 8)
+        } else {
           ScreenTitle(title)
-          if let subtitle { SetupLine(subtitle, .subhead) }
+        }
+        if let subtitle {
+          SetupLine(subtitle).padding(.top, TollSpacing.titleToLine)
         }
         content
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .tollGutter()
-      .padding(.bottom, TollSpacing.sectionGap)
+      .padding(.bottom, 24)
     }
+    .scrollBounceBehavior(.basedOnSize)
     .background(TollColor.bg)
-    .tollBottomBar(background: TollColor.bg) {
-      VStack(spacing: TollSpacing.labelGap) { actions }
+    .onGeometryChange(for: CGFloat.self) {
+      $0.size.width
+    } action: {
+      width = $0
+    }
+    .tollBottomBar(endsWithLink: endsWithLink) {
+      VStack(spacing: 0) { actions }
     }
     .navigationBarTitleDisplayMode(.inline)
-    // Kept even when empty (Welcome, Ready), so the title sits at one position on every screen.
+    // Kept even when empty (Ready), so the title sits at one position on every screen.
     .toolbar(.visible, for: .navigationBar)
     .toolbar {
       if let step {
@@ -38,27 +73,62 @@ struct SetupPage<Content: View, Actions: View>: View {
             count: SetupModel.Step.questions, current: step - 1,
             accessibilityLabel: Copy.Setup.step(step, of: SetupModel.Step.questions)
           )
-          .frame(width: 160)
+          .frame(width: progressWidth)
         }
+        .sharedBackgroundVisibility(.hidden)
       }
     }
   }
+
+  /// The board's bar: 28 pt for the back button and 14 pt either side of the segments, mirrored on
+  /// the right so the segments sit centred.
+  private var progressWidth: CGFloat {
+    let gutter = TollSpacing.horizontalGutter(forWidth: width)
+    return max(120, width - 2 * (gutter + 28 + 14))
+  }
 }
 
-/// A line of the page's body text: `body`, wraps, never truncates.
+/// A line under a setup title: 15/21 in `label2`, wraps, never truncates.
 struct SetupLine: View {
   let text: String
-  var token: TollText = .body
 
-  init(_ text: String, _ token: TollText = .body) {
+  init(_ text: String) {
     self.text = text
-    self.token = token
   }
 
   var body: some View {
     Text(text)
-      .tollText(token)
+      .tollType(.body, TollColor.label2)
       .fixedSize(horizontal: false, vertical: true)
       .frame(maxWidth: .infinity, alignment: .leading)
+  }
+}
+
+/// A permission's state at the end of its row, as Settings words it: "Off" in the warn colour,
+/// "Always" in green with a tick, anything else grey. Never colour alone: the word says it.
+struct PermissionState: View {
+  enum Tone {
+    case good, bad, neutral
+  }
+
+  let text: String
+  let tone: Tone
+
+  var body: some View {
+    HStack(spacing: 5) {
+      if tone == .good {
+        Image(systemName: "checkmark").font(.system(size: 12, weight: .bold))
+      }
+      Text(text)
+    }
+    .tollType(.action, color)
+  }
+
+  private var color: Color {
+    switch tone {
+    case .good: TollColor.ok
+    case .bad: TollColor.warn
+    case .neutral: TollColor.label2
+    }
   }
 }

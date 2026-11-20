@@ -5,14 +5,32 @@ extension Copy {
   public enum Blocks {
     public static let title = "Blocks"
     public static let line =
-      "A block is a list of apps, a place, and the hours they're blocked there."
-    public static func summary(apps: Int, categories: Int) -> String {
-      Setup.blockedCount(apps: apps, categories: categories).isEmpty
-        ? "No apps" : Setup.blockedCount(apps: apps, categories: categories)
+      "Each block is a list of apps, the hours they're blocked, and an optional place."
+    public static func summary(categories: Int, apps: Int, sites: Int = 0) -> String {
+      let count = Setup.blockedCount(categories: categories, apps: apps, sites: sites)
+      return count.isEmpty ? "No apps" : count
     }
     public static let new = "New block"
-    public static func limits(_ maxApps: Int) -> String {
-      "Each block has its own apps. Unlocks are shared. Up to \(maxApps) apps across all blocks."
+    public static let wholeCategory = "Whole category"
+    public static let website = "Website"
+    public static let appsAndSites = "Apps and sites"
+    public static let timeWindows = "Time windows"
+    public static func used(_ used: Int, of max: Int) -> String { "\(used) of \(max)" }
+    public static let unlocksShared = "Unlocks are shared by all blocks."
+    public static func windowsFull(_ max: Int) -> String {
+      "Up to \(max) time windows across all blocks."
+    }
+    public static func windowsUsed(_ used: Int, of max: Int) -> String {
+      "\(used) of \(max) time windows used across all blocks. Blocks with the same hours share one."
+    }
+    public static func onNowUntil(_ time: String) -> String { "until \(time)" }
+    public static func appCount(_ n: Int) -> String { n == 1 ? "1 app" : "\(n) apps" }
+    public static func thisBlock(_ n: Int) -> String { "This block: \(n) apps and sites" }
+    public static func allBlocks(_ used: Int, of max: Int) -> String {
+      "All blocks: \(used) of \(max)"
+    }
+    public static func overLimit(_ max: Int, remove: Int) -> String {
+      "Up to \(max) apps and sites across all blocks. Remove \(remove) here or from another block."
     }
 
     public static let editTitle = "Edit block"
@@ -31,10 +49,20 @@ extension Copy {
     public static let hours = "Hours"
     public static let apps = "Apps to block"
     public static let chooseApps = Setup.chooseApps
-    public static let explainer = "Inside these hours, at this place, these apps won't open."
+    public static let explainer = "During these hours, at this place, these apps won't open."
     public static let save = "Save block"
+    public static let saveEdit = "Save"
+    public static let saveForTomorrow = "Save for tomorrow"
+    public static func activeNote(_ block: String, until time: String) -> String {
+      "\(block) is on until \(time). Changes apply when this block ends."
+    }
+    public static let sleepStays = "Sleep can be changed but not deleted."
     public static let delete = "Delete block"
-    public static let deleteConfirm = "Delete this block?"
+    public static func deleteTitle(_ block: String) -> String { "Delete \(block)?" }
+    public static func deleteLine(_ items: String, place: String?) -> String {
+      "Its \(items) stop being blocked\(place.map { " at \($0)" } ?? ""). Your other blocks stay."
+    }
+    public static let cancel = "Cancel"
     public static let on = "On"
     public static let changesLater = "Changes apply when this block ends."
 
@@ -42,7 +70,9 @@ extension Copy {
     public static let search = "Search for a place"
     public static let currentLocation = Setup.currentLocation
     public static let usePlace = "Use this place"
-    public static let noPlace = "Anywhere: no place"
+    public static let useAnywhere = "Use anywhere"
+    public static let anywhereNote =
+      "With no place, this block starts and ends on its hours alone. Location isn't used."
     public static let building = "Building"
     public static let street = "Block"
     public static let campus = "Campus"

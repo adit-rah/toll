@@ -15,10 +15,18 @@ public struct RootView: View {
 
   public var body: some View {
     content
-      .preferredColorScheme(appearance.scheme)
+      .preferredColorScheme(scheme)
       .onChange(of: scenePhase, initial: true) { _, phase in
         if phase == .active { model.foreground() }
       }
+  }
+
+  /// Demo launches follow the simulator, so renders show both appearances (docs/renders.md).
+  private var scheme: ColorScheme? {
+    #if DEBUG
+      if DemoScenario.current != nil { return nil }
+    #endif
+    return appearance.scheme
   }
 
   @ViewBuilder private var content: some View {
@@ -42,45 +50,37 @@ public struct RootView: View {
   }
 }
 
-/// Home on the live state, with its sheets. Extensions change the state while the app is open (a
-/// window starting, the block screen's buttons), so it is read again every so often and the clock
-/// moves on with it.
+/// Home on the live state, with the screens it pushes and its sheets. Extensions change the state
+/// while the app is open (a window starting, the block screen's buttons), so it is read again every
+/// so often and the clock moves on with it.
 struct LiveHome: View {
   let model: AppModel
-  @State private var sheet: HomeSheet?
-  @State private var editing: BlockRef?
+  @State private var buying = false
+  @State private var path: [HomeRoute] = []
 
   var body: some View {
-    TimelineView(.everyMinute) { context in
-      let home = HomeSnapshot(
-        state: model.state, log: model.log, now: context.date, calendar: .current)
-      HomeView(
-        home: home, price: model.price,
-        openSettings: { sheet = .settings }, openDoor: { model.askDoor() },
-        openPurchase: { sheet = .purchase }, fixLocation: openSystemSettings,
-        openBlock: { editing = BlockRef(id: $0) }, openInsights: { sheet = .insights }
-      )
-      .sheet(item: $editing) { ref in BlockEditorView(app: model, editing: ref.block) }
-      .sheet(item: $sheet) { which in
-        switch which {
-        case .settings:
-          SettingsView(model: model) {
-            // Settings closes itself first; the purchase sheet opens once it has gone.
-            Task {
-              try? await Task.sleep(for: .milliseconds(450))
-              sheet = .purchase
-            }
-          }
-        case .purchase: PurchaseSheet(model: model, home: home)
-        case .insights: InsightsView(log: model.trialSummaryLog())
-        }
+    NavigationStack(path: $path) {
+      TimelineView(.everyMinute) { context in
+        HomeView(
+          home: snapshot(context.date), price: model.price,
+          locationFact: locationFact(model.location),
+          openSettings: { path.append(.settings) }, openDoor: { model.askDoor() },
+          openPurchase: { buying = true }, fixLocation: openSystemSettings,
+          openBlock: { path = [.blocks, .block($0)] }, openInsights: { path.append(.insights) }
+        )
       }
-      .sheet(isPresented: doorShown) {
-        TimelineView(.periodic(from: .now, by: 1)) { tick in
-          DoorSheet(model: model, now: tick.date)
-        }
-        .interactiveDismissDisabled(model.state.door != nil)
+      .homeNavigation()
+      .navigationDestination(for: HomeRoute.self) { route in
+        HomeDestination(model: model, route: route) { buying = true }
       }
+    }
+    .tint(TollColor.accent)
+    .sheet(isPresented: $buying) { PurchaseSheet(model: model, home: snapshot(Date())) }
+    .sheet(isPresented: doorShown) {
+      TimelineView(.periodic(from: .now, by: 1)) { tick in
+        DoorSheet(model: model, now: tick.date)
+      }
+      .interactiveDismissDisabled(model.state.door != nil)
     }
     .task {
       while !Task.isCancelled {
@@ -90,17 +90,42 @@ struct LiveHome: View {
     }
   }
 
+  private func snapshot(_ now: Date) -> HomeSnapshot {
+    HomeSnapshot(state: model.state, log: model.log, now: now, calendar: .current)
+  }
+
   private var doorShown: Binding<Bool> {
     Binding(get: { model.showsDoor }, set: { if !$0 { model.dismissDoor() } })
   }
+}
 
-  private func openSystemSettings() {
-    guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-    UIApplication.shared.open(url)
+/// The screen for a route, shared by the live app and demo launches.
+struct HomeDestination: View {
+  let model: AppModel
+  let route: HomeRoute
+  let openPurchase: () -> Void
+
+  var body: some View {
+    switch route {
+    case .insights: InsightsView(log: model.trialSummaryLog())
+    case .settings: SettingsView(model: model, openPurchase: openPurchase)
+    case .blocks: BlocksView(model: model)
+    case .block(let id): BlockEditorView(app: model, editing: id)
+    case .log: TransitionLogView(model: model)
+    }
   }
 }
 
-enum HomeSheet: String, Identifiable {
-  case settings, purchase, insights
-  var id: String { rawValue }
+/// Screens pushed from Home, with Apple's back button reading "Home" (the canvas).
+enum HomeRoute: Hashable {
+  case insights, settings, blocks, log
+  /// A block to edit, or nil for a new one; pushed over Blocks so the back button reads "Blocks".
+  case block(BlockID?)
+}
+
+extension View {
+  /// Home draws its own bar; its title is what the back button reads on the screens it pushes.
+  func homeNavigation() -> some View {
+    navigationTitle(Copy.Home.backTitle).toolbar(.hidden, for: .navigationBar)
+  }
 }

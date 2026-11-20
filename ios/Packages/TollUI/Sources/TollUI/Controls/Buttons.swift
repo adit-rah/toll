@@ -1,66 +1,14 @@
 import SwiftUI
 
-/// Design §3. Full width, 54 pt, amber fill, 16 pt corners (the canvas). One per screen.
+/// The canvas's 54 pt button, 16 pt corners, 17 pt semibold. One main button per screen.
 public struct PrimaryButtonStyle: ButtonStyle {
-  public init() {}
-
-  public func makeBody(configuration: Configuration) -> some View {
-    PrimaryButtonBody(label: configuration.label, isPressed: configuration.isPressed)
-  }
-}
-
-private struct PrimaryButtonBody<Label: View>: View {
-  let label: Label
-  let isPressed: Bool
-  @Environment(\.isEnabled) private var isEnabled
-
-  var body: some View {
-    label
-      .font(TollFont.headline)
-      .foregroundStyle(isEnabled ? TollColor.onAccent : TollColor.label3)
-      .lineLimit(2)
-      .multilineTextAlignment(.center)
-      .padding(.horizontal, 16)
-      .padding(.vertical, 8)
-      .frame(maxWidth: .infinity, minHeight: 54)
-      .background(
-        isEnabled ? TollColor.accent : TollColor.fill,
-        in: RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous)
-      )
-      .opacity(isPressed ? 0.85 : 1)
-      .contentShape(RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous))
-  }
-}
-
-/// The primary button's shape in a neutral fill, for the second of two equal choices ("Continue with
-/// email" under the Apple button). The fill belongs to the label so the whole shape takes the tap.
-public struct SecondaryButtonStyle: ButtonStyle {
-  public init() {}
-
-  public func makeBody(configuration: Configuration) -> some View {
-    configuration.label
-      .font(TollFont.headline)
-      .foregroundStyle(TollColor.label)
-      .lineLimit(2)
-      .multilineTextAlignment(.center)
-      .padding(.horizontal, 16)
-      .padding(.vertical, 8)
-      .frame(maxWidth: .infinity, minHeight: 54)
-      .background(
-        TollColor.fill, in: RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous)
-      )
-      .opacity(configuration.isPressed ? 0.6 : 1)
-      .contentShape(RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous))
-  }
-}
-
-/// Text-only, `body` medium, with a 44 pt hit area. Cancel, Skip, Add.
-public struct QuietButtonStyle: ButtonStyle {
   public enum Tone: Sendable {
+    /// Amber: the screen's main action.
     case accent
-    /// `label2`, for the three quiet actions at the bottom of Friend detail.
-    case secondary
-    case destructive
+    /// `surfaceRaised` with `label` text: a second, equal choice ("Choose again").
+    case neutral
+    /// The warn colour on its 12% tint: "Delete block" in its sheet.
+    case warn
   }
 
   let tone: Tone
@@ -70,7 +18,66 @@ public struct QuietButtonStyle: ButtonStyle {
   }
 
   public func makeBody(configuration: Configuration) -> some View {
-    QuietButtonBody(label: configuration.label, isPressed: configuration.isPressed, tone: tone)
+    PrimaryButtonBody(label: configuration.label, isPressed: configuration.isPressed, tone: tone)
+  }
+}
+
+private struct PrimaryButtonBody<Label: View>: View {
+  let label: Label
+  let isPressed: Bool
+  let tone: PrimaryButtonStyle.Tone
+  @Environment(\.isEnabled) private var isEnabled
+
+  var body: some View {
+    let shape = RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous)
+    label
+      .tollType(.button, isEnabled ? foreground : TollColor.label3)
+      .lineLimit(2)
+      .multilineTextAlignment(.center)
+      .padding(.horizontal, 16)
+      .padding(.vertical, 8)
+      .frame(maxWidth: .infinity, minHeight: 54)
+      .background(isEnabled ? background : TollColor.surfaceRaised, in: shape)
+      .opacity(isPressed ? 0.85 : 1)
+      .contentShape(shape)
+  }
+
+  private var foreground: Color {
+    switch tone {
+    case .accent: TollColor.onAccent
+    case .neutral: TollColor.label
+    case .warn: TollColor.warn
+    }
+  }
+
+  private var background: Color {
+    switch tone {
+    case .accent: TollColor.accent
+    case .neutral: TollColor.surfaceRaised
+    case .warn: TollColor.warnSoft
+    }
+  }
+}
+
+/// Text only, with a 44 pt hit area: "Cancel", "Not now", "Restore purchase", "Delete block".
+public struct QuietButtonStyle: ButtonStyle {
+  public enum Tone: Sendable {
+    case accent
+    case secondary
+    case warn
+  }
+
+  let tone: Tone
+  let type: TollType
+
+  public init(tone: Tone = .secondary, type: TollType = .quiet) {
+    self.tone = tone
+    self.type = type
+  }
+
+  public func makeBody(configuration: Configuration) -> some View {
+    QuietButtonBody(
+      label: configuration.label, isPressed: configuration.isPressed, tone: tone, type: type)
   }
 }
 
@@ -78,12 +85,13 @@ private struct QuietButtonBody<Label: View>: View {
   let label: Label
   let isPressed: Bool
   let tone: QuietButtonStyle.Tone
+  let type: TollType
   @Environment(\.isEnabled) private var isEnabled
 
   var body: some View {
     label
-      .font(TollFont.bodyMedium)
-      .foregroundStyle(isEnabled ? color : TollColor.label3)
+      .tollType(type, isEnabled ? color : TollColor.label3)
+      .multilineTextAlignment(.center)
       .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
       .contentShape(Rectangle())
       .opacity(isPressed ? 0.5 : 1)
@@ -93,66 +101,80 @@ private struct QuietButtonBody<Label: View>: View {
     switch tone {
     case .accent: TollColor.accent
     case .secondary: TollColor.label2
-    case .destructive: TollColor.destructive
+    case .warn: TollColor.warn
     }
   }
 }
 
 extension ButtonStyle where Self == PrimaryButtonStyle {
   public static var tollPrimary: PrimaryButtonStyle { PrimaryButtonStyle() }
-}
-
-extension ButtonStyle where Self == SecondaryButtonStyle {
-  public static var tollSecondary: SecondaryButtonStyle { SecondaryButtonStyle() }
+  public static var tollSecondary: PrimaryButtonStyle { PrimaryButtonStyle(tone: .neutral) }
+  public static var tollWarn: PrimaryButtonStyle { PrimaryButtonStyle(tone: .warn) }
 }
 
 extension ButtonStyle where Self == QuietButtonStyle {
   public static var tollQuiet: QuietButtonStyle { QuietButtonStyle() }
-  public static var tollDestructiveQuiet: QuietButtonStyle { QuietButtonStyle(tone: .destructive) }
+  public static var tollAccentQuiet: QuietButtonStyle {
+    QuietButtonStyle(tone: .accent, type: .link)
+  }
+  public static var tollDestructiveQuiet: QuietButtonStyle {
+    QuietButtonStyle(tone: .warn, type: .link)
+  }
 }
 
-/// The label is a view so the gate can read "Open <Label(token)>" without knowing the app's name.
+/// The label is a view so a door button can carry `Label(token)` without knowing the app's name.
 public struct PrimaryButton<Label: View>: View {
   let action: () -> Void
+  let tone: PrimaryButtonStyle.Tone
   let label: Label
 
-  public init(action: @escaping () -> Void, @ViewBuilder label: () -> Label) {
+  public init(
+    tone: PrimaryButtonStyle.Tone = .accent, action: @escaping () -> Void,
+    @ViewBuilder label: () -> Label
+  ) {
     self.action = action
+    self.tone = tone
     self.label = label()
   }
 
   public var body: some View {
     Button(action: action) { label }
-      .buttonStyle(PrimaryButtonStyle())
+      .buttonStyle(PrimaryButtonStyle(tone: tone))
   }
 }
 
 extension PrimaryButton where Label == Text {
-  public init(_ title: String, action: @escaping () -> Void) {
-    self.init(action: action) { Text(title) }
+  public init(
+    _ title: String, tone: PrimaryButtonStyle.Tone = .accent, action: @escaping () -> Void
+  ) {
+    self.init(tone: tone, action: action) { Text(title) }
   }
 }
 
+/// A quiet action. Secondary grey at 15 pt medium unless told otherwise.
 public struct QuietButton: View {
   let title: String
   let tone: QuietButtonStyle.Tone
+  let type: TollType
   let action: () -> Void
 
   public init(
-    _ title: String, tone: QuietButtonStyle.Tone = .accent, action: @escaping () -> Void
+    _ title: String, tone: QuietButtonStyle.Tone = .secondary, type: TollType = .quiet,
+    action: @escaping () -> Void
   ) {
     self.title = title
     self.tone = tone
+    self.type = type
     self.action = action
   }
 
   public var body: some View {
     Button(title, action: action)
-      .buttonStyle(QuietButtonStyle(tone: tone))
+      .buttonStyle(QuietButtonStyle(tone: tone, type: type))
   }
 }
 
-/// Text-only in systemRed: Remove, Delete account.
+/// "Delete block": the warn colour, 15 pt semibold, with the trash symbol.
 public struct DestructiveQuiet: View {
   let title: String
   let action: () -> Void
@@ -163,7 +185,12 @@ public struct DestructiveQuiet: View {
   }
 
   public var body: some View {
-    Button(title, role: .destructive, action: action)
-      .buttonStyle(QuietButtonStyle(tone: .destructive))
+    Button(role: .destructive, action: action) {
+      HStack(spacing: 8) {
+        Image(systemName: "trash").font(.system(size: 15, weight: .semibold))
+        Text(title)
+      }
+    }
+    .buttonStyle(QuietButtonStyle(tone: .warn, type: .link))
   }
 }

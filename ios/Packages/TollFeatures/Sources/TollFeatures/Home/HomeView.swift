@@ -1,12 +1,15 @@
 import SwiftUI
 import TollCore
+import TollData
 import TollUI
 
-/// Home, in every state (the design canvas): what tonight holds, the week, the blocks. Laid out from a
-/// `HomeSnapshot`; nothing here decides anything.
+/// Home, in every state (the design canvas's Home row): the bar, a quiet pill, what tonight holds,
+/// the strip, the week and the blocks, at the boards' gaps. Laid out from a `HomeSnapshot`; nothing
+/// here decides anything.
 struct HomeView: View {
   let home: HomeSnapshot
   let price: String
+  var locationFact = Copy.Setup.whileUsingFact
   let openSettings: () -> Void
   let openDoor: () -> Void
   let openPurchase: () -> Void
@@ -18,101 +21,149 @@ struct HomeView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
         topBar
-        HomeHero(hero: home.hero).padding(.top, 20)
-        if let left = home.unlocksLeft {
-          UnlockRow(left: left, open: openDoor).padding(.top, 20)
-        }
-        if home.hero == .paused {
-          PausedCard(price: price, open: openPurchase).padding(.top, 20)
-        }
         if home.locationBanner {
-          LocationBanner(fix: fixLocation).padding(.top, 20)
+          NoteCard(locationFact) {
+            Button(Copy.Home.fixInSettings, action: fixLocation)
+              .tollType(.link, TollColor.accent)
+              .frame(minHeight: 28)
+          }
+          .padding(.top, 4)
+        } else if let pill = home.pill {
+          PillView(pill: pill, open: openPurchase)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 4)
+        }
+        HomeHero(hero: home.hero, openDoor: home.unlocksLeft == nil ? nil : openDoor)
+          .padding(.top, heroGap)
+        if case .paused = home.hero {
+          PausedCard(price: price, open: openPurchase).padding(.top, 18)
         }
         if let timeline = home.timeline {
-          TimelineStrip(timeline: timeline).padding(.top, 20)
+          TimelineStrip(timeline: timeline).padding(.top, home.locationBanner ? 20 : 16)
         }
         SectionHeader(
           Copy.Home.thisWeek, action: openInsights.map { (title: Copy.Home.seeAll, run: $0) }
         )
-        .padding(.top, 30)
-        WeekCard(home: home).padding(.top, 12)
+        .padding(.top, 24)
+        WeekCard(home: home).padding(.top, 16)
         SectionHeader(
           Copy.Home.blocks,
           action: openBlock.map { open in (title: Copy.Home.new, run: { open(nil) }) }
         )
-        .padding(.top, 26)
+        .padding(.top, 22)
         BlockList(
           rows: home.blocks, open: openBlock.map { open in { (id: BlockID) in open(id) } }
-        ).padding(.top, 10)
+        )
+        .padding(.top, TollSpacing.headerToCard)
       }
       .tollGutter()
-      .padding(.bottom, TollSpacing.sectionGap)
+      .padding(.bottom, 32)
     }
     .background(TollColor.bg)
     .animation(Motion.stateChange, value: home.hero)
   }
 
+  /// The boards: 16 pt under the pill or the bar, 14 above "Paused", 20 under the location card.
+  private var heroGap: CGFloat {
+    if home.locationBanner { return 20 }
+    if case .paused = home.hero { return 14 }
+    return 16
+  }
+
   private var topBar: some View {
     HStack {
-      if let pill = home.pill {
-        if pill.opensPurchase {
-          Button(action: openPurchase) { PillLabel(text: pill.text, accent: true) }
-        } else {
-          PillLabel(text: pill.text, accent: false)
-        }
-      }
       Spacer()
       Button(action: openSettings) {
         Image(systemName: "gearshape")
-          .font(.title3)
+          .font(.system(size: 20, weight: .regular))
           .foregroundStyle(TollColor.label2)
           .frame(width: TollSpacing.minTapTarget, height: TollSpacing.minTapTarget)
       }
       .accessibilityLabel(Copy.Home.settings)
+      .padding(.trailing, -10)
     }
-    .frame(minHeight: TollSpacing.minTapTarget)
+    .frame(height: TollSpacing.barHeight)
   }
 }
 
-private struct PillLabel: View {
-  let text: String
-  let accent: Bool
+/// The pill under the bar: grey on `surface` for a free night and for "Away from home"; the last
+/// free night in amber on its tint, and only that one opens anything (D33).
+private struct PillView: View {
+  let pill: HomeSnapshot.Pill
+  let open: () -> Void
 
   var body: some View {
-    Text(text)
-      .font(TollFont.captionMedium)
-      .monospacedDigit()
-      .foregroundStyle(accent ? TollColor.accent : TollColor.label2)
+    if pill.opensPurchase {
+      Button(action: open) {
+        HStack(spacing: 6) {
+          Text(pill.text)
+          Image(systemName: "chevron.right").font(.system(size: 10, weight: .bold))
+        }
+        .tollType(.trailing, TollColor.accent)
+        .padding(.leading, 14)
+        .padding(.trailing, 12)
+        .frame(minHeight: 30)
+        .background(TollColor.accentSoft, in: Capsule())
+        .frame(minHeight: TollSpacing.minTapTarget)
+        .contentShape(Rectangle())
+      }
+      .buttonStyle(.plain)
+      .padding(.vertical, -7)
+    } else {
+      HStack(spacing: 6) {
+        if pill.kind == .away {
+          Image(systemName: "location").font(.system(size: 12, weight: .medium))
+        }
+        Text(pill.text)
+      }
+      .tollType(TollType(size: 13, lineHeight: 18, weight: .medium, style: .footnote))
+      .foregroundStyle(TollColor.label2)
       .padding(.horizontal, 14)
-      .frame(minHeight: 32)
+      .frame(minHeight: 30)
       .background(TollColor.surface, in: Capsule())
+      .accessibilityElement(children: .combine)
+    }
   }
 }
 
-/// The state, in one big time and two small lines.
+/// The state, centred: an eyebrow, the big time (or "Not blocking"), one line, and "Open one app"
+/// while blocked.
 struct HomeHero: View {
   let hero: HomeSnapshot.Hero
+  let openDoor: (() -> Void)?
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 6) {
-      Text(label).font(TollFont.captionMedium).foregroundStyle(TollColor.label2)
-      if let time {
-        BigTime(date: time)
-      } else {
-        Text(title).font(TollFont.screenTitle).foregroundStyle(TollColor.label)
+    VStack(spacing: 6) {
+      VStack(spacing: 6) {
+        Text(eyebrow).tollType(.eyebrow, TollColor.label2)
+        if let time {
+          HeroTime(time)
+        } else {
+          Text(title)
+            .tollType(TollType(size: 40, lineHeight: 46, weight: .semibold, style: .largeTitle))
+            .foregroundStyle(TollColor.label)
+        }
+        Text(detail).tollType(.heroLine, TollColor.label2)
       }
-      Text(detail).font(TollFont.subhead).foregroundStyle(TollColor.label2).monospacedDigit()
+      .multilineTextAlignment(.center)
+      .accessibilityElement(children: .combine)
+      .accessibilityAddTraits(.isHeader)
+      if let openDoor {
+        Button(Copy.Home.openOneApp, action: openDoor)
+          .tollType(.link, TollColor.accent)
+          .frame(minHeight: 32)
+          .padding(.top, 4)
+      }
     }
-    .accessibilityElement(children: .combine)
-    .accessibilityAddTraits(.isHeader)
+    .frame(maxWidth: .infinity)
   }
 
-  private var label: String {
+  private var eyebrow: String {
     switch hero {
-    case .tonight: Copy.Home.tonight
+    case .tonight, .away: Copy.Home.tonight
     case .blocked(let label, _, _): label
-    case .away: Copy.Home.awayLabel
-    case .paused, .noBlocks: ""
+    case .paused: Copy.Home.paused
+    case .noBlocks: ""
     }
   }
 
@@ -125,35 +176,26 @@ struct HomeHero: View {
     }
   }
 
-  private var title: String { hero == .paused ? Copy.Home.paused : Copy.Home.noBlocks }
+  private var title: String {
+    if case .paused = hero { return Copy.Home.notBlocking }
+    return Copy.Home.noBlocks
+  }
 
   private var detail: String {
     switch hero {
     case .tonight(_, let detail), .blocked(_, _, let detail): detail
     case .away: Copy.Home.startsWhenHome
-    case .paused: "\(Copy.Home.notBlocking) · \(Copy.Home.trialEnded)"
+    case .paused(let today): today ? Copy.Home.trialEndedToday : Copy.Home.trialEnded
     case .noBlocks: ""
     }
   }
 }
 
-/// "10:30 pm" with the time large and the am/pm small (the canvas).
-private struct BigTime: View {
-  let date: Date
-  @ScaledMetric(relativeTo: .largeTitle) private var size: CGFloat = 64
-
-  var body: some View {
-    let style = Date.FormatStyle(date: .omitted, time: .shortened)
-    let parts = date.formatted(style).split(separator: " ", maxSplits: 1)
-    HStack(alignment: .firstTextBaseline, spacing: 4) {
-      Text(String(parts.first ?? ""))
-        .font(.system(size: min(size, 96), weight: .semibold).monospacedDigit())
-        .minimumScaleFactor(0.6)
-        .lineLimit(1)
-      if parts.count > 1 {
-        Text(String(parts[1])).font(.title2.weight(.medium)).foregroundStyle(TollColor.label2)
-      }
-    }
-    .foregroundStyle(TollColor.label)
+/// What Settings' location says, as one fact (D37).
+func locationFact(_ state: LocationAccess.State) -> String {
+  switch state {
+  case .approximate: Copy.Setup.approximateFact
+  case .denied, .notDetermined: Copy.Setup.deniedFact
+  case .whileUsing, .always: Copy.Setup.whileUsingFact
   }
 }

@@ -3,15 +3,13 @@ import Foundation
 extension Copy {
   /// The block screen (spec §7), drawn by the system from these strings.
   public enum Shield {
-    public static func title(until end: String) -> String { "Blocked until \(end)." }
-    public static let title = "Blocked."
-    public static let subtitle = "You're home and it's your sleep time."
-    public static let subtitleWindowOnly = "It's your sleep time."
+    public static func title(until end: String) -> String { "Blocked until \(end)" }
+    public static let title = "Blocked"
+    public static let subtitle = "It's your sleep time."
     public static func blockTitle(_ block: String, until end: String) -> String {
       "\(block) · until \(end)"
     }
-    public static func atPlace(_ place: String) -> String { "You're at \(place)." }
-    public static func blockOn(_ block: String) -> String { "\(block) is on." }
+    public static func blockOn(_ block: String) -> String { "This app is blocked during \(block)." }
     /// D32, after Opal: the easy way out is the first button.
     public static let neverMind = "Never mind"
     public static let unlock = "Unlock in \(name)"

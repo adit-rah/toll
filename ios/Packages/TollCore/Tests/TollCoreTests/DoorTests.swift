@@ -122,4 +122,16 @@ struct DoorTests {
   @Test func doorIntervalIsThePlatformMinimum() {
     #expect(DoorRules.intervalMinutes(config) == 15)
   }
+
+  @Test func theBlockScreensAppGoesWithTheRequestAndClearsWithIt() {
+    var s = setUp()
+    run(&s, date(2026, 11, 17, 23))
+    let app = Data([1, 2, 3])
+    _ = apply(.askDoor(date(2026, 11, 17, 23, 5), app: app), &s, date(2026, 11, 17, 23, 5))
+    #expect(s.doorAskedFor == app)
+    _ = apply(.askDoor(date(2026, 11, 17, 23, 6)), &s, date(2026, 11, 17, 23, 6))
+    #expect(s.doorAskedFor == nil)
+    _ = apply(.askDoor(nil, app: app), &s, date(2026, 11, 17, 23, 7))
+    #expect(s.doorAskedFor == nil)
+  }
 }

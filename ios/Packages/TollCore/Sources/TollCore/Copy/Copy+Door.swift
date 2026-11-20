@@ -18,7 +18,17 @@ extension Copy {
 
     public static func question(minutes: Int) -> String { "Open one app for \(minutes) minutes?" }
     public static let notNow = "Not now"
-    public static let chooseOne = "Choose one app."
+    public static let chooseApp = "Choose app"
+    public static func openFor(minutes: Int) -> String { "Open for \(minutes) minutes?" }
+    public static let startWait = "Start the wait"
+    public static let chooseDifferent = "Choose a different app"
+    public static let chooseOneTitle = "Choose one app"
+    public static func pickedSeveral(_ n: Int) -> String {
+      "You picked \(n). The door opens one app at a time."
+    }
+    public static let pickedCategory =
+      "You picked a whole category. The door opens one app at a time."
+    public static let chooseAgain = "Choose again"
     public static func unlocksOf(_ left: Int, _ max: Int) -> String {
       "\(left) of \(max) unlocks left"
     }
@@ -26,11 +36,12 @@ extension Copy {
       "You wait \(seconds) seconds first. Cancelling costs nothing."
     }
     public static func onceWaitEnds(minutes: Int) -> String {
-      "\(minutes) minutes once the wait ends"
+      "Opens for \(minutes) minutes when the wait ends"
     }
     public static let leaveFreely = "You can leave this screen. The wait keeps going."
     public static let isOpen = "Open now"
-    public static func forMinutes(_ minutes: Int) -> String { "For \(minutes) minutes" }
+    public static func locksAt(_ time: String) -> String { "Locks again at \(time)" }
+    public static let leftWord = "left"
     public static func regretFor(_ clock: String) -> String {
       "Lock again in the next \(clock) and you keep the unlock."
     }
@@ -41,8 +52,6 @@ extension Copy {
     }
     public static let othersWork = "Everything you didn't block still works."
     public static let ok = "OK"
-    /// For an app inside a blocked category, which the list cannot show by itself.
-    public static let anotherApp = "Another app"
 
     public static func opensIn(_ clock: String) -> String { "Opens in \(clock)." }
     public static func opensInSpoken(minutes: Int, seconds: Int) -> String {
