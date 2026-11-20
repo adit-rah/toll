@@ -39,7 +39,8 @@ final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
       subtitle: .init(text: text.subtitle, color: ShieldIcon.secondaryLabel),
       primaryButtonLabel: .init(text: Copy.Shield.neverMind, color: ShieldIcon.onAccent),
       primaryButtonBackgroundColor: ShieldIcon.accent,
-      secondaryButtonLabel: .init(text: Copy.Shield.unlock, color: ShieldIcon.secondaryLabel))
+      secondaryButtonLabel: text.offersDoor
+        ? .init(text: Copy.Shield.unlock, color: ShieldIcon.secondaryLabel) : nil)
   }
 
   /// The active block that names this app; the Sleep block when several do or none can be told apart.
