@@ -6,11 +6,13 @@ extension Copy {
     public static let title = "Blocks"
     public static let line =
       "A block is a list of apps, a place, and the hours they're blocked there."
-    public static func summary(apps: Int, categories: Int) -> String {
-      Setup.blockedCount(apps: apps, categories: categories).isEmpty
-        ? "No apps" : Setup.blockedCount(apps: apps, categories: categories)
+    public static func summary(categories: Int, apps: Int, sites: Int = 0) -> String {
+      let count = Setup.blockedCount(categories: categories, apps: apps, sites: sites)
+      return count.isEmpty ? "No apps" : count
     }
     public static let new = "New block"
+    public static let wholeCategory = "Whole category"
+    public static let website = "Website"
     public static func limits(_ maxApps: Int) -> String {
       "Each block has its own apps. Unlocks are shared. Up to \(maxApps) apps across all blocks."
     }

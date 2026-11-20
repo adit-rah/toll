@@ -49,35 +49,33 @@ public enum TollRadius {
 }
 
 /// A canvas row's height and the tile that leads it.
-public enum RowSize: Sendable {
+public struct RowSize: Sendable, Equatable {
+  public var minHeight: CGFloat
+  public var tile: TileSize
+
+  public init(minHeight: CGFloat, tile: TileSize) {
+    self.minHeight = minHeight
+    self.tile = tile
+  }
+
   /// 60 pt, 36 pt tile: editors, Ready, Settings.
-  case regular
-  /// 58 pt, 36 pt tile: Home's block list.
-  case list
+  public static let regular = RowSize(minHeight: 60, tile: .row)
+  /// 58 pt: Home's block list, a toggle row.
+  public static let list = RowSize(minHeight: 58, tile: .row)
+  /// 62 pt: a night's hours with "Change".
+  public static let night = RowSize(minHeight: 62, tile: .row)
+  /// 64 pt: the home place under the map.
+  public static let place = RowSize(minHeight: 64, tile: .row)
+  /// 76 pt, 44 pt tile: the permissions list.
+  public static let permission = RowSize(minHeight: 76, tile: .permission)
   /// 56 pt, 32 pt tile: a whole category in an apps list.
-  case category
+  public static let category = RowSize(minHeight: 56, tile: .small)
   /// 52 pt, 32 pt tile: an app or a site in an apps list.
-  case compact
-
-  public var minHeight: CGFloat {
-    switch self {
-    case .regular: 60
-    case .list: 58
-    case .category: 56
-    case .compact: 52
-    }
-  }
-
-  public var tile: TileSize {
-    switch self {
-    case .regular, .list: .row
-    case .category, .compact: .small
-    }
-  }
+  public static let compact = RowSize(minHeight: 52, tile: .small)
 }
 
 /// The canvas's icon tiles: the box, its corners and the symbol inside.
-public enum TileSize: Sendable {
+public enum TileSize: Sendable, Equatable {
   /// 32 pt, 8 pt corners, 18 pt symbol.
   case small
   /// 36 pt, 10 pt corners, 20 pt symbol.

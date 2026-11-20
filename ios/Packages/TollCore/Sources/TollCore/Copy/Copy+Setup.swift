@@ -40,10 +40,10 @@ extension Copy {
 
     public static let welcomeTitle = "Buy back your sleep."
     public static let welcomeLine =
-      "At home, at night, the apps that keep you up stop opening. Everything else works."
+      "At night, the apps that keep you up stop opening. Everything else works."
     public static let offerTitle = "7 nights free"
     public static func offerDetail(price: String) -> String {
-      "Then \(price) once, or it switches off. No subscription."
+      "Then \(price) once. No subscription. No account."
     }
     public static let start = "Start my free week"
     public static let restore = "Already bought it? Restore"
@@ -51,7 +51,8 @@ extension Copy {
     public static let wakeTitle = "When do you need to be up?"
     public static let weekendWakeTitle = "On weekends?"
     public static let yourNights = "Your nights"
-    public static let weekendNights = "Friday and Saturday nights"
+    public static let weeknights = "Weeknights"
+    public static let weekendNights = "Fri and Sat nights"
     public static func nights(_ window: TimeWindow, in calendar: Calendar = .current) -> String {
       "\(span(window, in: calendar)) · \(length(minutes: window.minutes))"
     }
@@ -63,11 +64,10 @@ extension Copy {
 
     public static let homeTitle = "Where do you sleep?"
     public static let currentLocation = "Your current location"
-    public static let coversBuilding = "The block covers this building"
+    public static let coversBuilding = "This building and the street around it"
     public static let movingDetail = "Drag the map to put home in the circle"
     public static let move = "Move"
-    public static let homeLine =
-      "\(name) only checks whether you're home. It never keeps a record of where you go."
+    public static let homeLine = "Location only tells blocks whether you're there. We never see it."
     public static let thisIsHome = "This is home"
     public static let finding = "Finding where you are…"
     public static let noFix = "No exact location yet. Try again by a window or outside."
@@ -79,27 +79,39 @@ extension Copy {
 
     public static let permissionsTitle = "Two permissions"
     public static let permissionsLine =
-      "Both are Apple's screens. You can see and change them in Settings."
+      "Both are Apple's screens. You can change them in Settings."
     public static let screenTime = "Screen Time"
-    public static let screenTimeWhy = "To block apps at night"
-    public static let location = "Location, set to Always"
-    public static let locationWhy = "To know when you're home, even when the app is closed"
+    public static let screenTimeWhy = "To block apps"
+    public static let location = "Location"
+    public static let locationWhy = "So blocks with a place know when you're there"
     public static let allow = "Allow"
-    public static let allowed = "Allowed"
-    public static let screenTimeNeeded = "Not allowed. Without Screen Time nothing can be blocked."
-    public static let locationDenied =
-      "Not allowed. Your blocks will run on their hours, wherever you are."
-    public static let locationApproximate =
-      "Precise Location is off. Your blocks will run on their hours, wherever you are."
+    /// A permission's state, as Settings words it.
+    public static let off = "Off"
+    public static let on = "On"
+    public static let always = "Always"
+    public static let whileUsing = "While Using"
+    public static let never = "Never"
+    public static let preciseLocation = "Precise Location"
+    public static let screenTimeDenied =
+      "Without Screen Time, \(name) can't block anything. Turn it on in the next screen, or in Settings › Screen Time."
 
-    public static let alwaysTitle = "One more step: choose Always"
+    public static let alwaysTitle = "Choose Always for places"
     public static let alwaysLine =
-      "Location is set to While Using. With that, \(name) can't tell you're home while it's closed, so your blocks run on their hours, wherever you are."
+      "Location is set to While Using. With Always, Sleep starts only when you're home. Without it, your blocks run on their hours, wherever you are."
     public static let alwaysHeader = "Allow location access"
     public static let alwaysOptions = ["Never", "Ask Next Time", "While Using the App"]
     public static let alwaysChoice = "Always"
-    public static let alwaysPath = "In Settings: \(name) → Location → Always."
+    public static let alwaysPath = "In Settings: \(name) › Location › Always."
     public static let alwaysLater = "Not now. Blocks run on their hours alone."
+
+    public static let locationOffTitle = "Your blocks run on their hours"
+    public static let whileUsingFact =
+      "Location is set to While Using. Your blocks run on their hours, wherever you are."
+    public static let approximateFact =
+      "Precise Location is off. Your blocks run on their hours, wherever you are."
+    public static let deniedFact =
+      "Location is off. Your blocks run on their hours, wherever you are."
+    public static let changeInSettings = "Change in Settings"
 
     public static let blockTitle = "What keeps you up?"
     public static let blockLine = "These apps won't open at night. Everything else works as normal."
@@ -111,7 +123,7 @@ extension Copy {
       "Up to \(max) apps and sites across all blocks. Choose fewer, or a whole category."
     }
 
-    public static let readyTitle = "You're set"
+    public static let readyEyebrow = "You're set"
     public static func readyLine(_ start: String, atHome: Bool) -> String {
       atHome ? "Tonight at \(start), if you're home." : "Tonight at \(start)."
     }
@@ -121,15 +133,18 @@ extension Copy {
     public static let everyNight = "Every night"
     public static let weekendsDiffer = "Weekends differ"
     public static let atHome = "At home"
-    public static let yourBuilding = "Your current building"
+    public static let yourBuilding = "This building and the street around it"
     public static let anywhere = "Anywhere"
+    public static let anywhereDetail = "Runs on its hours, wherever you are"
     public static let blocked = "Blocked"
-    public static func blockedCount(apps: Int, categories: Int) -> String {
+    /// "2 categories · 2 apps": counts, because iOS never tells the app the names (D41).
+    public static func blockedCount(categories: Int, apps: Int, sites: Int = 0) -> String {
       var parts: [String] = []
-      if apps > 0 { parts.append(apps == 1 ? "1 app" : "\(apps) apps") }
       if categories > 0 {
         parts.append(categories == 1 ? "1 category" : "\(categories) categories")
       }
+      if apps > 0 { parts.append(apps == 1 ? "1 app" : "\(apps) apps") }
+      if sites > 0 { parts.append(sites == 1 ? "1 site" : "\(sites) sites") }
       return parts.joined(separator: middleDot)
     }
     public static func unlocks(_ n: Int) -> String { n == 1 ? "1 unlock" : "\(n) unlocks" }

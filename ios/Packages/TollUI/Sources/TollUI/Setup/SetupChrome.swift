@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// The setup bar: 2 or 4 segments. Segments before `current` are full; `current` fills left to right
+/// The setup bar: 3 pt segments 6 pt apart (the canvas). Segments before `current` are full; `current` fills left to right
 /// over 250 ms as its screen lands (design §2.5). Keep one instance across the setup steps so moving
 /// back and forth animates the change.
 public struct ProgressSegments: View {
@@ -24,17 +24,17 @@ public struct ProgressSegments: View {
   public var body: some View {
     HStack(spacing: 6) {
       ForEach(0..<count, id: \.self) { index in
-        Capsule()
+        RoundedRectangle(cornerRadius: 2)
           .fill(TollColor.surfaceRaised)
           .overlay(alignment: .leading) {
             GeometryReader { proxy in
-              Capsule()
+              RoundedRectangle(cornerRadius: 2)
                 .fill(TollColor.accent)
                 .frame(width: fillWidth(index: index, total: proxy.size.width))
                 .opacity(fillOpacity(index: index))
             }
           }
-          .frame(height: 4)
+          .frame(height: 3)
       }
     }
     .frame(maxWidth: .infinity)

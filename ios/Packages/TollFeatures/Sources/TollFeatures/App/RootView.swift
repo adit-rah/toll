@@ -15,10 +15,18 @@ public struct RootView: View {
 
   public var body: some View {
     content
-      .preferredColorScheme(appearance.scheme)
+      .preferredColorScheme(scheme)
       .onChange(of: scenePhase, initial: true) { _, phase in
         if phase == .active { model.foreground() }
       }
+  }
+
+  /// Demo launches follow the simulator, so renders show both appearances (docs/renders.md).
+  private var scheme: ColorScheme? {
+    #if DEBUG
+      if DemoScenario.current != nil { return nil }
+    #endif
+    return appearance.scheme
   }
 
   @ViewBuilder private var content: some View {
@@ -92,11 +100,6 @@ struct LiveHome: View {
 
   private var doorShown: Binding<Bool> {
     Binding(get: { model.showsDoor }, set: { if !$0 { model.dismissDoor() } })
-  }
-
-  private func openSystemSettings() {
-    guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-    UIApplication.shared.open(url)
   }
 }
 

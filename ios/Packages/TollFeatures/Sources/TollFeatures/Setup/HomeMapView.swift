@@ -11,26 +11,29 @@ struct HomeMapView: View {
 
   var body: some View {
     SetupPage(step: SetupModel.Step.home.number, title: Copy.Setup.homeTitle) {
-      map
+      map.padding(.top, 24)
       if blocked {
-        SetupLine(Copy.Setup.homeWithoutLocation)
+        SetupLine(Copy.Setup.homeWithoutLocation).padding(.top, 16)
       } else {
         Card {
           CardRow(
             Copy.Setup.currentLocation,
-            detail: model.moving ? Copy.Setup.movingDetail : Copy.Setup.coversBuilding
+            detail: model.moving ? Copy.Setup.movingDetail : Copy.Setup.coversBuilding,
+            size: .place
           ) {
-            IconTile("location.fill")
+            IconTile("location")
           } trailing: {
             Button(model.moving ? Copy.Setup.done : Copy.Setup.move) { model.moving.toggle() }
-              .buttonStyle(.tollQuiet)
+              .tollType(.link, TollColor.accent)
+              .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
               .disabled(model.home == nil)
           }
         }
+        .padding(.top, 16)
       }
-      if model.locating { Footnote(Copy.Setup.finding) }
-      if model.noFix { Footnote(Copy.Setup.noFix) }
-      Footnote(Copy.Setup.homeLine, symbol: "lock")
+      if model.locating { Footnote(Copy.Setup.finding).padding(.top, 14) }
+      if model.noFix { Footnote(Copy.Setup.noFix).padding(.top, 14) }
+      Footnote(Copy.Setup.homeLine, symbol: "lock").padding(.top, 14)
     } actions: {
       if blocked {
         PrimaryButton(Copy.Setup.continueWithout) { model.go(.permissions) }
@@ -64,11 +67,20 @@ struct HomeMapView: View {
         MapCircle(center: center, radius: home.radiusMeters)
           .foregroundStyle(TollColor.accentSoft)
           .stroke(TollColor.accent, lineWidth: 2)
-        Annotation(Copy.Setup.mapPin, coordinate: center) {
-          Circle()
-            .fill(TollColor.accent)
-            .stroke(TollColor.bg, lineWidth: 3)
-            .frame(width: 18, height: 18)
+        Annotation(Copy.Setup.mapPin, coordinate: center, anchor: .center) {
+          VStack(spacing: 9) {
+            Circle()
+              .fill(TollColor.accent)
+              .stroke(TollColor.bg, lineWidth: 3)
+              .frame(width: 18, height: 18)
+            Text(Copy.Setup.mapPin)
+              .tollType(TollType(size: 12, lineHeight: 16, weight: .semibold, style: .caption))
+              .foregroundStyle(TollColor.label)
+              .padding(.horizontal, 10)
+              .frame(height: 26)
+              .background(TollColor.bg, in: Capsule())
+          }
+          .offset(y: 17.5)
         }
       }
     }

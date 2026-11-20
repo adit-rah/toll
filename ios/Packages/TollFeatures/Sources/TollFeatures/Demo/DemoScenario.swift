@@ -1,6 +1,7 @@
 #if DEBUG
   import SwiftUI
   import TollCore
+  import TollData
   import TollScreenTime
   import TollUI
 
@@ -8,6 +9,10 @@
   /// builds contain none of this.
   enum DemoScenario: String, CaseIterable {
     case empty, welcome, wake, home, permissions, always, blocklist, ready
+    case wakeWeekends = "wake-weekends"
+    case permissionsDenied = "permissions-denied"
+    case locationOff = "location-off"
+    case readyAnywhere = "ready-anywhere"
     case homeEvening = "home-evening"
     case homeBlocked = "home-blocked"
     case homeAway = "home-away"
@@ -31,18 +36,34 @@
     var setupPath: [SetupModel.Step]? {
       switch self {
       case .welcome: []
-      case .wake: [.wake]
+      case .wake, .wakeWeekends: [.wake]
       case .home: [.wake, .home]
-      case .permissions: [.wake, .home, .permissions]
+      case .permissions, .permissionsDenied: [.wake, .home, .permissions]
       case .always: [.wake, .home, .permissions, .always]
+      case .locationOff: [.wake, .home, .permissions, .always, .locationOff]
       case .blocklist: [.wake, .home, .permissions, .blocklist]
-      case .ready: [.wake, .home, .permissions, .blocklist, .ready]
+      case .ready, .readyAnywhere: [.wake, .home, .permissions, .blocklist, .ready]
       default: nil
       }
     }
 
-    /// The simulator cannot grant Family Controls; screens past the permission step assume it.
-    var screenTimeApproved: Bool { self == .blocklist || self == .ready }
+    /// The simulator cannot grant Family Controls or answer the location prompt; each screen past
+    /// them assumes the answers its board shows.
+    var screenTime: ScreenTimeAuthorization.State? {
+      switch self {
+      case .blocklist, .ready, .readyAnywhere, .always, .locationOff: .approved
+      case .permissionsDenied: .denied
+      default: nil
+      }
+    }
+
+    var location: LocationAccess.State? {
+      switch self {
+      case .blocklist, .ready, .permissionsDenied: .always
+      case .always, .locationOff, .readyAnywhere: .whileUsing
+      default: nil
+      }
+    }
     var isDoor: Bool { rawValue.hasPrefix("door") }
     var isHome: Bool {
       rawValue.hasPrefix("home-") || rawValue.hasPrefix("block") || isDoor
@@ -109,10 +130,11 @@
     var body: some View {
       SetupFlowContent(model: model)
         .task {
-          if DemoScenario.current?.screenTimeApproved == true {
-            ScreenTimeAuthorization.simulated = .approved
-            model.app.readPermissions()
-          }
+          let scenario = DemoScenario.current
+          ScreenTimeAuthorization.simulated = scenario?.screenTime
+          LocationAccess.simulated = scenario?.location
+          model.weekendsDiffer = scenario == .wakeWeekends
+          model.app.readPermissions()
         }
     }
   }

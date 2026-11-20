@@ -57,8 +57,8 @@ struct BlockEditorView: View {
               CardRow(
                 Copy.Blocks.apps,
                 detail: Copy.Blocks.summary(
-                  apps: Blocklist.items(model.selection),
-                  categories: model.selection.categoryTokens.count)
+                  categories: model.selection.categoryTokens.count,
+                  apps: Blocklist.items(model.selection))
               ) {
                 IconTile("nosign", accent: false)
               } trailing: {
