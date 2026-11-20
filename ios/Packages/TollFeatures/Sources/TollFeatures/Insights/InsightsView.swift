@@ -41,7 +41,7 @@ struct InsightsView: View {
     }
     .background(TollColor.bg)
     .animation(Motion.stateChange, value: range)
-    .navigationBarTitleDisplayMode(.inline)
+    .tollPushed(Copy.Insights.title)
   }
 
   private func since(_ insights: InsightsSnapshot) -> String {

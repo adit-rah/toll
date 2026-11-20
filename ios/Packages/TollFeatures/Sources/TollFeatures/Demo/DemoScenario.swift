@@ -68,13 +68,15 @@
       }
     }
     var isDoor: Bool { rawValue.hasPrefix("door") }
-    /// Screens Home pushes rather than presents.
-    var route: HomeRoute? {
+    /// Screens Home pushes rather than presents, with the screens under them.
+    var routes: [HomeRoute] {
       switch self {
-      case .insights: .insights
-      case .settings: .settings
-      case .blocks: .blocks
-      default: nil
+      case .insights: [.insights]
+      case .settings: [.settings]
+      case .blocks: [.blocks]
+      case .blockNew: [.blocks, .block(nil)]
+      case .blockEdit: [.blocks, .block(BlockID("study"))]
+      default: []
       }
     }
     var isHome: Bool {
@@ -107,7 +109,7 @@
     var body: some View {
       let fixture = DemoFixture(scenario: scenario, now: now)
       let home = HomeSnapshot(state: fixture.state, log: fixture.log, now: now, calendar: .current)
-      NavigationStack(path: .constant(scenario.route.map { [$0] } ?? [])) {
+      NavigationStack(path: .constant(scenario.routes)) {
         HomeView(
           home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},
           fixLocation: {}
@@ -122,16 +124,15 @@
         }
       }
       .tint(TollColor.accent)
-      .sheet(isPresented: .constant(!scenario.rawValue.hasPrefix("home-") && scenario.route == nil))
-      {
+      .sheet(
+        isPresented: .constant(!scenario.rawValue.hasPrefix("home-") && scenario.routes.isEmpty)
+      ) {
         switch scenario {
         case .purchase: PurchaseSheet(model: app, home: home)
         case .purchasePending: PurchaseSheet(model: app, home: home, outcome: .pending)
         case .purchaseFailed: PurchaseSheet(model: app, home: home, outcome: .failed)
         case .purchaseRestoreNone:
           PurchaseSheet(model: app, home: home, outcome: .nothingToRestore)
-        case .blockNew: BlockEditorView(app: app, editing: nil)
-        case .blockEdit: BlockEditorView(app: app, editing: BlockID("study"))
         default:
           TimelineView(.periodic(from: .now, by: 1)) { tick in DoorSheet(model: app, now: tick.date)
           }

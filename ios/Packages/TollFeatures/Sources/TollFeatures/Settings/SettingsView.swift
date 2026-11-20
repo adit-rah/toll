@@ -78,7 +78,7 @@ struct SettingsView: View {
       .padding(.bottom, 32)
     }
     .background(TollColor.bg)
-    .navigationBarTitleDisplayMode(.inline)
+    .tollPushed(Copy.Settings.title)
     .sheet(isPresented: $explaining) { HowItWorks() }
     .sheet(isPresented: $nothingToRestore) { RestoreNoneSheet() }
   }

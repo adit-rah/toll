@@ -102,6 +102,8 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D44. Times read "10:30 pm"** (2026-11-20). The phone's 12- or 24-hour setting decides the format; English sets "am" and "pm" lowercase as the canvas does, and Home's block rows drop ":00" when both ends are whole hours ("9 am – 5 pm").
 
+**D45. Up to 8 blocks** (2026-11-20). The canvas draws seven blocks on Blocks · 8 time windows; the time windows are the limit that bites (D40), so the block count only stops runaway lists. Was 6 (D29).
+
 ## Findings for spec §5 (desk research, 2026-11-17; device checks pending)
 
 | # | Unknown | What Apple's docs and staff say | Device check |
