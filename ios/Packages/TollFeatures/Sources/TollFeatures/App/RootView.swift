@@ -57,16 +57,30 @@ struct LiveHome: View {
   let model: AppModel
   @State private var sheet: HomeSheet?
   @State private var editing: BlockRef?
+  @State private var path: [HomeRoute] = []
 
   var body: some View {
+    NavigationStack(path: $path) {
+      home
+        .homeNavigation()
+        .navigationDestination(for: HomeRoute.self) { route in
+          switch route {
+          case .insights: InsightsView(log: model.trialSummaryLog())
+          }
+        }
+    }
+    .tint(TollColor.accent)
+  }
+
+  private var home: some View {
     TimelineView(.everyMinute) { context in
       let home = HomeSnapshot(
         state: model.state, log: model.log, now: context.date, calendar: .current)
       HomeView(
-        home: home, price: model.price,
+        home: home, price: model.price, locationFact: locationFact(model.location),
         openSettings: { sheet = .settings }, openDoor: { model.askDoor() },
         openPurchase: { sheet = .purchase }, fixLocation: openSystemSettings,
-        openBlock: { editing = BlockRef(id: $0) }, openInsights: { sheet = .insights }
+        openBlock: { editing = BlockRef(id: $0) }, openInsights: { path.append(.insights) }
       )
       .sheet(item: $editing) { ref in BlockEditorView(app: model, editing: ref.block) }
       .sheet(item: $sheet) { which in
@@ -80,7 +94,6 @@ struct LiveHome: View {
             }
           }
         case .purchase: PurchaseSheet(model: model, home: home)
-        case .insights: InsightsView(log: model.trialSummaryLog())
         }
       }
       .sheet(isPresented: doorShown) {
@@ -104,6 +117,18 @@ struct LiveHome: View {
 }
 
 enum HomeSheet: String, Identifiable {
-  case settings, purchase, insights
+  case settings, purchase
   var id: String { rawValue }
+}
+
+/// Screens pushed from Home, with Apple's back button reading "Home" (the canvas).
+enum HomeRoute: Hashable {
+  case insights
+}
+
+extension View {
+  /// Home draws its own bar; its title is what the back button reads on the screens it pushes.
+  func homeNavigation() -> some View {
+    navigationTitle(Copy.Home.backTitle).toolbar(.hidden, for: .navigationBar)
+  }
 }

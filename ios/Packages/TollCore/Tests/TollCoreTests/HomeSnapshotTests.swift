@@ -34,13 +34,17 @@ struct HomeSnapshotTests {
     let home = snapshot(s, date(2026, 11, 17, 23))
     #expect(
       home.hero
-        == .blocked(label: "Blocked until", until: date(2026, 11, 18, 7), detail: "You're home"))
+        == .blocked(
+          label: "Blocked until", until: date(2026, 11, 18, 7),
+          detail: "You're home · 3 unlocks left"))
+    #expect(home.timeline?.phase == .on)
     #expect(home.unlocksLeft == 3)
   }
 
   @Test func awayInsideTheNight() {
     let home = snapshot(setUp(home: false), date(2026, 11, 17, 23))
     #expect(home.hero == .away(start: date(2026, 11, 17, 22, 30)))
+    #expect(home.pill == .init(text: "Away from home", kind: .away))
   }
 
   @Test func pausedAfterTheTrial() {
@@ -48,7 +52,8 @@ struct HomeSnapshotTests {
     s.trial.start = date(2026, 11, 1, 12)
     run(&s, date(2026, 11, 17, 15))
     let home = snapshot(s, date(2026, 11, 17, 15))
-    #expect(home.hero == .paused)
+    #expect(home.hero == .paused(endedToday: false))
+    #expect(home.timeline?.phase == .paused)
     #expect(home.blocks.first?.trailing == Copy.Home.paused)
   }
 
@@ -57,7 +62,7 @@ struct HomeSnapshotTests {
     s.trial.start = date(2026, 11, 13, 15)
     #expect(
       snapshot(s, date(2026, 11, 17, 15)).pill
-        == .init(text: "Night 5 of 7 free", opensPurchase: false))
+        == .init(text: "Night 5 of 7 free", kind: .trial))
     run(&s, date(2026, 11, 17, 23))
     #expect(snapshot(s, date(2026, 11, 17, 23)).pill == nil)
     var last = setUp()
@@ -65,7 +70,7 @@ struct HomeSnapshotTests {
     #expect(snapshot(last, date(2026, 11, 17, 15)).pill?.opensPurchase == true)
   }
 
-  @Test func theWeekFromTheLog() {
+  @Test func theFirstWeekShowsNightsSinceSetupThenWhatIsAhead() {
     var s = setUp()
     s.setupFinishedAt = date(2026, 11, 15, 12)
     let log = [
@@ -79,9 +84,50 @@ struct HomeSnapshotTests {
     #expect(home.nightsCounted == 2)
     #expect(home.nightsBlocked == 2)
     #expect(home.timesStopped == 3)
-    #expect(home.bars.map(\.count).suffix(3) == [2, 1, 0])
-    #expect(home.bars.last?.isToday == true)
+    #expect(home.bars.count == 7)
+    #expect(home.bars.prefix(3).map(\.night) == [.stopped(2), .stopped(1), .ahead])
+    #expect(home.bars[2].isToday)
+    #expect(home.bars.suffix(4).allSatisfy { $0.night == .ahead })
     #expect(!home.showsTrends)
+    #expect(home.stopsChange == nil)
+  }
+
+  @Test func laterTheLastSevenNightsWithDashesAndZeros() {
+    var s = setUp()
+    s.setupFinishedAt = date(2026, 11, 1, 12)
+    var log: [Transition] = []
+    for day in 10...16 where day != 13 {
+      log.append(line(date(2026, 11, day, 22, 30), .windowStart, changed: true))
+    }
+    log.append(line(date(2026, 11, 11, 23), .blockScreen))
+    log.append(line(date(2026, 11, 3, 23), .windowStart, changed: true))
+    for _ in 0..<4 { log.append(line(date(2026, 11, 3, 23, 30), .blockScreen)) }
+    log.sort { $0.at < $1.at }
+    let home = snapshot(s, date(2026, 11, 16, 23), log: log)
+    #expect(
+      home.bars.map(\.night) == [
+        .stopped(0), .stopped(1), .stopped(0), .noBlock, .stopped(0), .stopped(0), .stopped(0),
+      ])
+    #expect(home.nightsBlocked == 6)
+    #expect(home.nightsCounted == 7)
+    #expect(home.stopsChange == -3)
+  }
+
+  @Test func withoutLocationTheHeroSaysWhereverYouAre() {
+    var s = setUp()
+    s.location = .scheduleOnly
+    let home = snapshot(s, date(2026, 11, 17, 19, 18))
+    #expect(
+      home.hero
+        == .tonight(
+          start: date(2026, 11, 17, 22, 30), detail: "Starts at 10:30\u{202F}pm, wherever you are")
+        || home.hero
+          == .tonight(
+            start: date(2026, 11, 17, 22, 30), detail: "Starts at 10:30 pm, wherever you are")
+        || home.hero
+          == .tonight(
+            start: date(2026, 11, 17, 22, 30), detail: "Starts at 22:30, wherever you are")
+    )
   }
 
   @Test func blockRows() {

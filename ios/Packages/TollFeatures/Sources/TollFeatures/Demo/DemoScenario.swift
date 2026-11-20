@@ -95,15 +95,20 @@
     var body: some View {
       let fixture = DemoFixture(scenario: scenario, now: now)
       let home = HomeSnapshot(state: fixture.state, log: fixture.log, now: now, calendar: .current)
-      HomeView(
-        home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},
-        fixLocation: {}
-      )
-      .sheet(isPresented: .constant(!scenario.rawValue.hasPrefix("home-"))) {
+      NavigationStack(path: .constant(scenario == .insights ? [HomeRoute.insights] : [])) {
+        HomeView(
+          home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},
+          fixLocation: {}
+        )
+        .homeNavigation()
+        .navigationDestination(for: HomeRoute.self) { _ in InsightsView(log: fixture.log) }
+      }
+      .tint(TollColor.accent)
+      .sheet(isPresented: .constant(!scenario.rawValue.hasPrefix("home-") && scenario != .insights))
+      {
         switch scenario {
         case .purchase: PurchaseSheet(model: app, home: home)
         case .settings: SettingsView(model: app)
-        case .insights: InsightsView(log: fixture.log)
         case .blocks: NavigationStack { BlocksView(model: app) }
         case .blockNew: BlockEditorView(app: app, editing: nil)
         case .blockEdit: BlockEditorView(app: app, editing: BlockID("study"))

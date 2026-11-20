@@ -6,28 +6,64 @@ public struct HomeSnapshot: Equatable, Sendable {
     case tonight(start: Date, detail: String)
     case blocked(label: String, until: Date, detail: String)
     case away(start: Date)
-    case paused
+    /// After the trial; `endedToday` reads "this morning".
+    case paused(endedToday: Bool)
     case noBlocks
   }
 
+  /// The quiet label under the bar (the canvas): the free night, the last one (which opens the
+  /// purchase sheet, D33), or "Away from home".
   public struct Pill: Equatable, Sendable {
+    public enum Kind: Equatable, Sendable {
+      case trial, lastNight, away
+    }
+
     public var text: String
-    /// Only on the last free day (D33).
-    public var opensPurchase: Bool
+    public var kind: Kind
+
+    public var opensPurchase: Bool { kind == .lastNight }
   }
 
   /// Fractions of the 6 pm → 10 am strip.
   public struct Timeline: Equatable, Sendable {
+    public enum Phase: Equatable, Sendable {
+      /// Drawn as an outline: tonight's block, still to come.
+      case upcoming
+      /// Solid: on now.
+      case on
+      /// Dashed: the trial is over and nothing will block.
+      case paused
+    }
+
     public var start: Double
     public var end: Double
+    /// Where now is; 0 in the afternoon before the strip begins (the canvas draws the line at its
+    /// left edge then, without the word).
     public var now: Double?
+    public var nowInside: Bool
+    public var phase: Phase
     public var label: String
   }
 
+  /// One night in "Times it stopped you, by night" (the canvas, sticky note s2).
   public struct Bar: Equatable, Sendable {
+    public enum Night: Equatable, Sendable {
+      /// A block ran; it stopped you this many times (0 is drawn as 0).
+      case stopped(Int)
+      /// No block ran: away all night, paused, or before setup. Drawn as a dash.
+      case noBlock
+      /// Still to come, or tonight before its block: a dashed empty slot.
+      case ahead
+    }
+
     public var day: String
-    public var count: Int
+    public var night: Night
     public var isToday: Bool
+
+    public var count: Int {
+      if case .stopped(let count) = night { return count }
+      return 0
+    }
   }
 
   public struct BlockRow: Equatable, Sendable, Identifiable {
@@ -47,6 +83,8 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var nightsBlocked: Int
   public var nightsCounted: Int
   public var timesStopped: Int
+  /// Stops this week minus the week before, once there are 14 nights to compare.
+  public var stopsChange: Int?
   public var bars: [Bar]
   public var showsTrends: Bool
   public var blocks: [BlockRow]
@@ -56,15 +94,24 @@ public struct HomeSnapshot: Equatable, Sendable {
     config: TollConfig = .defaults
   ) {
     let sleep = state.sleepBlock
-    hero = Self.hero(state, sleep: sleep, now: now, calendar: calendar)
+    hero = Self.hero(state, sleep: sleep, now: now, calendar: calendar, config: config)
     pill = Self.pill(state, now: now, calendar: calendar, config: config)
     unlocksLeft = state.isBlocking ? state.unlocks.left(config) : nil
+    if case .away = hero { pill = Pill(text: Copy.Home.awayLabel, kind: .away) }
     locationBanner = state.setupFinishedAt != nil && state.location == .scheduleOnly
-    timeline = sleep.flatMap { Self.timeline($0.schedule, now: now, calendar: calendar) }
+    let phase: Timeline.Phase =
+      !state.trial.entitled
+      ? .paused
+      : (sleep.map { state.runtime.active[$0.id] != nil } == true
+        ? .on : .upcoming)
+    timeline = sleep.flatMap {
+      Self.timeline($0.schedule, phase: phase, now: now, calendar: calendar)
+    }
     let week = Week(log: log, now: now, calendar: calendar, since: state.setupFinishedAt)
     nightsBlocked = week.blocked
     nightsCounted = week.counted
     timesStopped = week.bars.map(\.count).reduce(0, +)
+    stopsChange = week.change
     bars = week.bars
     showsTrends = week.counted >= 3
     blocks = state.blocks.map { Self.row($0, state: state, now: now, calendar: calendar) }
@@ -72,8 +119,13 @@ public struct HomeSnapshot: Equatable, Sendable {
 
   // MARK: Parts
 
-  static func hero(_ state: DuskState, sleep: Block?, now: Date, calendar: Calendar) -> Hero {
-    guard state.trial.entitled else { return .paused }
+  static func hero(
+    _ state: DuskState, sleep: Block?, now: Date, calendar: Calendar, config: TollConfig
+  ) -> Hero {
+    guard state.trial.entitled else {
+      return .paused(
+        endedToday: Self.trialEndedToday(state, now: now, calendar: calendar, config: config))
+    }
     if let (block, end) = state.activeBlocks.compactMap({ b in
       state.runtime.active[b.id].map { (b, $0) }
     })
@@ -82,7 +134,8 @@ public struct HomeSnapshot: Equatable, Sendable {
       let atHome = block.place != nil && state.location == .places
       return .blocked(
         label: label, until: end,
-        detail: block.isSleep && atHome ? Copy.Home.youreHome : Copy.Home.onNow)
+        detail: Copy.Home.blockedDetail(
+          atHome: block.isSleep && atHome, unlocksLeft: state.unlocks.left(config)))
     }
     guard let sleep, let start = sleep.schedule.nextStart(after: now, calendar: calendar) else {
       return .noBlocks
@@ -93,9 +146,26 @@ public struct HomeSnapshot: Equatable, Sendable {
     {
       return .away(start: night.start)
     }
+    if state.location == .scheduleOnly {
+      return .tonight(
+        start: start, detail: Copy.Home.startsAtAnywhere(Copy.time(start, in: calendar)))
+    }
     return .tonight(
       start: start,
       detail: Copy.Home.startsIn(Copy.Home.duration(start.timeIntervalSince(now)), atHome: atHome))
+  }
+
+  /// The free week's last night ended this morning (the canvas's "ended this morning").
+  static func trialEndedToday(
+    _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig
+  ) -> Bool {
+    guard let start = state.trial.start, let schedule = state.sleepBlock?.schedule else {
+      return false
+    }
+    let nights = config.trial.nights
+    let ends = schedule.ends(after: start, through: now, calendar: calendar)
+    guard ends.count >= nights else { return false }
+    return calendar.isDate(ends[nights - 1], inSameDayAs: now)
   }
 
   /// No selling at night: hidden while anything is blocked (D33).
@@ -106,12 +176,14 @@ public struct HomeSnapshot: Equatable, Sendable {
         config: config)
     else { return nil }
     if night == config.trial.nights {
-      return Pill(text: Copy.Home.lastNightPill, opensPurchase: true)
+      return Pill(text: Copy.Home.lastNightPill, kind: .lastNight)
     }
-    return Pill(text: Copy.Home.nightPill(night, of: config.trial.nights), opensPurchase: false)
+    return Pill(text: Copy.Home.nightPill(night, of: config.trial.nights), kind: .trial)
   }
 
-  static func timeline(_ schedule: WeeklySchedule, now: Date, calendar: Calendar) -> Timeline? {
+  static func timeline(
+    _ schedule: WeeklySchedule, phase: Timeline.Phase, now: Date, calendar: Calendar
+  ) -> Timeline? {
     let today = calendar.startOfDay(for: now)
     let hour = calendar.component(.hour, from: now)
     guard let eveningDay = calendar.date(byAdding: .day, value: hour >= 12 ? 0 : -1, to: today),
@@ -128,9 +200,11 @@ public struct HomeSnapshot: Equatable, Sendable {
       min(1, max(0, date.timeIntervalSince(spanStart) / span))
     }
     let elapsed = now.timeIntervalSince(spanStart)
+    let inside = (0...span).contains(elapsed)
     return Timeline(
       start: fraction(night.start), end: fraction(night.end),
-      now: (0...span).contains(elapsed) ? fraction(now) : nil,
+      now: inside || (elapsed < 0 && hour >= 12) ? fraction(now) : nil, nowInside: inside,
+      phase: phase,
       label: Copy.Home.timelineLabel(
         start: Copy.time(night.start, in: calendar), end: Copy.time(night.end, in: calendar)))
   }
@@ -182,20 +256,29 @@ public struct HomeSnapshot: Equatable, Sendable {
   }
 }
 
-/// The last seven nights from the log: which had a block on, and how many times the block screen was
-/// tapped (D24). A night is keyed by the day twelve hours before, so 1 am counts with the evening.
+/// "Times it stopped you, by night" from the log (sticky note s2). In the first week, the nights
+/// since setup with the rest still to come; from night 8, the last seven. A night is keyed by the
+/// day twelve hours before, so 1 am counts with the evening; it counts as blocked when a block came
+/// on in it, and its stops are the block screen's button taps (D24).
 struct Week {
   var bars: [HomeSnapshot.Bar] = []
   var blocked = 0
   var counted = 0
+  var change: Int?
 
   init(log: [Transition], now: Date, calendar: Calendar, since setup: Date?) {
     func key(_ date: Date) -> Date { calendar.startOfDay(for: date.addingTimeInterval(-12 * 3600)) }
-    let tonight = key(now)
-    let days = (0..<7).reversed().compactMap {
-      calendar.date(byAdding: .day, value: -$0, to: tonight)
+    func day(_ offset: Int, from base: Date) -> Date? {
+      calendar.date(byAdding: .day, value: offset, to: base)
     }
+    let tonight = key(now)
     let first = setup.map(key)
+    let sinceSetup = first.map { calendar.dateComponents([.day], from: $0, to: tonight).day ?? 0 }
+    let firstWeek = sinceSetup.map { $0 < 7 } ?? false
+    let slots: [Date] =
+      firstWeek
+      ? (0..<7).compactMap { offset in first.flatMap { day(offset, from: $0) } }
+      : (0..<7).reversed().compactMap { day(-$0, from: tonight) }
     var stops: [Date: Int] = [:]
     var on = Set<Date>()
     for line in log {
@@ -203,14 +286,24 @@ struct Week {
       if line.cause == .blockScreen { stops[night, default: 0] += 1 }
       if line.blockOn && line.changed { on.insert(night) }
     }
+    func night(_ slot: Date) -> HomeSnapshot.Bar.Night {
+      if slot > tonight || (slot == tonight && !on.contains(slot)) { return .ahead }
+      if let first, slot < first { return .noBlock }
+      return on.contains(slot) ? .stopped(stops[slot] ?? 0) : .noBlock
+    }
     let style = Date.FormatStyle(calendar: calendar, timeZone: calendar.timeZone).weekday(
       .abbreviated)
-    bars = days.map {
-      HomeSnapshot.Bar(day: $0.formatted(style), count: stops[$0] ?? 0, isToday: $0 == tonight)
+    bars = slots.map {
+      HomeSnapshot.Bar(day: $0.formatted(style), night: night($0), isToday: $0 == tonight)
     }
-    let counting = days.filter { day in first.map { day >= $0 } ?? true && day < tonight }
-    counted = counting.count
-    blocked = counting.filter(on.contains).count
+    let ran = bars.filter { $0.night != .ahead }
+    counted = ran.count
+    blocked = ran.filter { if case .stopped = $0.night { true } else { false } }.count
+    if let sinceSetup, sinceSetup >= 14 {
+      let before = (7..<14).compactMap { day(-$0, from: tonight) }
+      let previous = before.map { on.contains($0) ? stops[$0] ?? 0 : 0 }.reduce(0, +)
+      change = bars.map(\.count).reduce(0, +) - previous
+    }
   }
 }
 

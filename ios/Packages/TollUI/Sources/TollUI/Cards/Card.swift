@@ -136,16 +136,16 @@ public struct Chevron: View {
   }
 }
 
-/// A card holding one short fact: a 20 pt symbol, then 14/19 text (the canvas's notes: "Sleep is on
+/// A card holding one short fact: an optional 20 pt symbol, then 14/19 text (the canvas's notes: "Sleep is on
 /// until 7:00 am…", over-limit lines).
 public struct NoteCard<Accessory: View>: View {
   let text: String
-  let symbol: String
+  let symbol: String?
   let tint: Color
   let accessory: Accessory
 
   public init(
-    _ text: String, symbol: String, tint: Color = TollColor.label2,
+    _ text: String, symbol: String? = nil, tint: Color = TollColor.label2,
     @ViewBuilder accessory: () -> Accessory
   ) {
     self.text = text
@@ -156,11 +156,13 @@ public struct NoteCard<Accessory: View>: View {
 
   public var body: some View {
     HStack(alignment: .top, spacing: 12) {
-      Image(systemName: symbol)
-        .font(.system(size: 17, weight: .medium))
-        .foregroundStyle(tint)
-        .frame(width: 20, height: 20)
-        .accessibilityHidden(true)
+      if let symbol {
+        Image(systemName: symbol)
+          .font(.system(size: 17, weight: .medium))
+          .foregroundStyle(tint)
+          .frame(width: 20, height: 20)
+          .accessibilityHidden(true)
+      }
       VStack(alignment: .leading, spacing: 8) {
         Text(text).tollType(.note, TollColor.label).fixedSize(horizontal: false, vertical: true)
         accessory
@@ -175,7 +177,7 @@ public struct NoteCard<Accessory: View>: View {
 }
 
 extension NoteCard where Accessory == EmptyView {
-  public init(_ text: String, symbol: String, tint: Color = TollColor.label2) {
+  public init(_ text: String, symbol: String? = nil, tint: Color = TollColor.label2) {
     self.init(text, symbol: symbol, tint: tint) { EmptyView() }
   }
 }

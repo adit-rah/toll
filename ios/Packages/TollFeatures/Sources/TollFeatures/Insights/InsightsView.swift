@@ -1,49 +1,47 @@
 import SwiftUI
 import TollCore
-import TollData
 import TollUI
 
-/// Your nights (the design canvas): from the log on this phone. "Phone after bedtime" is Apple's
-/// number and can only be shown by Apple's own report view; it comes with that extension.
+/// Your nights (the design canvas's Insights), pushed from Home's "See all": everything from the log
+/// on this phone. Apple's "Screen time after bedtime" card joins it with the report extension.
 struct InsightsView: View {
   let log: [TollCore.Transition]
-  @State private var range = InsightsSnapshot.Range.all
-  @Environment(\.dismiss) private var dismiss
+  @State private var range = InsightsSnapshot.Range.month
 
   var body: some View {
     let insights = InsightsSnapshot(log: log, now: Date(), calendar: .current, range: range)
-    NavigationStack {
-      ScrollView {
-        VStack(alignment: .leading, spacing: TollSpacing.groupGap) {
-          Picker(Copy.Insights.title, selection: $range) {
-            Text(Copy.Insights.week).tag(InsightsSnapshot.Range.week)
-            Text(Copy.Insights.month).tag(InsightsSnapshot.Range.month)
-            Text(Copy.Insights.all).tag(InsightsSnapshot.Range.all)
+    ScrollView {
+      VStack(alignment: .leading, spacing: 0) {
+        ScreenTitle(Copy.Insights.title, kind: .pushed)
+        Picker(Copy.Insights.title, selection: $range) {
+          Text(Copy.Insights.week).tag(InsightsSnapshot.Range.week)
+          Text(Copy.Insights.month).tag(InsightsSnapshot.Range.month)
+          Text(Copy.Insights.all).tag(InsightsSnapshot.Range.all)
+        }
+        .pickerStyle(.segmented)
+        .padding(.top, 16)
+        if insights.isEmpty {
+          Footnote(Copy.Insights.empty).padding(.top, 20)
+        } else {
+          HStack(alignment: .top, spacing: 28) {
+            Stat(value: "\(insights.nights)", label: since(insights)).fixedSize()
+            Stat(value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel)
+              .fixedSize()
           }
-          .pickerStyle(.segmented)
-          if insights.isEmpty {
-            Footnote(Copy.Insights.empty)
-          } else {
-            HStack(alignment: .top, spacing: 12) {
-              Stat(value: "\(insights.nights)", label: since(insights))
-              Stat(
-                value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel)
-            }
+          .padding(.top, 20)
+          VStack(spacing: 12) {
             WeeksCard(insights: insights)
             HoursCard(insights: insights)
           }
+          .padding(.top, 20)
         }
-        .tollGutter()
-        .padding(.vertical, TollSpacing.groupGap)
       }
-      .background(TollColor.bg)
-      .animation(Motion.stateChange, value: range)
-      .navigationTitle(Copy.Insights.title)
-      .toolbar {
-        ToolbarItem(placement: .confirmationAction) { Button(Copy.Setup.done) { dismiss() } }
-      }
+      .tollGutter()
+      .padding(.bottom, 32)
     }
-    .tint(TollColor.accent)
+    .background(TollColor.bg)
+    .animation(Motion.stateChange, value: range)
+    .navigationBarTitleDisplayMode(.inline)
   }
 
   private func since(_ insights: InsightsSnapshot) -> String {
@@ -52,88 +50,89 @@ struct InsightsView: View {
   }
 }
 
-private struct Stat: View {
-  let value: String
-  let label: String
+/// A card with a 15 pt semibold title and a note at its right (the canvas's Insights cards).
+private struct InsightCard<Content: View>: View {
+  let title: String
+  let note: String?
+  var noteColor = TollColor.label2
+  @ViewBuilder let content: Content
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 2) {
-      Text(value).font(.system(.largeTitle, weight: .semibold)).monospacedDigit()
-        .foregroundStyle(TollColor.label)
-      Text(label).font(TollFont.caption).foregroundStyle(TollColor.label2)
+    VStack(alignment: .leading, spacing: 12) {
+      HStack(alignment: .firstTextBaseline) {
+        Text(title).tollType(.link, TollColor.label).accessibilityAddTraits(.isHeader)
+        Spacer(minLength: 8)
+        if let note { Text(note).tollType(.trailing, noteColor) }
+      }
+      content
     }
+    .padding(TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .accessibilityElement(children: .combine)
+    .background(
+      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
   }
 }
 
+/// Times it stopped you, one bar per week (at most 56 pt), the latest in amber.
 private struct WeeksCard: View {
   let insights: InsightsSnapshot
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      Text(Copy.Insights.stopped).font(TollFont.headline).foregroundStyle(TollColor.label)
-      if let change = insights.change {
-        Text(Copy.Insights.change(change))
-          .font(TollFont.captionMedium)
-          .foregroundStyle(change <= 0 ? TollColor.ok : TollColor.label2)
-      }
+    InsightCard(
+      title: Copy.Insights.stopped, note: insights.change.map(Copy.Insights.change),
+      noteColor: (insights.change ?? 0) <= 0 ? TollColor.ok : TollColor.label2
+    ) {
       let top = max(1, insights.weeks.max() ?? 1)
-      ForEach(Array(insights.weeks.enumerated()), id: \.offset) { index, count in
-        HStack(spacing: 10) {
-          Text(Copy.Insights.weekLabel(index + 1)).font(TollFont.caption)
-            .foregroundStyle(TollColor.label2).frame(width: 64, alignment: .leading)
-          GeometryReader { proxy in
-            Capsule()
-              .fill(index == insights.weeks.count - 1 ? TollColor.accent : TollColor.bar)
-              .frame(width: max(6, proxy.size.width * CGFloat(count) / CGFloat(top)))
+      HStack(alignment: .bottom, spacing: 8) {
+        ForEach(Array(insights.weeks.enumerated()), id: \.offset) { index, count in
+          let latest = index == insights.weeks.count - 1
+          VStack(spacing: 0) {
+            Text("\(count)").tollType(.microNumber, TollColor.label2).padding(.bottom, 4)
+            RoundedRectangle(cornerRadius: TollRadius.chartBar, style: .continuous)
+              .fill(latest ? TollColor.accent : TollColor.bar)
+              .frame(height: max(3, 56 * CGFloat(count) / CGFloat(top)))
+            Text(Copy.Insights.weekLabel(index + 1))
+              .tollType(.micro, latest ? TollColor.label : TollColor.label2)
+              .padding(.top, 8)
           }
-          .frame(height: 10)
-          Text("\(count)").font(TollFont.captionNumber).foregroundStyle(TollColor.label)
+          .frame(maxWidth: .infinity)
+          .accessibilityElement(children: .ignore)
+          .accessibilityLabel("\(Copy.Insights.weekLabel(index + 1)), \(count)")
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(Copy.Insights.weekLabel(index + 1)), \(count)")
       }
+      .frame(height: 96, alignment: .bottom)
     }
-    .padding(TollSpacing.cardPadding)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
   }
 }
 
+/// When it stopped you, by hour from 10 pm to 6 am (48 pt at most), the busiest hour in amber.
 private struct HoursCard: View {
   let insights: InsightsSnapshot
-  private let labels = ["10 pm", "2 am", "6 am"]
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      Text(Copy.Insights.when).font(TollFont.headline).foregroundStyle(TollColor.label)
+    InsightCard(title: Copy.Insights.when, note: nil) {
       let top = max(1, insights.byHour.max() ?? 1)
-      HStack(alignment: .bottom, spacing: 4) {
-        ForEach(Array(insights.byHour.enumerated()), id: \.offset) { index, count in
+      HStack(alignment: .bottom, spacing: 6) {
+        ForEach(Array(insights.byHour.enumerated()), id: \.offset) { _, count in
           RoundedRectangle(cornerRadius: 4, style: .continuous)
             .fill(count == top && count > 0 ? TollColor.accent : TollColor.bar)
-            .frame(height: max(4, 60 * CGFloat(count) / CGFloat(top)))
+            .frame(height: max(5, 48 * CGFloat(count) / CGFloat(top)))
             .frame(maxWidth: .infinity)
         }
       }
-      .frame(height: 60, alignment: .bottom)
+      .frame(height: 48, alignment: .bottom)
       .accessibilityHidden(true)
       HStack {
-        ForEach(labels, id: \.self) { Text($0).frame(maxWidth: .infinity, alignment: .leading) }
+        Text(Copy.time(ClockTime(hour: 22), short: true))
+        Spacer(minLength: 4)
+        if let peak = insights.peakHour {
+          Text(Copy.Insights.mostAt(Copy.Insights.hourName(peak)))
+        }
+        Spacer(minLength: 4)
+        Text(Copy.time(ClockTime(hour: 6), short: true))
       }
-      .font(TollFont.micro).foregroundStyle(TollColor.label2)
-      if let peak = insights.peakHour {
-        let hour =
-          Calendar.current.date(bySettingHour: peak, minute: 0, second: 0, of: Date()) ?? Date()
-        Text(Copy.Insights.mostAt(Copy.time(hour))).font(TollFont.caption).foregroundStyle(
-          TollColor.label2)
-      }
+      .tollType(.micro, TollColor.label2)
+      .padding(.top, -4)
     }
-    .padding(TollSpacing.cardPadding)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
   }
 }
