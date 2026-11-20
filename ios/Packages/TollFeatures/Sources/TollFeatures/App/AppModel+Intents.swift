@@ -76,6 +76,14 @@ extension AppModel {
   /// Home's "Open one app": the same door the block screen opens.
   func askDoor() { send(.foreground, [.askDoor(Date())]) }
 
+  // MARK: Permissions
+
+  /// Asks again; iOS may not show the prompt after a denial, so Settings opens then (#45).
+  func turnOnScreenTime() async {
+    await requestScreenTime()
+    if screenTime != .approved { openSystemSettings() }
+  }
+
   // MARK: Purchase
 
   func setPurchased(_ purchased: Bool) {

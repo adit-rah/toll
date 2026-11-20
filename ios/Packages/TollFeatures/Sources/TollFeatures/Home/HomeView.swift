@@ -16,22 +16,33 @@ struct HomeView: View {
   let fixLocation: () -> Void
   var openBlock: ((BlockID?) -> Void)?
   var openInsights: (() -> Void)?
+  var turnOnScreenTime: () -> Void = {}
 
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
         topBar
-        if home.locationBanner {
+        // The pill and a card both show: without Always, the card used to hide the last free
+        // night (#45). The card sits 12 pt under the pill.
+        if let pill = home.pill {
+          PillView(pill: pill, open: openPurchase)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 4)
+        }
+        if home.screenTimeOff {
+          NoteCard(Copy.Home.screenTimeOffCard) {
+            Button(Copy.Home.turnOn, action: turnOnScreenTime)
+              .tollType(.link, TollColor.accent)
+              .frame(minHeight: 28)
+          }
+          .padding(.top, home.pill == nil ? 4 : 12)
+        } else if home.locationBanner {
           NoteCard(locationFact) {
             Button(Copy.Home.fixInSettings, action: fixLocation)
               .tollType(.link, TollColor.accent)
               .frame(minHeight: 28)
           }
-          .padding(.top, 4)
-        } else if let pill = home.pill {
-          PillView(pill: pill, open: openPurchase)
-            .frame(maxWidth: .infinity)
-            .padding(.top, 4)
+          .padding(.top, home.pill == nil ? 4 : 12)
         }
         HomeHero(hero: home.hero, openDoor: home.unlocksLeft == nil ? nil : openDoor)
           .padding(.top, heroGap)
@@ -65,7 +76,7 @@ struct HomeView: View {
 
   /// The boards: 16 pt under the pill or the bar, 14 above "Paused", 20 under the location card.
   private var heroGap: CGFloat {
-    if home.locationBanner { return 20 }
+    if home.locationBanner || home.screenTimeOff { return 20 }
     if case .paused = home.hero { return 14 }
     return 16
   }
@@ -163,6 +174,7 @@ struct HomeHero: View {
     case .tonight, .away: Copy.Home.tonight
     case .blocked(let label, _, _): label
     case .paused: Copy.Home.paused
+    case .screenTimeOff: Copy.Home.screenTimeOffEyebrow
     case .noBlocks: ""
     }
   }
@@ -172,13 +184,15 @@ struct HomeHero: View {
     case .tonight(let start, _): start
     case .blocked(_, let until, _): until
     case .away(let start): start
-    case .paused, .noBlocks: nil
+    case .paused, .screenTimeOff, .noBlocks: nil
     }
   }
 
   private var title: String {
-    if case .paused = hero { return Copy.Home.notBlocking }
-    return Copy.Home.noBlocks
+    switch hero {
+    case .paused, .screenTimeOff: return Copy.Home.notBlocking
+    default: return Copy.Home.noBlocks
+    }
   }
 
   private var detail: String {
@@ -186,6 +200,7 @@ struct HomeHero: View {
     case .tonight(_, let detail), .blocked(_, _, let detail): detail
     case .away: Copy.Home.startsWhenHome
     case .paused(let today): today ? Copy.Home.trialEndedToday : Copy.Home.trialEnded
+    case .screenTimeOff: Copy.Home.screenTimeOffDetail
     case .noBlocks: ""
     }
   }

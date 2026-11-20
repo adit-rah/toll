@@ -8,6 +8,8 @@ public struct HomeSnapshot: Equatable, Sendable {
     case away(start: Date)
     /// After the trial; `endedToday` reads "this morning".
     case paused(endedToday: Bool)
+    /// Screen Time is off for Dusk after setup: nothing can be blocked, so nothing claims it is (#45).
+    case screenTimeOff
     case noBlocks
   }
 
@@ -60,6 +62,9 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var unlocksLeft: Int?
   public var supply: Supply
   public var locationBanner: Bool
+  /// The one way Dusk fails completely: Screen Time switched off after setup (#45). Takes the
+  /// location card's place.
+  public var screenTimeOff: Bool
   public var timeline: Timeline?
   /// Nights Sleep ran this week.
   public var nightsBlocked: Int
@@ -75,19 +80,21 @@ public struct HomeSnapshot: Equatable, Sendable {
 
   public init(
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
-    config: TollConfig = .defaults
+    config: TollConfig = .defaults, screenTime: Bool = true
   ) {
     let sleep = state.sleepBlock
+    screenTimeOff = state.setupFinishedAt != nil && !screenTime
     hero = Self.hero(state, sleep: sleep, now: now, calendar: calendar, config: config)
+    if screenTimeOff, state.trial.entitled { hero = .screenTimeOff }
     pill = Self.pill(state, now: now, calendar: calendar, config: config)
-    unlocksLeft = state.isBlocking ? state.unlocks.left(config) : nil
+    unlocksLeft = state.isBlocking && !screenTimeOff ? state.unlocks.left(config) : nil
     supply = Supply(
       left: state.unlocks.left(config), max: config.unlocks.max,
       nightsToRefill: state.unlocks.nightsToRefill(config))
     if case .away = hero { pill = Pill(text: Copy.Home.awayLabel, kind: .away) }
     locationBanner = state.setupFinishedAt != nil && state.location == .scheduleOnly
     let phase: Timeline.Phase =
-      !state.trial.entitled
+      !state.trial.entitled || screenTimeOff
       ? .paused
       : (sleep.map { state.runtime.active[$0.id] != nil } == true
         ? .on : .upcoming)

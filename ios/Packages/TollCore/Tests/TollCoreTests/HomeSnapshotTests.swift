@@ -113,6 +113,21 @@ struct HomeSnapshotTests {
     #expect(home.bars.last?.isLatest == true)
   }
 
+  /// Nothing can block with Screen Time off, so Home doesn't say "Blocked until" (#45).
+  @Test func screenTimeOffSaysNothingIsBlocked() {
+    var s = setUp()
+    s.setupFinishedAt = date(2026, 11, 13, 20)
+    s.trial.start = date(2026, 11, 13, 20)
+    run(&s, date(2026, 11, 17, 23))
+    let home = HomeSnapshot(
+      state: s, log: [], now: date(2026, 11, 17, 23), calendar: london, screenTime: false)
+    #expect(home.screenTimeOff)
+    #expect(home.hero == .screenTimeOff)
+    #expect(home.unlocksLeft == nil)
+    #expect(home.timeline?.phase == .paused)
+    #expect(!snapshot(s, date(2026, 11, 17, 23)).screenTimeOff)
+  }
+
   @Test func withoutLocationTheHeroSaysWhereverYouAre() {
     var s = setUp()
     s.location = .scheduleOnly

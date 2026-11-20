@@ -38,6 +38,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 20 | Block screen of an app → Unlock in Dusk (D41) | Dusk opens on "Open for 5 minutes?" with that app's icon and name; Start the wait opens that app after 90 s; "Choose a different app" opens Apple's picker | | |
 | 21 | In Apple's picker at the door, pick two apps, then a whole category | "Choose one app" with what was picked; Choose again reopens the picker | | |
 | 22 | Settings › Screen Time with Dusk denied | Note whether Settings has a switch for Dusk; if not, Permissions' note drops "or in Settings › Screen Time" | | |
+| 23 | After setup, switch Screen Time off for Dusk (Settings › Screen Time, or remove its access), then open Dusk (#45) | Home says "Screen Time off · Not blocking" with a "Turn on" card; Turn on shows the prompt again, or opens Settings if it can't. Note which | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

@@ -66,7 +66,8 @@ struct LiveHome: View {
           locationFact: locationFact(model.location),
           openSettings: { path.append(.settings) }, openDoor: { model.askDoor() },
           openPurchase: { buying = true }, fixLocation: openSystemSettings,
-          openBlock: { path = [.blocks, .block($0)] }, openInsights: { path.append(.insights) }
+          openBlock: { path = [.blocks, .block($0)] }, openInsights: { path.append(.insights) },
+          turnOnScreenTime: { Task { await model.turnOnScreenTime() } }
         )
       }
       .homeNavigation()
@@ -91,7 +92,9 @@ struct LiveHome: View {
   }
 
   private func snapshot(_ now: Date) -> HomeSnapshot {
-    HomeSnapshot(state: model.state, log: model.log, now: now, calendar: .current)
+    HomeSnapshot(
+      state: model.state, log: model.log, now: now, calendar: .current,
+      screenTime: model.screenTime == .approved)
   }
 
   private var doorShown: Binding<Bool> {

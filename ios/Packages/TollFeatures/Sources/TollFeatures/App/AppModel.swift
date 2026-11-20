@@ -25,6 +25,8 @@ public final class AppModel {
   @ObservationIgnored private var started = false
 
   public init() {
+    // Read now, so Home's first frame doesn't claim Screen Time is off (#45).
+    screenTime = ScreenTimeAuthorization.state
     locationAccess.onChange = { [weak self] in self?.readPermissions() }
   }
 
