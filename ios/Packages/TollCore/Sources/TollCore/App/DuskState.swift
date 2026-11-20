@@ -17,6 +17,9 @@ public struct DuskState: Codable, Hashable, Sendable {
   public var door: Door?
   /// When "Unlock in Dusk" was last tapped on the block screen; the app opens the door if it is recent.
   public var doorAskedAt: Date?
+  /// The app the block screen was showing when "Unlock in Dusk" was tapped, encoded; the door opens
+  /// with it chosen (D41). Nil from Home's "Open one app", or when the block screen showed a site.
+  public var doorAskedFor: Data?
   public var unlocks = UnlockSupply()
   public var trial = TrialState()
   public var setupFinishedAt: Date?

@@ -94,7 +94,7 @@ MVP spec §13: "Otherwise decide, record it in `docs/decisions.md`, and continue
 
 **D40. A time window is one start-and-end pair** (2026-11-20; design reply). Days don't change the count, and blocks with the same hours share one window, because each distinct pair is one DeviceActivity window and one sweep (20 monitored at most). At 8, "New block" is off and the Hours sheet refuses a change that would make a ninth.
 
-**D41. The door knows the app from the block screen** (2026-11-20; design reply, Door · from the block screen). "Unlock in Dusk" records which app, site or category the block screen was showing (the shield action may write to the App Group; the shield configuration may not). The door then opens with that app chosen: "Open for 5 minutes?", "Start the wait", "Choose a different app". Apple's picker can't be limited to one app, so picking two, or a whole category, asks again.
+**D41. The door knows the app from the block screen** (2026-11-20; design reply, Door · from the block screen). "Unlock in Dusk" records which app the block screen was showing (the shield action may write to the App Group; the shield configuration may not); a site goes to the picker, since the door opens apps only. The door then opens with that app chosen: "Open for 5 minutes?", "Start the wait", "Choose a different app". Apple's picker can't be limited to one app, so picking two, or a whole category, asks again.
 
 **D42. The privacy line** (2026-11-20; design reply, founders to confirm). Place search and the map go through Apple Maps, so "Nothing leaves your phone" is not strictly true. Settings and the purchase sheet say "No servers. We never see your data"; Onboarding-Home says "Location only tells blocks whether you're there. We never see it."
 

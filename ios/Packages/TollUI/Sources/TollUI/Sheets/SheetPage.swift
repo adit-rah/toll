@@ -6,18 +6,19 @@ import SwiftUI
 /// opens full height at accessibility sizes, where the page scrolls.
 public struct SheetPage<Content: View, Actions: View>: View {
   let height: CGFloat
-  let endsWithLink: Bool
+  let overhang: CGFloat
   let content: Content
   let actions: Actions
   @Environment(\.dynamicTypeSize) private var typeSize
 
-  /// `height` is the board's: 844 minus the sheet's `top`.
+  /// `height` is the board's: 844 minus the sheet's `top`. `overhang` is how far the last action
+  /// reaches below the main button's line: 16 for a quiet link, 8 for a footnote.
   public init(
-    height: CGFloat, endsWithLink: Bool = false, @ViewBuilder content: () -> Content,
+    height: CGFloat, overhang: CGFloat = 0, @ViewBuilder content: () -> Content,
     @ViewBuilder actions: () -> Actions
   ) {
     self.height = height
-    self.endsWithLink = endsWithLink
+    self.overhang = overhang
     self.content = content()
     self.actions = actions()
   }
@@ -45,9 +46,7 @@ public struct SheetPage<Content: View, Actions: View>: View {
 
   /// As on a screen: the main button's bottom edge on the safe area, a quiet link 16 pt into it.
   private var bottom: CGFloat {
-    HomeIndicator.present
-      ? (endsWithLink ? -16 : 0)
-      : TollSpacing.bottomWithoutIndicator
+    HomeIndicator.present ? -overhang : TollSpacing.bottomWithoutIndicator
   }
 
   private var detents: Set<PresentationDetent> {
