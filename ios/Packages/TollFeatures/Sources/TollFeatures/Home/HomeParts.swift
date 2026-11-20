@@ -73,21 +73,26 @@ struct TimelineStrip: View {
   }
 }
 
-/// "6 pm  10 pm  2 am  6 am  10 am", the ends held to the strip's edges, in the phone's format.
+/// "6 pm  10 pm  2 am  6 am  10 am" every four hours across the strip, the ends held to its edges,
+/// in the phone's format.
 private struct HourLabels: View {
   var body: some View {
     let hours = [18, 22, 2, 6, 10].map { Copy.time(ClockTime(hour: $0), short: true) }
     GeometryReader { proxy in
-      ZStack(alignment: .topLeading) {
+      let width = proxy.size.width
+      ZStack {
         ForEach(hours.indices, id: \.self) { index in
-          Text(hours[index])
-            .fixedSize()
-            .alignmentGuide(.leading) { size in
-              index == 0 ? 0 : index == hours.count - 1 ? size.width : size.width / 2
-            }
-            .offset(x: proxy.size.width * CGFloat(index) / CGFloat(hours.count - 1))
+          let label = Text(hours[index]).fixedSize()
+          if index == 0 {
+            label.frame(maxWidth: .infinity, alignment: .leading)
+          } else if index == hours.count - 1 {
+            label.frame(maxWidth: .infinity, alignment: .trailing)
+          } else {
+            label.position(x: width * CGFloat(index) / CGFloat(hours.count - 1), y: 7)
+          }
         }
       }
+      .frame(width: width, height: 14)
     }
     .frame(height: 14)
     .tollType(.micro, TollColor.label2)
@@ -219,7 +224,7 @@ struct NightBars: View {
   }
 }
 
-/// The first nights: seven 40 pt slots, a blocked night in amber with a moon, the rest dashed.
+/// The first nights: seven 40 pt slots, a blocked night in amber with a tick, the rest dashed.
 struct FirstNights: View {
   let bars: [HomeSnapshot.Bar]
 
@@ -244,7 +249,7 @@ struct FirstNights: View {
     case .stopped:
       shape.fill(TollColor.accentSoft)
         .overlay(shape.strokeBorder(TollColor.accent, lineWidth: 1))
-        .overlay(Image(systemName: "moon").font(.system(size: 14, weight: .medium)))
+        .overlay(Image(systemName: "checkmark").font(.system(size: 14, weight: .semibold)))
         .foregroundStyle(TollColor.accent)
         .frame(height: 40)
     case .noBlock:

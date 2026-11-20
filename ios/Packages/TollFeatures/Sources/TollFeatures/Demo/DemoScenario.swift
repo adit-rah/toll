@@ -110,7 +110,7 @@
       NavigationStack(path: .constant(scenario.route.map { [$0] } ?? [])) {
         HomeView(
           home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},
-          fixLocation: {}
+          fixLocation: {}, openBlock: { _ in }, openInsights: {}
         )
         .homeNavigation()
         .navigationDestination(for: HomeRoute.self) { route in
