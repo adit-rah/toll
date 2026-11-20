@@ -11,14 +11,14 @@ import TollScreenTime
 @Observable
 final class SetupModel {
   enum Step: Hashable, CaseIterable {
-    case wake, home, permissions, always, blocklist, ready
+    case wake, home, permissions, always, locationOff, blocklist, ready
 
     /// The progress bar counts the four questions; Always is part of permissions, Ready is not one.
     var number: Int? {
       switch self {
       case .wake: 1
       case .home: 2
-      case .permissions, .always: 3
+      case .permissions, .always, .locationOff: 3
       case .blocklist: 4
       case .ready: nil
       }
@@ -173,8 +173,15 @@ final class SetupModel {
       apps: Blocklist.encode(selection))
   }
 
-  /// After the prompts: While Using gets one more screen asking for Always (the canvas).
-  var afterPermissions: Step { app.location == .whileUsing ? .always : .blocklist }
+  /// After the prompts (the canvas): While Using gets one more screen asking for Always; anything
+  /// short of Always and Precise says what that means before the apps.
+  var afterPermissions: Step {
+    switch app.location {
+    case .always: .blocklist
+    case .whileUsing: .always
+    case .approximate, .denied, .notDetermined: .locationOff
+    }
+  }
 
   func finish() { app.finishSetup(sleep: sleepBlock, home: locationUsable ? home : nil) }
 }

@@ -28,6 +28,7 @@ struct SetupFlowContent: View {
           case .home: HomeMapView(model: model)
           case .permissions: PermissionsView(model: model)
           case .always: AlwaysView(model: model)
+          case .locationOff: LocationOffView(model: model)
           case .blocklist: BlocklistView(model: model)
           case .ready: ReadyView(model: model)
           }
@@ -37,38 +38,34 @@ struct SetupFlowContent: View {
   }
 }
 
-/// Welcome: the promise, then the whole deal before anything else (P-1, D7).
+/// Welcome: the promise, then the whole deal before anything else (P-1, D7). Title and line sit
+/// centred in the space above the offer, as on the board.
 struct WelcomeView: View {
   let model: SetupModel
   @State private var restoring = false
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      Spacer(minLength: TollSpacing.sectionGap)
+      Spacer(minLength: 24)
       Text(Copy.Setup.welcomeTitle)
-        .font(.system(.largeTitle, weight: .semibold))
-        .foregroundStyle(TollColor.label)
+        .tollType(.display, TollColor.label)
         .fixedSize(horizontal: false, vertical: true)
         .accessibilityAddTraits(.isHeader)
       Text(Copy.Setup.welcomeLine)
-        .font(.title3)
-        .foregroundStyle(TollColor.label2)
+        .tollType(.lead, TollColor.label2)
         .fixedSize(horizontal: false, vertical: true)
         .padding(.top, 16)
-      Spacer(minLength: TollSpacing.sectionGap)
-      Card {
-        CardRow(Copy.Setup.offerTitle, detail: Copy.Setup.offerDetail(price: model.app.price)) {
-          IconTile("moon.fill", size: .large)
-        }
-      }
+      Spacer(minLength: 24)
     }
     .tollGutter()
+    .padding(.top, TollSpacing.barHeight)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     .background(TollColor.bg)
-    .tollBottomBar(background: TollColor.bg) {
+    .tollBottomBar(endsWithLink: true) {
       VStack(spacing: 0) {
+        OfferCard(price: model.app.price).padding(.bottom, 16)
         PrimaryButton(Copy.Setup.start) { model.go(.wake) }
-        QuietButton(Copy.Setup.restore, tone: .secondary) {
+        QuietButton(Copy.Setup.restore, type: .smallQuiet) {
           Task {
             restoring = true
             _ = await model.app.restore()
@@ -83,38 +80,70 @@ struct WelcomeView: View {
   }
 }
 
-/// Ready: what was set up, and when the free week ends (the canvas).
+/// "7 nights free · Then $9.99 once. No subscription. No account."
+private struct OfferCard: View {
+  let price: String
+
+  var body: some View {
+    HStack(spacing: TollSpacing.rowGap) {
+      IconTile("moon", size: .large)
+      VStack(alignment: .leading, spacing: 0) {
+        Text(Copy.Setup.offerTitle)
+          .tollType(TollType(size: 16, lineHeight: 21, weight: .semibold, style: .callout))
+          .foregroundStyle(TollColor.label)
+        Text(Copy.Setup.offerDetail(price: price))
+          .tollType(TollType(size: 14, lineHeight: 20, weight: .regular, style: .subheadline))
+          .foregroundStyle(TollColor.label2)
+      }
+      .fixedSize(horizontal: false, vertical: true)
+      .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    .padding(TollSpacing.cardPadding)
+    .background(
+      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
+    )
+    .accessibilityElement(children: .combine)
+  }
+}
+
+/// Ready: what was set up, and when the free week ends (the canvas's Ready and Ready · location While
+/// Using). No back button: setup is done.
 struct ReadyView: View {
   let model: SetupModel
 
   var body: some View {
-    SetupPage(step: nil, title: Copy.Setup.readyTitle, subtitle: line) {
+    SetupPage(step: nil, title: line, eyebrow: Copy.Setup.readyEyebrow) {
       Card {
         CardRow(
           Copy.span(model.window),
           detail: model.weekendsDiffer ? Copy.Setup.weekendsDiffer : Copy.Setup.everyNight
-        ) { IconTile("moon.fill") }
+        ) { IconTile("moon") }
         CardRow(
-          Copy.Setup.atHome,
-          detail: atHome ? Copy.Setup.yourBuilding : Copy.Setup.anywhere
-        ) { IconTile("location.fill", accent: false) }
+          atHome ? Copy.Setup.atHome : Copy.Setup.anywhere,
+          detail: atHome ? Copy.Setup.yourBuilding : Copy.Setup.anywhereDetail
+        ) { IconTile(atHome ? "house" : "location", accent: false) }
         CardRow(
           Copy.Setup.blocked,
           detail: Copy.Setup.blockedCount(
-            apps: Blocklist.items(model.selection), categories: model.selection.categoryTokens.count
-          )
-        ) { IconTile("nosign", accent: false) }
+            categories: model.selection.categoryTokens.count,
+            apps: Blocklist.items(model.selection))
+        ) { IconTile("iphone", accent: false) }
         CardRow(
           Copy.Setup.unlocks(model.app.config.unlocks.max),
           detail: Copy.Setup.unlocksDetail(minutes: model.app.config.door.minutes)
-        ) { IconTile("key.fill", accent: false) }
+        ) { IconTile("lock", accent: false) }
       }
+      .padding(.top, TollSpacing.lineToContent)
+    } actions: {
       if let end = model.trialEnds(after: Date()) {
         Footnote(
           Copy.Setup.freeUntil(
-            end.formatted(.dateTime.month(.abbreviated).day()), price: model.app.price))
+            end.formatted(.dateTime.month(.abbreviated).day()), price: model.app.price),
+          alignment: .center
+        )
+        .padding(.horizontal, 12)
+        .padding(.bottom, TollSpacing.aboveButton)
       }
-    } actions: {
       PrimaryButton(Copy.Setup.done) { model.finish() }
     }
     .navigationBarBackButtonHidden()

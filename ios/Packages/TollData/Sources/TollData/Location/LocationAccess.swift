@@ -23,7 +23,15 @@ public final class LocationAccess: NSObject, CLLocationManagerDelegate {
     Task { @MainActor in self.onChange?() }
   }
 
+  #if DEBUG
+    /// Demo launches stand in for the user's answer: the simulator's prompt would cover the screen.
+    public static var simulated: State?
+  #endif
+
   public var state: State {
+    #if DEBUG
+      if let simulated = Self.simulated { return simulated }
+    #endif
     switch manager.authorizationStatus {
     case .notDetermined: return .notDetermined
     case .denied, .restricted: return .denied
@@ -31,6 +39,21 @@ public final class LocationAccess: NSObject, CLLocationManagerDelegate {
       if manager.accuracyAuthorization == .reducedAccuracy { return .approximate }
       return manager.authorizationStatus == .authorizedAlways ? .always : .whileUsing
     }
+  }
+
+  /// Settings' two switches, read separately for the Location-Off screen.
+  public var isAlways: Bool {
+    #if DEBUG
+      if let simulated = Self.simulated { return simulated == .always }
+    #endif
+    return manager.authorizationStatus == .authorizedAlways
+  }
+
+  public var isPrecise: Bool {
+    #if DEBUG
+      if let simulated = Self.simulated { return simulated != .approximate }
+    #endif
+    return manager.accuracyAuthorization == .fullAccuracy
   }
 
   /// iOS asks for While Using first; Always comes as a second prompt, once (decisions §5 finding 5).
