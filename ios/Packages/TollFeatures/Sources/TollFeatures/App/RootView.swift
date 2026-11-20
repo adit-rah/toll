@@ -57,6 +57,8 @@ struct LiveHome: View {
   let model: AppModel
   @State private var buying = false
   @State private var path: [HomeRoute] = []
+  /// The door sheet, opened by `showsDoor` and kept by `doorPending`.
+  @State private var doorUp = false
 
   var body: some View {
     NavigationStack(path: $path) {
@@ -76,6 +78,12 @@ struct LiveHome: View {
     }
     .tint(TollColor.accent)
     .sheet(isPresented: $buying) { PurchaseSheet(model: model, home: snapshot(Date())) }
+    .onChange(of: model.showsDoor, initial: true) { _, shows in
+      if shows { doorUp = true }
+    }
+    .onChange(of: model.doorPending) { _, pending in
+      if !pending { doorUp = false }
+    }
     .sheet(isPresented: doorShown) {
       TimelineView(.periodic(from: .now, by: 1)) { tick in
         DoorSheet(model: model, now: tick.date)
@@ -95,7 +103,12 @@ struct LiveHome: View {
   }
 
   private var doorShown: Binding<Bool> {
-    Binding(get: { model.showsDoor }, set: { if !$0 { model.dismissDoor() } })
+    Binding(
+      get: { doorUp },
+      set: { up in
+        doorUp = up
+        if !up, model.state.door == nil { model.dismissDoor() }
+      })
   }
 }
 

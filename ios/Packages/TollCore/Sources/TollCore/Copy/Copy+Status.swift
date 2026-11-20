@@ -13,5 +13,8 @@ extension Copy {
     /// D32, after Opal: the easy way out is the first button.
     public static let neverMind = "Never mind"
     public static let unlock = "Unlock in \(name)"
+    public static func unlocks(_ left: Int, of max: Int) -> String {
+      "\(left) of \(max) unlocks left."
+    }
   }
 }

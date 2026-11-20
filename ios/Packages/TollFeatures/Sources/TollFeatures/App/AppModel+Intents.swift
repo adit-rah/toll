@@ -45,7 +45,8 @@ extension AppModel {
 
   // MARK: Door
 
-  /// "Unlock in Dusk" was tapped on the block screen in the last two minutes, or a door is under way.
+  /// Opens the door sheet: "Unlock in Dusk" was tapped on the block screen in the last two minutes,
+  /// or a door is under way.
   var showsDoor: Bool {
     guard state.isBlocking else { return false }
     if state.door != nil { return true }
@@ -53,20 +54,19 @@ extension AppModel {
     return Date().timeIntervalSince(asked) < 120
   }
 
-  /// The apps the door can open: every active block's.
-  var doorChoices: FamilyActivitySelection {
-    var choices = FamilyActivitySelection()
-    for block in state.activeBlocks {
-      let selection = Blocklist.selection(from: block.apps)
-      choices.applicationTokens.formUnion(selection.applicationTokens)
-      choices.categoryTokens.formUnion(selection.categoryTokens)
-    }
-    return choices
+  /// Keeps an open sheet up: someone choosing for more than two minutes doesn't lose it (#47). It
+  /// ends when the ask is answered or dismissed, the door ends, or the block does.
+  var doorPending: Bool {
+    state.isBlocking && (state.door != nil || state.doorAskedAt != nil)
   }
 
-  func startDoor(_ app: ApplicationToken) {
-    guard let data = DoorApp.encode(app) else { return }
+  /// Starts the wait, unless nothing that's on blocks the app: then nothing is spent (#47).
+  func startDoor(_ app: ApplicationToken) -> Bool {
+    guard Blocklist.doorCanOpen(app, in: state.activeBlocks), let data = DoorApp.encode(app) else {
+      return false
+    }
     send(.doorChosen, [.startDoor(app: data)])
+    return true
   }
 
   func cancelDoor() { send(.doorCancelled, [.cancelDoor]) }
