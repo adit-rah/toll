@@ -61,7 +61,12 @@ extension Copy {
 
     public static let locationBanner =
       "Location is set to While Using. Your blocks run on their hours, wherever you are."
-    public static let fixInSettings = "Fix in Settings"
+    /// D37: running without location is a fact, not a fault (#45).
+    public static let fixInSettings = Copy.Setup.changeInSettings
+    public static let screenTimeOffEyebrow = "Screen Time off"
+    public static let screenTimeOffDetail = "Turn it on to block tonight."
+    public static let screenTimeOffCard = "Screen Time is off for Dusk. Nothing can be blocked."
+    public static let turnOn = "Turn on"
 
     public static let thisWeek = "This week"
     public static let seeAll = "See all"

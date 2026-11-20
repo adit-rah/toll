@@ -42,6 +42,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 24 | Spend the third unlock, let it close, then open a blocked app (#47) | No "Unlock in Dusk" button; the subtitle says no unlocks are left and when one returns. If the old button shows, note when it goes | | |
 | 25 | At the door, pick an app that no block lists (#47) | "That app isn't blocked right now"; no wait starts and nothing is spent | | |
 | 26 | Stay on "Open one app for 5 minutes?" for 3 minutes (#47) | The sheet stays until Not now | | |
+| 27 | After setup, switch Screen Time off for Dusk (Settings › Screen Time, or remove its access), then open Dusk (#45) | Home says "Screen Time off · Not blocking" with a "Turn on" card; Turn on shows the prompt again, or opens Settings if it can't. Note which | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
