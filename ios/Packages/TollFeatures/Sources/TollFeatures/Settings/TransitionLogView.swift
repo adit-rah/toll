@@ -8,15 +8,16 @@ struct TransitionLogView: View {
 
   var body: some View {
     List {
+      LabeledContent(Copy.Settings.version, value: AppLinks.version)
       if model.log.isEmpty {
-        Text(Copy.Settings.logEmpty).tollText(.subhead)
+        Text(Copy.Settings.logEmpty).tollType(.body, TollColor.label2)
       }
       ForEach(Array(model.log.enumerated()), id: \.offset) { _, line in
-        Text(Copy.Settings.line(line))
-          .font(TollFont.caption)
-          .monospacedDigit()
+        Text(Copy.Settings.line(line)).tollType(.detail, TollColor.label)
       }
     }
+    .scrollContentBackground(.hidden)
+    .background(TollColor.bg)
     .navigationTitle(Copy.Settings.log)
   }
 }

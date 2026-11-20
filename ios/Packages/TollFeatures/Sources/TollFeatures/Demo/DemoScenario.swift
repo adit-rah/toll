@@ -21,6 +21,9 @@
     case homePaused = "home-paused"
     case homeLocation = "home-location"
     case purchase, settings, insights
+    case purchasePending = "purchase-pending"
+    case purchaseFailed = "purchase-failed"
+    case purchaseRestoreNone = "purchase-restore-none"
     case blocks
     case blockNew = "block-new"
     case blockEdit = "block-edit"
@@ -65,9 +68,18 @@
       }
     }
     var isDoor: Bool { rawValue.hasPrefix("door") }
+    /// Screens Home pushes rather than presents.
+    var route: HomeRoute? {
+      switch self {
+      case .insights: .insights
+      case .settings: .settings
+      case .blocks: .blocks
+      default: nil
+      }
+    }
     var isHome: Bool {
       rawValue.hasPrefix("home-") || rawValue.hasPrefix("block") || isDoor
-        || [.purchase, .settings, .insights].contains(self)
+        || rawValue.hasPrefix("purchase") || [.settings, .insights].contains(self)
     }
   }
 
@@ -95,21 +107,29 @@
     var body: some View {
       let fixture = DemoFixture(scenario: scenario, now: now)
       let home = HomeSnapshot(state: fixture.state, log: fixture.log, now: now, calendar: .current)
-      NavigationStack(path: .constant(scenario == .insights ? [HomeRoute.insights] : [])) {
+      NavigationStack(path: .constant(scenario.route.map { [$0] } ?? [])) {
         HomeView(
           home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},
           fixLocation: {}
         )
         .homeNavigation()
-        .navigationDestination(for: HomeRoute.self) { _ in InsightsView(log: fixture.log) }
+        .navigationDestination(for: HomeRoute.self) { route in
+          if route == .insights {
+            InsightsView(log: fixture.log)
+          } else {
+            HomeDestination(model: app, route: route) {}
+          }
+        }
       }
       .tint(TollColor.accent)
-      .sheet(isPresented: .constant(!scenario.rawValue.hasPrefix("home-") && scenario != .insights))
+      .sheet(isPresented: .constant(!scenario.rawValue.hasPrefix("home-") && scenario.route == nil))
       {
         switch scenario {
         case .purchase: PurchaseSheet(model: app, home: home)
-        case .settings: SettingsView(model: app)
-        case .blocks: NavigationStack { BlocksView(model: app) }
+        case .purchasePending: PurchaseSheet(model: app, home: home, outcome: .pending)
+        case .purchaseFailed: PurchaseSheet(model: app, home: home, outcome: .failed)
+        case .purchaseRestoreNone:
+          PurchaseSheet(model: app, home: home, outcome: .nothingToRestore)
         case .blockNew: BlockEditorView(app: app, editing: nil)
         case .blockEdit: BlockEditorView(app: app, editing: BlockID("study"))
         default:

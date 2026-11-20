@@ -23,7 +23,13 @@ extension Copy {
     public static func nightsUsed(_ night: Int, of nights: Int) -> String {
       "\(night) of \(nights) used"
     }
-    public static let purchased = "Kept for good"
+    public static let purchased = "Purchased"
+    public static func once(_ price: String) -> String { "\(price) once" }
+    public static let app = "App"
+    public static func blocksSummary(blocks: Int, items: Int, max: Int) -> String {
+      "\(blocks == 1 ? "1 block" : "\(blocks) blocks")\(middleDot)\(items) of \(max) apps and sites"
+    }
+    public static let testingOnly = "Testing only · removed before launch"
     public static let keepIt = Purchase.keep
     public static let restore = Purchase.restore
     public static let restored = "Purchase restored."

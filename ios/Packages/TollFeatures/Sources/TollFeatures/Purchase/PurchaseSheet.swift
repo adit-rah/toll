@@ -3,59 +3,120 @@ import TollCore
 import TollData
 import TollUI
 
-/// The purchase (the design canvas): what the free week did, what buying keeps, the price once. Opens
-/// only from the last-day pill, Home's Paused card and Settings (D33).
+/// The purchase (the canvas's Purchase sheet and its three outcomes): what the free week did, what
+/// buying keeps, the price once. Opens only from the last-day pill, Home's Paused card and Settings
+/// (D33). Closing Apple's payment sheet changes nothing here.
 struct PurchaseSheet: View {
   let model: AppModel
   let home: HomeSnapshot
   @Environment(\.dismiss) private var dismiss
   @State private var working = false
-  @State private var note: String?
+  @State private var outcome: Outcome?
+
+  init(model: AppModel, home: HomeSnapshot, outcome: Outcome? = nil) {
+    self.model = model
+    self.home = home
+    _outcome = State(initialValue: outcome)
+  }
+
+  enum Outcome {
+    case pending, failed, nothingToRestore
+  }
 
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: TollSpacing.groupGap) {
-        VStack(alignment: .leading, spacing: 8) {
-          Text(Copy.Purchase.eyebrow).font(TollFont.captionMedium).foregroundStyle(TollColor.label2)
-          Text(Copy.Purchase.title)
-            .font(TollFont.screenTitle)
-            .foregroundStyle(TollColor.label)
-            .accessibilityAddTraits(.isHeader)
+    Group {
+      switch outcome {
+      case nil: offer
+      case .pending:
+        OutcomeSheet(
+          symbol: "clock", tint: TollColor.accent, title: Copy.Purchase.pendingTitle,
+          line: Copy.Purchase.pendingBody
+        ) {
+          PrimaryButton(Copy.Purchase.ok) { dismiss() }
         }
-        StatTiles(home: home)
-        Card {
-          ForEach(Copy.Purchase.benefits, id: \.self) { benefit in
-            Label(benefit, systemImage: "checkmark")
-              .font(TollFont.body)
-              .foregroundStyle(TollColor.label)
-              .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-          }
+      case .failed:
+        OutcomeSheet(
+          symbol: "xmark", tint: TollColor.warn, title: Copy.Purchase.failedTitle,
+          line: Copy.Purchase.failedBody, overhang: 16
+        ) {
+          PrimaryButton(Copy.Purchase.tryAgain) { Task { await buy() } }.disabled(working)
+          QuietButton(Copy.Purchase.notNow) { dismiss() }.frame(maxWidth: .infinity)
         }
-        HStack(alignment: .firstTextBaseline, spacing: 6) {
-          Text(model.price).font(.system(.largeTitle, weight: .semibold)).monospacedDigit()
-          Text(Copy.Purchase.once).font(TollFont.body).foregroundStyle(TollColor.label2)
+      case .nothingToRestore:
+        OutcomeSheet(
+          symbol: "magnifyingglass", tint: TollColor.label2, title: Copy.Purchase.restoreNoneTitle,
+          line: Copy.Purchase.restoreNoneBody
+        ) {
+          PrimaryButton(Copy.Purchase.ok) { outcome = nil }
         }
-        .foregroundStyle(TollColor.label)
-        .accessibilityElement(children: .combine)
-        if let note { Footnote(note).transition(.opacity) }
-        Footnote(Copy.Purchase.footnote)
       }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .tollGutter()
-      .padding(.top, TollSpacing.titleGap)
     }
-    .background(TollColor.bg)
-    .animation(Motion.stateChange, value: note)
-    .tollBottomBar(background: TollColor.bg) {
-      VStack(spacing: 0) {
-        PrimaryButton(Copy.Purchase.keep) { Task { await buy() } }.disabled(working)
-        HStack {
-          QuietButton(Copy.Purchase.restore, tone: .secondary) { Task { await restore() } }
-          Spacer()
-          QuietButton(Copy.Purchase.notNow, tone: .secondary) { dismiss() }
-        }
-        .disabled(working)
+    .animation(Motion.movement, value: outcome)
+  }
+
+  private var offer: some View {
+    SheetPage(height: 674, overhang: 14) {
+      Text(Copy.Purchase.eyebrow).tollType(.eyebrow, TollColor.label2)
+      Text(Copy.Purchase.title)
+        .tollType(TollType(size: 34, lineHeight: 40, weight: .semibold, style: .largeTitle))
+        .foregroundStyle(TollColor.label)
+        .accessibilityAddTraits(.isHeader)
+        .padding(.top, 8)
+      HStack(alignment: .top, spacing: 12) {
+        Stat(
+          value: Copy.Home.nightsBlocked(
+            home.nightsBlocked, of: max(home.nightsCounted, home.nightsBlocked)),
+          label: Copy.Home.nightsBlockedLabel)
+        Stat(value: "\(home.timesStopped)", label: Copy.Home.stoppedLabel)
+        Stat(
+          value: Copy.Purchase.unlocksUsed(
+            model.config.unlocks.max - model.state.unlocks.left(model.config),
+            of: model.config.unlocks.max),
+          label: Copy.Purchase.unlocksUsedLabel)
       }
+      .padding(.vertical, TollSpacing.statsCardVertical)
+      .padding(.horizontal, TollSpacing.cardPadding)
+      .background(
+        TollColor.surfaceRaised,
+        in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
+      )
+      .padding(.top, 22)
+      VStack(alignment: .leading, spacing: 0) {
+        ForEach(Copy.Purchase.benefits, id: \.self) { benefit in
+          HStack(spacing: 12) {
+            Image(systemName: "checkmark")
+              .font(.system(size: 15, weight: .bold))
+              .foregroundStyle(TollColor.accent)
+              .frame(width: 18)
+              .accessibilityHidden(true)
+            Text(benefit)
+              .tollType(TollType(size: 16, lineHeight: 21, weight: .regular, style: .callout))
+              .foregroundStyle(TollColor.label)
+          }
+          .frame(minHeight: 32)
+        }
+      }
+      .padding(.top, 22)
+    } actions: {
+      HStack(alignment: .firstTextBaseline, spacing: 8) {
+        Text(model.price)
+          .tollType(
+            TollType(size: 34, lineHeight: 40, weight: .semibold, style: .largeTitle, tabular: true)
+          )
+          .foregroundStyle(TollColor.label)
+        Text(Copy.Purchase.once).tollType(.body, TollColor.label2)
+      }
+      .accessibilityElement(children: .combine)
+      .padding(.bottom, 14)
+      PrimaryButton(Copy.Purchase.keep) { Task { await buy() } }.disabled(working)
+      QuietButton(Copy.Purchase.restore, type: .smallQuiet) { Task { await restore() } }
+        .frame(maxWidth: .infinity)
+        .disabled(working)
+      Text(Copy.Purchase.footnote)
+        .tollType(TollType(size: 12, lineHeight: 17, weight: .regular, style: .caption))
+        .foregroundStyle(TollColor.label2)
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
     }
   }
 
@@ -64,39 +125,57 @@ struct PurchaseSheet: View {
     defer { working = false }
     switch await model.buy() {
     case .purchased: dismiss()
-    case .cancelled: note = nil
-    case .pending: note = Copy.Trial.pending
-    case .failed: note = Copy.Trial.failed
+    case .cancelled: break
+    case .pending: outcome = .pending
+    case .failed: outcome = .failed
     }
   }
 
   private func restore() async {
     working = true
     defer { working = false }
-    if await model.restore() { dismiss() } else { note = Copy.Trial.nothingToRestore }
+    if await model.restore() { dismiss() } else { outcome = .nothingToRestore }
   }
 }
 
-/// The week's numbers as tiles (the canvas's "This week" card and the purchase sheet).
-struct StatTiles: View {
-  let home: HomeSnapshot
+/// Purchase · nothing to restore, from Settings' "Restore purchase".
+struct RestoreNoneSheet: View {
+  @Environment(\.dismiss) private var dismiss
 
   var body: some View {
-    HStack(alignment: .top, spacing: 12) {
-      tile(
-        Copy.Home.nightsBlocked(
-          home.nightsBlocked, of: max(home.nightsCounted, home.nightsBlocked)),
-        Copy.Home.nightsBlockedLabel)
-      tile("\(home.timesStopped)", Copy.Home.stoppedLabel)
+    OutcomeSheet(
+      symbol: "magnifyingglass", tint: TollColor.label2, title: Copy.Purchase.restoreNoneTitle,
+      line: Copy.Purchase.restoreNoneBody
+    ) {
+      PrimaryButton(Copy.Purchase.ok) { dismiss() }
     }
   }
+}
 
-  private func tile(_ value: String, _ label: String) -> some View {
-    VStack(alignment: .leading, spacing: 2) {
-      Text(value).font(TollFont.title).monospacedDigit().foregroundStyle(TollColor.label)
-      Text(label).font(TollFont.detail).foregroundStyle(TollColor.label2)
+/// Purchase · waiting for approval, failed, nothing to restore: a 48 pt tile, a title, a sentence.
+private struct OutcomeSheet<Actions: View>: View {
+  let symbol: String
+  let tint: Color
+  let title: String
+  let line: String
+  var overhang: CGFloat = 0
+  @ViewBuilder let actions: Actions
+
+  var body: some View {
+    SheetPage(height: 374, overhang: overhang) {
+      Image(systemName: symbol)
+        .font(.system(size: TileSize.sheet.symbol, weight: .medium))
+        .foregroundStyle(tint)
+        .frame(width: TileSize.sheet.side, height: TileSize.sheet.side)
+        .background(
+          TollColor.surfaceRaised,
+          in: RoundedRectangle(cornerRadius: TileSize.sheet.radius, style: .continuous)
+        )
+        .accessibilityHidden(true)
+      SheetTitle(title).padding(.top, 18)
+      SheetBody(line)
+    } actions: {
+      actions
     }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .accessibilityElement(children: .combine)
   }
 }
