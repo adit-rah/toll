@@ -25,7 +25,7 @@ struct PermissionsView: View {
       }
       .padding(.top, TollSpacing.lineToContent)
       if model.app.screenTime == .denied {
-        NoteCard(Copy.Setup.screenTimeDenied, symbol: "info.circle")
+        NoteCard(Copy.Setup.screenTimeDenied, symbol: "hourglass")
           .padding(.top, 14)
           .transition(.opacity)
       }
@@ -148,11 +148,11 @@ struct LocationOffView: View {
       Card {
         StateRow(symbol: "location", title: Copy.Setup.location, value: locationValue)
         StateRow(
-          symbol: "scope", title: Copy.Setup.preciseLocation,
+          symbol: "mappin", title: Copy.Setup.preciseLocation,
           value: model.app.locationAccess.isPrecise ? Copy.Setup.on : Copy.Setup.off)
       }
       .padding(.top, TollSpacing.lineToContent)
-      NoteCard(fact, symbol: "info.circle") {
+      NoteCard(fact, symbol: "clock") {
         Button(Copy.Setup.changeInSettings, action: openSystemSettings)
           .tollType(.link, TollColor.accent)
           .frame(minHeight: 28)

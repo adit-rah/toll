@@ -121,7 +121,7 @@ struct ReadyView: View {
         CardRow(
           atHome ? Copy.Setup.atHome : Copy.Setup.anywhere,
           detail: atHome ? Copy.Setup.yourBuilding : Copy.Setup.anywhereDetail
-        ) { IconTile("mappin.and.ellipse", accent: false) }
+        ) { IconTile(atHome ? "house" : "location", accent: false) }
         CardRow(
           Copy.Setup.blocked,
           detail: Copy.Setup.blockedCount(
@@ -131,7 +131,7 @@ struct ReadyView: View {
         CardRow(
           Copy.Setup.unlocks(model.app.config.unlocks.max),
           detail: Copy.Setup.unlocksDetail(minutes: model.app.config.door.minutes)
-        ) { IconTile("key", accent: false) }
+        ) { IconTile("lock", accent: false) }
       }
       .padding(.top, TollSpacing.lineToContent)
     } actions: {
