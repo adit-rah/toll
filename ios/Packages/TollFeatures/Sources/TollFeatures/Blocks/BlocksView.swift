@@ -10,40 +10,48 @@ struct BlocksView: View {
   var body: some View {
     let snapshot = BlocksSnapshot(state: model.state, calendar: .current, config: model.config)
     let compact = snapshot.rows.count > 4
-    ScrollView {
-      VStack(alignment: .leading, spacing: 0) {
-        ScreenTitle(Copy.Blocks.title, kind: .pushed)
-        if !compact {
-          SetupLine(Copy.Blocks.line).padding(.top, 8)
-        }
-        Card {
-          ForEach(snapshot.rows) { row in
-            NavigationLink(value: HomeRoute.block(row.id)) {
-              BlockListRow(row: row, compact: compact)
-            }
-            .buttonStyle(.plain)
-          }
-        }
-        .padding(.top, compact ? 16 : 24)
-        NewBlockRow(limits: snapshot.limits).padding(.top, 12)
-        Card {
-          LimitRow(
-            title: Copy.Blocks.appsAndSites,
-            value: Copy.Blocks.used(snapshot.limits.appsUsed, of: snapshot.limits.appsMax),
-            full: snapshot.limits.appsOver > 0)
-          LimitRow(
-            title: Copy.Blocks.timeWindows,
-            value: Copy.Blocks.used(snapshot.limits.windowsUsed, of: snapshot.limits.windowsMax),
-            full: snapshot.limits.windowsFull)
-        }
-        .padding(.top, 24)
-        Footnote(Copy.Blocks.unlocksShared, alignment: .center).padding(.top, TollSpacing.underCard)
+    GeometryReader { proxy in
+      ScrollView {
+        page(snapshot: snapshot, compact: compact)
+          .frame(minHeight: proxy.size.height, alignment: .top)
       }
-      .tollGutter()
-      .padding(.bottom, 30)
     }
     .background(TollColor.bg)
     .tollPushed(Copy.Blocks.title)
+  }
+
+  /// The limits sit at the bottom, as on the board; spare room goes above them.
+  private func page(snapshot: BlocksSnapshot, compact: Bool) -> some View {
+    VStack(alignment: .leading, spacing: 0) {
+      ScreenTitle(Copy.Blocks.title, kind: .pushed)
+      if !compact {
+        SetupLine(Copy.Blocks.line).padding(.top, 8)
+      }
+      Card {
+        ForEach(snapshot.rows) { row in
+          NavigationLink(value: HomeRoute.block(row.id)) {
+            BlockListRow(row: row, compact: compact)
+          }
+          .buttonStyle(.plain)
+        }
+      }
+      .padding(.top, compact ? 16 : 24)
+      NewBlockRow(limits: snapshot.limits).padding(.top, 12)
+      Spacer(minLength: 24)
+      Card {
+        LimitRow(
+          title: Copy.Blocks.appsAndSites,
+          value: Copy.Blocks.used(snapshot.limits.appsUsed, of: snapshot.limits.appsMax),
+          full: snapshot.limits.appsOver > 0)
+        LimitRow(
+          title: Copy.Blocks.timeWindows,
+          value: Copy.Blocks.used(snapshot.limits.windowsUsed, of: snapshot.limits.windowsMax),
+          full: snapshot.limits.windowsFull)
+      }
+      Footnote(Copy.Blocks.unlocksShared, alignment: .center).padding(.top, TollSpacing.underCard)
+    }
+    .tollGutter()
+    .padding(.bottom, 30)
   }
 }
 

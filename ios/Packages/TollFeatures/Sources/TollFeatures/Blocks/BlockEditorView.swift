@@ -46,7 +46,7 @@ struct BlockEditorView: View {
           }
           row(
             Copy.Blocks.place, detail: model.place?.name ?? Copy.Blocks.anywhere,
-            symbol: "mappin.and.ellipse"
+            symbol: "mappin"
           ) { choosingPlace = true }
         }
         .padding(.top, model.activeUntil == nil ? 20 : 16)
