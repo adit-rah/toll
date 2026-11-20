@@ -56,7 +56,6 @@ public struct RootView: View {
 struct LiveHome: View {
   let model: AppModel
   @State private var buying = false
-  @State private var editing: BlockRef?
   @State private var path: [HomeRoute] = []
 
   var body: some View {
@@ -67,7 +66,7 @@ struct LiveHome: View {
           locationFact: locationFact(model.location),
           openSettings: { path.append(.settings) }, openDoor: { model.askDoor() },
           openPurchase: { buying = true }, fixLocation: openSystemSettings,
-          openBlock: { editing = BlockRef(id: $0) }, openInsights: { path.append(.insights) }
+          openBlock: { path = [.blocks, .block($0)] }, openInsights: { path.append(.insights) }
         )
       }
       .homeNavigation()
@@ -76,7 +75,6 @@ struct LiveHome: View {
       }
     }
     .tint(TollColor.accent)
-    .sheet(item: $editing) { ref in BlockEditorView(app: model, editing: ref.block) }
     .sheet(isPresented: $buying) { PurchaseSheet(model: model, home: snapshot(Date())) }
     .sheet(isPresented: doorShown) {
       TimelineView(.periodic(from: .now, by: 1)) { tick in
@@ -112,6 +110,7 @@ struct HomeDestination: View {
     case .insights: InsightsView(log: model.trialSummaryLog())
     case .settings: SettingsView(model: model, openPurchase: openPurchase)
     case .blocks: BlocksView(model: model)
+    case .block(let id): BlockEditorView(app: model, editing: id)
     case .log: TransitionLogView(model: model)
     }
   }
@@ -120,6 +119,8 @@ struct HomeDestination: View {
 /// Screens pushed from Home, with Apple's back button reading "Home" (the canvas).
 enum HomeRoute: Hashable {
   case insights, settings, blocks, log
+  /// A block to edit, or nil for a new one; pushed over Blocks so the back button reads "Blocks".
+  case block(BlockID?)
 }
 
 extension View {

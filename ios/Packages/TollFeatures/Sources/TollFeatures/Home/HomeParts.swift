@@ -296,8 +296,8 @@ enum BlockSymbol {
     case .sleep: "moon"
     case .study: "book"
     case .work: "briefcase"
-    case .gym: "figure.run"
-    case .other: "square.grid.2x2"
+    case .gym: "bolt"
+    case .other: "ellipsis"
     }
   }
 }

@@ -89,12 +89,13 @@ struct BlocksTests {
     #expect(apply(.saveBlock(second), &s, date(2026, 11, 17, 8)) == .noSleepBlock)
 
     var many = setUp()
-    for hour in 0..<7 {
+    let max = TollConfig.defaults.blocks.max
+    for hour in 0..<(max + 1) {
       let block = Block(
         name: "B\(hour)", kind: .other, place: nil,
         schedule: .everyDay(TimeWindow(start: time(hour), end: time(hour, 30))), apps: nil)
       let result = apply(.saveBlock(block), &many, date(2026, 11, 17, 8))
-      #expect(result == (hour < 5 ? nil : .tooManyBlocks))
+      #expect(result == (hour < max - 1 ? nil : .tooManyBlocks))
     }
   }
 
@@ -134,5 +135,61 @@ struct BlocksTests {
     s.location = .scheduleOnly
     run(&s, date(2026, 11, 17, 10))
     #expect(s.activeBlocks.map(\.id) == [BlockID("study")])
+  }
+}
+
+struct BlockLimitsTests {
+  @Test func appsAndSitesCountCategoriesDoNot() {
+    var s = setUp()
+    s.blocks[0].appCount = 4
+    s.blocks[0].categoryCount = 2
+    var study = studyBlock()
+    study.appCount = 3
+    study.categoryCount = 5
+    let limits = BlockLimits(state: s, draft: study)
+    #expect(limits.appsUsed == 7)
+    #expect(limits.appsOver == 0)
+  }
+
+  @Test func blocksWithTheSameHoursShareAWindow() {
+    var s = setUp()
+    s.blocks.append(studyBlock())
+    var twin = studyBlock()
+    twin.id = BlockID("twin")
+    s.blocks.append(twin)
+    let limits = BlockLimits(state: s)
+    #expect(limits.windowsUsed == 2)
+    #expect(limits.canAddBlock)
+  }
+
+  @Test func eightWindowsTurnNewBlockOff() {
+    var s = setUp()
+    for hour in 8..<15 {
+      var block = studyBlock()
+      block.id = BlockID("b\(hour)")
+      block.schedule = .everyDay(
+        TimeWindow(start: ClockTime(hour: hour), end: ClockTime(hour: hour, minute: 30)))
+      s.blocks.append(block)
+    }
+    let limits = BlockLimits(state: s)
+    #expect(limits.windowsUsed == 8)
+    #expect(!limits.canAddBlock)
+  }
+}
+
+struct BlocksSnapshotTests {
+  @Test func rowsSayWhatEachBlockHoldsAndWhichIsOn() {
+    var s = setUp(home: false)
+    s.blocks[0].appCount = 4
+    s.places.append(libraryPlace)
+    s.blocks.append(studyBlock())
+    arrive(&s, libraryPlace, date(2026, 11, 17, 9))
+    run(&s, date(2026, 11, 17, 10))
+    let rows = BlocksSnapshot(state: s, calendar: london).rows
+    #expect(rows[0].detail.hasPrefix("4 apps · Home · "))
+    #expect(rows[0].accent && !rows[0].onNow)
+    #expect(rows[1].onNow)
+    #expect(rows[1].detail.hasPrefix("until 5"))
+    #expect(rows[1].detail.hasSuffix("· Library"))
   }
 }

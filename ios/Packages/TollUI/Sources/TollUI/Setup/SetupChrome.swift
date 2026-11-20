@@ -122,3 +122,18 @@ enum HomeIndicator {
     return (windows.first(where: \.isKeyWindow) ?? windows.first)?.safeAreaInsets.bottom ?? 34 > 0
   }
 }
+
+extension View {
+  /// A pushed screen draws its own title under the bar (`ScreenTitle(kind: .pushed)`); the bar keeps
+  /// only Apple's back button. The title still names the screen on the next one's back button.
+  public func tollPushed(_ title: String) -> some View {
+    navigationTitle(title)
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .principal) {
+          Color.clear.frame(width: 1, height: 1).accessibilityHidden(true)
+        }
+        .sharedBackgroundVisibility(.hidden)
+      }
+  }
+}

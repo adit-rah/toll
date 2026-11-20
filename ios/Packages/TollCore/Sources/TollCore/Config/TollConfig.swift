@@ -28,7 +28,8 @@ public struct TollConfig: Codable, Sendable, Equatable {
 
   public struct Blocks: Codable, Sendable, Equatable {
     public init() {}
-    public var max = 6
+    /// The canvas draws seven on Blocks · 8 time windows; windows are the limit that bites (D45).
+    public var max = 8
     /// Across every block (D29); iOS refuses a shield of more than 50 by name.
     public var maxApps = 40
     /// Distinct time windows across every block: each needs a window and a sweep schedule, and
