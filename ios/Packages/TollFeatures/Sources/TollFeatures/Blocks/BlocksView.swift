@@ -83,7 +83,7 @@ private struct BlockListRow: View {
   }
 }
 
-/// "New block", off with its reason once the time windows are used up.
+/// "New block", off with its reason once the blocks or the time windows are used up.
 private struct NewBlockRow: View {
   let limits: BlockLimits
 
@@ -102,7 +102,13 @@ private struct NewBlockRow: View {
                 TollType(size: 16, lineHeight: 21, weight: .semibold, style: .callout),
                 limits.canAddBlock ? TollColor.accent : TollColor.label3)
             if !limits.canAddBlock {
-              Text(Copy.Blocks.windowsFull(limits.windowsMax)).tollType(.detail, TollColor.label2)
+              // Whichever limit is the one that's reached (#49).
+              Text(
+                limits.blocksUsed >= limits.blocksMax
+                  ? Copy.Blocks.blocksFull(limits.blocksMax)
+                  : Copy.Blocks.windowsFull(limits.windowsMax)
+              )
+              .tollType(.detail, TollColor.label2)
             }
           }
           .frame(maxWidth: .infinity, alignment: .leading)

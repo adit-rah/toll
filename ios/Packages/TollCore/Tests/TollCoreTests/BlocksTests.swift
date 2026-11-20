@@ -193,3 +193,43 @@ struct BlocksSnapshotTests {
     #expect(rows[1].detail.hasSuffix("· Library"))
   }
 }
+
+/// What the rows say when a block doesn't run as its place suggests, or a change waits (#49).
+struct BlockRowsTests {
+  func withStudy() -> DuskState {
+    var s = setUp(home: false)
+    s.places.append(libraryPlace)
+    s.blocks.append(studyBlock())
+    arrive(&s, libraryPlace, date(2026, 11, 17, 8))
+    return s
+  }
+
+  @Test func withoutLocationAPlacedBlockSaysAnywhere() {
+    var s = withStudy()
+    s.location = .scheduleOnly
+    let rows = BlocksSnapshot(state: s, calendar: london).rows
+    #expect(rows.allSatisfy { $0.detail.contains("Anywhere") })
+    #expect(!rows.contains { $0.detail.contains("Library") })
+    let home = HomeSnapshot(state: s, log: [], now: date(2026, 11, 17, 8), calendar: london)
+    #expect(home.blocks.allSatisfy { $0.detail.hasPrefix("Anywhere") })
+  }
+
+  @Test func aHeldDeleteOrEditIsOnTheRow() {
+    var s = withStudy()
+    run(&s, date(2026, 11, 17, 10))
+    _ = apply(.deleteBlock(BlockID("study")), &s, date(2026, 11, 17, 10))
+    let row = BlocksSnapshot(state: s, calendar: london).rows.first { $0.id == BlockID("study") }
+    #expect(row?.detail.hasPrefix("Deleted at 5") == true)
+    #expect(row?.onNow == true)
+    var edited = withStudy()
+    run(&edited, date(2026, 11, 17, 10))
+    var study = studyBlock()
+    study.name = "Library"
+    _ = apply(.saveBlock(study), &edited, date(2026, 11, 17, 10))
+    let home = HomeSnapshot(
+      state: edited, log: [], now: date(2026, 11, 17, 10), calendar: london)
+    #expect(
+      home.blocks.first { $0.id == BlockID("study") }?.detail.hasPrefix("Changes apply at 5")
+        == true)
+  }
+}

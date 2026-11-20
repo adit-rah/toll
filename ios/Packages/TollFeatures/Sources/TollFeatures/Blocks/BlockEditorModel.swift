@@ -42,6 +42,15 @@ final class BlockEditorModel {
   /// says so.
   var activeUntil: Date? { isNew ? nil : app.state.runtime.active[block.id] }
 
+  /// With a place but no Always, the block runs on its hours wherever the user is (D37); the editor
+  /// says so under Place (#49).
+  var placeIgnored: String? {
+    guard place != nil, app.state.location == .scheduleOnly,
+      let window = block.schedule.windows.first
+    else { return nil }
+    return Copy.Blocks.placeIgnored(block.name, span: Copy.span(window))
+  }
+
   /// "2 categories · 2 apps", counted, since iOS never gives the app the names (D41).
   var appsSummary: String {
     Copy.Blocks.summary(

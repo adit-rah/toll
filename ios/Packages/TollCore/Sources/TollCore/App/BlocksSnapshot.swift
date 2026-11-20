@@ -19,9 +19,12 @@ public struct BlocksSnapshot: Equatable, Sendable {
 
   public init(state: DuskState, calendar: Calendar, config: TollConfig = .defaults) {
     rows = state.blocks.map { block in
-      let place = state.place(block.place)?.name
+      let place = BlocksSnapshot.placeText(block, state: state)
       if let end = state.runtime.active[block.id] {
-        let parts = [Copy.Blocks.onNowUntil(Copy.time(end, in: calendar)), place].compactMap { $0 }
+        let time = Copy.time(end, in: calendar)
+        let parts =
+          BlocksSnapshot.held(block, state: state, at: time).map { [$0] }
+          ?? [Copy.Blocks.onNowUntil(time), place].compactMap { $0 }
         return Row(
           id: block.id, name: block.name, kind: block.kind, onNow: true,
           detail: parts.joined(separator: Copy.middleDot), accent: true)
@@ -36,5 +39,21 @@ public struct BlocksSnapshot: Equatable, Sendable {
         detail: parts.joined(separator: Copy.middleDot), accent: block.isSleep)
     }
     limits = BlockLimits(state: state, config: config)
+  }
+
+  /// Where a block runs as it really runs: its place, or "Anywhere" while location isn't usable
+  /// (D37), since then it blocks wherever the user is (#49). Nil for a block with no place.
+  static func placeText(_ block: Block, state: DuskState) -> String? {
+    guard let name = state.place(block.place)?.name else { return nil }
+    return state.location == .scheduleOnly ? Copy.Blocks.anywhere : name
+  }
+
+  /// A delete or edit held until the block ends (B-3), said on its row so it doesn't look ignored.
+  static func held(_ block: Block, state: DuskState, at time: String) -> String? {
+    switch state.pending[block.id] {
+    case .delete: Copy.Blocks.deletedAt(time)
+    case .save: Copy.Blocks.changesAt(time)
+    case nil: nil
+    }
   }
 }

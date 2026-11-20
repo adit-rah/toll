@@ -39,7 +39,7 @@ struct BlockEditorView: View {
           ForEach(model.block.schedule.rules.indices, id: \.self) { index in
             let rule = model.block.schedule.rules[index]
             row(
-              Copy.Blocks.hours,
+              hoursTitle(index),
               detail: "\(Copy.span(rule.window))\(Copy.middleDot)\(Copy.Blocks.daySpan(rule.days))",
               symbol: "clock"
             ) { editingRule = RuleRef(index: index) }
@@ -50,6 +50,14 @@ struct BlockEditorView: View {
           ) { choosingPlace = true }
         }
         .padding(.top, model.activeUntil == nil ? 20 : 16)
+        if let ignored = model.placeIgnored {
+          NoteCard(ignored, symbol: "location.slash") {
+            Button(Copy.Setup.changeInSettings, action: openSystemSettings)
+              .tollType(.link, TollColor.accent)
+              .frame(minHeight: 28)
+          }
+          .padding(.top, 12)
+        }
         if model.isSleep {
           Footnote(Copy.Blocks.sleepStays).padding(.top, 12)
         } else if model.isNew {
@@ -92,8 +100,14 @@ struct BlockEditorView: View {
 
   private var saveTitle: String {
     if model.isNew { return Copy.Blocks.save }
-    if model.activeUntil != nil && model.isSleep { return Copy.Blocks.saveForTomorrow }
+    if let end = model.activeUntil { return Copy.Blocks.saveAfter(Copy.time(end)) }
     return Copy.Blocks.saveEdit
+  }
+
+  /// Sleep with weekends different has two rules; name them as setup did (#49).
+  private func hoursTitle(_ index: Int) -> String {
+    guard model.isSleep, model.block.schedule.rules.count == 2 else { return Copy.Blocks.hours }
+    return index == 0 ? Copy.Setup.weeknights : Copy.Setup.weekendNights
   }
 
   private func row(_ title: String, detail: String, symbol: String, open: @escaping () -> Void)
@@ -150,11 +164,15 @@ private struct DeleteBlockSheet: View {
   @Environment(\.dismiss) private var dismiss
 
   var body: some View {
+    // On now, the delete waits for the block to end (B-3), and the sheet says so (#49).
+    let end = model.activeUntil.map { Copy.time($0) }
     SheetPage(height: 344, overhang: 16) {
       SheetTitle(Copy.Blocks.deleteTitle(model.block.name))
-      SheetBody(Copy.Blocks.deleteLine(model.appsSummary, place: model.place?.name))
+      SheetBody(
+        end.map { Copy.Blocks.deleteHeld(model.block.name, until: $0) }
+          ?? Copy.Blocks.deleteLine(model.appsSummary, place: model.place?.name))
     } actions: {
-      PrimaryButton(Copy.Blocks.delete, tone: .warn) {
+      PrimaryButton(end.map(Copy.Blocks.deleteAt) ?? Copy.Blocks.delete, tone: .warn) {
         dismiss()
         delete()
       }
