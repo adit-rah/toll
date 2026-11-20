@@ -32,7 +32,7 @@ final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
     let state = DuskStore().load()
     let text = ShieldText(state: state, block: block(in: state, app: app, category: category))
     return ShieldConfiguration(
-      backgroundBlurStyle: .systemUltraThinMaterialDark,
+      backgroundBlurStyle: nil,
       backgroundColor: ShieldIcon.background,
       icon: ShieldIcon.image,
       title: .init(text: text.title, color: ShieldIcon.label),

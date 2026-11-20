@@ -63,8 +63,9 @@ public enum Engine {
       DoorRules.cancel(&state)
     case .lockDoor:
       DoorRules.lockAgain(&state, now: now, config: config)
-    case .askDoor(let at):
+    case .askDoor(let at, let app):
       state.doorAskedAt = at
+      state.doorAskedFor = at == nil ? nil : app
     }
     return nil
   }

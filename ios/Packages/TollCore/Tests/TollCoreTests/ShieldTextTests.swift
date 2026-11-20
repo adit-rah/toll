@@ -20,7 +20,7 @@ struct ShieldTextTests {
     run(&s, date(2026, 11, 17, 10))
     let text = ShieldText(state: s, block: s.block(BlockID("study")), calendar: london)
     #expect(text.title.hasPrefix("Study · until 5"))
-    #expect(text.subtitle == "You're at Library.")
+    #expect(text.subtitle == "This app is blocked during Study.")
   }
 
   @Test func withoutLocationNoPlaceIsClaimed() {
@@ -29,6 +29,6 @@ struct ShieldTextTests {
     run(&s, date(2026, 11, 17, 23))
     #expect(
       ShieldText(state: s, block: s.sleepBlock, calendar: london).subtitle
-        == Copy.Shield.subtitleWindowOnly)
+        == "It's your sleep time.")
   }
 }
