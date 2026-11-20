@@ -237,8 +237,15 @@ public struct HomeSnapshot: Equatable, Sendable {
   }
 
   static func row(_ block: Block, state: DuskState, now: Date, calendar: Calendar) -> BlockRow {
+    if let end = state.runtime.active[block.id], state.trial.entitled,
+      let held = BlocksSnapshot.held(block, state: state, at: Copy.time(end, in: calendar))
+    {
+      return BlockRow(
+        id: block.id, name: block.name, kind: block.kind, detail: held,
+        trailing: Copy.Home.onNow, trailingIsAccent: true)
+    }
     var parts: [String] = []
-    if let place = state.place(block.place) { parts.append(place.name) }
+    if let place = BlocksSnapshot.placeText(block, state: state) { parts.append(place) }
     if let window = block.schedule.windows.first {
       parts.append(Copy.span(window, in: calendar, short: true))
     }
