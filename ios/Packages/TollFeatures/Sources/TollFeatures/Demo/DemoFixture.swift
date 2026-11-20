@@ -72,9 +72,15 @@
             home: true, inWindow: true, entitled: true))
       }
       for back in 1...nightsAgo {
-        // A later week has one night away: drawn as a dash.
-        if later && back == 4 { continue }
         guard let evening = calendar.date(byAdding: .day, value: -back, to: now) else { continue }
+        // A later week has one night away: named in the chart, and not counted.
+        if later && back == 4 {
+          log.append(
+            Transition(
+              at: evening, cause: .windowStart, blockOn: false, changed: false, home: false,
+              inWindow: true, entitled: true))
+          continue
+        }
         log.append(
           Transition(
             at: evening, cause: .windowStart, blockOn: true, changed: true, home: true,

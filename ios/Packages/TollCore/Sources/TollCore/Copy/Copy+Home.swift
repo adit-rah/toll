@@ -42,12 +42,16 @@ extension Copy {
     }
     public static let noBlockNight = "–"
     public static let noBlockSpoken = "no block"
+    public static let missedSpoken = "not blocked"
+    public static let awayNight = "away"
+    public static let awaySpoken = "away, nothing blocked"
+    public static let offNight = "off"
+    public static let blockedSpoken = "blocked"
     public static let aheadSpoken = "still to come"
-    public static let now = "Now"
-    public static func change(_ delta: Int) -> String { delta < 0 ? "▼ \(-delta)" : "▲ \(delta)" }
-    public static func changeSpoken(_ delta: Int) -> String {
-      delta < 0 ? "\(-delta) fewer than the week before" : "\(delta) more than the week before"
+    public static func stoppedSpoken(_ n: Int) -> String {
+      n == 1 ? "stopped you once" : "stopped you \(n) times"
     }
+    public static let now = "Now"
     public static func unlocksLeft(_ n: Int) -> String {
       n == 1 ? "1 unlock left" : "\(n) unlocks left"
     }
@@ -66,6 +70,11 @@ extension Copy {
     }
     public static let nightsBlockedLabel = "nights blocked"
     public static let stoppedLabel = "times it stopped you"
+    public static func unlocks(_ left: Int, of max: Int) -> String { "\(left) of \(max)" }
+    public static let unlocksLeftLabel = "unlocks left"
+    public static func firstNight(_ time: String) -> String {
+      "Your first night starts at \(time)."
+    }
     public static let byNight = "Times it stopped you, by night"
     public static let trendsLater = "Your trends show here after 3 nights."
     public static func nightsSoFar(_ n: Int) -> String {

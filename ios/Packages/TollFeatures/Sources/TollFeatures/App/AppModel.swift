@@ -76,7 +76,8 @@ public final class AppModel {
     let outcome = coordinator.wake(cause, commands)
     state = outcome.state
     lastError = outcome.error
-    log = TransitionLog().read(limit: 200)
+    // The whole log: a week of Sleep nights must survive many windows and taps (#44).
+    log = TransitionLog().read()
     let places = outcome.effects.places
     Task { await PlaceMonitor.shared.sync(places) }
     return outcome.error
