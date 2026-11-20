@@ -20,8 +20,9 @@ extension Copy {
 
     public static let yourWeek = "Your week"
     public static let freeNights = "Free nights"
-    public static func nightsUsed(_ night: Int, of nights: Int) -> String {
-      "\(night) of \(nights) used"
+    /// The pill's words: tonight's night hasn't ended, so it isn't "used" yet (spec §3, #48).
+    public static func night(_ night: Int, of nights: Int) -> String {
+      "Night \(night) of \(nights)"
     }
     public static let purchased = "Purchased"
     public static func once(_ price: String) -> String { "\(price) once" }

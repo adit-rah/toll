@@ -30,7 +30,8 @@ struct PurchaseSheet: View {
       case .pending:
         OutcomeSheet(
           symbol: "clock", tint: TollColor.accent, title: Copy.Purchase.pendingTitle,
-          line: Copy.Purchase.pendingBody
+          line: model.state.trial.entitled
+            ? Copy.Purchase.pendingTrialBody : Copy.Purchase.pendingBody
         ) {
           PrimaryButton(Copy.Purchase.ok) { dismiss() }
         }
@@ -62,17 +63,18 @@ struct PurchaseSheet: View {
         .foregroundStyle(TollColor.label)
         .accessibilityAddTraits(.isHeader)
         .padding(.top, 8)
+      // The free nights only, frozen once they've ended (#48).
+      let free = home.freeWeek
       AdaptiveStack(spacing: 12) {
         Stat(
           value: Copy.Home.nightsBlocked(
-            home.nightsBlocked, of: max(home.nightsCounted, home.nightsBlocked)),
+            free?.nightsBlocked ?? 0,
+            of: max(free?.nightsCounted ?? 0, free?.nightsBlocked ?? 0)),
           label: Copy.Home.nightsBlockedLabel)
-        Stat(value: "\(home.timesStopped)", label: Copy.Home.stoppedLabel)
+        Stat(value: "\(free?.timesStopped ?? 0)", label: Copy.Home.stoppedLabel)
         Stat(
-          value: Copy.Purchase.unlocksUsed(
-            model.config.unlocks.max - model.state.unlocks.left(model.config),
-            of: model.config.unlocks.max),
-          label: Copy.Purchase.unlocksUsedLabel)
+          value: "\(free?.unlocksUsed ?? 0)",
+          label: Copy.Purchase.usedLabel(free?.unlocksUsed ?? 0))
       }
       .padding(.vertical, TollSpacing.statsCardVertical)
       .padding(.horizontal, TollSpacing.cardPadding)

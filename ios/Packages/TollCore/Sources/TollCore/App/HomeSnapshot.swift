@@ -76,6 +76,12 @@ public struct HomeSnapshot: Equatable, Sendable {
   /// The chart, from the third night; before it, the slots and `firstWeekLine`.
   public var showsTrends: Bool
   public var firstWeekLine: String
+  /// "This week", or after the trial "Your free week", frozen (#48).
+  public var weekTitle: String
+  /// The card's third number: unlocks left, or after the trial the free week's unlocks used.
+  public var unlockStat: Figure
+  /// The free nights' facts, for the purchase sheet.
+  public var freeWeek: FreeWeek?
   public var blocks: [BlockRow]
 
   public init(
@@ -109,6 +115,22 @@ public struct HomeSnapshot: Equatable, Sendable {
     bars = week.bars
     showsTrends = week.bars.filter { $0.night != .ahead && $0.night != .noBlock }.count >= 3
     firstWeekLine = Self.firstWeekLine(week.bars, hero: hero, calendar: calendar)
+    weekTitle = Copy.Home.thisWeek
+    unlockStat = Figure(
+      value: Copy.Home.unlocks(supply.left, of: supply.max), label: Copy.Home.unlocksLeftLabel)
+    freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)
+    // Paused: the free week stands still instead of running down to blanks.
+    if case .paused = hero, let free = freeWeek {
+      weekTitle = Copy.Purchase.eyebrow
+      bars = free.bars
+      nightsBlocked = free.nightsBlocked
+      nightsCounted = free.nightsCounted
+      timesStopped = free.timesStopped
+      showsTrends = true
+      unlockStat = Figure(
+        value: "\(free.unlocksUsed)", label: Copy.Purchase.usedLabel(free.unlocksUsed))
+      supply.nightsToRefill = nil
+    }
     let blocking = !screenTimeOff
     blocks = state.blocks.map {
       Self.row($0, state: state, now: now, calendar: calendar, blocking: blocking)
