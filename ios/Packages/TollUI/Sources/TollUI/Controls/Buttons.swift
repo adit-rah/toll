@@ -187,7 +187,7 @@ public struct DestructiveQuiet: View {
   public var body: some View {
     Button(role: .destructive, action: action) {
       HStack(spacing: 8) {
-        Image(systemName: "trash").font(.system(size: 15, weight: .semibold))
+        Image(systemName: "trash").unredacted().font(.system(size: 15, weight: .semibold))
         Text(title)
       }
     }

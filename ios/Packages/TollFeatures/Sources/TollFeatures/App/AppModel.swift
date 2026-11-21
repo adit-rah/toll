@@ -36,8 +36,20 @@ public final class AppModel {
     guard !started else { return }
     started = true
     #if DEBUG
-      // Demo launches render screens; opening location would put a prompt over them.
-      if DemoScenario.current != nil { return }
+      // Demo launches render screens; opening location would put a prompt over them. Their state is
+      // in place before the first frame, so a sheet or pushed screen never shows an empty app (#73).
+      if let demo = DemoScenario.current {
+        ScreenTimeAuthorization.simulated = demo.screenTime
+        LocationAccess.simulated = demo.location
+        screenTime = ScreenTimeAuthorization.state
+        location = locationAccess.state
+        if demo.isHome {
+          let fixture = DemoFixture(scenario: demo, now: DemoClock.now(for: demo))
+          state = fixture.state
+          log = fixture.log.reversed()
+        }
+        return
+      }
     #endif
     clearTollLeftovers()
     Task {
@@ -75,6 +87,10 @@ public final class AppModel {
   /// Every change goes through here.
   @discardableResult
   func send(_ cause: ReconcileCause, _ commands: [Command] = []) -> CommandError? {
+    #if DEBUG
+      // A demo shows a state it built; reconciling against the real store would replace it.
+      if DemoScenario.current != nil { return nil }
+    #endif
     let outcome = coordinator.wake(cause, commands)
     state = outcome.state
     lastError = outcome.error
@@ -93,10 +109,6 @@ public final class AppModel {
     let latest = DuskStore().load()
     if latest != state { state = latest }
   }
-
-  #if DEBUG
-    func show(_ demo: DuskState) { state = demo }
-  #endif
 
   // MARK: Permissions
 

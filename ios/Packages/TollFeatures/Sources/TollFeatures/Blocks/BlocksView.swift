@@ -91,7 +91,7 @@ private struct NewBlockRow: View {
     Card {
       NavigationLink(value: HomeRoute.block(nil)) {
         HStack(spacing: TollSpacing.rowGap) {
-          Image(systemName: "plus")
+          Image(systemName: "plus").unredacted()
             .font(.system(size: 18, weight: .semibold))
             .foregroundStyle(limits.canAddBlock ? TollColor.accent : TollColor.label3)
             .frame(width: 40)

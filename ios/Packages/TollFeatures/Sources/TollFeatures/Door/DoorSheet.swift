@@ -244,7 +244,7 @@ private struct DoorOpen: View {
       }
       if let regretEnd = door.regretEndsAt(model.config), now < regretEnd {
         HStack(alignment: .top, spacing: 10) {
-          Image(systemName: "clock")
+          Image(systemName: "clock").unredacted()
             .font(.system(size: 15, weight: .semibold))
             .foregroundStyle(TollColor.accent)
             .frame(width: 18, height: 21)

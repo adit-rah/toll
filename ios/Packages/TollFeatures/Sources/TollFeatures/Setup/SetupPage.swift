@@ -117,7 +117,7 @@ struct PermissionState: View {
   var body: some View {
     HStack(spacing: 5) {
       if tone == .good {
-        Image(systemName: "checkmark").font(.system(size: 12, weight: .bold))
+        Image(systemName: "checkmark").unredacted().font(.system(size: 12, weight: .bold))
       }
       Text(text)
     }

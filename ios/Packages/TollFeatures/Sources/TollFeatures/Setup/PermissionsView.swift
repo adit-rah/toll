@@ -126,7 +126,7 @@ private struct SettingsPicture: View {
       HStack {
         Text(Copy.Setup.alwaysChoice).tollType(.link, TollColor.label)
         Spacer()
-        Image(systemName: "checkmark")
+        Image(systemName: "checkmark").unredacted()
           .font(.system(size: 15, weight: .semibold))
           .foregroundStyle(TollColor.accent)
       }

@@ -107,7 +107,7 @@ struct PlacePicker: View {
         IconTile(symbol, accent: selected)
       } trailing: {
         if selected {
-          Image(systemName: "checkmark")
+          Image(systemName: "checkmark").unredacted()
             .font(.system(size: 15, weight: .semibold))
             .foregroundStyle(TollColor.accent)
         }

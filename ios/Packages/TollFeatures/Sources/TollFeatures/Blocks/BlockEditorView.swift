@@ -152,7 +152,7 @@ private struct KindChips: View {
           model.choose(kind)
         } label: {
           VStack(spacing: 6) {
-            Image(systemName: BlockSymbol.name(kind))
+            Image(systemName: BlockSymbol.name(kind)).unredacted()
               .font(.system(size: 20, weight: .medium))
               .foregroundStyle(selected ? TollColor.accent : TollColor.label2)
             Text(Copy.Blocks.kindName(kind))

@@ -86,7 +86,7 @@ struct PurchaseSheet: View {
       VStack(alignment: .leading, spacing: 0) {
         ForEach(Copy.Purchase.benefits, id: \.self) { benefit in
           HStack(spacing: 12) {
-            Image(systemName: "checkmark")
+            Image(systemName: "checkmark").unredacted()
               .font(.system(size: 15, weight: .bold))
               .foregroundStyle(TollColor.accent)
               .frame(width: 18)
@@ -165,7 +165,7 @@ private struct OutcomeSheet<Actions: View>: View {
 
   var body: some View {
     SheetPage(height: 374, overhang: overhang) {
-      Image(systemName: symbol)
+      Image(systemName: symbol).unredacted()
         .font(.system(size: TileSize.sheet.symbol, weight: .medium))
         .foregroundStyle(tint)
         .frame(width: TileSize.sheet.side, height: TileSize.sheet.side)

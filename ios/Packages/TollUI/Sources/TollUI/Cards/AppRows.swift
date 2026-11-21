@@ -46,7 +46,7 @@ public struct ChooseMoreRow: View {
   public var body: some View {
     Button(action: action) {
       HStack(spacing: TollSpacing.rowGap) {
-        Image(systemName: "plus")
+        Image(systemName: "plus").unredacted()
           .font(.system(size: 18, weight: .semibold))
           .frame(width: TileSize.small.side)
           .accessibilityHidden(true)

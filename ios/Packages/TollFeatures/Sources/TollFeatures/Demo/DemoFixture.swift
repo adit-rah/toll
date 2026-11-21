@@ -2,41 +2,50 @@
   import Foundation
   import TollCore
 
-  /// A believable state and week for each demo scenario, built around the time of the render so the
-  /// lines read the same whenever it runs: Sleep at Home, Study at a library, five nights of log.
+  /// The demo's "now", pinned so every render reads as a night whatever the machine's clock says
+  /// (#73): 11:40 pm inside Sleep's 10:30 pm – 7:00 am for states during the night, 7:55 pm before it.
+  enum DemoClock {
+    static func now(for scenario: DemoScenario, today: Date = Date()) -> Date {
+      let night =
+        scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario == .homeAway
+        || scenario.isDoor
+      return Calendar.current.date(
+        bySettingHour: night ? 23 : 19, minute: night ? 40 : 55, second: 0, of: today) ?? today
+    }
+  }
+
+  /// A believable state and week for each demo scenario, on the boards' night (10:30 pm – 7:00 am):
+  /// Sleep at Home, Study at a library, five nights of log.
   struct DemoFixture {
     var state = DuskState()
     var log: [Transition] = []
 
     init(scenario: DemoScenario, now: Date) {
       let calendar = Calendar.current
-      let minute =
-        calendar.component(.hour, from: now) * 60 + calendar.component(.minute, from: now)
       let home = Place(
         id: PlaceID("home"), name: Copy.Setup.homeName, latitude: 51.5246, longitude: -0.0786,
         radiusMeters: 150)
       let library = Place(
         id: PlaceID("library"), name: "Robarts Library", latitude: 43.6644, longitude: -79.3995,
         radiusMeters: 150)
-      // Starts three hours from now, or is on now, whatever the clock says.
       let blocked = scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario.isDoor
-      let startHour = blocked ? minute / 60 : (minute / 60 + 3) % 24
-      let night = TimeWindow(
-        start: ClockTime(hour: startHour, minute: blocked ? 0 : 30),
-        end: ClockTime(hour: startHour).adding(minutes: 8 * 60 + 30))
+      let night = TimeWindow(start: ClockTime(hour: 22, minute: 30), end: ClockTime(hour: 7))
       state.places = [home, library]
-      state.blocks = [
-        Block(
-          id: BlockID("sleep"), name: Copy.Setup.sleepName, kind: .sleep, place: home.id,
-          schedule: .everyDay(night), apps: nil, appCount: 4),
-        Block(
-          id: BlockID("study"), name: "Study", kind: .study, place: library.id,
-          schedule: WeeklySchedule(rules: [
-            .init(
-              days: Weekday.weekdays,
-              window: TimeWindow(start: ClockTime(hour: 9), end: ClockTime(hour: 17)))
-          ]), apps: nil, appCount: 3),
-      ]
+      state.blocks =
+        scenario == .homeNoBlocks
+        ? []
+        : [
+          Block(
+            id: BlockID("sleep"), name: Copy.Setup.sleepName, kind: .sleep, place: home.id,
+            schedule: .everyDay(night), apps: nil, appCount: 4),
+          Block(
+            id: BlockID("study"), name: "Study", kind: .study, place: library.id,
+            schedule: WeeklySchedule(rules: [
+              .init(
+                days: Weekday.weekdays,
+                window: TimeWindow(start: ClockTime(hour: 9), end: ClockTime(hour: 17)))
+            ]), apps: nil, appCount: 3),
+        ]
       state.presence[home.id] = Presence(isInside: scenario != .homeAway, at: now)
       let firstWeek = scenario == .homeFirstWeek
       let later = scenario == .homeWeek
@@ -52,15 +61,19 @@
       }
       if scenario == .homeLocation { state.location = .scheduleOnly }
       if blocked {
-        state.runtime.active[BlockID("sleep")] = calendar.date(byAdding: .hour, value: 8, to: now)
+        state.runtime.active[BlockID("sleep")] =
+          night.night(
+            startingOn: calendar.startOfDay(for: now), calendar: calendar)?.end
         state.doorAskedAt = scenario.isDoor ? now : nil
         state.unlocks.spent = scenario == .doorNone ? 3 : 1
         state.unlocks.cleanNights = 3
         if scenario == .doorWaiting || scenario == .doorOpen {
+          // The door's countdowns run on the real clock, so its times do too.
+          let real = Date()
           var door = Door(
-            app: Data(), waitEndsAt: now.addingTimeInterval(scenario == .doorWaiting ? 84 : -48))
+            app: Data(), waitEndsAt: real.addingTimeInterval(scenario == .doorWaiting ? 84 : -48))
           if scenario == .doorOpen {
-            door.openedAt = now.addingTimeInterval(-48)
+            door.openedAt = real.addingTimeInterval(-48)
             door.expiresAt = door.waitEndsAt.addingTimeInterval(300)
           }
           state.door = door
@@ -74,7 +87,9 @@
             home: true, inWindow: true, entitled: true))
       }
       for back in 1...nightsAgo {
-        guard let evening = calendar.date(byAdding: .day, value: -back, to: now) else { continue }
+        guard let day = calendar.date(byAdding: .day, value: -back, to: now),
+          let evening = calendar.date(bySettingHour: 22, minute: 30, second: 0, of: day)
+        else { continue }
         // A later week has one night away: named in the chart, and not counted.
         if later && back == 4 {
           log.append(
