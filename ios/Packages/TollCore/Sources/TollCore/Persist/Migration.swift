@@ -140,7 +140,9 @@ extension RuntimeState {
 }
 
 extension UnlockSupply {
-  enum CodingKeys: String, CodingKey { case spent, cleanNights, countedThrough, lastSpendAt, used }
+  enum CodingKeys: String, CodingKey {
+    case spent, cleanNights, countedThrough, lastSpendAt, used, sleepRan
+  }
 
   public init(from decoder: Decoder) throws {
     let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -150,12 +152,13 @@ extension UnlockSupply {
     countedThrough = try c.decodeIfPresent(Date.self, forKey: .countedThrough)
     lastSpendAt = try c.decodeIfPresent(Date.self, forKey: .lastSpendAt)
     used = try c.decodeIfPresent(Int.self, forKey: .used) ?? 0
+    sleepRan = try c.decodeIfPresent(Bool.self, forKey: .sleepRan) ?? false
   }
 }
 
 extension Block {
   enum CodingKeys: String, CodingKey {
-    case id, name, kind, place, schedule, apps, appCount, categoryCount, isOn
+    case id, name, kind, place, schedule, apps, appCount, categoryCount, isOn, onlyAtPlace
   }
 
   public init(from decoder: Decoder) throws {
@@ -169,6 +172,7 @@ extension Block {
       apps: try c.decodeIfPresent(Data.self, forKey: .apps),
       appCount: try c.decodeIfPresent(Int.self, forKey: .appCount) ?? 0,
       categoryCount: try c.decodeIfPresent(Int.self, forKey: .categoryCount) ?? 0,
-      isOn: try c.decodeIfPresent(Bool.self, forKey: .isOn) ?? true)
+      isOn: try c.decodeIfPresent(Bool.self, forKey: .isOn) ?? true,
+      onlyAtPlace: try c.decodeIfPresent(Bool.self, forKey: .onlyAtPlace) ?? false)
   }
 }

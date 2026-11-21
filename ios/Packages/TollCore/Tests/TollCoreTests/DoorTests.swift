@@ -92,21 +92,28 @@ struct DoorTests {
     #expect(s.unlocks.left(config) == 2)
   }
 
+  /// A blocked night: Sleep on at 11 pm, the night counted at 8 am.
+  func night(_ s: inout DuskState, ending day: Int) {
+    run(&s, date(2026, 11, day - 1, 23))
+    run(&s, date(2026, 11, day, 8))
+  }
+
   @Test func sevenCleanNightsReturnOne() {
     var s = open(at: date(2026, 11, 17, 23))
     run(&s, date(2026, 11, 18, 8))
     #expect(s.unlocks.cleanNights == 0)
-    for day in 19...24 { run(&s, date(2026, 11, day, 8)) }
+    for day in 19...24 { night(&s, ending: day) }
     #expect(s.unlocks.left(config) == 2)
     #expect(s.unlocks.nightsToRefill(config) == 1)
-    run(&s, date(2026, 11, 25, 8))
+    night(&s, ending: 25)
     #expect(s.unlocks.left(config) == 3)
     #expect(s.unlocks.nightsToRefill(config) == nil)
   }
 
   @Test func aSpendInAnyBlockResetsTheRun() {
     var s = open(at: date(2026, 11, 17, 23))
-    for day in 18...22 { run(&s, date(2026, 11, day, 8)) }
+    run(&s, date(2026, 11, 18, 8))
+    for day in 19...22 { night(&s, ending: day) }
     #expect(s.unlocks.cleanNights == 4)
     s.places.append(libraryPlace)
     s.blocks.append(studyBlock())
@@ -148,5 +155,24 @@ struct DoorTests {
     _ = apply(.askDoor(date(2026, 11, 17, 23, 2)), &opened, date(2026, 11, 17, 23, 2))
     _ = apply(.lockDoor, &opened, date(2026, 11, 17, 23, 2))
     #expect(opened.door == nil && opened.doorAskedAt == nil)
+  }
+
+  /// Only nights Sleep ran count toward the refill; away nights neither count nor reset (#61).
+  @Test func onlyBlockedNightsCountTowardTheRefill() {
+    var s = open(at: date(2026, 11, 17, 23))
+    run(&s, date(2026, 11, 18, 8))
+    night(&s, ending: 19)
+    // Away all night 19–20: nothing ran.
+    arrive(&s, homePlace, date(2026, 11, 19, 20), inside: false)
+    run(&s, date(2026, 11, 19, 23), .left)
+    run(&s, date(2026, 11, 20, 8))
+    #expect(s.unlocks.cleanNights == 1)
+    arrive(&s, homePlace, date(2026, 11, 20, 20))
+    night(&s, ending: 21)
+    #expect(s.unlocks.cleanNights == 2)
+    // Screen Time off: Sleep "on" in the engine, but nothing was blocked.
+    _ = apply(.screenTime(false), &s, date(2026, 11, 21, 20))
+    night(&s, ending: 22)
+    #expect(s.unlocks.cleanNights == 2)
   }
 }

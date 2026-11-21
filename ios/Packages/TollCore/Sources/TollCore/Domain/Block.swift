@@ -20,10 +20,15 @@ public struct Block: Codable, Hashable, Sendable, Identifiable {
   public var appCount: Int
   public var categoryCount: Int
   public var isOn: Bool
+  /// Without Always location the app can't tell when the user is at `place`. True: the block waits
+  /// for Always instead of running on its hours anywhere (D37). The user chooses when saving (#63).
+  /// Sleep ignores it: Sleep always runs on its hours (D37).
+  public var onlyAtPlace: Bool
 
   public init(
     id: BlockID = .make(), name: String, kind: Kind, place: PlaceID?, schedule: WeeklySchedule,
-    apps: Data?, appCount: Int = 0, categoryCount: Int = 0, isOn: Bool = true
+    apps: Data?, appCount: Int = 0, categoryCount: Int = 0, isOn: Bool = true,
+    onlyAtPlace: Bool = false
   ) {
     self.id = id
     self.name = name
@@ -34,6 +39,7 @@ public struct Block: Codable, Hashable, Sendable, Identifiable {
     self.appCount = appCount
     self.categoryCount = categoryCount
     self.isOn = isOn
+    self.onlyAtPlace = onlyAtPlace
   }
 
   public var isSleep: Bool { kind == .sleep }

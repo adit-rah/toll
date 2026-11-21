@@ -5,15 +5,16 @@ extension Copy {
     public static func unlocksLeft(_ left: Int, of max: Int) -> String {
       "Unlocks left: \(left) of \(max)"
     }
+    /// Only nights Sleep ran count toward the refill (#61), so the copy says "blocked nights".
     public static func refill(after nights: Int) -> String {
       nights == 1
-        ? "One returns after 1 more night without using any."
-        : "One returns after \(nights) more nights without using any."
+        ? "One returns after 1 more blocked night without using any."
+        : "One returns after \(nights) more blocked nights without using any."
     }
     public static func noneLeft(nights: Int) -> String {
       nights == 1
-        ? "No unlocks left. One returns after 1 night without using any."
-        : "No unlocks left. One returns after \(nights) nights without using any."
+        ? "No unlocks left. One returns after 1 blocked night without using any."
+        : "No unlocks left. One returns after \(nights) blocked nights without using any."
     }
 
     public static func question(minutes: Int) -> String { "Open one app for \(minutes) minutes?" }
@@ -48,7 +49,7 @@ extension Copy {
     public static let noneTitle = "No unlocks left"
     public static func noneOf(_ max: Int) -> String { "0 of \(max)" }
     public static func refillLine(_ nights: Int, after: Int) -> String {
-      "One comes back after \(after) nights in a row without using any. \(nights) \(nights == 1 ? "night" : "nights") to go."
+      "One comes back after \(after) blocked nights without using any. \(nights) \(nights == 1 ? "night" : "nights") to go."
     }
     public static let othersWork = "Everything you didn't block still works."
     public static let fromHomeScreen = "Open it from your Home Screen."

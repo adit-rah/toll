@@ -15,6 +15,7 @@ struct BlockEditorView: View {
   @State private var choosingPlace = false
   @State private var editingRule: RuleRef?
   @State private var confirmingDelete = false
+  @State private var askingAlways = false
 
   init(app: AppModel, editing id: BlockID?) {
     _model = State(initialValue: BlockEditorModel(app: app, editing: id))
@@ -78,8 +79,14 @@ struct BlockEditorView: View {
           DestructiveQuiet(Copy.Blocks.delete) { confirmingDelete = true }
             .padding(.bottom, 10)
         }
-        PrimaryButton(saveTitle) { if model.save() { dismiss() } }
-          .disabled(!model.canSave)
+        PrimaryButton(saveTitle) {
+          if model.asksAboutAlways {
+            askingAlways = true
+          } else if model.save() {
+            dismiss()
+          }
+        }
+        .disabled(!model.canSave)
       }
     }
     .tollPushed(model.isNew ? Copy.Blocks.new : model.block.name)
@@ -92,6 +99,14 @@ struct BlockEditorView: View {
         rule: model.block.schedule.rules[ref.index],
         limits: { model.limits(with: $0, at: ref.index) }
       ) { model.setRule(ref.index, $0) }
+    }
+    .sheet(isPresented: $askingAlways) {
+      if let question = model.alwaysQuestion {
+        WithoutAlwaysSheet(place: question.place, line: question.body) { only in
+          model.block.onlyAtPlace = only
+          if model.save() { dismiss() }
+        }
+      }
     }
     .sheet(isPresented: $confirmingDelete) {
       DeleteBlockSheet(model: model) { if model.delete() { dismiss() } }
@@ -179,6 +194,33 @@ private struct DeleteBlockSheet: View {
       QuietButton(Copy.Blocks.cancel) { dismiss() }
         .frame(maxWidth: .infinity)
         .padding(.top, 8)
+    }
+  }
+}
+
+/// Without Always, a block tied to a place runs on its hours anywhere or waits for Always; the user
+/// chooses when saving (#63).
+private struct WithoutAlwaysSheet: View {
+  let place: String
+  let line: String
+  let choose: (Bool) -> Void
+  @Environment(\.dismiss) private var dismiss
+
+  var body: some View {
+    SheetPage(height: 374, overhang: 16) {
+      SheetTitle(Copy.Blocks.withoutAlwaysTitle)
+      SheetBody(line).padding(.top, 10)
+    } actions: {
+      PrimaryButton(Copy.Blocks.onlyAt(place)) {
+        dismiss()
+        choose(true)
+      }
+      QuietButton(Copy.Blocks.runAnyway) {
+        dismiss()
+        choose(false)
+      }
+      .frame(maxWidth: .infinity)
+      .padding(.top, 8)
     }
   }
 }

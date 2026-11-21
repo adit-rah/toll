@@ -98,6 +98,12 @@ public enum Engine {
     state.runtime.active = active
     DoorRules.advance(&state, now: now, config: config)
     DoorRules.countNights(&state, now: now, calendar: calendar, config: config)
+    // After counting, so a night that already ended can't be credited by tonight's block (#61).
+    if let sleep = state.sleepBlock, state.runtime.active[sleep.id] != nil,
+      state.screenTimeAllowed != false
+    {
+      state.unlocks.sleepRan = true
+    }
     return effects(
       before: before, after: &state, wall: wall, now: now, calendar: calendar, cause: cause)
   }
@@ -123,8 +129,15 @@ public enum Engine {
   }
 
   static func isAtPlace(_ block: Block, _ state: DuskState) -> Bool {
-    guard let place = block.place, state.location == .places else { return true }
+    guard let place = block.place else { return true }
+    // Without Always: on its hours anywhere (D37), unless the user chose to wait for Always (#63).
+    guard state.location == .places else { return block.isSleep || !block.onlyAtPlace }
     return state.presence[place]?.isInside == true
+  }
+
+  /// Whether this block is held waiting for Always location (#63).
+  public static func waitsForAlways(_ block: Block, _ state: DuskState) -> Bool {
+    block.place != nil && !block.isSleep && block.onlyAtPlace && state.location != .places
   }
 
   /// During a block, the anchored time: setting the clock forward cannot end it, and setting it back

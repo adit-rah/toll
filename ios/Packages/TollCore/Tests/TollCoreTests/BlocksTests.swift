@@ -233,3 +233,30 @@ struct BlockRowsTests {
         == true)
   }
 }
+
+/// Without Always, a block tied to a place runs anywhere or waits, as the user chose (#63).
+struct OnlyAtPlaceTests {
+  @Test func aBlockCanWaitForAlways() {
+    var s = setUp(home: false)
+    s.location = .scheduleOnly
+    s.places.append(libraryPlace)
+    var study = studyBlock()
+    study.onlyAtPlace = true
+    s.blocks.append(study)
+    run(&s, date(2026, 11, 17, 10))
+    #expect(!s.isBlocking)
+    #expect(Engine.waitsForAlways(study, s))
+    s.blocks[1].onlyAtPlace = false
+    run(&s, date(2026, 11, 17, 10, 1))
+    #expect(s.activeBlocks.map(\.id) == [BlockID("study")])
+  }
+
+  @Test func sleepIgnoresItAndAlwaysRunsOnItsHours() {
+    var s = setUp(home: false)
+    s.location = .scheduleOnly
+    s.blocks[0].onlyAtPlace = true
+    run(&s, date(2026, 11, 17, 23))
+    #expect(s.activeBlocks.map(\.id) == [BlockID("sleep")])
+    #expect(!Engine.waitsForAlways(s.blocks[0], s))
+  }
+}

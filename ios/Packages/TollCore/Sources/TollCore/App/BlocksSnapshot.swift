@@ -45,6 +45,7 @@ public struct BlocksSnapshot: Equatable, Sendable {
   /// (D37), since then it blocks wherever the user is (#49). Nil for a block with no place.
   static func placeText(_ block: Block, state: DuskState) -> String? {
     guard let name = state.place(block.place)?.name else { return nil }
+    if Engine.waitsForAlways(block, state) { return Copy.Blocks.needsAlways }
     return state.location == .scheduleOnly ? Copy.Blocks.anywhere : name
   }
 
