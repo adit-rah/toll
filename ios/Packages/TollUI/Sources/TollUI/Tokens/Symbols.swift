@@ -65,6 +65,8 @@ public struct TollSymbol: Hashable, Sendable {
   public static let openSettings = TollSymbol("arrow.up.forward.app")
   public static let privacy = TollSymbol("hand.raised")
   public static let insights = TollSymbol("chart.bar")
+  /// The Blocks tab: every block.
+  public static let blocks = TollSymbol("rectangle.stack")
   public static let settings = TollSymbol("gearshape")
   public static let add = TollSymbol("plus")
   public static let delete = TollSymbol("trash")

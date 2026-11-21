@@ -76,17 +76,25 @@
       }
     }
     var isDoor: Bool { rawValue.hasPrefix("door") }
-    /// Screens Home pushes rather than presents, with the screens under them.
+    /// The tab the screen is on (D63).
+    var tab: DuskTab {
+      switch self {
+      case .insights: .sleep
+      case .blocks, .blockNew, .blockEdit: .blocks
+      default: .tonight
+      }
+    }
+    /// Screens pushed on the tab's stack, with the screens under them.
     var routes: [HomeRoute] {
       switch self {
-      case .insights: [.insights]
       case .settings: [.settings]
-      case .blocks: [.blocks]
-      case .blockNew: [.blocks, .block(nil)]
-      case .blockEdit: [.blocks, .block(BlockID("study"))]
+      case .blockNew: [.block(nil)]
+      case .blockEdit: [.block(BlockID("study"))]
       default: []
       }
     }
+    /// The door and the purchase are sheets over Tonight.
+    var presentsSheet: Bool { isDoor || rawValue.hasPrefix("purchase") }
     var isHome: Bool {
       rawValue.hasPrefix("home-") || rawValue.hasPrefix("block") || isDoor
         || rawValue.hasPrefix("purchase") || [.settings, .insights].contains(self)
@@ -122,24 +130,17 @@
       let home = HomeSnapshot(
         state: fixture.state, log: fixture.log, now: now, calendar: .current,
         screenTime: scenario != .homeScreenTimeOff)
-      NavigationStack(path: .constant(scenario.routes)) {
+      DuskTabs(
+        tab: .constant(scenario.tab),
+        tonightPath: .constant(scenario.tab == .tonight ? scenario.routes : []),
+        blocksPath: .constant(scenario.tab == .blocks ? scenario.routes : []), model: app,
+        week: home, log: fixture.log, openPurchase: {}
+      ) {
         HomeView(
           home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},
-          fixLocation: {}, openBlock: { _ in }, openInsights: {}
-        )
-        .homeNavigation()
-        .navigationDestination(for: HomeRoute.self) { route in
-          if route == .insights {
-            InsightsView(log: fixture.log)
-          } else {
-            HomeDestination(model: app, route: route) {}
-          }
-        }
+          fixLocation: {})
       }
-      .tint(TollColor.accent)
-      .sheet(
-        isPresented: .constant(!scenario.rawValue.hasPrefix("home-") && scenario.routes.isEmpty)
-      ) {
+      .sheet(isPresented: .constant(scenario.presentsSheet)) {
         switch scenario {
         case .purchase: PurchaseSheet(model: app, home: home)
         case .purchasePending: PurchaseSheet(model: app, home: home, outcome: .pending)

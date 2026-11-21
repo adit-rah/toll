@@ -109,3 +109,12 @@ extension Copy {
     }
   }
 }
+
+extension Copy {
+  /// The tab bar (D63): Tonight is a glance, Your sleep the trends, Blocks the setup.
+  public enum Tabs {
+    public static let tonight = "Tonight"
+    public static let sleep = "Your sleep"
+    public static let blocks = "Blocks"
+  }
+}

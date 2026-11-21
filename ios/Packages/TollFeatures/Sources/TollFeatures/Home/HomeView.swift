@@ -3,8 +3,8 @@ import TollCore
 import TollData
 import TollUI
 
-/// Home, in every state (the design canvas's Home row): the bar, a quiet pill, what tonight holds,
-/// the strip, the week and the blocks, at the boards' gaps. Laid out from a `HomeSnapshot`; nothing
+/// Tonight, the first tab (D63): the bar, a quiet pill, what tonight holds and the strip, at the
+/// boards' gaps. The week is on Your sleep and the blocks on Blocks. Laid out from a `HomeSnapshot`; nothing
 /// here decides anything.
 struct HomeView: View {
   let home: HomeSnapshot
@@ -14,8 +14,6 @@ struct HomeView: View {
   let openDoor: () -> Void
   let openPurchase: () -> Void
   let fixLocation: () -> Void
-  var openBlock: ((BlockID?) -> Void)?
-  var openInsights: (() -> Void)?
   var turnOnScreenTime: () -> Void = {}
 
   var body: some View {
@@ -51,21 +49,6 @@ struct HomeView: View {
         if let timeline = home.timeline {
           TimelineStrip(timeline: timeline).padding(.top, home.locationBanner ? 20 : 16)
         }
-        SectionHeader(
-          home.weekTitle,
-          action: openInsights.map { .init(Copy.Home.seeAll, symbol: .forward, run: $0) }
-        )
-        .padding(.top, 24)
-        WeekCard(home: home).padding(.top, 16)
-        SectionHeader(
-          Copy.Home.blocks,
-          action: openBlock.map { open in .init(Copy.Home.new, symbol: .add) { open(nil) } }
-        )
-        .padding(.top, 22)
-        BlockList(
-          rows: home.blocks, open: openBlock.map { open in { (id: BlockID) in open(id) } }
-        )
-        .padding(.top, TollSpacing.headerToCard)
       }
       .tollGutter()
       .padding(.bottom, 32)
