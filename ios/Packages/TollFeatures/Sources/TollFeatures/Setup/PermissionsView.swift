@@ -17,15 +17,15 @@ struct PermissionsView: View {
     ) {
       Card {
         PermissionRow(
-          symbol: "hourglass", title: Copy.Setup.screenTime, why: Copy.Setup.screenTimeWhy,
+          symbol: .screenTime, title: Copy.Setup.screenTime, why: Copy.Setup.screenTimeWhy,
           state: screenTimeState)
         PermissionRow(
-          symbol: "location", title: Copy.Setup.location, why: Copy.Setup.locationWhy,
+          symbol: .location, title: Copy.Setup.location, why: Copy.Setup.locationWhy,
           state: locationState)
       }
       .padding(.top, TollSpacing.lineToContent)
       if model.app.screenTime == .denied {
-        NoteCard(Copy.Setup.screenTimeDenied, symbol: "hourglass")
+        NoteCard(Copy.Setup.screenTimeDenied, severity: .broken)
           .padding(.top, 14)
           .transition(.opacity)
       }
@@ -61,7 +61,7 @@ struct PermissionsView: View {
 }
 
 private struct PermissionRow: View {
-  let symbol: String
+  let symbol: TollSymbol
   let title: String
   let why: String
   let state: PermissionState?
@@ -90,9 +90,14 @@ struct AlwaysView: View {
       SettingsPicture().padding(.top, 24)
       Footnote(Copy.Setup.alwaysPath).padding(.top, 14)
     } actions: {
-      PrimaryButton(Copy.Setup.openSettings) {
+      PrimaryButton {
         openSystemSettings()
         model.go(.blocklist)
+      } label: {
+        HStack(spacing: 8) {
+          Text(Copy.Setup.openSettings)
+          Image(symbol: .openSettings).unredacted().accessibilityHidden(true)
+        }
       }
       // Its label already says what Not now means; the location-off screen is for Never and
       // Approximate, where there's something to see (#46).
@@ -126,7 +131,7 @@ private struct SettingsPicture: View {
       HStack {
         Text(Copy.Setup.alwaysChoice).tollType(.link, TollColor.label)
         Spacer()
-        Image(systemName: "checkmark").unredacted()
+        Image(symbol: .done).unredacted()
           .font(.system(size: 15, weight: .semibold))
           .foregroundStyle(TollColor.accent)
       }
@@ -148,16 +153,14 @@ struct LocationOffView: View {
   var body: some View {
     SetupPage(step: SetupModel.Step.locationOff.number, title: Copy.Setup.locationOffTitle) {
       Card {
-        StateRow(symbol: "location", title: Copy.Setup.location, value: locationValue)
+        StateRow(symbol: .location, title: Copy.Setup.location, value: locationValue)
         StateRow(
-          symbol: "mappin", title: Copy.Setup.preciseLocation,
+          symbol: .precise, title: Copy.Setup.preciseLocation,
           value: model.app.locationAccess.isPrecise ? Copy.Setup.on : Copy.Setup.off)
       }
       .padding(.top, TollSpacing.lineToContent)
-      NoteCard(fact, symbol: "clock") {
-        Button(Copy.Setup.changeInSettings, action: openSystemSettings)
-          .tollType(.link, TollColor.accent)
-          .frame(minHeight: 28)
+      NoteCard(fact, severity: .degraded) {
+        SettingsLink(Copy.Setup.changeInSettings, action: openSystemSettings)
       }
       .padding(.top, 14)
     } actions: {
@@ -182,7 +185,7 @@ struct LocationOffView: View {
 }
 
 private struct StateRow: View {
-  let symbol: String
+  let symbol: TollSymbol
   let title: String
   let value: String
 

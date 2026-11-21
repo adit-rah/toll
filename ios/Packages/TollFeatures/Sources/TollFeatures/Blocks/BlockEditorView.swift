@@ -28,13 +28,13 @@ struct BlockEditorView: View {
         if let end = model.activeUntil {
           NoteCard(
             Copy.Blocks.activeNote(model.block.name, until: Copy.time(end)),
-            symbol: BlockSymbol.name(model.block.kind)
+            symbol: .block(model.block.kind)
           )
           .padding(.top, 16)
         }
         if model.isNew { KindChips(model: model).padding(.top, 20) }
         Card {
-          row(Copy.Blocks.apps, detail: model.appsSummary, symbol: "iphone") {
+          row(Copy.Blocks.apps, detail: model.appsSummary, symbol: .apps) {
             choosingApps = true
           }
           ForEach(model.block.schedule.rules.indices, id: \.self) { index in
@@ -42,20 +42,18 @@ struct BlockEditorView: View {
             row(
               hoursTitle(index),
               detail: "\(Copy.span(rule.window))\(Copy.middleDot)\(Copy.Blocks.daySpan(rule.days))",
-              symbol: "clock"
+              symbol: .hours
             ) { editingRule = RuleRef(index: index) }
           }
           row(
             Copy.Blocks.place, detail: model.place?.name ?? Copy.Blocks.anywhere,
-            symbol: "mappin"
+            symbol: .place
           ) { choosingPlace = true }
         }
         .padding(.top, model.activeUntil == nil ? 20 : 16)
         if let ignored = model.placeIgnored {
-          NoteCard(ignored, symbol: "location.slash") {
-            Button(Copy.Setup.changeInSettings, action: openSystemSettings)
-              .tollType(.link, TollColor.accent)
-              .frame(minHeight: 28)
+          NoteCard(ignored, severity: .degraded) {
+            SettingsLink(Copy.Setup.changeInSettings, action: openSystemSettings)
           }
           .padding(.top, 12)
         }
@@ -65,7 +63,7 @@ struct BlockEditorView: View {
           Footnote(Copy.Blocks.explainer).padding(.top, 12)
         }
         if let refusal = model.refusal {
-          NoteCard(refusal, symbol: "exclamationmark.shield", tint: TollColor.warn)
+          NoteCard(refusal, severity: .broken)
             .padding(.top, 12)
         }
       }
@@ -125,7 +123,7 @@ struct BlockEditorView: View {
     return index == 0 ? Copy.Setup.weeknights : Copy.Setup.weekendNights
   }
 
-  private func row(_ title: String, detail: String, symbol: String, open: @escaping () -> Void)
+  private func row(_ title: String, detail: String, symbol: TollSymbol, open: @escaping () -> Void)
     -> some View
   {
     Button(action: open) {
@@ -152,7 +150,7 @@ private struct KindChips: View {
           model.choose(kind)
         } label: {
           VStack(spacing: 6) {
-            Image(systemName: BlockSymbol.name(kind)).unredacted()
+            Image(symbol: .block(kind)).unredacted()
               .font(.system(size: 20, weight: .medium))
               .foregroundStyle(selected ? TollColor.accent : TollColor.label2)
             Text(Copy.Blocks.kindName(kind))
@@ -271,7 +269,7 @@ struct BlockAppsView: View {
         if limits.appsOver > 0 {
           NoteCard(
             Copy.Blocks.overLimit(limits.appsMax, remove: limits.appsOver),
-            symbol: "exclamationmark.shield", tint: TollColor.warn
+            severity: .broken
           )
           .padding(.top, 12)
         }

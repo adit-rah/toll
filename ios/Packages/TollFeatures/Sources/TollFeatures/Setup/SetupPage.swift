@@ -115,13 +115,21 @@ struct PermissionState: View {
   let tone: Tone
 
   var body: some View {
+    // Every tone has a glyph, so the colour never carries the meaning alone (#72, C4).
     HStack(spacing: 5) {
-      if tone == .good {
-        Image(systemName: "checkmark").unredacted().font(.system(size: 12, weight: .bold))
-      }
+      Image(symbol: symbol).unredacted().font(.system(size: 12, weight: .bold))
+        .accessibilityHidden(true)
       Text(text)
     }
     .tollType(.action, color)
+  }
+
+  private var symbol: TollSymbol {
+    switch tone {
+    case .good: .done
+    case .bad: .broken
+    case .neutral: .degraded
+    }
   }
 
   private var color: Color {

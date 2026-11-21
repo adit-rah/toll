@@ -120,7 +120,7 @@ private struct OfferCard: View {
 
   var body: some View {
     HStack(spacing: TollSpacing.rowGap) {
-      IconTile(offer == .purchased ? "checkmark" : "moon", size: .large)
+      IconTile(offer == .purchased ? .purchased : .sleep, size: .large)
       VStack(alignment: .leading, spacing: 0) {
         Text(title)
           .tollType(TollType(size: 16, lineHeight: 21, weight: .semibold, style: .callout))
@@ -151,21 +151,21 @@ struct ReadyView: View {
         CardRow(
           Copy.span(model.window),
           detail: model.weekendsDiffer ? Copy.Setup.weekendsDiffer : Copy.Setup.everyNight
-        ) { IconTile("moon") }
+        ) { IconTile(.sleep) }
         CardRow(
           atHome ? Copy.Setup.atHome : Copy.Setup.anywhere,
           detail: atHome ? Copy.Setup.yourBuilding : Copy.Setup.anywhereDetail
-        ) { IconTile(atHome ? "house" : "location", accent: false) }
+        ) { IconTile(atHome ? .home : .anywhere, accent: false) }
         CardRow(
           Copy.Setup.blocked,
           detail: Copy.Setup.blockedCount(
             categories: model.selection.categoryTokens.count,
             apps: Blocklist.items(model.selection))
-        ) { IconTile("iphone", accent: false) }
+        ) { IconTile(.apps, accent: false) }
         CardRow(
           Copy.Setup.unlocks(model.app.config.unlocks.max),
           detail: Copy.Setup.unlocksDetail(minutes: model.app.config.door.minutes)
-        ) { IconTile("lock", accent: false) }
+        ) { IconTile(.unlock, accent: false) }
       }
       .padding(.top, TollSpacing.lineToContent)
     } actions: {

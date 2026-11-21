@@ -14,7 +14,7 @@ struct PausedCard: View {
           Copy.Home.turnBackOn, detail: Copy.Home.onceEveryNight(price),
           size: RowSize(minHeight: 68, tile: .large)
         ) {
-          IconTile("moon", size: .large)
+          IconTile(.sleep, size: .large)
         } trailing: {
           Chevron()
         }
@@ -105,6 +105,15 @@ struct BlockList: View {
   let rows: [HomeSnapshot.BlockRow]
   var open: ((BlockID) -> Void)?
 
+  static func symbol(_ state: HomeSnapshot.BlockRow.State) -> TollSymbol {
+    switch state {
+    case .on: .blocked
+    case .later, .unscheduled: .later
+    case .paused, .off: .paused
+    case .waiting: .waiting
+    }
+  }
+
   var body: some View {
     Card {
       ForEach(rows) { row in
@@ -112,28 +121,17 @@ struct BlockList: View {
           open?(row.id)
         } label: {
           CardRow(row.name, detail: row.detail, size: .list) {
-            IconTile(BlockSymbol.name(row.kind), accent: row.trailingIsAccent)
+            IconTile(.block(row.kind), accent: row.trailingIsAccent)
           } trailing: {
-            Text(row.trailing)
-              .tollType(.trailing, row.trailingIsAccent ? TollColor.accent : TollColor.label2)
+            // The state's glyph with its word, never the colour alone (#72, C4).
+            StatusValue(
+              row.trailing, symbol: Self.symbol(row.state),
+              tone: row.trailingIsAccent ? .accent : .neutral)
           }
         }
         .buttonStyle(.plain)
         .disabled(open == nil)
       }
-    }
-  }
-}
-
-/// Outline symbols, as the canvas draws its icons.
-enum BlockSymbol {
-  static func name(_ kind: Block.Kind) -> String {
-    switch kind {
-    case .sleep: "moon"
-    case .study: "book"
-    case .work: "briefcase"
-    case .gym: "bolt"
-    case .other: "ellipsis"
     }
   }
 }

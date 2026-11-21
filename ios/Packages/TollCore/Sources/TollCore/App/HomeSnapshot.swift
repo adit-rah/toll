@@ -48,12 +48,24 @@ public struct HomeSnapshot: Equatable, Sendable {
   }
 
   public struct BlockRow: Equatable, Sendable, Identifiable {
+    /// What the row's glyph says (#72, rule 2); the trailing word says the same in words.
+    public enum State: Equatable, Sendable {
+      case on, later, paused, off, waiting, unscheduled
+    }
+
     public var id: BlockID
     public var name: String
     public var kind: Block.Kind
     public var detail: String
     public var trailing: String
     public var trailingIsAccent: Bool
+    public var state: State
+  }
+
+  /// Where tonight's block runs, for the glyph before the hero's line: at Home, or anywhere on its
+  /// hours (D37). Nil when neither applies.
+  public enum HeroPlace: Equatable, Sendable {
+    case home, anywhere
   }
 
   public var hero: Hero
@@ -62,6 +74,7 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var unlocksLeft: Int?
   public var supply: Supply
   public var locationBanner: Bool
+  public var heroPlace: HeroPlace?
   /// The one way Dusk fails completely: Screen Time switched off after setup (#45). Takes the
   /// location card's place.
   public var screenTimeOff: Bool
@@ -99,6 +112,9 @@ public struct HomeSnapshot: Equatable, Sendable {
       nightsToRefill: state.unlocks.nightsToRefill(config))
     if case .away = hero { pill = Pill(text: Copy.Home.awayLabel, kind: .away) }
     locationBanner = state.setupFinishedAt != nil && state.location == .scheduleOnly
+    heroPlace =
+      sleep == nil
+      ? nil : state.location == .scheduleOnly ? .anywhere : sleep?.place != nil ? .home : .anywhere
     let phase: Timeline.Phase =
       !state.trial.entitled || screenTimeOff
       ? .paused
@@ -237,63 +253,5 @@ public struct HomeSnapshot: Equatable, Sendable {
       phase: phase,
       label: Copy.Home.timelineLabel(
         start: Copy.time(night.start, in: calendar), end: Copy.time(night.end, in: calendar)))
-  }
-
-  /// `blocking` is false with Screen Time off: nothing is on, whatever the schedule says (#45).
-  static func row(
-    _ block: Block, state: DuskState, now: Date, calendar: Calendar, blocking: Bool = true
-  ) -> BlockRow {
-    if blocking, let end = state.runtime.active[block.id], state.trial.entitled,
-      let held = BlocksSnapshot.held(block, state: state, at: Copy.time(end, in: calendar))
-    {
-      return BlockRow(
-        id: block.id, name: block.name, kind: block.kind, detail: held,
-        trailing: Copy.Home.onNow, trailingIsAccent: true)
-    }
-    var parts: [String] = []
-    if let place = BlocksSnapshot.placeText(block, state: state) { parts.append(place) }
-    if let window = block.schedule.windows.first {
-      parts.append(Copy.span(window, in: calendar, short: true))
-    }
-    if let days = Self.days(block.schedule) { parts.append(days) }
-    let trailing: (String, Bool)
-    if Engine.waitsForAlways(block, state) {
-      trailing = (Copy.Blocks.waiting, false)
-    } else if !block.isOn || !state.trial.entitled || !blocking {
-      trailing = (block.isOn ? Copy.Home.paused : Copy.Home.off, false)
-    } else if state.runtime.active[block.id] != nil {
-      trailing = (Copy.Home.onNow, true)
-    } else if let next = block.schedule.nextStart(after: now, calendar: calendar) {
-      // "Tonight" and "Today" only for today; a Sleep night starting after midnight still counts as
-      // tonight. Anything later is its weekday.
-      let today = calendar.isDate(next, inSameDayAs: now)
-      let afterMidnight =
-        block.isSleep
-        && calendar.isDate(next, inSameDayAs: now.addingTimeInterval(86_400))
-        && calendar.component(.hour, from: next) < 6
-      trailing =
-        today || afterMidnight
-        ? (block.isSleep ? Copy.Home.tonight : Copy.Home.today, true)
-        : (
-          next.formatted(
-            Date.FormatStyle(calendar: calendar, timeZone: calendar.timeZone).weekday(.abbreviated)),
-          false
-        )
-    } else {
-      trailing = ("", false)
-    }
-    return BlockRow(
-      id: block.id, name: block.name, kind: block.kind,
-      detail: parts.joined(separator: Copy.middleDot),
-      trailing: trailing.0, trailingIsAccent: trailing.1)
-  }
-
-  /// "Weekdays", "Weekends", or nothing for every day; one rule's days stand for the block.
-  static func days(_ schedule: WeeklySchedule) -> String? {
-    let all = schedule.rules.reduce(into: Set<Weekday>()) { $0.formUnion($1.days) }
-    if all == Weekday.all { return schedule.rules.count > 1 ? Copy.Home.weekendsDiffer : nil }
-    if all == Weekday.weekdays { return Copy.Home.weekdays }
-    if all == [.saturday, .sunday] { return Copy.Home.weekends }
-    return all.sorted().map { Copy.Home.shortDay($0) }.joined(separator: " ")
   }
 }

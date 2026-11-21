@@ -30,22 +30,21 @@ struct HomeView: View {
             .padding(.top, 4)
         }
         if home.screenTimeOff {
-          NoteCard(Copy.Home.screenTimeOffCard) {
-            Button(Copy.Home.turnOn, action: turnOnScreenTime)
-              .tollType(.link, TollColor.accent)
-              .frame(minHeight: 28)
+          NoteCard(Copy.Home.screenTimeOffCard, severity: .broken) {
+            SettingsLink(Copy.Home.turnOn, action: turnOnScreenTime)
           }
           .padding(.top, home.pill == nil ? 4 : 12)
         } else if home.locationBanner {
-          NoteCard(locationFact) {
-            Button(Copy.Home.fixInSettings, action: fixLocation)
-              .tollType(.link, TollColor.accent)
-              .frame(minHeight: 28)
+          NoteCard(locationFact, severity: .degraded) {
+            SettingsLink(Copy.Home.fixInSettings, action: fixLocation)
           }
           .padding(.top, home.pill == nil ? 4 : 12)
         }
-        HomeHero(hero: home.hero, openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil)
-          .padding(.top, heroGap)
+        HomeHero(
+          hero: home.hero, place: home.heroPlace, supply: home.supply,
+          openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil
+        )
+        .padding(.top, heroGap)
         if case .paused = home.hero {
           PausedCard(price: price, open: openPurchase).padding(.top, 18)
         }
@@ -53,13 +52,14 @@ struct HomeView: View {
           TimelineStrip(timeline: timeline).padding(.top, home.locationBanner ? 20 : 16)
         }
         SectionHeader(
-          home.weekTitle, action: openInsights.map { (title: Copy.Home.seeAll, run: $0) }
+          home.weekTitle,
+          action: openInsights.map { .init(Copy.Home.seeAll, symbol: .forward, run: $0) }
         )
         .padding(.top, 24)
         WeekCard(home: home).padding(.top, 16)
         SectionHeader(
           Copy.Home.blocks,
-          action: openBlock.map { open in (title: Copy.Home.new, run: { open(nil) }) }
+          action: openBlock.map { open in .init(Copy.Home.new, symbol: .add) { open(nil) } }
         )
         .padding(.top, 22)
         BlockList(
@@ -85,7 +85,7 @@ struct HomeView: View {
     HStack {
       Spacer()
       Button(action: openSettings) {
-        Image(systemName: "gearshape").unredacted()
+        Image(symbol: .settings).unredacted()
           .font(.system(size: 20, weight: .regular))
           .foregroundStyle(TollColor.label2)
           .frame(width: TollSpacing.minTapTarget, height: TollSpacing.minTapTarget)
@@ -108,7 +108,7 @@ private struct PillView: View {
       Button(action: open) {
         HStack(spacing: 6) {
           Text(pill.text)
-          Image(systemName: "chevron.right").unredacted().font(.system(size: 10, weight: .bold))
+          Image(symbol: .forward).unredacted().font(.system(size: 10, weight: .bold))
         }
         .tollType(.trailing, TollColor.accent)
         .padding(.leading, 14)
@@ -123,7 +123,7 @@ private struct PillView: View {
     } else {
       HStack(spacing: 6) {
         if pill.kind == .away {
-          Image(systemName: "location").unredacted().font(.system(size: 12, weight: .medium))
+          Image(symbol: .away).unredacted().font(.system(size: 12, weight: .medium))
         }
         Text(pill.text)
       }
@@ -137,36 +137,98 @@ private struct PillView: View {
   }
 }
 
-/// The state, centred: an eyebrow, the big time (or "Not blocking"), one line, and "Open one app"
-/// while blocked.
+/// The state, centred (#72, rule 2): its glyph and eyebrow, the big time (or the state's glyph
+/// when nothing will block), one line led by where it runs, the unlocks as dots while blocked, and
+/// "Open one app" as a button.
 struct HomeHero: View {
   let hero: HomeSnapshot.Hero
+  var place: HomeSnapshot.HeroPlace?
+  var supply: HomeSnapshot.Supply?
   let openDoor: (() -> Void)?
 
   var body: some View {
     VStack(spacing: 6) {
       VStack(spacing: 6) {
-        Text(eyebrow).tollType(.eyebrow, TollColor.label2)
+        StateLine(eyebrow, symbol: state.symbol, tone: state.tone)
         if let time {
           HeroTime(time)
+        } else if let off = offSymbol {
+          // Nothing will block: the biggest shape on screen says so, not two words (#72).
+          Image(symbol: off).unredacted()
+            .font(.system(size: 30, weight: .medium))
+            .foregroundStyle(TollColor.label2)
+            .frame(width: 64, height: 64)
+            .background(
+              TollColor.surfaceRaised, in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            )
+            .padding(.vertical, 6)
+            .accessibilityLabel(title)
         } else {
           Text(title)
             .tollType(TollType(size: 40, lineHeight: 46, weight: .semibold, style: .largeTitle))
             .foregroundStyle(TollColor.label)
         }
-        Text(detail).tollType(.heroLine, TollColor.label2)
+        HStack(spacing: 6) {
+          if let placeSymbol {
+            Image(symbol: placeSymbol).unredacted()
+              .font(.system(size: 13, weight: .medium))
+              .foregroundStyle(TollColor.label2)
+              .accessibilityHidden(true)
+          }
+          Text(detail).tollType(.heroLine, TollColor.label2)
+        }
       }
       .multilineTextAlignment(.center)
       .accessibilityElement(children: .combine)
       .accessibilityAddTraits(.isHeader)
+      if case .blocked = hero, let supply {
+        Pips(
+          filled: supply.left, total: supply.max,
+          spoken: Copy.Door.unlocksLeft(supply.left, of: supply.max)
+        )
+        .padding(.top, 4)
+      }
       if let openDoor {
-        Button(Copy.Home.openOneApp, action: openDoor)
-          .tollType(.link, TollColor.accent)
-          .frame(minHeight: 32)
-          .padding(.top, 4)
+        PrimaryButton(action: openDoor) {
+          HStack(spacing: 8) {
+            Image(symbol: .unlock).unredacted().accessibilityHidden(true)
+            Text(Copy.Home.openOneApp)
+          }
+        }
+        .padding(.top, 12)
       }
     }
     .frame(maxWidth: .infinity)
+  }
+
+  private var state: (symbol: TollSymbol, tone: StateLine.Tone) {
+    switch hero {
+    case .tonight: (.later, .neutral)
+    case .blocked: (.blocked, .accent)
+    case .away: (.away, .neutral)
+    case .paused: (.paused, .neutral)
+    case .screenTimeOff: (.broken, .warn)
+    case .noBlocks: (.sleep, .neutral)
+    }
+  }
+
+  private var offSymbol: TollSymbol? {
+    switch hero {
+    case .paused: .paused
+    case .screenTimeOff: .broken
+    default: nil
+    }
+  }
+
+  private var placeSymbol: TollSymbol? {
+    switch hero {
+    case .tonight: place.map { $0 == .home ? .home : .anywhere }
+    // Sleep's place; another block's line names its own.
+    case .blocked(let label, _, _) where label == Copy.Home.blockedUntil:
+      place.map { $0 == .home ? .home : .anywhere }
+    case .away: .away
+    default: nil
+    }
   }
 
   private var eyebrow: String {

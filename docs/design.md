@@ -82,6 +82,7 @@ Motion explains where things came from and where they went. It never celebrates,
 | Returning from the system picker | Chosen items are already listed; they fade in and rise 6 pt with a 40 ms stagger, once. |
 | A permission row changes | Its status text crossfades 200 ms. |
 | Status state line changes | Crossfade 200 ms. Numbers in it use `numericText`, 300 ms. |
+| A pip empties or fills | Crossfade 200 ms (#72). |
 | Door sheet opens or closes | System sheet. |
 | Door: choosing → waiting → open | Content crossfades 300 ms inside the sheet; the sheet does not move. |
 | Countdown | `contentTransition(.numericText(countsDown: true))` each second; the colon never blinks. |
@@ -95,7 +96,23 @@ Never: confetti, pulsing, looping, parallax, rings that fill, typewriter text, s
 
 ### 2.6 Iconography
 
-SF Symbols, monochrome, outline where the canvas draws outlines. A gear for Settings, chevrons in lists. No coloured icon circles. App icons on the door come from the system (`Label(token)`), never drawn by us.
+SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbol** (#72), named in `TollSymbol` (`TollUI/Tokens/Symbols.swift`); no feature types a symbol string. App icons on the door come from the system (`Label(token)`), never drawn by us. No coloured icon circles: tiles use `accentSoft` or `surfaceRaised`.
+
+| Concept | Symbol |
+|---|---|
+| Sleep, a night | `moon` |
+| Another block | its kind: `book`, `briefcase`, `bolt`, `ellipsis` |
+| **State:** blocked now · starts later · away · paused · nothing can block · working with less (While Using) · waiting for Always | `lock` · `clock` · `figure.walk` · `pause.circle` · `exclamationmark.triangle` (warn) · `location.slash` · `hourglass.bottomhalf.filled` |
+| An unlock, the door · the door's wait | `lock.open` · `timer` |
+| Apps on a blocklist · a block's hours | `square.grid.2x2` · `clock` |
+| Home · another place · no place (anywhere) | `house` · `mappin` · `globe` |
+| Current position, the Location permission · Precise | `location` · `scope` |
+| Screen Time · weekends differ · wake time | `hourglass` · `calendar` · `alarm` |
+| Done · purchased · failed · waiting for approval · nothing found | `checkmark` · `checkmark.seal` · `xmark` · `person.badge.clock` · `magnifyingglass` |
+| Leaves for iOS Settings · privacy | `arrow.up.forward.app` · `hand.raised` |
+| Insights · Settings · add · delete · forward | `chart.bar` · `gearshape` · `plus` · `trash` · `chevron.right` |
+
+**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (paused, Screen Time off), the big time gives way to the state's glyph in a 64 pt tile. **Counts are shapes** (`Pips`): unlocks as dots wherever they're shown. **Actions look like actions:** a screen's main action is a button, never a text link; links that act carry a glyph (`See all ›`, `+ New`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
 
 ## 3. Buttons
 

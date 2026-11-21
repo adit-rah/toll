@@ -62,7 +62,7 @@ private struct BlockListRow: View {
 
   var body: some View {
     HStack(spacing: TollSpacing.rowGap) {
-      IconTile(BlockSymbol.name(row.kind), size: compact ? .row : .large, accent: row.accent)
+      IconTile(.block(row.kind), size: compact ? .row : .large, accent: row.accent)
       VStack(alignment: .leading, spacing: 1) {
         Text(row.name).tollType(.rowTitle, TollColor.label)
         (row.onNow
@@ -91,7 +91,7 @@ private struct NewBlockRow: View {
     Card {
       NavigationLink(value: HomeRoute.block(nil)) {
         HStack(spacing: TollSpacing.rowGap) {
-          Image(systemName: "plus").unredacted()
+          Image(symbol: .add).unredacted()
             .font(.system(size: 18, weight: .semibold))
             .foregroundStyle(limits.canAddBlock ? TollColor.accent : TollColor.label3)
             .frame(width: 40)

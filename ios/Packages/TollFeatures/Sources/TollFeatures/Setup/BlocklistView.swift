@@ -29,8 +29,7 @@ struct BlocklistView: View {
       .padding(.top, 24)
       if Blocklist.items(model.selection) > model.app.config.blocks.maxApps {
         NoteCard(
-          Copy.Setup.tooMany(model.app.config.blocks.maxApps), symbol: "exclamationmark.shield",
-          tint: TollColor.warn
+          Copy.Setup.tooMany(model.app.config.blocks.maxApps), severity: .broken
         )
         .padding(.top, 12)
       }

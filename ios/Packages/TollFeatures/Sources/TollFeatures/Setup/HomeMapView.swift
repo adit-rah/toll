@@ -21,7 +21,7 @@ struct HomeMapView: View {
             detail: model.moving ? Copy.Setup.movingDetail : Copy.Setup.coversBuilding,
             size: .place
           ) {
-            IconTile("location")
+            IconTile(.location)
           } trailing: {
             Button(model.moving ? Copy.Setup.done : Copy.Setup.move) { model.moving.toggle() }
               .tollType(.link, TollColor.accent)
@@ -33,7 +33,7 @@ struct HomeMapView: View {
       }
       if model.locating { Footnote(Copy.Setup.finding).padding(.top, 14) }
       if model.noFix { Footnote(Copy.Setup.noFix).padding(.top, 14) }
-      Footnote(Copy.Setup.homeLine, symbol: "lock").padding(.top, 14)
+      Footnote(Copy.Setup.homeLine, symbol: .privacy).padding(.top, 14)
     } actions: {
       if blocked {
         PrimaryButton(Copy.Setup.continueWithout) { model.go(.permissions) }
