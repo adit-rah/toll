@@ -44,6 +44,8 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 26 | Stay on "Open one app for 5 minutes?" for 3 minutes (#47) | The sheet stays until Not now | | |
 | 27 | After setup, switch Screen Time off for Dusk (Settings › Screen Time, or remove its access), then open Dusk (#45) | Home says "Screen Time off · Not blocking" with a "Turn on" card; Turn on shows the prompt again, or opens Settings if it can't. Note which | | |
 | 28 | Screen Time off for a night, then back on (#60) | Settings › Transition log shows "Screen Time off" on that night's lines; This week shows the night as "off", not as blocked | | |
+| 29 | Location While Using; save a Study block at a place, choose "Only at …" (#63) | No block during its hours away from the place or at it; rows say "Needs Always location"; after switching to Always it runs only at the place | | |
+| 30 | A night away, then a blocked night, with an unlock spent before (#61) | The refill's "N more blocked nights" drops by one only after the blocked night | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

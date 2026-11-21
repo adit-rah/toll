@@ -61,6 +61,18 @@ extension Copy {
       "\(block) is on until \(time). It's deleted then; until then its apps stay blocked."
     }
     public static func deleteAt(_ time: String) -> String { "Delete at \(time)" }
+    /// A block waiting for Always location (#63).
+    public static let needsAlways = "Needs Always location"
+    public static let waiting = "Waiting"
+    public static func waitsForAlways(_ block: String, place: String) -> String {
+      "\(block) waits for Always location to know when you're at \(place)."
+    }
+    public static let withoutAlwaysTitle = "Without Always location"
+    public static func withoutAlwaysBody(_ block: String, place: String, span: String) -> String {
+      "\(Copy.name) can't tell when you're at \(place). \(block) can run \(span) wherever you are, or wait until location is set to Always."
+    }
+    public static func onlyAt(_ place: String) -> String { "Only at \(place)" }
+    public static let runAnyway = "Run anyway"
     /// D37: without Always and Precise every block runs on its hours wherever the user is (#49).
     public static func placeIgnored(_ block: String, span: String) -> String {
       "Location is set to While Using, so \(block) runs \(span) wherever you are."

@@ -12,6 +12,8 @@ Work is tracked in GitHub issues, one ticket per piece of work, each labelled wi
 | `team:product` | Decisions the founders make: rules, pricing, what counts, App Review framing | Whichever team builds the answer |
 | `team:qa` | Checks only a real iPhone can do (`docs/device-protocol.md`) | Software engineering, with results |
 
+Product and QA tickets are closed in conversation with the founder: the agent asks the questions (a decision with its options, or a device check with what to look for), the founder answers, and the agent records the answer (a D-number in `docs/decisions.md`, or the result in `docs/device-protocol.md`), builds what follows, and closes the ticket.
+
 A ticket can have more than one team; the first listed in the ticket body goes first.
 
 ## Priorities

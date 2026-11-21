@@ -257,7 +257,9 @@ public struct HomeSnapshot: Equatable, Sendable {
     }
     if let days = Self.days(block.schedule) { parts.append(days) }
     let trailing: (String, Bool)
-    if !block.isOn || !state.trial.entitled || !blocking {
+    if Engine.waitsForAlways(block, state) {
+      trailing = (Copy.Blocks.waiting, false)
+    } else if !block.isOn || !state.trial.entitled || !blocking {
       trailing = (block.isOn ? Copy.Home.paused : Copy.Home.off, false)
     } else if state.runtime.active[block.id] != nil {
       trailing = (Copy.Home.onNow, true)

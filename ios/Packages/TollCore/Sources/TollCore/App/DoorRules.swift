@@ -59,8 +59,11 @@ public enum DoorRules {
     max(config.door.minutes, TimeWindow.minimumMinutes)
   }
 
-  /// D-6: each Sleep night end since the last count is one night; a spend since the previous one
-  /// resets the run. Seven clean nights in a row return one unlock, up to the maximum.
+  /// D-6 as amended (#61): a spend since the previous Sleep night end resets the run; a night with no
+  /// spend counts only if Sleep actually ran in it. Away, paused and Screen Time-off nights neither
+  /// count nor reset. Seven such nights return one unlock, up to the maximum. One pool for every
+  /// block, so a daytime spend resets it too. Ends found together (the app slept through several)
+  /// credit at most the first: the others can't be shown to have run.
   static func countNights(
     _ state: inout DuskState, now: Date, calendar: Calendar, config: TollConfig
   ) {
@@ -70,12 +73,15 @@ public enum DoorRules {
       return
     }
     var previous = from
+    var ran = state.unlocks.sleepRan
     for end in sleep.ends(after: from, through: now, calendar: calendar) {
       if let spend = state.unlocks.lastSpendAt, spend > previous, spend <= end {
         state.unlocks.cleanNights = 0
-      } else {
+      } else if ran {
         state.unlocks.cleanNights += 1
       }
+      ran = false
+      state.unlocks.sleepRan = false
       if state.unlocks.cleanNights >= config.unlocks.refillNights {
         state.unlocks.cleanNights = 0
         state.unlocks.spent = max(0, state.unlocks.spent - 1)

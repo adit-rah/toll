@@ -42,6 +42,7 @@ struct ShieldTextTests {
     #expect(!text.offersDoor)
     #expect(
       text.subtitle
-        == "It's your sleep time. No unlocks left. One returns after 5 nights without using any.")
+        == "It's your sleep time. No unlocks left. One returns after 5 blocked nights without using any."
+    )
   }
 }

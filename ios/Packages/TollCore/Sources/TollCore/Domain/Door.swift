@@ -40,6 +40,9 @@ public struct UnlockSupply: Codable, Hashable, Sendable {
   public var lastSpendAt: Date?
   /// Every unlock ever kept (returned ones excluded), for the trial-ended summary.
   public var used = 0
+  /// Sleep was on (with Screen Time allowed) since the last night end counted: only such a night
+  /// counts toward the refill (#61).
+  public var sleepRan = false
 
   public init() {}
 

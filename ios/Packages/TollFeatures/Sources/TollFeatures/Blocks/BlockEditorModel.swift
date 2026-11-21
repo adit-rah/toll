@@ -45,10 +45,25 @@ final class BlockEditorModel {
   /// With a place but no Always, the block runs on its hours wherever the user is (D37); the editor
   /// says so under Place (#49).
   var placeIgnored: String? {
-    guard place != nil, app.state.location == .scheduleOnly,
+    guard let place, app.state.location == .scheduleOnly,
       let window = block.schedule.windows.first
     else { return nil }
+    if block.onlyAtPlace && !isSleep {
+      return Copy.Blocks.waitsForAlways(block.name, place: place.name)
+    }
     return Copy.Blocks.placeIgnored(block.name, span: Copy.span(window))
+  }
+
+  /// Saving a block tied to a place without Always asks whether it runs anywhere or waits (#63).
+  var asksAboutAlways: Bool { place != nil && !isSleep && app.state.location == .scheduleOnly }
+
+  /// The question's words: the place and the hours.
+  var alwaysQuestion: (place: String, body: String)? {
+    guard let place, let window = block.schedule.windows.first else { return nil }
+    return (
+      place.name,
+      Copy.Blocks.withoutAlwaysBody(block.name, place: place.name, span: Copy.span(window))
+    )
   }
 
   /// "2 categories · 2 apps", counted, since iOS never gives the app the names (D41).
