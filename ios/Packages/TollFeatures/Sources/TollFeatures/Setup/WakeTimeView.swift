@@ -29,7 +29,7 @@ struct WakeTimeView: View {
             label: Copy.Setup.nightsStart, time: model.start, set: model.setStart)
         }
         CardRow(Copy.Setup.differentOnWeekends, size: .list) {
-          IconTile("sun.max", accent: false)
+          IconTile(.weekends, accent: false)
         } trailing: {
           Toggle(Copy.Setup.differentOnWeekends, isOn: $model.weekendsDiffer)
             .labelsHidden()
@@ -38,7 +38,7 @@ struct WakeTimeView: View {
         if model.weekendsDiffer {
           nightRow(
             title: Copy.Setup.weekendNights, detail: Copy.span(model.weekendWindow),
-            night: .weekends, symbol: "clock")
+            night: .weekends, symbol: .sleep)
           if editing == .weekends {
             InlineTime(
               label: Copy.Setup.weekendWake, time: model.weekendWake, set: model.setWeekendWake)
@@ -55,7 +55,7 @@ struct WakeTimeView: View {
     }
   }
 
-  private func nightRow(title: String, detail: String, night: Night, symbol: String = "moon")
+  private func nightRow(title: String, detail: String, night: Night, symbol: TollSymbol = .sleep)
     -> some View
   {
     CardRow(title, detail: detail, size: .night) {

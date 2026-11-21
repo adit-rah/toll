@@ -187,10 +187,35 @@ public struct DestructiveQuiet: View {
   public var body: some View {
     Button(role: .destructive, action: action) {
       HStack(spacing: 8) {
-        Image(systemName: "trash").unredacted().font(.system(size: 15, weight: .semibold))
+        Image(symbol: .delete).unredacted().font(.system(size: 15, weight: .semibold))
         Text(title)
       }
     }
     .buttonStyle(QuietButtonStyle(tone: .warn, type: .link))
+  }
+}
+
+/// A link that leaves for iOS Settings ("Turn on", "Change in Settings"): accent text with the
+/// open-Settings glyph, so it reads as "go elsewhere" without the words (#72, rule 3).
+public struct SettingsLink: View {
+  let title: String
+  let action: () -> Void
+
+  public init(_ title: String, action: @escaping () -> Void) {
+    self.title = title
+    self.action = action
+  }
+
+  public var body: some View {
+    Button(action: action) {
+      HStack(spacing: 6) {
+        Text(title)
+        Image(symbol: .openSettings).unredacted()
+          .font(.system(size: 13, weight: .semibold))
+          .accessibilityHidden(true)
+      }
+    }
+    .tollType(.link, TollColor.accent)
+    .frame(minHeight: 28)
   }
 }

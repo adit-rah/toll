@@ -51,17 +51,17 @@ struct PlacePicker: View {
           .padding(.top, 16)
         Card {
           option(
-            Copy.Blocks.anywhere, detail: Copy.Setup.anywhereDetail, symbol: "location.slash",
+            Copy.Blocks.anywhere, detail: Copy.Setup.anywhereDetail, symbol: .anywhere,
             selected: anywhere
           ) { anywhere = true }
           if let place, results.isEmpty {
-            option(place.name, detail: nil, symbol: "mappin.and.ellipse", selected: !anywhere) {
+            option(place.name, detail: nil, symbol: .place, selected: !anywhere) {
               anywhere = false
             }
           }
           ForEach(results.prefix(3)) { result in
             option(
-              result.name, detail: result.address, symbol: "mappin.and.ellipse",
+              result.name, detail: result.address, symbol: .place,
               selected: !anywhere && place?.name == result.name
             ) { use(result) }
           }
@@ -69,14 +69,14 @@ struct PlacePicker: View {
             Task { await here() }
           } label: {
             CardRow(Copy.Blocks.currentLocation, size: .compact) {
-              IconTile("location", accent: false)
+              IconTile(.location, accent: false)
             }
           }
           .buttonStyle(.plain)
         }
         .padding(.top, 12)
         if anywhere || place == nil {
-          NoteCard(Copy.Blocks.anywhereNote, symbol: "info.circle").padding(.top, 14)
+          NoteCard(Copy.Blocks.anywhereNote, symbol: .anywhere).padding(.top, 14)
         } else if let place {
           map(place).padding(.top, 14)
           sizeChips.padding(.top, 14)
@@ -99,7 +99,7 @@ struct PlacePicker: View {
   }
 
   private func option(
-    _ title: String, detail: String?, symbol: String, selected: Bool,
+    _ title: String, detail: String?, symbol: TollSymbol, selected: Bool,
     action: @escaping () -> Void
   ) -> some View {
     Button(action: action) {
@@ -107,7 +107,7 @@ struct PlacePicker: View {
         IconTile(symbol, accent: selected)
       } trailing: {
         if selected {
-          Image(systemName: "checkmark").unredacted()
+          Image(symbol: .done).unredacted()
             .font(.system(size: 15, weight: .semibold))
             .foregroundStyle(TollColor.accent)
         }

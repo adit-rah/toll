@@ -29,7 +29,7 @@ struct PurchaseSheet: View {
       case nil: offer
       case .pending:
         OutcomeSheet(
-          symbol: "clock", tint: TollColor.accent, title: Copy.Purchase.pendingTitle,
+          symbol: .askToBuy, tint: TollColor.accent, title: Copy.Purchase.pendingTitle,
           line: model.state.trial.entitled
             ? Copy.Purchase.pendingTrialBody : Copy.Purchase.pendingBody
         ) {
@@ -37,7 +37,7 @@ struct PurchaseSheet: View {
         }
       case .failed:
         OutcomeSheet(
-          symbol: "xmark", tint: TollColor.warn, title: Copy.Purchase.failedTitle,
+          symbol: .failed, tint: TollColor.warn, title: Copy.Purchase.failedTitle,
           line: Copy.Purchase.failedBody, overhang: 16
         ) {
           PrimaryButton(Copy.Purchase.tryAgain) { Task { await buy() } }.disabled(working)
@@ -45,7 +45,7 @@ struct PurchaseSheet: View {
         }
       case .nothingToRestore:
         OutcomeSheet(
-          symbol: "magnifyingglass", tint: TollColor.label2, title: Copy.Purchase.restoreNoneTitle,
+          symbol: .notFound, tint: TollColor.label2, title: Copy.Purchase.restoreNoneTitle,
           line: Copy.Purchase.restoreNoneBody
         ) {
           PrimaryButton(Copy.Purchase.ok) { outcome = nil }
@@ -86,7 +86,7 @@ struct PurchaseSheet: View {
       VStack(alignment: .leading, spacing: 0) {
         ForEach(Copy.Purchase.benefits, id: \.self) { benefit in
           HStack(spacing: 12) {
-            Image(systemName: "checkmark").unredacted()
+            Image(symbol: .done).unredacted()
               .font(.system(size: 15, weight: .bold))
               .foregroundStyle(TollColor.accent)
               .frame(width: 18)
@@ -146,7 +146,7 @@ struct RestoreNoneSheet: View {
 
   var body: some View {
     OutcomeSheet(
-      symbol: "magnifyingglass", tint: TollColor.label2, title: Copy.Purchase.restoreNoneTitle,
+      symbol: .notFound, tint: TollColor.label2, title: Copy.Purchase.restoreNoneTitle,
       line: Copy.Purchase.restoreNoneBody
     ) {
       PrimaryButton(Copy.Purchase.ok) { dismiss() }
@@ -156,7 +156,7 @@ struct RestoreNoneSheet: View {
 
 /// Purchase · waiting for approval, failed, nothing to restore: a 48 pt tile, a title, a sentence.
 private struct OutcomeSheet<Actions: View>: View {
-  let symbol: String
+  let symbol: TollSymbol
   let tint: Color
   let title: String
   let line: String
@@ -165,7 +165,7 @@ private struct OutcomeSheet<Actions: View>: View {
 
   var body: some View {
     SheetPage(height: 374, overhang: overhang) {
-      Image(systemName: symbol).unredacted()
+      Image(symbol: symbol).unredacted()
         .font(.system(size: TileSize.sheet.symbol, weight: .medium))
         .foregroundStyle(tint)
         .frame(width: TileSize.sheet.side, height: TileSize.sheet.side)
