@@ -56,7 +56,7 @@ struct TimelineStrip: View {
       }
       .frame(height: 8)
       .padding(.top, 26)
-      HourLabels()
+      HourLabels(hours: timeline.hours)
     }
     .tollChartTypeLimit()
     .accessibilityElement(children: .ignore)
@@ -74,11 +74,12 @@ struct TimelineStrip: View {
   }
 }
 
-/// "6 pm  10 pm  2 am  6 am  10 am" every four hours across the strip, the ends held to its edges,
-/// in the phone's format.
+/// The strip's hours, evenly spaced ("6 pm  10 pm  2 am  6 am  10 am" on the boards' night), the ends
+/// held to its edges, in the phone's format. The snapshot picks them to fit the block (#82).
 private struct HourLabels: View {
+  let hours: [String]
+
   var body: some View {
-    let hours = [18, 22, 2, 6, 10].map { Copy.time(ClockTime(hour: $0), short: true) }
     GeometryReader { proxy in
       let width = proxy.size.width
       ZStack {
