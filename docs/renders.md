@@ -39,6 +39,8 @@ insights: gesture scroll-down; gesture scroll-down
 ```
 Steps are AXe commands without `axe` and `--udid` (`tap --label`, `tap --id`, `gesture scroll-up|down`, `type 'text'`, `swipe …`). Find labels in a scenario's `ui.json`. For a state no tap reaches, add a scenario.
 
+Demo scenarios run on a pinned clock (`DemoClock`): 11:40 pm for states inside Sleep's 10:30 pm – 7:00 am, 7:55 pm for the evening before it, whatever the runner's time; the fixture is in place before the first frame, and demos never reconcile against the real store. Door countdowns use the real clock.
+
 Variants: `light`, `dark`, `ax5` (largest Dynamic Type), `dark-ax5`, and `wordless` / `dark-wordless`, which draw every line of text as a placeholder bar for the wordless test (design §5). Pushes render `light`; ask for `ax5` (and `dark` for colour) whenever a change touches layout or type. AX5 renders have already caught truncation that light renders did not.
 
 ## How it works, and why it takes the time it does

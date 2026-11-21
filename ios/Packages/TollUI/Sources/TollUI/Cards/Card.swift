@@ -39,7 +39,7 @@ public struct IconTile: View {
 
   public var body: some View {
     let grow = min(scale, 1.5)
-    Image(systemName: symbol)
+    Image(systemName: symbol).unredacted()
       .font(.system(size: size.symbol * grow, weight: .medium))
       .foregroundStyle(isAccent ? TollColor.accent : TollColor.label2)
       .frame(width: size.side * grow, height: size.side * grow)
@@ -129,7 +129,7 @@ public struct Chevron: View {
   public init() {}
 
   public var body: some View {
-    Image(systemName: "chevron.right")
+    Image(systemName: "chevron.right").unredacted()
       .font(.system(size: 13, weight: .semibold))
       .foregroundStyle(TollColor.label3)
       .accessibilityHidden(true)
@@ -157,7 +157,7 @@ public struct NoteCard<Accessory: View>: View {
   public var body: some View {
     HStack(alignment: .top, spacing: 12) {
       if let symbol {
-        Image(systemName: symbol)
+        Image(systemName: symbol).unredacted()
           .font(.system(size: 17, weight: .medium))
           .foregroundStyle(tint)
           .frame(width: 20, height: 20)
@@ -197,7 +197,7 @@ public struct Footnote: View {
   public var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: 10) {
       if let symbol {
-        Image(systemName: symbol).accessibilityHidden(true)
+        Image(systemName: symbol).unredacted().accessibilityHidden(true)
       }
       Text(text)
         .multilineTextAlignment(alignment)

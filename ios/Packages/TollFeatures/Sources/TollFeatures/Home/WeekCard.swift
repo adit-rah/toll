@@ -166,7 +166,9 @@ struct FirstNights: View {
     case .stopped:
       shape.fill(TollColor.accentSoft)
         .overlay(shape.strokeBorder(TollColor.accent, lineWidth: 1))
-        .overlay(Image(systemName: "checkmark").font(.system(size: 14, weight: .semibold)))
+        .overlay(
+          Image(systemName: "checkmark").unredacted().font(.system(size: 14, weight: .semibold))
+        )
         .foregroundStyle(TollColor.accent)
         .frame(height: 40)
     case .away, .off, .noScreenTime:

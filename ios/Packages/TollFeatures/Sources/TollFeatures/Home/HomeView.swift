@@ -85,7 +85,7 @@ struct HomeView: View {
     HStack {
       Spacer()
       Button(action: openSettings) {
-        Image(systemName: "gearshape")
+        Image(systemName: "gearshape").unredacted()
           .font(.system(size: 20, weight: .regular))
           .foregroundStyle(TollColor.label2)
           .frame(width: TollSpacing.minTapTarget, height: TollSpacing.minTapTarget)
@@ -108,7 +108,7 @@ private struct PillView: View {
       Button(action: open) {
         HStack(spacing: 6) {
           Text(pill.text)
-          Image(systemName: "chevron.right").font(.system(size: 10, weight: .bold))
+          Image(systemName: "chevron.right").unredacted().font(.system(size: 10, weight: .bold))
         }
         .tollType(.trailing, TollColor.accent)
         .padding(.leading, 14)
@@ -123,7 +123,7 @@ private struct PillView: View {
     } else {
       HStack(spacing: 6) {
         if pill.kind == .away {
-          Image(systemName: "location").font(.system(size: 12, weight: .medium))
+          Image(systemName: "location").unredacted().font(.system(size: 12, weight: .medium))
         }
         Text(pill.text)
       }

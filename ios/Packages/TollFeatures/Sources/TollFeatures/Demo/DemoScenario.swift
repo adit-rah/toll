@@ -22,6 +22,7 @@
     case homePaused = "home-paused"
     case homeLocation = "home-location"
     case homeScreenTimeOff = "home-screen-time-off"
+    case homeNoBlocks = "home-no-blocks"
     case purchase, settings, insights
     case purchasePending = "purchase-pending"
     case purchaseFailed = "purchase-failed"
@@ -60,16 +61,17 @@
     var screenTime: ScreenTimeAuthorization.State? {
       switch self {
       case .blocklist, .ready, .readyAnywhere, .always, .locationOff: .approved
-      case .permissionsDenied: .denied
-      default: nil
+      case .permissionsDenied, .homeScreenTimeOff: .denied
+      // Every screen after setup assumes what its board shows: everything working.
+      default: isHome ? .approved : nil
       }
     }
 
     var location: LocationAccess.State? {
       switch self {
       case .blocklist, .ready, .permissionsDenied: .always
-      case .always, .locationOff, .readyAnywhere: .whileUsing
-      default: nil
+      case .always, .locationOff, .readyAnywhere, .homeLocation: .whileUsing
+      default: isHome ? .always : nil
       }
     }
     var isDoor: Bool { rawValue.hasPrefix("door") }
@@ -112,9 +114,9 @@
   private struct DemoHome: View {
     let app: AppModel
     let scenario: DemoScenario
-    let now = Date()
 
     var body: some View {
+      let now = DemoClock.now(for: scenario)
       let fixture = DemoFixture(scenario: scenario, now: now)
       let home = HomeSnapshot(
         state: fixture.state, log: fixture.log, now: now, calendar: .current,
@@ -148,7 +150,6 @@
           }
         }
       }
-      .task { app.show(fixture.state) }
     }
   }
 
