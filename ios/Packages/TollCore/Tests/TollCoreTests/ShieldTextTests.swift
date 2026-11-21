@@ -22,6 +22,8 @@ struct ShieldTextTests {
     let text = ShieldText(state: s, block: s.block(BlockID("study")), calendar: london)
     #expect(text.title.hasPrefix("Study · until 5"))
     #expect(text.subtitle == "This app is blocked during Study. 3 of 3 unlocks left.")
+    #expect(text.kind == .study)
+    #expect(text.unlocksLeft == 3 && text.unlocksMax == 3)
   }
 
   @Test func withoutLocationNoPlaceIsClaimed() {

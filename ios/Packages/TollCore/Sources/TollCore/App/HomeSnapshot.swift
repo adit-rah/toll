@@ -29,7 +29,8 @@ public struct HomeSnapshot: Equatable, Sendable {
     public var opensPurchase: Bool { kind == .lastNight }
   }
 
-  /// Fractions of the 6 pm → 10 am strip.
+  /// Fractions of the day strip: the boards' 6 pm → 10 am when tonight and now fit in it, otherwise
+  /// a span fitted to both, so any block's hours show (#82).
   public struct Timeline: Equatable, Sendable {
     public enum Phase: Equatable, Sendable {
       /// Drawn as an outline: tonight's block, still to come.
@@ -48,6 +49,8 @@ public struct HomeSnapshot: Equatable, Sendable {
     public var nowInside: Bool
     public var phase: Phase
     public var label: String
+    /// Five hour labels, evenly spaced from the strip's start to its end ("6 pm" … "10 am").
+    public var hours: [String] = []
   }
 
   public struct BlockRow: Equatable, Sendable, Identifiable {
@@ -236,28 +239,56 @@ public struct HomeSnapshot: Equatable, Sendable {
   static func timeline(
     _ schedule: WeeklySchedule, phase: Timeline.Phase, now: Date, calendar: Calendar
   ) -> Timeline? {
-    let today = calendar.startOfDay(for: now)
-    let hour = calendar.component(.hour, from: now)
-    guard let eveningDay = calendar.date(byAdding: .day, value: hour >= 12 ? 0 : -1, to: today),
-      let spanStart = calendar.date(bySettingHour: 18, minute: 0, second: 0, of: eveningDay)
+    // The night on now, or the next one: the strip shows where now is and when it happens.
+    guard
+      let night = schedule.occurrence(containing: now, calendar: calendar)
+        ?? schedule.nextStart(after: now, calendar: calendar).flatMap({
+          schedule.occurrence(containing: $0, calendar: calendar)
+        })
     else { return nil }
-    let span: TimeInterval = 16 * 3600
-    let night =
-      schedule.occurrence(containing: now, calendar: calendar)
-      ?? schedule.nextStart(after: spanStart, calendar: calendar).flatMap {
-        schedule.occurrence(containing: $0, calendar: calendar)
-      }
-    guard let night, night.start < spanStart.addingTimeInterval(span) else { return nil }
+    let (spanStart, step) = Self.span(night: night, now: now, calendar: calendar)
+    let span = TimeInterval(step * 4 * 3600)
     func fraction(_ date: Date) -> Double {
       min(1, max(0, date.timeIntervalSince(spanStart) / span))
     }
     let elapsed = now.timeIntervalSince(spanStart)
     let inside = (0...span).contains(elapsed)
+    let hours = (0...4).map {
+      Copy.time(
+        spanStart.addingTimeInterval(TimeInterval($0 * step * 3600)), in: calendar, short: true)
+    }
     return Timeline(
       start: fraction(night.start), end: fraction(night.end),
-      now: inside || (elapsed < 0 && hour >= 12) ? fraction(now) : nil, nowInside: inside,
+      now: inside || elapsed < 0 ? fraction(now) : nil, nowInside: inside,
       phase: phase,
       label: Copy.Home.timelineLabel(
-        start: Copy.time(night.start, in: calendar), end: Copy.time(night.end, in: calendar)))
+        start: Copy.time(night.start, in: calendar), end: Copy.time(night.end, in: calendar)),
+      hours: hours)
   }
+
+  /// The strip's start and its label step in hours (the strip is four steps long). The boards'
+  /// 6 pm → 10 am (4 h steps) when the night fits in it and now is in it or the afternoon before;
+  /// otherwise whole hours from an hour before the earlier of now and the start to an hour after the
+  /// end, widened to four equal steps (#82).
+  static func span(night: TimeWindow.Night, now: Date, calendar: Calendar) -> (Date, Int) {
+    let evening = calendar.startOfDay(for: night.start.addingTimeInterval(-12 * 3600))
+    if let six = calendar.date(bySettingHour: 18, minute: 0, second: 0, of: evening) {
+      let end = six.addingTimeInterval(16 * 3600)
+      if night.start >= six, night.end <= end, now <= end,
+        now >= six.addingTimeInterval(-6 * 3600)
+      {
+        return (six, 4)
+      }
+    }
+    func hourFloor(_ date: Date) -> Date {
+      calendar.dateInterval(of: .hour, for: date)?.start ?? date
+    }
+    let start = hourFloor(min(now, night.start)).addingTimeInterval(-3600)
+    let end = night.end.addingTimeInterval(3600)
+    let hours = Int((end.timeIntervalSince(start) / 3600).rounded(.up))
+    // Never wider than a day: past that, now sits at the left edge.
+    let step = min(6, max(2, Int((Double(hours) / 4).rounded(.up))))
+    return (max(start, end.addingTimeInterval(-TimeInterval(step * 4 * 3600))), step)
+  }
+
 }

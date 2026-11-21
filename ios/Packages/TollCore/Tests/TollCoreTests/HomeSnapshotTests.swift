@@ -130,6 +130,23 @@ struct HomeSnapshotTests {
     #expect(!snapshot(s, date(2026, 11, 17, 23)).screenTimeOff)
   }
 
+  /// A block outside 6 pm – 10 am still gets its strip, fitted to it and to now (#82): the founder's
+  /// test schedule of 1:19 pm – 7:49 am, seen at 9:44 am, had none.
+  @Test func theStripFitsAnyHours() {
+    var s = setUp()
+    s.blocks[0].schedule = .everyDay(TimeWindow(start: time(13, 19), end: time(7, 49)))
+    let morning = snapshot(s, date(2026, 11, 21, 9, 44))
+    let strip = try? #require(morning.timeline)
+    #expect(strip != nil)
+    #expect(strip?.nowInside == true)
+    #expect((strip?.now ?? 1) < (strip?.start ?? 0))
+    #expect((strip?.end ?? 0) <= 1)
+    #expect(strip?.hours.count == 5)
+    // The boards' night keeps the boards' strip.
+    let evening = snapshot(setUp(), date(2026, 11, 17, 19, 18))
+    #expect(evening.timeline?.hours.first?.hasPrefix("6") == true)
+  }
+
   @Test func withoutLocationTheHeroSaysWhereverYouAre() {
     var s = setUp()
     s.location = .scheduleOnly
