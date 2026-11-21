@@ -128,6 +128,11 @@ private struct OfferCard: View {
         Text(detail)
           .tollType(TollType(size: 14, lineHeight: 20, weight: .regular, style: .subheadline))
           .foregroundStyle(TollColor.label2)
+        // The deal as a shape before the first tap: seven free nights, none used (#77).
+        if case .fresh = offer {
+          Pips(filled: 0, total: 7, style: .segments, spoken: Copy.Setup.offerTitle)
+            .padding(.top, 6)
+        }
       }
       .fixedSize(horizontal: false, vertical: true)
       .frame(maxWidth: .infinity, alignment: .leading)

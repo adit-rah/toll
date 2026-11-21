@@ -43,6 +43,9 @@ extension Copy {
     public static let unlocksUsedLabel = "unlocks used"
     public static func usedLabel(_ n: Int) -> String { n == 1 ? "unlock used" : "unlocks used" }
 
+    /// After buying (#77; founders, 21 Nov).
+    public static let doneTitle = "Every night is yours"
+    public static let done = "Done"
     public static let pendingTitle = "Waiting for approval"
     /// During the trial nothing is off yet (#48).
     public static let pendingTrialBody =

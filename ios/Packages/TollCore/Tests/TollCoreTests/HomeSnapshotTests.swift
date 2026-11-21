@@ -63,7 +63,7 @@ struct HomeSnapshotTests {
     s.trial.start = date(2026, 11, 13, 15)
     #expect(
       snapshot(s, date(2026, 11, 17, 15)).pill
-        == .init(text: "Night 5 of 7 free", kind: .trial))
+        == .init(text: "Night 5 of 7 free", kind: .trial, night: 5, nights: 7))
     run(&s, date(2026, 11, 17, 23))
     #expect(snapshot(s, date(2026, 11, 17, 23)).pill == nil)
     var last = setUp()
