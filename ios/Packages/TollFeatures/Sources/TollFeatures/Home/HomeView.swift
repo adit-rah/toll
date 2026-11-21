@@ -16,52 +16,60 @@ struct HomeView: View {
   let fixLocation: () -> Void
   var turnOnScreenTime: () -> Void = {}
 
+  /// A composition, not a list (D64): what needs attention at the top, the state just above the
+  /// middle where the eye lands, and the day strip at the bottom like a horizon. At accessibility
+  /// sizes the spacers collapse and the screen scrolls.
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: 0) {
-        topBar
-        // The pill and a card both show: without Always, the card used to hide the last free
-        // night (#45). The card sits 12 pt under the pill.
-        if let pill = home.pill {
-          PillView(pill: pill, open: openPurchase)
-            .frame(maxWidth: .infinity)
-            .padding(.top, 4)
-        }
-        if home.screenTimeOff {
-          NoteCard(Copy.Home.screenTimeOffCard, severity: .broken) {
-            SettingsLink(Copy.Home.turnOn, action: turnOnScreenTime)
+    GeometryReader { proxy in
+      ScrollView {
+        VStack(alignment: .leading, spacing: 0) {
+          topBar
+          status
+          Spacer(minLength: 20)
+          VStack(spacing: 0) {
+            HomeHero(
+              hero: home.hero, place: home.heroPlace, supply: home.supply,
+              openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil
+            )
+            if case .paused = home.hero {
+              PausedCard(price: price, open: openPurchase).padding(.top, 18)
+            }
           }
-          .padding(.top, home.pill == nil ? 4 : 12)
-        } else if home.locationBanner {
-          NoteCard(locationFact, severity: .degraded) {
-            SettingsLink(Copy.Home.fixInSettings, action: fixLocation)
+          // Twice the room below as above: the state sits a little above centre.
+          Spacer(minLength: 28)
+          Spacer(minLength: 0)
+          if let timeline = home.timeline {
+            TimelineStrip(timeline: timeline)
           }
-          .padding(.top, home.pill == nil ? 4 : 12)
         }
-        HomeHero(
-          hero: home.hero, place: home.heroPlace, supply: home.supply,
-          openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil
-        )
-        .padding(.top, heroGap)
-        if case .paused = home.hero {
-          PausedCard(price: price, open: openPurchase).padding(.top, 18)
-        }
-        if let timeline = home.timeline {
-          TimelineStrip(timeline: timeline).padding(.top, home.locationBanner ? 20 : 16)
-        }
+        .tollGutter()
+        .padding(.bottom, 28)
+        .frame(minHeight: proxy.size.height)
       }
-      .tollGutter()
-      .padding(.bottom, 32)
     }
     .background(TollColor.bg)
     .animation(Motion.stateChange, value: home.hero)
   }
 
-  /// The boards: 16 pt under the pill or the bar, 14 above "Paused", 20 under the location card.
-  private var heroGap: CGFloat {
-    if home.locationBanner || home.screenTimeOff { return 20 }
-    if case .paused = home.hero { return 14 }
-    return 16
+  /// The free-night pill and a card, both when both apply: without Always the card used to hide
+  /// the last free night (#45). The card sits 12 pt under the pill.
+  @ViewBuilder private var status: some View {
+    if let pill = home.pill {
+      PillView(pill: pill, open: openPurchase)
+        .frame(maxWidth: .infinity)
+        .padding(.top, 4)
+    }
+    if home.screenTimeOff {
+      NoteCard(Copy.Home.screenTimeOffCard, severity: .broken) {
+        SettingsLink(Copy.Home.turnOn, action: turnOnScreenTime)
+      }
+      .padding(.top, home.pill == nil ? 4 : 12)
+    } else if home.locationBanner {
+      NoteCard(locationFact, severity: .degraded) {
+        SettingsLink(Copy.Home.fixInSettings, action: fixLocation)
+      }
+      .padding(.top, home.pill == nil ? 4 : 12)
+    }
   }
 
   private var topBar: some View {

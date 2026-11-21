@@ -48,8 +48,9 @@ struct TimelineStrip: View {
                 .tollType(TollType(size: 11, lineHeight: 14, weight: .semibold, style: .caption2))
                 .foregroundStyle(TollColor.label)
                 .fixedSize()
-                .alignmentGuide(.leading) { $0.width / 2 }
-                .offset(x: min(max(width * now, 14), width - 14), y: -24)
+                // Positioned, not offset by an alignment guide: a guide widens the stack and shifts
+                // the track off the hour labels.
+                .position(x: min(max(width * now, 14), width - 14), y: -17)
             }
           }
         }
