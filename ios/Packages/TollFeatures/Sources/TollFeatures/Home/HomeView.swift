@@ -158,6 +158,7 @@ struct HomeHero: View {
   var place: HomeSnapshot.HeroPlace?
   var supply: HomeSnapshot.Supply?
   let openDoor: (() -> Void)?
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
     VStack(spacing: 6) {
@@ -194,21 +195,36 @@ struct HomeHero: View {
       .multilineTextAlignment(.center)
       .accessibilityElement(children: .combine)
       .accessibilityAddTraits(.isHeader)
+      // The door is the escape hatch: findable, not inviting (D61). A small grey capsule beside the
+      // unlocks, not an amber button across the screen.
       if case .blocked = hero, let supply {
-        Pips(
-          filled: supply.left, total: supply.max,
-          spoken: Copy.Door.unlocksLeft(supply.left, of: supply.max)
-        )
-        .padding(.top, 4)
-      }
-      if let openDoor {
-        PrimaryButton(action: openDoor) {
-          HStack(spacing: 8) {
-            Image(symbol: .unlock).unredacted().accessibilityHidden(true)
-            Text(Copy.Home.openOneApp)
+        // Side by side; stacked at accessibility sizes so the capsule never squeezes.
+        let layout =
+          typeSize.isAccessibilitySize
+          ? AnyLayout(VStackLayout(spacing: 10)) : AnyLayout(HStackLayout(spacing: 14))
+        layout {
+          Pips(
+            filled: supply.left, total: supply.max,
+            spoken: Copy.Door.unlocksLeft(supply.left, of: supply.max))
+          if let openDoor {
+            Button(action: openDoor) {
+              HStack(spacing: 6) {
+                Image(symbol: .unlock).unredacted()
+                  .font(.system(size: 13, weight: .semibold))
+                  .accessibilityHidden(true)
+                Text(Copy.Home.openOneApp)
+              }
+              .tollType(.smallQuiet, TollColor.label2)
+              .padding(.horizontal, 12)
+              .frame(minHeight: 32)
+              .background(TollColor.surfaceRaised, in: Capsule())
+              .frame(minHeight: TollSpacing.minTapTarget)
+              .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
           }
         }
-        .padding(.top, 12)
+        .padding(.top, 2)
       }
     }
     .frame(maxWidth: .infinity)
