@@ -1,0 +1,1358 @@
+[
+  {
+    "title" : null,
+    "enabled" : true,
+    "subrole" : null,
+    "traits" : [
+
+    ],
+    "role" : "AXApplication",
+    "AXValue" : null,
+    "help" : null,
+    "AXUniqueId" : null,
+    "custom_actions" : [
+
+    ],
+    "AXFrame" : "{{0, 0}, {402, 874}}",
+    "type" : "Application",
+    "role_description" : "application",
+    "content_required" : false,
+    "pid" : 36465,
+    "AXLabel" : "Toll",
+    "children" : [
+      {
+        "pid" : 36465,
+        "AXLabel" : null,
+        "type" : "Group",
+        "content_required" : false,
+        "AXFrame" : "{{0, 0}, {402, 874}}",
+        "title" : null,
+        "role" : "AXGroup",
+        "enabled" : true,
+        "subrole" : null,
+        "traits" : [
+
+        ],
+        "help" : null,
+        "AXUniqueId" : null,
+        "frame" : {
+          "width" : 402,
+          "x" : 0,
+          "height" : 874,
+          "y" : 0
+        },
+        "children" : [
+          {
+            "traits" : [
+
+            ],
+            "AXFrame" : "{{0, 0}, {402, 874}}",
+            "AXValue" : null,
+            "enabled" : true,
+            "frame" : {
+              "width" : 402,
+              "x" : 0,
+              "height" : 874,
+              "y" : 0
+            },
+            "custom_actions" : [
+
+            ],
+            "role" : "AXGroup",
+            "content_required" : false,
+            "title" : null,
+            "subrole" : null,
+            "help" : null,
+            "role_description" : "group",
+            "children" : [
+              {
+                "content_required" : false,
+                "enabled" : true,
+                "AXValue" : null,
+                "help" : null,
+                "AXUniqueId" : null,
+                "custom_actions" : [
+
+                ],
+                "children" : [
+                  {
+                    "type" : "Group",
+                    "children" : [
+                      {
+                        "type" : "Group",
+                        "role" : "AXGroup",
+                        "title" : null,
+                        "AXUniqueId" : null,
+                        "content_required" : false,
+                        "role_description" : "group",
+                        "traits" : [
+
+                        ],
+                        "enabled" : true,
+                        "subrole" : null,
+                        "pid" : 36465,
+                        "help" : null,
+                        "frame" : {
+                          "width" : 402,
+                          "height" : 874,
+                          "x" : 0,
+                          "y" : 0
+                        },
+                        "custom_actions" : [
+
+                        ],
+                        "AXValue" : null,
+                        "AXLabel" : null,
+                        "AXFrame" : "{{0, 0}, {402, 874}}",
+                        "children" : [
+                          {
+                            "custom_actions" : [
+
+                            ],
+                            "help" : null,
+                            "content_required" : false,
+                            "AXLabel" : null,
+                            "role" : "AXGroup",
+                            "type" : "Group",
+                            "frame" : {
+                              "width" : 402,
+                              "height" : 874,
+                              "x" : 0,
+                              "y" : 0
+                            },
+                            "role_description" : "group",
+                            "children" : [
+                              {
+                                "AXValue" : null,
+                                "type" : "Group",
+                                "subrole" : null,
+                                "AXUniqueId" : "Your nights",
+                                "custom_actions" : [
+
+                                ],
+                                "children" : [
+                                  {
+                                    "AXValue" : null,
+                                    "role" : "AXButton",
+                                    "AXLabel" : "Home",
+                                    "enabled" : true,
+                                    "help" : null,
+                                    "title" : null,
+                                    "custom_actions" : [
+
+                                    ],
+                                    "frame" : {
+                                      "width" : 44,
+                                      "x" : 16,
+                                      "height" : 44,
+                                      "y" : 62
+                                    },
+                                    "AXFrame" : "{{16, 62}, {44, 44}}",
+                                    "AXUniqueId" : "BackButton",
+                                    "pid" : 36465,
+                                    "subrole" : null,
+                                    "children" : [
+
+                                    ],
+                                    "traits" : [
+
+                                    ],
+                                    "content_required" : false,
+                                    "role_description" : "back button",
+                                    "type" : "Button"
+                                  },
+                                  {
+                                    "AXValue" : null,
+                                    "AXUniqueId" : null,
+                                    "enabled" : true,
+                                    "frame" : {
+                                      "width" : 1,
+                                      "x" : 200.33333333333334,
+                                      "height" : 1.3333333333333286,
+                                      "y" : 83.333333333333329
+                                    },
+                                    "children" : [
+                                      {
+                                        "pid" : 36465,
+                                        "traits" : [
+
+                                        ],
+                                        "children" : [
+                                          {
+                                            "AXValue" : null,
+                                            "frame" : {
+                                              "width" : 1,
+                                              "height" : 1.3333333333333286,
+                                              "x" : 200.33333333333334,
+                                              "y" : 83.333333333333329
+                                            },
+                                            "enabled" : true,
+                                            "AXUniqueId" : null,
+                                            "AXFrame" : "{{200.33333333333334, 83.333333333333329}, {1, 1.3333333333333286}}",
+                                            "pid" : 36465,
+                                            "title" : null,
+                                            "role_description" : "group",
+                                            "content_required" : false,
+                                            "help" : null,
+                                            "traits" : [
+
+                                            ],
+                                            "children" : [
+
+                                            ],
+                                            "role" : "AXGroup",
+                                            "subrole" : null,
+                                            "type" : "Group",
+                                            "AXLabel" : null,
+                                            "custom_actions" : [
+
+                                            ]
+                                          }
+                                        ],
+                                        "AXLabel" : null,
+                                        "role_description" : "group",
+                                        "help" : null,
+                                        "title" : null,
+                                        "content_required" : false,
+                                        "enabled" : true,
+                                        "custom_actions" : [
+
+                                        ],
+                                        "subrole" : null,
+                                        "AXFrame" : "{{200.33333333333334, 83.333333333333329}, {1, 1.3333333333333286}}",
+                                        "AXUniqueId" : null,
+                                        "frame" : {
+                                          "width" : 1,
+                                          "x" : 200.33333333333334,
+                                          "height" : 1.3333333333333286,
+                                          "y" : 83.333333333333329
+                                        },
+                                        "type" : "Group",
+                                        "role" : "AXGroup",
+                                        "AXValue" : null
+                                      }
+                                    ],
+                                    "AXLabel" : "Your nights",
+                                    "role_description" : "heading",
+                                    "role" : "AXHeading",
+                                    "traits" : [
+
+                                    ],
+                                    "pid" : 36465,
+                                    "help" : null,
+                                    "type" : "Heading",
+                                    "title" : null,
+                                    "AXFrame" : "{{200.33333333333334, 83.333333333333329}, {1, 1.3333333333333286}}",
+                                    "subrole" : null,
+                                    "content_required" : false,
+                                    "custom_actions" : [
+
+                                    ]
+                                  }
+                                ],
+                                "AXLabel" : null,
+                                "AXFrame" : "{{0, 62}, {402, 54}}",
+                                "frame" : {
+                                  "width" : 402,
+                                  "x" : 0,
+                                  "height" : 54,
+                                  "y" : 62
+                                },
+                                "content_required" : false,
+                                "help" : null,
+                                "role_description" : "Nav bar",
+                                "pid" : 36465,
+                                "enabled" : true,
+                                "role" : "AXGroup",
+                                "title" : null,
+                                "traits" : [
+
+                                ]
+                              },
+                              {
+                                "custom_actions" : [
+
+                                ],
+                                "AXValue" : null,
+                                "content_required" : false,
+                                "role_description" : "group",
+                                "AXUniqueId" : null,
+                                "role" : "AXGroup",
+                                "pid" : 36465,
+                                "traits" : [
+
+                                ],
+                                "AXFrame" : "{{0, 0}, {402, 874}}",
+                                "subrole" : null,
+                                "frame" : {
+                                  "width" : 402,
+                                  "height" : 874,
+                                  "x" : 0,
+                                  "y" : 0
+                                },
+                                "enabled" : true,
+                                "children" : [
+                                  {
+                                    "content_required" : false,
+                                    "traits" : [
+
+                                    ],
+                                    "role" : "AXGroup",
+                                    "role_description" : "group",
+                                    "AXUniqueId" : null,
+                                    "pid" : 36465,
+                                    "AXLabel" : null,
+                                    "AXValue" : null,
+                                    "children" : [
+                                      {
+                                        "traits" : [
+
+                                        ],
+                                        "AXLabel" : null,
+                                        "title" : null,
+                                        "AXValue" : null,
+                                        "custom_actions" : [
+
+                                        ],
+                                        "type" : "Group",
+                                        "AXFrame" : "{{0, 0}, {402, 874}}",
+                                        "frame" : {
+                                          "width" : 402,
+                                          "x" : 0,
+                                          "height" : 874,
+                                          "y" : 0
+                                        },
+                                        "role_description" : "group",
+                                        "subrole" : null,
+                                        "role" : "AXGroup",
+                                        "AXUniqueId" : null,
+                                        "enabled" : true,
+                                        "content_required" : false,
+                                        "pid" : 36465,
+                                        "help" : null,
+                                        "children" : [
+                                          {
+                                            "enabled" : true,
+                                            "role_description" : "group",
+                                            "type" : "Group",
+                                            "AXUniqueId" : null,
+                                            "title" : null,
+                                            "help" : null,
+                                            "AXFrame" : "{{0, 0}, {402, 874}}",
+                                            "traits" : [
+
+                                            ],
+                                            "children" : [
+                                              {
+                                                "AXUniqueId" : null,
+                                                "role" : "AXScrollArea",
+                                                "frame" : {
+                                                  "width" : 402,
+                                                  "height" : 874,
+                                                  "x" : 0,
+                                                  "y" : 0
+                                                },
+                                                "role_description" : "Group",
+                                                "pid" : 36465,
+                                                "children" : [
+                                                  {
+                                                    "AXLabel" : null,
+                                                    "enabled" : true,
+                                                    "AXFrame" : "{{0, 0}, {402, 874}}",
+                                                    "traits" : [
+
+                                                    ],
+                                                    "pid" : 36465,
+                                                    "children" : [
+                                                      {
+                                                        "title" : null,
+                                                        "AXLabel" : null,
+                                                        "AXValue" : null,
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "content_required" : false,
+                                                        "AXFrame" : "{{0, 0}, {402, 170.80000000000001}}",
+                                                        "subrole" : null,
+                                                        "role" : "AXGroup",
+                                                        "role_description" : "group",
+                                                        "type" : "Group",
+                                                        "children" : [
+
+                                                        ],
+                                                        "enabled" : true,
+                                                        "frame" : {
+                                                          "width" : 402,
+                                                          "x" : 0,
+                                                          "height" : 170.80000000000001,
+                                                          "y" : 0
+                                                        },
+                                                        "traits" : [
+
+                                                        ],
+                                                        "AXUniqueId" : null,
+                                                        "pid" : 36465,
+                                                        "help" : null
+                                                      }
+                                                    ],
+                                                    "AXUniqueId" : null,
+                                                    "frame" : {
+                                                      "width" : 402,
+                                                      "height" : 874,
+                                                      "x" : 0,
+                                                      "y" : 0
+                                                    },
+                                                    "subrole" : null,
+                                                    "AXValue" : null,
+                                                    "content_required" : false,
+                                                    "custom_actions" : [
+
+                                                    ],
+                                                    "type" : "Group",
+                                                    "role_description" : "group",
+                                                    "help" : null,
+                                                    "role" : "AXGroup",
+                                                    "title" : null
+                                                  },
+                                                  {
+                                                    "role_description" : "group",
+                                                    "frame" : {
+                                                      "width" : 402,
+                                                      "height" : 874,
+                                                      "x" : 0,
+                                                      "y" : 0
+                                                    },
+                                                    "type" : "Group",
+                                                    "content_required" : false,
+                                                    "pid" : 36465,
+                                                    "help" : null,
+                                                    "AXUniqueId" : null,
+                                                    "custom_actions" : [
+
+                                                    ],
+                                                    "AXLabel" : null,
+                                                    "children" : [
+
+                                                    ],
+                                                    "traits" : [
+
+                                                    ],
+                                                    "enabled" : true,
+                                                    "role" : "AXGroup",
+                                                    "AXFrame" : "{{0, 0}, {402, 874}}",
+                                                    "AXValue" : null,
+                                                    "subrole" : null,
+                                                    "title" : null
+                                                  },
+                                                  {
+                                                    "pid" : 36465,
+                                                    "title" : null,
+                                                    "custom_actions" : [
+
+                                                    ],
+                                                    "AXUniqueId" : null,
+                                                    "AXLabel" : null,
+                                                    "subrole" : null,
+                                                    "children" : [
+                                                      {
+                                                        "AXFrame" : "{{23.999999999999972, 124}, {153.33333333333331, 36}}",
+                                                        "role" : "AXHeading",
+                                                        "AXLabel" : "Your nights",
+                                                        "role_description" : "heading",
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "AXUniqueId" : null,
+                                                        "help" : null,
+                                                        "content_required" : false,
+                                                        "enabled" : true,
+                                                        "children" : [
+
+                                                        ],
+                                                        "pid" : 36465,
+                                                        "traits" : [
+
+                                                        ],
+                                                        "frame" : {
+                                                          "width" : 153.33333333333331,
+                                                          "x" : 23.999999999999972,
+                                                          "height" : 36,
+                                                          "y" : 124
+                                                        },
+                                                        "type" : "Heading",
+                                                        "subrole" : null,
+                                                        "title" : null,
+                                                        "AXValue" : null
+                                                      },
+                                                      {
+                                                        "content_required" : false,
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "AXLabel" : null,
+                                                        "traits" : [
+
+                                                        ],
+                                                        "role" : "AXTabGroup",
+                                                        "subrole" : null,
+                                                        "enabled" : true,
+                                                        "role_description" : "tab group",
+                                                        "title" : null,
+                                                        "AXValue" : null,
+                                                        "frame" : {
+                                                          "width" : 354,
+                                                          "height" : 31,
+                                                          "x" : 24.000000000000057,
+                                                          "y" : 176
+                                                        },
+                                                        "AXUniqueId" : null,
+                                                        "type" : "TabGroup",
+                                                        "help" : null,
+                                                        "pid" : 36465,
+                                                        "children" : [
+                                                          {
+                                                            "title" : null,
+                                                            "subrole" : "AXTabButton",
+                                                            "traits" : [
+
+                                                            ],
+                                                            "AXUniqueId" : null,
+                                                            "AXLabel" : "Week",
+                                                            "AXFrame" : "{{24, 176}, {118, 32}}",
+                                                            "AXValue" : 0,
+                                                            "custom_actions" : [
+
+                                                            ],
+                                                            "children" : [
+
+                                                            ],
+                                                            "type" : "RadioButton",
+                                                            "content_required" : false,
+                                                            "enabled" : true,
+                                                            "pid" : 36465,
+                                                            "help" : null,
+                                                            "frame" : {
+                                                              "width" : 118,
+                                                              "height" : 32,
+                                                              "x" : 24,
+                                                              "y" : 176
+                                                            },
+                                                            "role_description" : "tab",
+                                                            "role" : "AXRadioButton"
+                                                          },
+                                                          {
+                                                            "type" : "RadioButton",
+                                                            "content_required" : false,
+                                                            "AXLabel" : "Month",
+                                                            "custom_actions" : [
+
+                                                            ],
+                                                            "role_description" : "tab",
+                                                            "children" : [
+
+                                                            ],
+                                                            "traits" : [
+
+                                                            ],
+                                                            "AXUniqueId" : null,
+                                                            "role" : "AXRadioButton",
+                                                            "subrole" : "AXTabButton",
+                                                            "pid" : 36465,
+                                                            "AXValue" : 1,
+                                                            "help" : null,
+                                                            "enabled" : true,
+                                                            "frame" : {
+                                                              "width" : 118,
+                                                              "x" : 142,
+                                                              "height" : 32,
+                                                              "y" : 176
+                                                            },
+                                                            "AXFrame" : "{{142, 176}, {118, 32}}",
+                                                            "title" : null
+                                                          },
+                                                          {
+                                                            "help" : null,
+                                                            "children" : [
+
+                                                            ],
+                                                            "AXFrame" : "{{260, 176}, {118, 32}}",
+                                                            "pid" : 36465,
+                                                            "custom_actions" : [
+
+                                                            ],
+                                                            "title" : null,
+                                                            "AXUniqueId" : null,
+                                                            "content_required" : false,
+                                                            "AXLabel" : "All",
+                                                            "enabled" : true,
+                                                            "frame" : {
+                                                              "width" : 118,
+                                                              "x" : 260,
+                                                              "height" : 32,
+                                                              "y" : 176
+                                                            },
+                                                            "type" : "RadioButton",
+                                                            "role" : "AXRadioButton",
+                                                            "traits" : [
+
+                                                            ],
+                                                            "AXValue" : 0,
+                                                            "subrole" : "AXTabButton",
+                                                            "role_description" : "tab"
+                                                          }
+                                                        ],
+                                                        "AXFrame" : "{{24.000000000000057, 176}, {354, 31}}"
+                                                      },
+                                                      {
+                                                        "children" : [
+                                                          {
+                                                            "AXLabel" : "4",
+                                                            "enabled" : true,
+                                                            "frame" : {
+                                                              "width" : 14,
+                                                              "height" : 26.333333333333343,
+                                                              "x" : 23.999999999999972,
+                                                              "y" : 227.873046875
+                                                            },
+                                                            "custom_actions" : [
+
+                                                            ],
+                                                            "children" : [
+
+                                                            ],
+                                                            "content_required" : false,
+                                                            "AXUniqueId" : null,
+                                                            "traits" : [
+
+                                                            ],
+                                                            "title" : null,
+                                                            "help" : null,
+                                                            "AXValue" : null,
+                                                            "pid" : 36465,
+                                                            "role_description" : "text",
+                                                            "subrole" : null,
+                                                            "role" : "AXStaticText",
+                                                            "AXFrame" : "{{23.999999999999972, 227.873046875}, {14, 26.333333333333343}}",
+                                                            "type" : "StaticText"
+                                                          },
+                                                          {
+                                                            "type" : "StaticText",
+                                                            "traits" : [
+
+                                                            ],
+                                                            "AXLabel" : "nights blocked since Nov 16",
+                                                            "frame" : {
+                                                              "width" : 158.33333333333331,
+                                                              "height" : 14.333333333333314,
+                                                              "x" : 23.999999999999972,
+                                                              "y" : 257.91927083333337
+                                                            },
+                                                            "help" : null,
+                                                            "custom_actions" : [
+
+                                                            ],
+                                                            "children" : [
+
+                                                            ],
+                                                            "content_required" : false,
+                                                            "role_description" : "text",
+                                                            "AXUniqueId" : null,
+                                                            "pid" : 36465,
+                                                            "title" : null,
+                                                            "AXValue" : null,
+                                                            "role" : "AXStaticText",
+                                                            "AXFrame" : "{{23.999999999999972, 257.91927083333337}, {158.33333333333331, 14.333333333333314}}",
+                                                            "enabled" : true,
+                                                            "subrole" : null
+                                                          }
+                                                        ],
+                                                        "enabled" : true,
+                                                        "help" : null,
+                                                        "AXFrame" : "{{24, 227.873046875}, {158.33332824707031, 44.37957763671875}}",
+                                                        "role" : "AXStaticText",
+                                                        "traits" : [
+
+                                                        ],
+                                                        "AXValue" : null,
+                                                        "content_required" : false,
+                                                        "title" : null,
+                                                        "AXUniqueId" : null,
+                                                        "frame" : {
+                                                          "width" : 158.33332824707031,
+                                                          "x" : 24,
+                                                          "height" : 44.37957763671875,
+                                                          "y" : 227.873046875
+                                                        },
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "type" : "StaticText",
+                                                        "AXLabel" : "4, nights blocked since Nov 16",
+                                                        "subrole" : null,
+                                                        "pid" : 36465,
+                                                        "role_description" : "text"
+                                                      },
+                                                      {
+                                                        "title" : null,
+                                                        "enabled" : true,
+                                                        "AXValue" : null,
+                                                        "role_description" : "text",
+                                                        "AXUniqueId" : null,
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "help" : null,
+                                                        "AXLabel" : "96 h, blocked at night",
+                                                        "subrole" : null,
+                                                        "frame" : {
+                                                          "width" : 91.333343505859375,
+                                                          "height" : 44.37957763671875,
+                                                          "x" : 215,
+                                                          "y" : 227.873046875
+                                                        },
+                                                        "role" : "AXStaticText",
+                                                        "traits" : [
+
+                                                        ],
+                                                        "pid" : 36465,
+                                                        "children" : [
+                                                          {
+                                                            "help" : null,
+                                                            "frame" : {
+                                                              "width" : 45.666666666666686,
+                                                              "height" : 26.333333333333343,
+                                                              "x" : 215,
+                                                              "y" : 227.873046875
+                                                            },
+                                                            "pid" : 36465,
+                                                            "custom_actions" : [
+
+                                                            ],
+                                                            "traits" : [
+
+                                                            ],
+                                                            "children" : [
+
+                                                            ],
+                                                            "type" : "StaticText",
+                                                            "AXUniqueId" : null,
+                                                            "content_required" : false,
+                                                            "role_description" : "text",
+                                                            "title" : null,
+                                                            "AXLabel" : "96 h",
+                                                            "subrole" : null,
+                                                            "role" : "AXStaticText",
+                                                            "enabled" : true,
+                                                            "AXFrame" : "{{215, 227.873046875}, {45.666666666666686, 26.333333333333343}}",
+                                                            "AXValue" : null
+                                                          },
+                                                          {
+                                                            "title" : null,
+                                                            "AXValue" : null,
+                                                            "children" : [
+
+                                                            ],
+                                                            "frame" : {
+                                                              "width" : 91.333333333333314,
+                                                              "x" : 215,
+                                                              "height" : 14.333333333333314,
+                                                              "y" : 257.91927083333337
+                                                            },
+                                                            "AXFrame" : "{{215, 257.91927083333337}, {91.333333333333314, 14.333333333333314}}",
+                                                            "enabled" : true,
+                                                            "role_description" : "text",
+                                                            "custom_actions" : [
+
+                                                            ],
+                                                            "AXLabel" : "blocked at night",
+                                                            "content_required" : false,
+                                                            "pid" : 36465,
+                                                            "subrole" : null,
+                                                            "traits" : [
+
+                                                            ],
+                                                            "help" : null,
+                                                            "type" : "StaticText",
+                                                            "role" : "AXStaticText",
+                                                            "AXUniqueId" : null
+                                                          }
+                                                        ],
+                                                        "content_required" : false,
+                                                        "AXFrame" : "{{215, 227.873046875}, {91.333343505859375, 44.37957763671875}}",
+                                                        "type" : "StaticText"
+                                                      },
+                                                      {
+                                                        "traits" : [
+
+                                                        ],
+                                                        "AXValue" : null,
+                                                        "title" : null,
+                                                        "role_description" : "heading",
+                                                        "frame" : {
+                                                          "width" : 149.33333333333331,
+                                                          "x" : 39.999999999999972,
+                                                          "height" : 18,
+                                                          "y" : 310.14225260416663
+                                                        },
+                                                        "content_required" : false,
+                                                        "pid" : 36465,
+                                                        "role" : "AXHeading",
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "enabled" : true,
+                                                        "help" : null,
+                                                        "AXUniqueId" : null,
+                                                        "children" : [
+
+                                                        ],
+                                                        "subrole" : null,
+                                                        "AXLabel" : "Times it stopped you",
+                                                        "AXFrame" : "{{39.999999999999972, 310.14225260416663}, {149.33333333333331, 18}}",
+                                                        "type" : "Heading"
+                                                      },
+                                                      {
+                                                        "traits" : [
+
+                                                        ],
+                                                        "subrole" : null,
+                                                        "role_description" : "",
+                                                        "AXFrame" : "{{40, 341.2158203125}, {74.333335876464844, 95.53973388671875}}",
+                                                        "enabled" : true,
+                                                        "content_required" : false,
+                                                        "AXLabel" : "Week 1, 10",
+                                                        "AXUniqueId" : null,
+                                                        "help" : null,
+                                                        "role" : "AXGenericElement",
+                                                        "title" : null,
+                                                        "frame" : {
+                                                          "width" : 74.333335876464844,
+                                                          "x" : 40,
+                                                          "height" : 95.53973388671875,
+                                                          "y" : 341.2158203125
+                                                        },
+                                                        "pid" : 36465,
+                                                        "children" : [
+                                                          {
+                                                            "AXFrame" : "{{70.249999999999986, 341.2158203125}, {14, 13.333333333333314}}",
+                                                            "traits" : [
+
+                                                            ],
+                                                            "frame" : {
+                                                              "width" : 14,
+                                                              "x" : 70.249999999999986,
+                                                              "height" : 13.333333333333314,
+                                                              "y" : 341.2158203125
+                                                            },
+                                                            "AXUniqueId" : null,
+                                                            "title" : null,
+                                                            "content_required" : false,
+                                                            "help" : null,
+                                                            "role" : "AXStaticText",
+                                                            "AXValue" : null,
+                                                            "AXLabel" : "10",
+                                                            "role_description" : "text",
+                                                            "type" : "StaticText",
+                                                            "pid" : 36465,
+                                                            "custom_actions" : [
+
+                                                            ],
+                                                            "enabled" : true,
+                                                            "children" : [
+
+                                                            ],
+                                                            "subrole" : null
+                                                          },
+                                                          {
+                                                            "content_required" : false,
+                                                            "AXLabel" : "Week 1",
+                                                            "frame" : {
+                                                              "width" : 38,
+                                                              "height" : 13.333333333333371,
+                                                              "x" : 58.249999999999986,
+                                                              "y" : 423.42220052083337
+                                                            },
+                                                            "title" : null,
+                                                            "AXFrame" : "{{58.249999999999986, 423.42220052083337}, {38, 13.333333333333371}}",
+                                                            "custom_actions" : [
+
+                                                            ],
+                                                            "enabled" : true,
+                                                            "children" : [
+
+                                                            ],
+                                                            "type" : "StaticText",
+                                                            "traits" : [
+
+                                                            ],
+                                                            "pid" : 36465,
+                                                            "subrole" : null,
+                                                            "role" : "AXStaticText",
+                                                            "help" : null,
+                                                            "role_description" : "text",
+                                                            "AXValue" : null,
+                                                            "AXUniqueId" : null
+                                                          }
+                                                        ],
+                                                        "AXValue" : null,
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "type" : "GenericElement"
+                                                      },
+                                                      {
+                                                        "traits" : [
+
+                                                        ],
+                                                        "AXLabel" : "When it stopped you",
+                                                        "pid" : 36465,
+                                                        "help" : null,
+                                                        "enabled" : true,
+                                                        "type" : "Heading",
+                                                        "children" : [
+
+                                                        ],
+                                                        "title" : null,
+                                                        "frame" : {
+                                                          "width" : 147,
+                                                          "x" : 40,
+                                                          "height" : 18,
+                                                          "y" : 482.24186197916663
+                                                        },
+                                                        "AXFrame" : "{{40, 482.24186197916663}, {147, 18}}",
+                                                        "role_description" : "heading",
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "AXUniqueId" : null,
+                                                        "subrole" : null,
+                                                        "content_required" : false,
+                                                        "role" : "AXHeading",
+                                                        "AXValue" : null
+                                                      },
+                                                      {
+                                                        "role" : "AXStaticText",
+                                                        "type" : "StaticText",
+                                                        "AXValue" : null,
+                                                        "pid" : 36465,
+                                                        "children" : [
+
+                                                        ],
+                                                        "AXUniqueId" : null,
+                                                        "content_required" : false,
+                                                        "AXLabel" : "10 pm",
+                                                        "help" : null,
+                                                        "frame" : {
+                                                          "width" : 31,
+                                                          "height" : 13.333333333333371,
+                                                          "x" : 40,
+                                                          "y" : 569.72819010416663
+                                                        },
+                                                        "title" : null,
+                                                        "role_description" : "text",
+                                                        "traits" : [
+
+                                                        ],
+                                                        "AXFrame" : "{{40, 569.72819010416663}, {31, 13.333333333333371}}",
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "enabled" : true,
+                                                        "subrole" : null
+                                                      },
+                                                      {
+                                                        "enabled" : true,
+                                                        "children" : [
+
+                                                        ],
+                                                        "role" : "AXStaticText",
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "pid" : 36465,
+                                                        "AXUniqueId" : null,
+                                                        "content_required" : false,
+                                                        "traits" : [
+
+                                                        ],
+                                                        "frame" : {
+                                                          "width" : 72.666666666666657,
+                                                          "x" : 167.66666666666669,
+                                                          "height" : 13.333333333333371,
+                                                          "y" : 569.72819010416663
+                                                        },
+                                                        "role_description" : "text",
+                                                        "type" : "StaticText",
+                                                        "AXValue" : null,
+                                                        "title" : null,
+                                                        "AXFrame" : "{{167.66666666666669, 569.72819010416663}, {72.666666666666657, 13.333333333333371}}",
+                                                        "help" : null,
+                                                        "AXLabel" : "Most at 11 pm",
+                                                        "subrole" : null
+                                                      },
+                                                      {
+                                                        "AXUniqueId" : null,
+                                                        "title" : null,
+                                                        "subrole" : null,
+                                                        "AXLabel" : "6 am",
+                                                        "type" : "StaticText",
+                                                        "AXValue" : null,
+                                                        "traits" : [
+
+                                                        ],
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "help" : null,
+                                                        "enabled" : true,
+                                                        "pid" : 36465,
+                                                        "children" : [
+
+                                                        ],
+                                                        "role" : "AXStaticText",
+                                                        "AXFrame" : "{{337.00000000000006, 569.72819010416663}, {25, 13.333333333333371}}",
+                                                        "role_description" : "text",
+                                                        "content_required" : false,
+                                                        "frame" : {
+                                                          "width" : 25,
+                                                          "x" : 337.00000000000006,
+                                                          "height" : 13.333333333333371,
+                                                          "y" : 569.72819010416663
+                                                        }
+                                                      }
+                                                    ],
+                                                    "role" : "AXGroup",
+                                                    "content_required" : false,
+                                                    "role_description" : "group",
+                                                    "frame" : {
+                                                      "width" : 401.99999999999994,
+                                                      "x" : 0,
+                                                      "height" : 515.33333333333326,
+                                                      "y" : 116
+                                                    },
+                                                    "help" : null,
+                                                    "AXFrame" : "{{0, 116}, {401.99999999999994, 515.33333333333326}}",
+                                                    "traits" : [
+
+                                                    ],
+                                                    "AXValue" : null,
+                                                    "type" : "Group",
+                                                    "enabled" : true
+                                                  },
+                                                  {
+                                                    "title" : null,
+                                                    "frame" : {
+                                                      "width" : 30,
+                                                      "x" : 369,
+                                                      "height" : 696,
+                                                      "y" : 116
+                                                    },
+                                                    "custom_actions" : [
+
+                                                    ],
+                                                    "role_description" : "slider",
+                                                    "role" : "AXSlider",
+                                                    "content_required" : false,
+                                                    "enabled" : true,
+                                                    "help" : null,
+                                                    "children" : [
+                                                      {
+                                                        "AXUniqueId" : null,
+                                                        "AXLabel" : null,
+                                                        "pid" : 36465,
+                                                        "role" : "AXGroup",
+                                                        "subrole" : null,
+                                                        "enabled" : true,
+                                                        "help" : null,
+                                                        "frame" : {
+                                                          "width" : 3,
+                                                          "x" : 396,
+                                                          "height" : 481.33333333333337,
+                                                          "y" : 327.66666666666663
+                                                        },
+                                                        "content_required" : false,
+                                                        "children" : [
+
+                                                        ],
+                                                        "traits" : [
+
+                                                        ],
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "title" : null,
+                                                        "AXValue" : null,
+                                                        "AXFrame" : "{{396, 327.66666666666663}, {3, 481.33333333333337}}",
+                                                        "role_description" : "group",
+                                                        "type" : "Group"
+                                                      }
+                                                    ],
+                                                    "pid" : 36465,
+                                                    "subrole" : null,
+                                                    "AXValue" : "0%",
+                                                    "AXFrame" : "{{369, 116}, {30, 696}}",
+                                                    "type" : "Slider",
+                                                    "traits" : [
+
+                                                    ],
+                                                    "AXUniqueId" : null,
+                                                    "AXLabel" : "Vertical scroll bar, 1 page"
+                                                  },
+                                                  {
+                                                    "role_description" : "slider",
+                                                    "enabled" : true,
+                                                    "AXFrame" : "{{369, 116}, {30, 696}}",
+                                                    "frame" : {
+                                                      "width" : 30,
+                                                      "x" : 369,
+                                                      "height" : 696,
+                                                      "y" : 116
+                                                    },
+                                                    "title" : null,
+                                                    "AXValue" : "0%",
+                                                    "type" : "Slider",
+                                                    "help" : null,
+                                                    "content_required" : false,
+                                                    "AXUniqueId" : null,
+                                                    "children" : [
+                                                      {
+                                                        "AXLabel" : null,
+                                                        "enabled" : true,
+                                                        "AXValue" : null,
+                                                        "frame" : {
+                                                          "width" : 3,
+                                                          "x" : 396,
+                                                          "height" : 481.33333333333337,
+                                                          "y" : 327.66666666666663
+                                                        },
+                                                        "AXFrame" : "{{396, 327.66666666666663}, {3, 481.33333333333337}}",
+                                                        "pid" : 36465,
+                                                        "type" : "Group",
+                                                        "title" : null,
+                                                        "role_description" : "group",
+                                                        "content_required" : false,
+                                                        "role" : "AXGroup",
+                                                        "subrole" : null,
+                                                        "custom_actions" : [
+
+                                                        ],
+                                                        "help" : null,
+                                                        "children" : [
+
+                                                        ],
+                                                        "AXUniqueId" : null,
+                                                        "traits" : [
+
+                                                        ]
+                                                      }
+                                                    ],
+                                                    "traits" : [
+
+                                                    ],
+                                                    "AXLabel" : "Vertical scroll bar, 1 page",
+                                                    "custom_actions" : [
+
+                                                    ],
+                                                    "subrole" : null,
+                                                    "pid" : 36465,
+                                                    "role" : "AXSlider"
+                                                  }
+                                                ],
+                                                "traits" : [
+
+                                                ],
+                                                "subrole" : null,
+                                                "AXFrame" : "{{0, 0}, {402, 874}}",
+                                                "content_required" : false,
+                                                "title" : null,
+                                                "enabled" : true,
+                                                "AXValue" : null,
+                                                "help" : null,
+                                                "AXLabel" : null,
+                                                "custom_actions" : [
+
+                                                ],
+                                                "type" : "ScrollArea"
+                                              }
+                                            ],
+                                            "AXLabel" : null,
+                                            "frame" : {
+                                              "width" : 402,
+                                              "x" : 0,
+                                              "height" : 874,
+                                              "y" : 0
+                                            },
+                                            "AXValue" : null,
+                                            "role" : "AXGroup",
+                                            "pid" : 36465,
+                                            "custom_actions" : [
+
+                                            ],
+                                            "content_required" : false,
+                                            "subrole" : null
+                                          }
+                                        ]
+                                      }
+                                    ],
+                                    "custom_actions" : [
+
+                                    ],
+                                    "help" : null,
+                                    "enabled" : true,
+                                    "title" : null,
+                                    "type" : "Group",
+                                    "subrole" : null,
+                                    "AXFrame" : "{{0, 0}, {402, 874}}",
+                                    "frame" : {
+                                      "width" : 402,
+                                      "x" : 0,
+                                      "height" : 874,
+                                      "y" : 0
+                                    }
+                                  }
+                                ],
+                                "title" : null,
+                                "AXLabel" : null,
+                                "type" : "Group",
+                                "help" : null
+                              },
+                              {
+                                "subrole" : null,
+                                "traits" : [
+
+                                ],
+                                "role" : "AXGroup",
+                                "AXUniqueId" : null,
+                                "AXFrame" : "{{0, 0}, {402, 874}}",
+                                "children" : [
+                                  {
+                                    "content_required" : false,
+                                    "role_description" : "group",
+                                    "subrole" : null,
+                                    "AXUniqueId" : null,
+                                    "AXFrame" : "{{0, 0}, {402, 874}}",
+                                    "children" : [
+
+                                    ],
+                                    "frame" : {
+                                      "width" : 402,
+                                      "x" : 0,
+                                      "height" : 874,
+                                      "y" : 0
+                                    },
+                                    "custom_actions" : [
+
+                                    ],
+                                    "role" : "AXGroup",
+                                    "type" : "Group",
+                                    "pid" : 36465,
+                                    "AXValue" : null,
+                                    "traits" : [
+
+                                    ],
+                                    "AXLabel" : null,
+                                    "enabled" : true,
+                                    "help" : null,
+                                    "title" : null
+                                  }
+                                ],
+                                "enabled" : true,
+                                "AXLabel" : null,
+                                "title" : null,
+                                "AXValue" : null,
+                                "frame" : {
+                                  "width" : 402,
+                                  "x" : 0,
+                                  "height" : 874,
+                                  "y" : 0
+                                },
+                                "help" : null,
+                                "role_description" : "group",
+                                "custom_actions" : [
+
+                                ],
+                                "pid" : 36465,
+                                "type" : "Group",
+                                "content_required" : false
+                              }
+                            ],
+                            "AXFrame" : "{{0, 0}, {402, 874}}",
+                            "traits" : [
+
+                            ],
+                            "enabled" : true,
+                            "AXUniqueId" : null,
+                            "subrole" : null,
+                            "title" : null,
+                            "pid" : 36465,
+                            "AXValue" : null
+                          }
+                        ]
+                      }
+                    ],
+                    "traits" : [
+
+                    ],
+                    "role_description" : "group",
+                    "subrole" : null,
+                    "help" : null,
+                    "custom_actions" : [
+
+                    ],
+                    "role" : "AXGroup",
+                    "frame" : {
+                      "width" : 402,
+                      "x" : 0,
+                      "height" : 874,
+                      "y" : 0
+                    },
+                    "AXValue" : null,
+                    "AXFrame" : "{{0, 0}, {402, 874}}",
+                    "title" : null,
+                    "pid" : 36465,
+                    "AXUniqueId" : null,
+                    "AXLabel" : null,
+                    "content_required" : false,
+                    "enabled" : true
+                  }
+                ],
+                "traits" : [
+
+                ],
+                "frame" : {
+                  "width" : 402,
+                  "x" : 0,
+                  "height" : 874,
+                  "y" : 0
+                },
+                "title" : null,
+                "AXFrame" : "{{0, 0}, {402, 874}}",
+                "AXLabel" : null,
+                "subrole" : null,
+                "pid" : 36465,
+                "type" : "Group",
+                "role" : "AXGroup",
+                "role_description" : "group"
+              }
+            ],
+            "pid" : 36465,
+            "type" : "Group",
+            "AXUniqueId" : null,
+            "AXLabel" : null
+          }
+        ],
+        "custom_actions" : [
+
+        ],
+        "role_description" : "group",
+        "AXValue" : null
+      }
+    ],
+    "frame" : {
+      "width" : 402,
+      "x" : 0,
+      "height" : 874,
+      "y" : 0
+    }
+  }
+]
