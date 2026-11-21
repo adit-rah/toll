@@ -54,6 +54,8 @@ extension Copy {
     public static let contact = "Contact"
     public static let log = "Transition log"
     public static let logEmpty = "Nothing yet."
+    /// Testing only, with the transition log: the night records as a file (#51).
+    public static let shareNights = "Share night records"
     public static let version = "Version"
 
     public static func line(_ transition: Transition, in calendar: Calendar = .current) -> String {

@@ -47,6 +47,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 29 | Location While Using; save a Study block at a place, choose "Only at …" (#63) | No block during its hours away from the place or at it; rows say "Needs Always location"; after switching to Always it runs only at the place | Pass (21 Nov, founder) | |
 | 30 | A night away, then a blocked night, with an unlock spent before (#61) | The refill's "N more blocked nights" drops by one only after the blocked night | | |
 | 31 | Block screen of an app on a Study block, then on Sleep, with 2 unlocks left (#75) | The picture is a book over ●●○ for Study, a moon over ●●○ for Sleep | | |
+| 32 | After two nights, Settings › Transition log › Share night records (#51) | A file with one line per ended night; tonight's isn't there until it ends; opening the app again adds no duplicates | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

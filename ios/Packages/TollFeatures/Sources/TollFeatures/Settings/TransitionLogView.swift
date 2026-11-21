@@ -9,6 +9,10 @@ struct TransitionLogView: View {
   var body: some View {
     List {
       LabeledContent(Copy.Settings.version, value: AppLinks.version)
+      // For the founders' replays and data science (#51, #87): the night records as a file.
+      ShareLink(item: NightLog().url) {
+        Text(Copy.Settings.shareNights)
+      }
       if model.log.isEmpty {
         Text(Copy.Settings.logEmpty).tollType(.body, TollColor.label2)
       }

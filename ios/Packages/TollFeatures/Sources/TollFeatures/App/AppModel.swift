@@ -73,6 +73,7 @@ public final class AppModel {
     #endif
     readPermissions()
     send(.foreground)
+    recordNights()
     Task {
       setPurchased(await Purchase.isPurchased())
       // A region event can land while nothing was listening, such as before the first unlock after a
@@ -82,6 +83,16 @@ public final class AppModel {
         send(presence.isInside ? .arrived : .left, [.presence(place, presence)])
       }
     }
+  }
+
+  /// One record per ended Sleep night into the night log, so the nights outlive the transition
+  /// log's trimming (#51). Each night is written once.
+  func recordNights() {
+    guard let sleep = state.sleepBlock else { return }
+    let nights = NightFacts.ended(
+      log: log, sleep: sleep, since: state.setupFinishedAt, now: Date(), calendar: .current,
+      regret: TimeInterval(config.door.regretSeconds))
+    NightLog().record(nights, calendar: .current)
   }
 
   /// Every change goes through here.
