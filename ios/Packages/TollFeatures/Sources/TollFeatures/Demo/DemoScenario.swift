@@ -27,6 +27,7 @@
     case purchasePending = "purchase-pending"
     case purchaseFailed = "purchase-failed"
     case purchaseRestoreNone = "purchase-restore-none"
+    case purchaseDone = "purchase-done"
     case blocks
     case blockNew = "block-new"
     case blockEdit = "block-edit"
@@ -145,6 +146,7 @@
         case .purchaseFailed: PurchaseSheet(model: app, home: home, outcome: .failed)
         case .purchaseRestoreNone:
           PurchaseSheet(model: app, home: home, outcome: .nothingToRestore)
+        case .purchaseDone: PurchaseSheet(model: app, home: home, outcome: .purchased)
         default:
           TimelineView(.periodic(from: .now, by: 1)) { tick in DoorSheet(model: app, now: tick.date)
           }

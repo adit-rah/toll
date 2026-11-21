@@ -22,6 +22,9 @@ public struct HomeSnapshot: Equatable, Sendable {
 
     public var text: String
     public var kind: Kind
+    /// The free night it is (from 1), drawn as segments beside the words (#77); nil for away.
+    public var night: Int?
+    public var nights = 7
 
     public var opensPurchase: Bool { kind == .lastNight }
   }
@@ -225,9 +228,12 @@ public struct HomeSnapshot: Equatable, Sendable {
         config: config)
     else { return nil }
     if night == config.trial.nights {
-      return Pill(text: Copy.Home.lastNightPill, kind: .lastNight)
+      return Pill(
+        text: Copy.Home.lastNightPill, kind: .lastNight, night: night, nights: config.trial.nights)
     }
-    return Pill(text: Copy.Home.nightPill(night, of: config.trial.nights), kind: .trial)
+    return Pill(
+      text: Copy.Home.nightPill(night, of: config.trial.nights), kind: .trial, night: night,
+      nights: config.trial.nights)
   }
 
   static func timeline(
