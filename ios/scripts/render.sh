@@ -6,7 +6,8 @@
 #   ios/scripts/render.sh [out-dir]          default out-dir: build/renders
 #   SCENARIOS  one per line: `<scenario>` or `<scenario>: <axe step>; <axe step>…`
 #              (default: every scenario in ALL below)
-#   VARIANTS   any of light dark ax5 dark-ax5, space-separated (default: light)
+#   VARIANTS   any of light dark ax5 dark-ax5 wordless dark-wordless, space-separated (default: light).
+#              wordless draws every line of text as a placeholder bar (docs/design.md §5).
 #   UDID       the simulator to use (default: render-device.sh picks and boots one)
 #   XCODEBUILD_ARGS  extra xcodebuild arguments (CI passes its package cache)
 #   BUILD_ONLY=1     build and stop
@@ -119,7 +120,8 @@ capture() {
   first=$(($(lines) + 1))
   # One scenario that will not open is a finding, not a reason to lose the others.
   if ! { xcrun simctl install "$UDID" "$APP" &&
-    xcrun simctl launch "$UDID" "$BUNDLE" -TollDemo "$scenario"; } >"$dir/launch.txt" 2>&1; then
+    xcrun simctl launch "$UDID" "$BUNDLE" -TollDemo "$scenario" -TollWordless "$wordless"; } \
+    >"$dir/launch.txt" 2>&1; then
     echo "$variant/$(slug "$line"): did not launch" >&2
   fi
   drawn=$(settle)
@@ -144,6 +146,7 @@ capture() {
 for variant in $VARIANTS; do
   case $variant in *dark*) appearance=dark ;; *) appearance=light ;; esac
   case $variant in *ax5*) size=accessibility-extra-extra-extra-large ;; *) size=large ;; esac
+  case $variant in *wordless*) wordless=YES ;; *) wordless=NO ;; esac
   xcrun simctl ui "$UDID" appearance "$appearance"
   xcrun simctl ui "$UDID" content_size "$size"
   while IFS= read -r line; do

@@ -109,3 +109,20 @@ SF Symbols, monochrome, outline where the canvas draws outlines. A gear for Sett
 - VoiceOver: every control has a label; the countdown is spoken in 30 s steps and announced every 30 s, never every second; Status's lines read as one sentence each.
 - Colour never carries meaning alone.
 - Contrast and Increase Contrast variants for every token. Touch targets ≥ 44 pt.
+
+## 5. The wordless test
+
+The founders' measure of understandability (21 Nov 2026): **if every character on the screen were wiped, or the screen were in a language the user can't read, could they still understand what they're seeing?** Words should confirm what the screen already shows, not carry it alone.
+
+A screen passes when, from its shapes, symbols, numbers, colour and position, someone can tell:
+
+1. **Where am I?** Which screen, and which state it's in (blocked, waiting, paused, away, off).
+2. **What's true now?** Is anything blocked, roughly until when, and what happens next.
+3. **What do I do?** The one main action, and what's safe to ignore.
+4. **Did it work?** After acting, the screen visibly changes to say so.
+
+Two levels:
+- **Wordless** (strict): every line is a bar, digits included. Render variant `wordless` (or `dark-wordless`) draws each `tollType` line as a placeholder bar. Judge with the normal render beside it.
+- **Foreign** (lenient): letters unreadable, digits and symbols kept. Numbers, times and counts carry meaning here, which is why principle 4 holds.
+
+How a screen earns it: one symbol per concept, used everywhere (a moon is Sleep, a lock is an unlock, a pin is a place); geometry for time and supply (the night strip, pips, bars); position that means the same thing on every screen (state at the top, the one action at the bottom); and colour only together with a shape or symbol (§4). This amends principle 4's "icons are rare" to "a symbol wherever it carries a concept". Decoration is still out.
