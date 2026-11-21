@@ -158,6 +158,7 @@ struct HomeHero: View {
   var place: HomeSnapshot.HeroPlace?
   var supply: HomeSnapshot.Supply?
   let openDoor: (() -> Void)?
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
     VStack(spacing: 6) {
@@ -197,7 +198,11 @@ struct HomeHero: View {
       // The door is the escape hatch: findable, not inviting (D61). A small grey capsule beside the
       // unlocks, not an amber button across the screen.
       if case .blocked = hero, let supply {
-        HStack(spacing: 14) {
+        // Side by side; stacked at accessibility sizes so the capsule never squeezes.
+        let layout =
+          typeSize.isAccessibilitySize
+          ? AnyLayout(VStackLayout(spacing: 10)) : AnyLayout(HStackLayout(spacing: 14))
+        layout {
           Pips(
             filled: supply.left, total: supply.max,
             spoken: Copy.Door.unlocksLeft(supply.left, of: supply.max))
