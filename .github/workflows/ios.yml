@@ -30,6 +30,10 @@ jobs:
           ios/scripts/next-version.sh --check
       - name: TollCore tests
         run: swift test --package-path ios/Packages/TollCore
+      - name: SleepModel tests and artifact check
+        run: |
+          swift test --package-path ios/Packages/SleepModel
+          ios/scripts/check-model-artifact.sh
       # arm64 only: every iPhone and every Mac runner is arm64, and a second architecture doubled the
       # compile for nothing. No index store: only the editor reads it. Package resolution off, as
       # Xcode Cloud has it, so a build that Xcode Cloud would refuse fails here first.

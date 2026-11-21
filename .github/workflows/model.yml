@@ -1,0 +1,62 @@
+name: model
+
+on:
+  push:
+    paths:
+      - "datascience/**"
+      - "ios/Packages/SleepModel/**"
+      - "ios/scripts/sync-model.sh"
+      - "ios/scripts/check-model-artifact.sh"
+      - ".github/workflows/model.yml"
+  pull_request:
+    paths:
+      - "datascience/**"
+      - "ios/Packages/SleepModel/**"
+      - "ios/scripts/sync-model.sh"
+      - "ios/scripts/check-model-artifact.sh"
+      - ".github/workflows/model.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: model-${{ github.ref }}
+  cancel-in-progress: true
+
+# The sleep model (datascience/README.md): the Python reference, the committed artifact and fixtures,
+# the simulator's pass criteria, and the Swift package against the fixtures on Linux. The macOS build
+# in ios.yml runs the Swift tests again with Apple's maths library.
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: datascience
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.32"
+      - run: uv sync --frozen
+      - name: Unit tests
+        run: uv run pytest
+      - name: Committed artifact and fixtures are what the code exports
+        run: uv run python -m export.verify
+      - name: Artifact checksum, and the Swift package holds the same files
+        run: |
+          ../ios/scripts/check-model-artifact.sh artifacts/sleep-model.v0.json
+          ../ios/scripts/sync-model.sh --check
+      - name: Pass criteria (fails on any check not waived in decisions D53)
+        run: uv run python -m sim.criteria --people 2000 --safety-people 10000 --out criteria.json --strict
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: criteria
+          path: datascience/criteria.json
+
+  swift-linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    container: swift:6.2-noble
+    steps:
+      - uses: actions/checkout@v5
+      - run: swift test --package-path ios/Packages/SleepModel
