@@ -112,7 +112,7 @@ SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbo
 | Leaves for iOS Settings · privacy | `arrow.up.forward.app` · `hand.raised` |
 | Insights · Settings · add · delete · forward | `chart.bar` · `gearshape` · `plus` · `trash` · `chevron.right` |
 
-**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (paused, Screen Time off), the big time gives way to the state's glyph in a 64 pt tile. **Counts are shapes** (`Pips`): unlocks as dots wherever they're shown. **Actions look like actions:** a screen's main action is a button, never a text link; links that act carry a glyph (`See all ›`, `+ New`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
+**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (paused, Screen Time off), the big time gives way to the state's glyph in a 64 pt tile. **Counts are shapes** (`Pips`): unlocks as dots wherever they're shown. **Actions look like actions:** a screen's main action is a button, never a text link (the door on Home is the exception: a quiet grey capsule by the unlock dots, D61); links that act carry a glyph (`See all ›`, `+ New`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
 
 ## 3. Buttons
 
