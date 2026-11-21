@@ -46,7 +46,7 @@ struct DoorSheet: View {
   @ViewBuilder private var content: some View {
     if let door = model.state.door {
       switch door.phase {
-      case .waiting: DoorWaiting(model: model, door: door)
+      case .waiting: DoorWaiting(model: model, door: door, now: now)
       case .open: DoorOpen(model: model, door: door, now: now)
       }
     } else if model.state.unlocks.left(model.config) == 0 {
@@ -74,8 +74,10 @@ private struct DoorChoose: View {
   var body: some View {
     SheetPage(height: 414, overhang: 16) {
       SheetTitle(Copy.Door.question(minutes: model.config.door.minutes))
-      UnlockPips(left: model.state.unlocks.left(model.config), max: model.config.unlocks.max)
-        .padding(.top, 16)
+      UnlockPips(
+        left: model.state.unlocks.left(model.config), max: model.config.unlocks.max, spending: true
+      )
+      .padding(.top, 16)
       WaitNote(seconds: model.config.door.waitSeconds).padding(.top, 20)
     } actions: {
       PrimaryButton(Copy.Door.chooseApp, action: choose)
@@ -95,8 +97,10 @@ private struct DoorFromShield: View {
     SheetPage(height: 508, overhang: 16) {
       Label(app).labelStyle(DoorAppStyle(size: 40, radius: 10, title: .sheetApp))
       SheetTitle(Copy.Door.openFor(minutes: model.config.door.minutes)).padding(.top, 18)
-      UnlockPips(left: model.state.unlocks.left(model.config), max: model.config.unlocks.max)
-        .padding(.top, 14)
+      UnlockPips(
+        left: model.state.unlocks.left(model.config), max: model.config.unlocks.max, spending: true
+      )
+      .padding(.top, 14)
       WaitNote(seconds: model.config.door.waitSeconds).padding(.top, 18)
     } actions: {
       PrimaryButton(Copy.Door.startWait) { _ = model.startDoor(app) }
@@ -154,10 +158,12 @@ private struct DoorChooseOne: View {
   }
 }
 
-/// Door · waiting: the app, a big countdown, and a neutral Cancel.
+/// Door · waiting: the app, the wait's glyph, a big countdown over a bar that fills toward open, and
+/// a neutral Cancel (#75). The same bar then drains while the door is open.
 private struct DoorWaiting: View {
   let model: AppModel
   let door: Door
+  let now: Date
 
   var body: some View {
     SheetPage(height: 464, overhang: 8) {
@@ -167,19 +173,28 @@ private struct DoorWaiting: View {
             size: 40, radius: 10, title: .sheetApp, gap: 12,
             detail: Copy.Door.onceWaitEnds(minutes: model.config.door.minutes)))
       }
+      Image(symbol: .wait).unredacted()
+        .font(.system(size: 22, weight: .medium))
+        .foregroundStyle(TollColor.label2)
+        .frame(maxWidth: .infinity)
+        .padding(.top, 24)
+        .accessibilityHidden(true)
       Countdown(endsAt: door.waitEndsAt, text: { $0 }, spoken: Copy.Door.opensInSpoken)
         .tollType(
           TollType(size: 72, lineHeight: 76, weight: .semibold, style: .largeTitle, tabular: true)
         )
         .foregroundStyle(TollColor.label)
         .frame(maxWidth: .infinity)
-        .padding(.top, 36)
+        .padding(.top, 4)
         .dynamicTypeSize(...DynamicTypeSize.accessibility2)
         // The monitor opens the door when its interval starts; this covers a late callback.
         .task(id: door.waitEndsAt) {
           try? await Task.sleep(for: .seconds(max(0, door.waitEndsAt.timeIntervalSinceNow)))
           model.send(.doorStart)
         }
+      let wait = TimeInterval(model.config.door.waitSeconds)
+      DoorBar(fraction: 1 - max(0, min(wait, door.waitEndsAt.timeIntervalSince(now))) / wait)
+        .padding(.top, 12)
       Text(Copy.Door.leaveFreely)
         .tollType(TollType(size: 14, lineHeight: 20, weight: .regular, style: .subheadline))
         .foregroundStyle(TollColor.label2)
@@ -205,7 +220,14 @@ private struct DoorOpen: View {
       if let token = DoorApp.token(from: door.app) {
         Label(token).labelStyle(DoorAppStyle(size: 32, radius: 8, title: .rowApp))
       }
-      SheetTitle(Copy.Door.isOpen).padding(.top, 16)
+      HStack(spacing: 8) {
+        Image(symbol: .unlock).unredacted()
+          .font(.system(size: 20, weight: .semibold))
+          .foregroundStyle(TollColor.accent)
+          .accessibilityHidden(true)
+        SheetTitle(Copy.Door.isOpen)
+      }
+      .padding(.top, 16)
       if let expiresAt = door.expiresAt {
         Text(Copy.Door.locksAt(Copy.time(expiresAt)))
           .tollType(.body, TollColor.label2)
@@ -231,20 +253,16 @@ private struct DoorOpen: View {
         }
         let total = TimeInterval(model.config.door.minutes * 60)
         let left = max(0, min(total, expiresAt.timeIntervalSince(now)))
-        GeometryReader { proxy in
-          ZStack(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 4).fill(TollColor.surfaceRaised)
-            RoundedRectangle(cornerRadius: 4).fill(TollColor.accent)
-              .frame(width: proxy.size.width * left / total)
-          }
+        // The regret window's end as a tick: lock before the bar drains past it and the unlock
+        // comes back (D-4, #75).
+        let tick = door.regretEndsAt(model.config).flatMap { end in
+          now < end ? expiresAt.timeIntervalSince(end) / total : nil
         }
-        .frame(height: 8)
-        .padding(.top, 16)
-        .accessibilityHidden(true)
+        DoorBar(fraction: left / total, tick: tick).padding(.top, 16)
       }
       if let regretEnd = door.regretEndsAt(model.config), now < regretEnd {
         HStack(alignment: .top, spacing: 10) {
-          Image(symbol: .wait).unredacted()
+          Image(symbol: .keep).unredacted()
             .font(.system(size: 15, weight: .semibold))
             .foregroundStyle(TollColor.accent)
             .frame(width: 18, height: 21)
@@ -264,7 +282,14 @@ private struct DoorOpen: View {
         .transition(.opacity)
       }
     } actions: {
-      PrimaryButton(Copy.Door.lockAgain) { model.lockDoor() }
+      PrimaryButton {
+        model.lockDoor()
+      } label: {
+        HStack(spacing: 8) {
+          Image(symbol: .blocked).unredacted().accessibilityHidden(true)
+          Text(Copy.Door.lockAgain)
+        }
+      }
     }
   }
 }
