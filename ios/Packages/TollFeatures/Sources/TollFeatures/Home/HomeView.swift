@@ -226,7 +226,7 @@ struct HomeHero: View {
     // Sleep's place; another block's line names its own.
     case .blocked(let label, _, _) where label == Copy.Home.blockedUntil:
       place.map { $0 == .home ? .home : .anywhere }
-    case .away: .away
+    // Away is already said by the pill and the state line.
     default: nil
     }
   }
