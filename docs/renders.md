@@ -39,7 +39,7 @@ insights: gesture scroll-down; gesture scroll-down
 ```
 Steps are AXe commands without `axe` and `--udid` (`tap --label`, `tap --id`, `gesture scroll-up|down`, `type 'text'`, `swipe …`). Find labels in a scenario's `ui.json`. For a state no tap reaches, add a scenario.
 
-Variants: `light`, `dark`, `ax5` (largest Dynamic Type), `dark-ax5`. Pushes render `light`; ask for `ax5` (and `dark` for colour) whenever a change touches layout or type. AX5 renders have already caught truncation that light renders did not.
+Variants: `light`, `dark`, `ax5` (largest Dynamic Type), `dark-ax5`, and `wordless` / `dark-wordless`, which draw every line of text as a placeholder bar for the wordless test (design §5). Pushes render `light`; ask for `ax5` (and `dark` for colour) whenever a change touches layout or type. AX5 renders have already caught truncation that light renders did not.
 
 ## How it works, and why it takes the time it does
 - **Runner.** GitHub's free macOS runner (3 cores). The simulator starts booting first and boots behind the setup and build; the device script also opens Settings once, so the simulator's slow first app launch happens during the build rather than the first screenshot. AXe is cached after its first install.

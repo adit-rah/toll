@@ -133,9 +133,16 @@ extension View {
   }
 }
 
+extension EnvironmentValues {
+  /// The wordless test (docs/design.md §5): every styled line drawn as a placeholder bar, so a screen
+  /// can be judged by its shapes, symbols, colour and layout alone. Set only by demo renders.
+  @Entry public var tollWordless = false
+}
+
 private struct TollTypeModifier: ViewModifier {
   let type: TollType
   @Environment(\.dynamicTypeSize) private var typeSize
+  @Environment(\.tollWordless) private var wordless
 
   func body(content: Content) -> some View {
     let leading = type.extraLeading(at: typeSize)
@@ -145,6 +152,7 @@ private struct TollTypeModifier: ViewModifier {
       .textCase(type.uppercase ? .uppercase : nil)
       .lineSpacing(leading)
       .padding(.vertical, leading / 2)
+      .redacted(reason: wordless ? .placeholder : [])
   }
 }
 

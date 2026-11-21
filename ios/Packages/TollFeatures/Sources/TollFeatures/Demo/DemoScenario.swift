@@ -38,6 +38,9 @@
       UserDefaults.standard.string(forKey: "TollDemo").flatMap(Self.init(rawValue:))
     }
 
+    /// `-TollWordless YES`: the wordless test's renders (docs/design.md §5).
+    static var wordless: Bool { UserDefaults.standard.bool(forKey: "TollWordless") }
+
     var setupPath: [SetupModel.Step]? {
       switch self {
       case .welcome: []
@@ -92,13 +95,16 @@
     let scenario: DemoScenario
 
     var body: some View {
-      if let path = scenario.setupPath {
-        DemoSetup(app: app, path: path)
-      } else if scenario.isHome {
-        DemoHome(app: app, scenario: scenario)
-      } else {
-        TollColor.bg.ignoresSafeArea()
+      Group {
+        if let path = scenario.setupPath {
+          DemoSetup(app: app, path: path)
+        } else if scenario.isHome {
+          DemoHome(app: app, scenario: scenario)
+        } else {
+          TollColor.bg.ignoresSafeArea()
+        }
       }
+      .environment(\.tollWordless, DemoScenario.wordless)
     }
   }
 
