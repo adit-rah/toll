@@ -20,7 +20,7 @@ struct BlocksView: View {
     .tollPushed(Copy.Blocks.title)
   }
 
-  /// The list, New, then the limits right under them.
+  /// The limits sit at the bottom, as on the board; spare room goes above them.
   private func page(snapshot: BlocksSnapshot, compact: Bool) -> some View {
     VStack(alignment: .leading, spacing: 0) {
       ScreenTitle(Copy.Blocks.title, kind: .pushed)
@@ -37,8 +37,7 @@ struct BlocksView: View {
       }
       .padding(.top, compact ? 16 : 24)
       NewBlockRow(limits: snapshot.limits).padding(.top, 12)
-      // Under the list, not pinned to the bottom of an empty screen: the tab bar anchors the
-      // bottom now (D64).
+      Spacer(minLength: 24)
       Card {
         LimitRow(
           title: Copy.Blocks.appsAndSites,
@@ -49,7 +48,6 @@ struct BlocksView: View {
           value: Copy.Blocks.used(snapshot.limits.windowsUsed, of: snapshot.limits.windowsMax),
           full: snapshot.limits.windowsFull)
       }
-      .padding(.top, 28)
       Footnote(Copy.Blocks.unlocksShared, alignment: .center).padding(.top, TollSpacing.underCard)
     }
     .tollGutter()
