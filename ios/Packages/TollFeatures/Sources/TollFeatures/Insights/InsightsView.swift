@@ -2,24 +2,31 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Your nights (the design canvas's Insights), pushed from Home's "See all": everything from the log
-/// on this phone. Apple's "Screen time after bedtime" card joins it with the report extension.
+/// Your sleep, the second tab (D63): this week, then everything from the log on this phone. Being
+/// reframed around the user's improvement (#88); Apple's "Screen time after bedtime" card joins it
+/// with the report extension (#65).
 struct InsightsView: View {
   let log: [TollCore.Transition]
+  /// This week, moved here from Home with the tabs.
+  var week: HomeSnapshot?
   @State private var range = InsightsSnapshot.Range.month
 
   var body: some View {
     let insights = InsightsSnapshot(log: log, now: Date(), calendar: .current, range: range)
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
-        ScreenTitle(Copy.Insights.title, kind: .pushed)
+        ScreenTitle(Copy.Tabs.sleep, kind: .pushed)
+        if let week {
+          SectionHeader(week.weekTitle).padding(.top, 20)
+          WeekCard(home: week).padding(.top, TollSpacing.headerToCard)
+        }
         Picker(Copy.Insights.title, selection: $range) {
           Text(Copy.Insights.week).tag(InsightsSnapshot.Range.week)
           Text(Copy.Insights.month).tag(InsightsSnapshot.Range.month)
           Text(Copy.Insights.all).tag(InsightsSnapshot.Range.all)
         }
         .pickerStyle(.segmented)
-        .padding(.top, 16)
+        .padding(.top, week == nil ? 16 : 28)
         if insights.isEmpty {
           Footnote(Copy.Insights.empty).padding(.top, 20)
         } else {
@@ -40,7 +47,7 @@ struct InsightsView: View {
     }
     .background(TollColor.bg)
     .animation(Motion.stateChange, value: range)
-    .tollPushed(Copy.Insights.title)
+    .tollPushed(Copy.Tabs.sleep)
   }
 
   private func since(_ insights: InsightsSnapshot) -> String {

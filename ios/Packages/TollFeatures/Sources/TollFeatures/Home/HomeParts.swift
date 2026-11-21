@@ -100,39 +100,3 @@ private struct HourLabels: View {
     .tollType(.micro, TollColor.label2)
   }
 }
-
-/// Home's blocks: 58 pt rows, the leading tile amber for the block that is on or next tonight.
-struct BlockList: View {
-  let rows: [HomeSnapshot.BlockRow]
-  var open: ((BlockID) -> Void)?
-
-  static func symbol(_ state: HomeSnapshot.BlockRow.State) -> TollSymbol {
-    switch state {
-    case .on: .blocked
-    case .later, .unscheduled: .later
-    case .paused, .off: .paused
-    case .waiting: .waiting
-    }
-  }
-
-  var body: some View {
-    Card {
-      ForEach(rows) { row in
-        Button {
-          open?(row.id)
-        } label: {
-          CardRow(row.name, detail: row.detail, size: .list) {
-            IconTile(.block(row.kind), accent: row.trailingIsAccent)
-          } trailing: {
-            // The state's glyph with its word, never the colour alone (#72, C4).
-            StatusValue(
-              row.trailing, symbol: Self.symbol(row.state),
-              tone: row.trailingIsAccent ? .accent : .neutral)
-          }
-        }
-        .buttonStyle(.plain)
-        .disabled(open == nil)
-      }
-    }
-  }
-}

@@ -56,28 +56,27 @@ public struct RootView: View {
 struct LiveHome: View {
   let model: AppModel
   @State private var buying = false
+  @State private var tab = DuskTab.tonight
   @State private var path: [HomeRoute] = []
+  @State private var blocksPath: [HomeRoute] = []
   /// The door sheet, opened by `showsDoor` and kept by `doorPending`.
   @State private var doorUp = false
 
   var body: some View {
-    NavigationStack(path: $path) {
+    DuskTabs(
+      tab: $tab, tonightPath: $path, blocksPath: $blocksPath, model: model,
+      week: snapshot(Date()), log: model.trialSummaryLog(), openPurchase: { buying = true }
+    ) {
       TimelineView(.everyMinute) { context in
         HomeView(
           home: snapshot(context.date), price: model.price,
           locationFact: locationFact(model.location),
           openSettings: { path.append(.settings) }, openDoor: { model.askDoor() },
           openPurchase: { buying = true }, fixLocation: openSystemSettings,
-          openBlock: { path = [.blocks, .block($0)] }, openInsights: { path.append(.insights) },
           turnOnScreenTime: { Task { await model.turnOnScreenTime() } }
         )
       }
-      .homeNavigation()
-      .navigationDestination(for: HomeRoute.self) { route in
-        HomeDestination(model: model, route: route) { buying = true }
-      }
     }
-    .tint(TollColor.accent)
     .sheet(isPresented: $buying) { PurchaseSheet(model: model, home: snapshot(Date())) }
     .onChange(of: model.showsDoor, initial: true) { _, shows in
       if shows { doorUp = true }
@@ -123,7 +122,6 @@ struct HomeDestination: View {
 
   var body: some View {
     switch route {
-    case .insights: InsightsView(log: model.trialSummaryLog())
     case .settings: SettingsView(model: model, openPurchase: openPurchase)
     case .blocks: BlocksView(model: model)
     case .block(let id): BlockEditorView(app: model, editing: id)
@@ -134,7 +132,7 @@ struct HomeDestination: View {
 
 /// Screens pushed from Home, with Apple's back button reading "Home" (the canvas).
 enum HomeRoute: Hashable {
-  case insights, settings, blocks, log
+  case settings, blocks, log
   /// A block to edit, or nil for a new one; pushed over Blocks so the back button reads "Blocks".
   case block(BlockID?)
 }
