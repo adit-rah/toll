@@ -34,7 +34,7 @@ final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
     return ShieldConfiguration(
       backgroundBlurStyle: nil,
       backgroundColor: ShieldIcon.background,
-      icon: ShieldIcon.image,
+      icon: ShieldIcon.image(kind: text.kind, left: text.unlocksLeft, max: text.unlocksMax),
       title: .init(text: text.title, color: ShieldIcon.label),
       subtitle: .init(text: text.subtitle, color: ShieldIcon.secondaryLabel),
       primaryButtonLabel: .init(text: Copy.Shield.neverMind, color: ShieldIcon.onAccent),

@@ -8,6 +8,10 @@ public struct ShieldText: Equatable, Sendable {
   public var subtitle: String
   /// "Unlock in Dusk", dropped at 0: the door isn't offered then (D-5, #47).
   public var offersDoor: Bool
+  /// What the block screen's picture draws (#75): the block's symbol, and the unlocks as dots.
+  public var kind: Block.Kind
+  public var unlocksLeft: Int
+  public var unlocksMax: Int
 
   public init(
     state: DuskState, block: Block?, calendar: Calendar = .current, config: TollConfig = .defaults
@@ -16,6 +20,9 @@ public struct ShieldText: Equatable, Sendable {
     let time = end.map { Copy.time($0, in: calendar) }
     let left = state.unlocks.left(config)
     offersDoor = left > 0
+    kind = block?.kind ?? .sleep
+    unlocksLeft = left
+    unlocksMax = config.unlocks.max
     let supply =
       left > 0
       ? Copy.Shield.unlocks(left, of: config.unlocks.max)

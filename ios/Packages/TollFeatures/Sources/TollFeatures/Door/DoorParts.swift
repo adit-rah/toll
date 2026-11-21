@@ -8,9 +8,18 @@ struct DoorNoneLeft: View {
   let model: AppModel
 
   var body: some View {
-    SheetPage(height: 374) {
+    // The board's 374 plus the refill's ticks (#75).
+    SheetPage(height: 394) {
       SheetTitle(Copy.Door.noneTitle)
       UnlockPips(left: 0, max: model.config.unlocks.max).padding(.top, 16)
+      // The refill as night ticks: the blocked nights already counted, filled (#75).
+      let nights = model.config.unlocks.refillNights
+      let toGo = model.state.unlocks.nightsToRefill(model.config) ?? nights
+      Pips(
+        filled: nights - toGo, total: nights, style: .segments,
+        spoken: Copy.Door.refillLine(toGo, after: nights)
+      )
+      .padding(.top, 14)
       Text(
         Copy.Door.refillLine(
           model.state.unlocks.nightsToRefill(model.config) ?? model.config.unlocks.refillNights,
@@ -51,15 +60,18 @@ struct WaitNote: View {
   let seconds: Int
 
   var body: some View {
-    Text(Copy.Door.waitFirst(seconds: seconds))
-      .tollType(.body, TollColor.label2)
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.vertical, TollSpacing.noteCardVertical)
-      .padding(.horizontal, TollSpacing.cardPadding)
-      .background(
-        TollColor.surfaceRaised,
-        in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
+    HStack(alignment: .firstTextBaseline, spacing: 10) {
+      Image(symbol: .wait).unredacted().accessibilityHidden(true)
+      Text(Copy.Door.waitFirst(seconds: seconds))
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    .tollType(.body, TollColor.label2)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(.vertical, TollSpacing.noteCardVertical)
+    .padding(.horizontal, TollSpacing.cardPadding)
+    .background(
+      TollColor.surfaceRaised,
+      in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
   }
 }
 
@@ -68,12 +80,18 @@ struct WaitNote: View {
 struct UnlockPips: View {
   let left: Int
   let max: Int
+  /// Asking for the door: the dot this unlock would spend is drawn as a dashed ring (#75).
+  var spending = false
 
   var body: some View {
     HStack(spacing: 12) {
       HStack(spacing: 6) {
         ForEach(0..<max, id: \.self) { index in
-          if index < left {
+          if spending && index == left - 1 {
+            Circle()
+              .strokeBorder(TollColor.accent, style: StrokeStyle(lineWidth: 1.5, dash: [2.5, 2]))
+              .frame(width: 12, height: 12)
+          } else if index < left {
             Circle().fill(TollColor.accent).frame(width: 12, height: 12)
           } else {
             Circle().strokeBorder(TollColor.label3, lineWidth: 1.5).frame(width: 12, height: 12)
@@ -124,5 +142,31 @@ struct DoorAppStyle: LabelStyle {
     }
     .accessibilityElement(children: .combine)
     .accessibilityAddTraits(.isHeader)
+  }
+}
+
+/// The door's one bar (#75): it fills over the wait toward open, then drains over the minutes open.
+/// An optional tick marks where the regret time ends.
+struct DoorBar: View {
+  let fraction: Double
+  var tick: Double?
+
+  var body: some View {
+    GeometryReader { proxy in
+      ZStack(alignment: .leading) {
+        RoundedRectangle(cornerRadius: 4).fill(TollColor.surfaceRaised)
+        RoundedRectangle(cornerRadius: 4).fill(TollColor.accent)
+          .frame(width: proxy.size.width * min(1, max(0, fraction)))
+        if let tick {
+          Rectangle().fill(TollColor.label)
+            .frame(width: 2, height: 14)
+            .offset(x: proxy.size.width * min(1, max(0, tick)) - 1)
+        }
+      }
+      .frame(height: 8)
+      .frame(maxHeight: .infinity)
+    }
+    .frame(height: 14)
+    .accessibilityHidden(true)
   }
 }

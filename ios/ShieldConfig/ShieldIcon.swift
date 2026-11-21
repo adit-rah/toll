@@ -1,3 +1,4 @@
+import TollCore
 import UIKit
 
 /// Dusk's block screen colours and mark (the design canvas: amber on near-black, a moon), drawn in
@@ -9,21 +10,54 @@ enum ShieldIcon {
   static let accent = rgb(0xE9B96E)
   static let onAccent = rgb(0x1C1408)
 
-  /// An amber crescent on a soft amber tile.
-  static let image: UIImage = {
-    let size = CGSize(width: 72, height: 72)
+  /// The block's own symbol on a soft amber tile, with the unlocks as dots under it (#75): the moon
+  /// only for Sleep, so a Study block shows a book. One draw, in milliseconds.
+  static func image(kind: Block.Kind, left: Int, max: Int) -> UIImage {
+    let size = CGSize(width: 72, height: 88)
     return UIGraphicsImageRenderer(size: size).image { _ in
       accent.withAlphaComponent(0.14).setFill()
       UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 20).fill()
-      // A disc with a smaller one cut out of its upper right: clip everything but the cut, then fill.
-      let cut = UIBezierPath(rect: CGRect(origin: .zero, size: size))
-      cut.append(UIBezierPath(ovalIn: CGRect(x: 30, y: 10, width: 32, height: 32)))
-      cut.usesEvenOddFillRule = true
-      cut.addClip()
-      accent.setFill()
-      UIBezierPath(ovalIn: CGRect(x: 18, y: 18, width: 36, height: 36)).fill()
+      let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium)
+      if let symbol = UIImage(systemName: symbolName(kind), withConfiguration: config)?
+        .withTintColor(accent, renderingMode: .alwaysOriginal)
+      {
+        let origin = CGPoint(
+          x: (size.width - symbol.size.width) / 2, y: 36 - symbol.size.height / 2)
+        symbol.draw(at: origin)
+      }
+      // The supply, as Home and the door draw it: filled for each left, outlined for each used.
+      let dot: CGFloat = 9
+      let gap: CGFloat = 5
+      let count = Swift.max(0, max)
+      let width = CGFloat(count) * dot + CGFloat(Swift.max(0, count - 1)) * gap
+      for index in 0..<count {
+        let rect = CGRect(
+          x: (size.width - width) / 2 + CGFloat(index) * (dot + gap), y: 66, width: dot,
+          height: dot)
+        let path = UIBezierPath(ovalIn: rect.insetBy(dx: 0.75, dy: 0.75))
+        if index < left {
+          accent.setFill()
+          path.fill()
+        } else {
+          secondaryLabel.setStroke()
+          path.lineWidth = 1.5
+          path.stroke()
+        }
+      }
     }
-  }()
+  }
+
+  /// Design §2.6's symbol for each kind of block (`TollSymbol.block`); the extension doesn't load
+  /// TollUI.
+  private static func symbolName(_ kind: Block.Kind) -> String {
+    switch kind {
+    case .sleep: "moon"
+    case .study: "book"
+    case .work: "briefcase"
+    case .gym: "bolt"
+    case .other: "ellipsis"
+    }
+  }
 
   private static func rgb(_ hex: UInt32) -> UIColor {
     UIColor(

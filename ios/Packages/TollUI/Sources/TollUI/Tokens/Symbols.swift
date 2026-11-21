@@ -38,6 +38,8 @@ public struct TollSymbol: Hashable, Sendable {
   // The door
   public static let unlock = TollSymbol("lock.open")
   public static let wait = TollSymbol("timer")
+  /// Lock again in time and keep the unlock (D-4).
+  public static let keep = TollSymbol("arrow.uturn.backward")
 
   // What a block holds and where
   public static let apps = TollSymbol("square.grid.2x2")
