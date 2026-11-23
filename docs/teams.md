@@ -31,3 +31,5 @@ A ticket can have more than one team; the first listed in the ticket body goes f
 2. A decision the ticket needs goes in `docs/decisions.md` (next free D-number) and is cited in the PR.
 3. The PR says which ticket it fixes and lists anything left over as new tickets, so the original can close.
 4. Device behaviour goes to QA as a row in `docs/device-protocol.md`, collected in a QA ticket.
+
+Strategy tickets (the thesis, research, the evidence and insights ledgers, positioning) go in the private repo `adit-rah/docs`, not here: this repo and its issues are public.
