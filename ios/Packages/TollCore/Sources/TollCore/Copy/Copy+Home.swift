@@ -74,7 +74,7 @@ extension Copy {
     public static func once(_ price: String) -> String { "\(price) once" }
 
     public static let locationBanner =
-      "Location is set to While Using. Your blocks run on their hours, wherever you are."
+      "Location is set to While Using. Your night runs on its hours, wherever you are."
     /// D37: running without location is a fact, not a fault (#45).
     public static let fixInSettings = Copy.Setup.changeInSettings
     public static let screenTimeOffEyebrow = "Screen Time off"

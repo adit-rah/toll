@@ -120,13 +120,14 @@ extension Copy {
     public static let alwaysPath = "In Settings: \(name) › Location › Always."
     public static let alwaysLater = "Not now. The night runs on its hours."
 
-    public static let locationOffTitle = "Your blocks run on their hours"
+    /// About the night: onboarding and Tonight don't mention other blocks (D68).
+    public static let locationOffTitle = "Your night runs on its hours"
     public static let whileUsingFact =
-      "Location is set to While Using. Your blocks run on their hours, wherever you are."
+      "Location is set to While Using. Your night runs on its hours, wherever you are."
     public static let approximateFact =
-      "Precise Location is off. Your blocks run on their hours, wherever you are."
+      "Precise Location is off. Your night runs on its hours, wherever you are."
     public static let deniedFact =
-      "Location is off. Your blocks run on their hours, wherever you are."
+      "Location is off. Your night runs on its hours, wherever you are."
     public static let changeInSettings = "Change in Settings"
 
     public static let blockTitle = "What keeps you up?"
@@ -136,7 +137,7 @@ extension Copy {
     public static let pickerNote =
       "You pick from Apple's list. You can add a whole category, like Social, at once."
     public static func tooMany(_ max: Int) -> String {
-      "Up to \(max) apps and sites across all blocks. Choose fewer, or a whole category."
+      "Up to \(max) apps and sites. Choose fewer, or a whole category."
     }
 
     public static let readyEyebrow = "You're set"

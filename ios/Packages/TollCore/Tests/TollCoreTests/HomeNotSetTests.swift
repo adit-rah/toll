@@ -107,12 +107,20 @@ struct HomeNotSetTests {
     #expect(!home.locationBanner)
   }
 
-  @Test func withoutAlwaysOnlyABlockWithAPlaceGetsTheLocationCard() {
+  /// Tonight doesn't mention other blocks (D68): a day block at a place without Always says so on
+  /// Blocks ("Anywhere"), not with Tonight's card.
+  @Test func withoutAlwaysOnlyANightAtHomeGetsTheLocationCard() {
     var s = fresh()
     s.location = .scheduleOnly
     #expect(!snapshot(s, date(2026, 11, 17, 15)).locationBanner)
     s.places = [libraryPlace]
     s.blocks.append(studyBlock())
+    #expect(!snapshot(s, date(2026, 11, 17, 15)).locationBanner)
+    #expect(
+      BlocksSnapshot(state: s, now: date(2026, 11, 17, 15), calendar: london).others[0].detail
+        .hasPrefix("Anywhere"))
+    s.places.append(homePlace)
+    s.blocks[0].place = homePlace.id
     #expect(snapshot(s, date(2026, 11, 17, 15)).locationBanner)
     #expect(snapshot(s, date(2026, 11, 17, 15)).card == nil)
   }

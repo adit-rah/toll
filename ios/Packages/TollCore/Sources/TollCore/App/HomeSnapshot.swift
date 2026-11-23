@@ -105,10 +105,10 @@ public struct HomeSnapshot: Equatable, Sendable {
     supply = Supply(state: state, now: now, calendar: calendar, config: config)
     unlocksLeft = state.isBlocking && !screenTimeOff ? supply.left : nil
     if case .away = hero { pill = Pill(text: Copy.Home.awayLabel, kind: .away) }
-    // Only a block with a place loses anything without Always; with home not set, nothing does (D68).
+    // Only a night at home loses anything without Always; with home not set, nothing does (D68).
+    // Another block at a place says so on Blocks, since Tonight doesn't mention other blocks.
     locationBanner =
-      state.setupFinishedAt != nil && state.location == .scheduleOnly
-      && state.blocks.contains { $0.place != nil }
+      state.setupFinishedAt != nil && state.location == .scheduleOnly && sleep?.place != nil
     card = Self.card(state, now: now, calendar: calendar, warning: screenTimeOff || locationBanner)
     heroPlace =
       sleep == nil
