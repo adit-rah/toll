@@ -63,6 +63,7 @@ struct BlockAppsView: View {
         .disabled(limits.appsOver > 0 || Blocklist.isEmpty(model.selection))
     }
     .tollPushed(Copy.Blocks.apps)
+    .toolbar(.hidden, for: .tabBar)
     .familyActivityPicker(isPresented: $picking, selection: $model.selection)
   }
 }

@@ -31,6 +31,8 @@ struct BlockEditorView: View {
     }
     .background(TollColor.bg)
     .tollPushed(model.title)
+    // The tab bar floats over the bottom of the screen; an editor's Save sits there.
+    .toolbar(.hidden, for: .tabBar)
     .familyActivityPicker(isPresented: $picking, selection: $model.selection)
     .navigationDestination(isPresented: $showingApps) { BlockAppsView(model: model) }
     .navigationDestination(isPresented: $choosingPlace) {
