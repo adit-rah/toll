@@ -110,9 +110,12 @@ struct BlocksTests {
       name: "B", kind: .other, place: nil,
       schedule: .everyDay(TimeWindow(start: time(11), end: time(12))), apps: nil)
     #expect(
-      Engine.apply(.saveBlock(first), to: &s, now: date(2026, 11, 17, 8), config: config) == nil)
+      Engine.apply(
+        .saveBlock(first), to: &s, now: date(2026, 11, 17, 8), calendar: london, config: config)
+        == nil)
     #expect(
-      Engine.apply(.saveBlock(second), to: &s, now: date(2026, 11, 17, 8), config: config)
+      Engine.apply(
+        .saveBlock(second), to: &s, now: date(2026, 11, 17, 8), calendar: london, config: config)
         == .tooManyWindows)
   }
 

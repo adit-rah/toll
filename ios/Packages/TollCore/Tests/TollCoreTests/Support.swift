@@ -69,9 +69,18 @@ func run(
 }
 
 func apply(_ command: Command, _ state: inout DuskState, _ now: Date) -> CommandError? {
-  Engine.apply(command, to: &state, now: now)
+  Engine.apply(command, to: &state, now: now, calendar: london)
 }
 
 func arrive(_ state: inout DuskState, _ place: Place = homePlace, _ at: Date, inside: Bool = true) {
   state.presence[place.id] = Presence(isInside: inside, at: at)
+}
+
+/// This week's counts as `Week` makes them, read back from the bars Home keeps (#44).
+extension HomeSnapshot {
+  var nightsBlocked: Int {
+    bars.filter { if case .stopped = $0.night { true } else { false } }.count
+  }
+  var nightsCounted: Int { nightsBlocked + bars.filter { $0.night == .missed }.count }
+  var timesStopped: Int { bars.map(\.count).reduce(0, +) }
 }

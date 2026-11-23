@@ -16,7 +16,7 @@ extension Copy {
     public static let appsAndSites = "Apps and sites"
     public static let timeWindows = "Time windows"
     public static func used(_ used: Int, of max: Int) -> String { "\(used) of \(max)" }
-    public static let unlocksShared = "Unlocks are shared by all blocks."
+    public static let unlocksShared = "Pauses are shared by all blocks."
     public static func blocksFull(_ max: Int) -> String { "Up to \(max) blocks." }
     public static func windowsFull(_ max: Int) -> String {
       "Up to \(max) time windows across all blocks."

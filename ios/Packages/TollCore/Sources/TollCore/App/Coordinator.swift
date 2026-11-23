@@ -39,7 +39,9 @@ public struct Coordinator: Sendable {
     let outcome = store.update { state -> Outcome in
       var error: CommandError?
       for command in commands {
-        if let refused = Engine.apply(command, to: &state, now: now, config: config), error == nil {
+        if let refused = Engine.apply(
+          command, to: &state, now: now, calendar: calendar, config: config), error == nil
+        {
           error = refused
         }
       }

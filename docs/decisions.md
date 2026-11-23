@@ -202,3 +202,11 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - The "since week 1" change and the duplicate "nights blocked since" figure are gone: one number per card, and a comparison only when it's better.
 - **Symbols:** `sun.max` (the night's end), `iphone.slash` (the phone put down), `arrow.up.to.line` (a personal best).
 
+**D70. The pause, as built** (2026-11-23, #99; details of D67).
+- **The week:** weeks are keyed by Monday's night (noon to noon), so the pauses come back at noon on Monday and the app says "every Monday at noon". A supply saved before D67 starts the current week full. A clock set back to an earlier week refills nothing. A clock set forward only borrows next week's pauses.
+- **Where it starts:** the block screen's second button reads "Pause in Dusk" and opens the app at the pause sheet (iOS can't start the wait from the block screen). Tonight has a quiet "Pause" capsule beside the dots (D61). With none left, the capsule is hidden.
+- **What it lifts:** while a pause is open, the engine sends the shield off for every block at once; they lock again when it ends. The door no longer carries an app (`Door.app`, `ShieldPlan.doorApp` and the app picker are gone).
+- **The countdown:** it keeps D58's bar. A ring would break design §2.5 ("never rings that fill").
+- **Night records** keep their JSON keys (`unlocks_used`, `unlocks_returned`), so the data-science reader is unchanged; they now count pauses.
+- **Open:** the trial-ended state is also called "Paused" (`pause.circle`), which clashes with the escape's "Pause" (D57: one concept per symbol). It gets renamed in the plain-language pass (D65).
+

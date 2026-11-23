@@ -96,13 +96,18 @@ struct HomeWeekTests {
     #expect(home.bars.allSatisfy { $0.night == .ahead })
   }
 
-  @Test func theUnlocksAreAlwaysThere() {
+  /// D67: the pauses and the day they come back, Monday, at noon when its night starts.
+  @Test func thePausesAreAlwaysThere() {
     var s = state()
     s.unlocks.spent = 1
-    s.unlocks.cleanNights = 3
+    s.unlocks.week = date(2026, 11, 16, 0)
     let home = week(s, date(2026, 11, 17, 15), [])
-    #expect(home.supply == .init(left: 2, max: 3, nightsToRefill: 4))
+    #expect(
+      home.supply
+        == .init(
+          left: 2, max: 3, refill: date(2026, 11, 23, 12), refillDay: "Monday", nightOfWeek: 2))
     #expect(home.unlocksLeft == nil)
+    #expect(week(state(), date(2026, 11, 17, 15), []).supply.refillDay == nil)
   }
 
   /// With Screen Time off nothing blocked, whatever the engine thought: the night is named, not a

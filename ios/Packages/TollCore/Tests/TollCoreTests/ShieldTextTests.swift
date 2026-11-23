@@ -7,9 +7,10 @@ struct ShieldTextTests {
   @Test func sleepSaysUntilWhenAndWhy() {
     var s = setUp()
     run(&s, date(2026, 11, 17, 23))
-    let text = ShieldText(state: s, block: s.sleepBlock, calendar: london)
+    let text = ShieldText(
+      state: s, block: s.sleepBlock, now: date(2026, 11, 17, 23), calendar: london)
     #expect(text.title.hasPrefix("Blocked until 7"))
-    #expect(text.subtitle == "It's your sleep time. 3 of 3 unlocks left.")
+    #expect(text.subtitle == "It's your sleep time. 3 of 3 pauses left this week.")
     #expect(text.offersDoor)
   }
 
@@ -19,9 +20,10 @@ struct ShieldTextTests {
     s.blocks.append(studyBlock())
     arrive(&s, libraryPlace, date(2026, 11, 17, 9))
     run(&s, date(2026, 11, 17, 10))
-    let text = ShieldText(state: s, block: s.block(BlockID("study")), calendar: london)
+    let text = ShieldText(
+      state: s, block: s.block(BlockID("study")), now: date(2026, 11, 17, 10), calendar: london)
     #expect(text.title.hasPrefix("Study · until 5"))
-    #expect(text.subtitle == "This app is blocked during Study. 3 of 3 unlocks left.")
+    #expect(text.subtitle == "This app is blocked during Study. 3 of 3 pauses left this week.")
     #expect(text.kind == .study)
     #expect(text.unlocksLeft == 3 && text.unlocksMax == 3)
   }
@@ -31,20 +33,19 @@ struct ShieldTextTests {
     s.location = .scheduleOnly
     run(&s, date(2026, 11, 17, 23))
     #expect(
-      ShieldText(state: s, block: s.sleepBlock, calendar: london).subtitle
-        == "It's your sleep time. 3 of 3 unlocks left.")
+      ShieldText(state: s, block: s.sleepBlock, now: date(2026, 11, 17, 23), calendar: london)
+        .subtitle
+        == "It's your sleep time. 3 of 3 pauses left this week.")
   }
 
-  @Test func atNoneLeftTheDoorIsNotOfferedAndItSaysWhenOneReturns() {
+  @Test func atNoneLeftNoPauseIsOfferedAndItSaysWhenTheyComeBack() {
     var s = setUp()
     run(&s, date(2026, 11, 17, 23))
     s.unlocks.spent = 3
-    s.unlocks.cleanNights = 2
-    let text = ShieldText(state: s, block: s.sleepBlock, calendar: london)
+    let text = ShieldText(
+      state: s, block: s.sleepBlock, now: date(2026, 11, 17, 23), calendar: london)
     #expect(!text.offersDoor)
-    #expect(
-      text.subtitle
-        == "It's your sleep time. No unlocks left. One returns after 5 blocked nights without using any."
-    )
+    #expect(text.unlocksLeft == 0)
+    #expect(text.subtitle == "It's your sleep time. No pauses left · back Monday")
   }
 }

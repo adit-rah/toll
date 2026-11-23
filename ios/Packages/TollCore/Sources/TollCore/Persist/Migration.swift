@@ -86,7 +86,6 @@ enum Migration {
 extension DuskState {
   enum CodingKeys: String, CodingKey {
     case schema, blocks, places, presence, location, pending, pendingPlaces, door, doorAskedAt
-    case doorAskedFor
     case unlocks, trial, setupFinishedAt, runtime, screenTimeAllowed
   }
 
@@ -102,7 +101,6 @@ extension DuskState {
     pendingPlaces = try c.decodeIfPresent([PlaceID: Place].self, forKey: .pendingPlaces) ?? [:]
     door = try c.decodeIfPresent(Door.self, forKey: .door)
     doorAskedAt = try c.decodeIfPresent(Date.self, forKey: .doorAskedAt)
-    doorAskedFor = try c.decodeIfPresent(Data.self, forKey: .doorAskedFor)
     unlocks = try c.decodeIfPresent(UnlockSupply.self, forKey: .unlocks) ?? UnlockSupply()
     trial = try c.decodeIfPresent(TrialState.self, forKey: .trial) ?? TrialState()
     setupFinishedAt = try c.decodeIfPresent(Date.self, forKey: .setupFinishedAt)
@@ -141,18 +139,16 @@ extension RuntimeState {
 
 extension UnlockSupply {
   enum CodingKeys: String, CodingKey {
-    case spent, cleanNights, countedThrough, lastSpendAt, used, sleepRan
+    case spent, week, used
   }
 
+  /// A supply from before D67 has no week, so it starts the current one full.
   public init(from decoder: Decoder) throws {
     let c = try decoder.container(keyedBy: CodingKeys.self)
     self.init()
     spent = try c.decodeIfPresent(Int.self, forKey: .spent) ?? 0
-    cleanNights = try c.decodeIfPresent(Int.self, forKey: .cleanNights) ?? 0
-    countedThrough = try c.decodeIfPresent(Date.self, forKey: .countedThrough)
-    lastSpendAt = try c.decodeIfPresent(Date.self, forKey: .lastSpendAt)
+    week = try c.decodeIfPresent(Date.self, forKey: .week)
     used = try c.decodeIfPresent(Int.self, forKey: .used) ?? 0
-    sleepRan = try c.decodeIfPresent(Bool.self, forKey: .sleepRan) ?? false
   }
 }
 

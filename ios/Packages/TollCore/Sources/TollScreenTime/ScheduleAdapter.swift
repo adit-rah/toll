@@ -40,8 +40,9 @@
       }
     }
 
-    /// From the end of the wait, the platform's minimum interval, warning at the door's minutes: the
-    /// warning is the timer that runs with the app closed (D31). Its start opens the door.
+    /// From the end of the wait, the platform's minimum interval (15 minutes), warning at the pause's
+    /// 10 (D67): the warning is the timer that runs with the app closed (D31). Its start lifts the
+    /// shields; the warning puts them back.
     public func startDoor(_ door: Door, config: TollConfig) throws {
       let calendar = Calendar.current
       let parts: Set<Calendar.Component> = [.year, .month, .day, .hour, .minute, .second]
