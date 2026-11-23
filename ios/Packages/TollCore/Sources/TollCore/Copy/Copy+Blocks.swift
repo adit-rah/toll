@@ -12,12 +12,13 @@ extension Copy {
     public static let wholeCategory = "Whole category"
     public static let website = "Website"
     public static let appsAndSites = "Apps and sites"
-    public static let timeWindows = "Time windows"
+    /// The schedules iOS lets the app keep (D40), in plain words: blocks with the same hours share one.
+    public static let timeWindows = "Sets of hours"
     public static func used(_ used: Int, of max: Int) -> String { "\(used) of \(max)" }
-    public static let unlocksShared = "Pauses are shared by all blocks."
+    public static let unlocksShared = "A pause opens every block at once."
     public static func blocksFull(_ max: Int) -> String { "Up to \(max) blocks." }
     public static func windowsFull(_ max: Int) -> String {
-      "Up to \(max) time windows across all blocks."
+      "Up to \(max) sets of hours across all blocks."
     }
     public static func onNowUntil(_ time: String) -> String { "until \(time)" }
     public static func appCount(_ n: Int) -> String { n == 1 ? "1 app" : "\(n) apps" }
@@ -102,9 +103,10 @@ extension Copy {
     public static let usePlace = "Use this place"
     public static let useAnywhere = "Use anywhere"
     public static let anywhereNote =
-      "With no place, this block starts and ends on its hours alone. Location isn't used."
+      "With no place, this block starts and ends at its set times. Location isn't used."
     public static let building = "Building"
-    public static let street = "Block"
+    /// Not "Block": that word is the app's (D57, one concept per word).
+    public static let street = "Street"
     public static let campus = "Campus"
 
     public static let from = "From"
@@ -128,7 +130,7 @@ extension Copy {
       case .tooManyApps: "Up to \(maxApps) apps and sites across all blocks."
       case .tooManyBlocks: "Up to \(maxBlocks) blocks."
       case .tooManyWindows:
-        "Too many different hours across blocks. Share hours with another block."
+        "Too many sets of hours across blocks. Use the same hours as another block."
       case .tooManyPlaces: "Too many places."
       case .invalidSchedule: "Choose hours at least 15 minutes long, on at least one day."
       case .invalidName: "Give it a name of up to \(maxName) characters."

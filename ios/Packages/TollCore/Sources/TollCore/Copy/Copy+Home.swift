@@ -15,8 +15,7 @@ extension Copy {
     public static let today = "Today"
     public static let blockedUntil = "Blocked until"
     public static let awayLabel = "Away from home"
-    public static let paused = "Paused"
-    public static let noBlocks = "No blocks"
+    public static let noBlocks = "Nothing scheduled"
     /// Tonight's one line about another block, while it's on (D68, #89).
     public static func otherBlockOn(_ block: String, until time: String) -> String {
       "\(block) on until \(time)"
@@ -73,8 +72,7 @@ extension Copy {
     public static let turnBackOn = "Turn it back on"
     public static func once(_ price: String) -> String { "\(price) once" }
 
-    public static let locationBanner =
-      "Location is set to While Using. Your night runs on its hours, wherever you are."
+    public static let locationBanner = Setup.whileUsingFact
     /// D37: running without location is a fact, not a fault (#45).
     public static let fixInSettings = Copy.Setup.changeInSettings
     public static let screenTimeOffEyebrow = "Screen Time off"
@@ -84,17 +82,22 @@ extension Copy {
 
     public static let thisWeek = "This week"
     public static let seeAll = "See all"
-    public static func nightsBlocked(_ blocked: Int, of nights: Int) -> String {
-      "\(blocked) of \(nights)"
+    /// Under a count of nights, never "of 7": a shortfall isn't shown (D65).
+    public static func nightsLabel(_ n: Int) -> String {
+      n == 1 ? "night phone-free" : "nights phone-free"
     }
-    public static let nightsBlockedLabel = "nights blocked"
-    public static let stoppedLabel = "times it stopped you"
+    /// "Never mind" taps, about the person rather than the app's work (D65).
+    public static func putDownLabel(_ n: Int) -> String {
+      n == 1 ? "time you put it down" : "times you put it down"
+    }
 
     public static let blocks = "Blocks"
     public static let new = "New"
     public static let weekdays = "Weekdays"
     public static let weekends = "Weekends"
     public static let everyDay = "Every day"
+    /// After the free week, and a block that's switched off: nothing blocks (D70). Never "Paused",
+    /// which is the pause's word (D57, D67).
     public static let off = "Off"
     public static let weekendsDiffer = "Weekends differ"
     public static func shortDay(_ day: Weekday) -> String {
@@ -108,7 +111,7 @@ extension Copy {
     }
 
     public static func timelineLabel(start: String, end: String) -> String {
-      "Tonight's block, \(start) to \(end)"
+      "Tonight, \(start) to \(end)"
     }
   }
 }

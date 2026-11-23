@@ -83,15 +83,13 @@ struct PurchaseSheet: View {
       // The free nights only, frozen once they've ended (#48).
       let free = home.freeWeek
       AdaptiveStack(spacing: 12) {
-        Stat(
-          value: Copy.Home.nightsBlocked(
-            free?.nightsBlocked ?? 0,
-            of: max(free?.nightsCounted ?? 0, free?.nightsBlocked ?? 0)),
-          label: Copy.Home.nightsBlockedLabel)
-        Stat(value: "\(free?.timesStopped ?? 0)", label: Copy.Home.stoppedLabel)
-        Stat(
-          value: "\(free?.unlocksUsed ?? 0)",
-          label: Copy.Purchase.usedLabel(free?.unlocksUsed ?? 0))
+        // Counts, never "5 of 7": a shortfall isn't shown (D65).
+        let nights = free?.nightsBlocked ?? 0
+        let putDown = free?.timesStopped ?? 0
+        let used = free?.unlocksUsed ?? 0
+        Stat(value: "\(nights)", label: Copy.Home.nightsLabel(nights), symbol: .sleep)
+        Stat(value: "\(putDown)", label: Copy.Home.putDownLabel(putDown), symbol: .phoneDown)
+        Stat(value: "\(used)", label: Copy.Purchase.usedLabel(used), symbol: .unlock)
       }
       .padding(.vertical, TollSpacing.statsCardVertical)
       .padding(.horizontal, TollSpacing.cardPadding)

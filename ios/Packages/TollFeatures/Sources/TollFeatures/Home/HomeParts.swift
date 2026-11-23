@@ -4,7 +4,7 @@ import TollData
 import TollUI
 
 /// "Turn it back on · $9.99 once · every night after": the one card after the trial (D33).
-struct PausedCard: View {
+struct OffCard: View {
   let price: String
   let open: () -> Void
 
@@ -70,7 +70,7 @@ struct TimelineStrip: View {
     switch timeline.phase {
     case .on: shape.fill(TollColor.accent)
     case .upcoming: shape.fill(TollColor.accentSoft).overlay(shape.stroke(TollColor.accent))
-    case .paused:
+    case .off:
       shape.stroke(TollColor.label3, style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
     }
   }

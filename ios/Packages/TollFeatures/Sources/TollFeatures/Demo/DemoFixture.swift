@@ -59,7 +59,7 @@
         ? []
         : [
           Block(
-            id: BlockID("sleep"), name: Copy.Setup.sleepName, kind: .sleep,
+            id: BlockID("sleep"), name: Copy.Setup.nightName, kind: .sleep,
             place: scenario.homeNotSet ? nil : home.id,
             schedule: .everyDay(night), apps: nil, appCount: 4),
           Block(

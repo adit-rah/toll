@@ -33,7 +33,7 @@ public struct Morning: Equatable, Sendable {
   /// The bar and its times in words, for VoiceOver.
   public var spoken: String
 
-  /// Nil outside the morning, before setup, after the trial (the paused hero speaks then), and
+  /// Nil outside the morning, before setup, after the trial (the off hero speaks then), and
   /// when last night was due and simply didn't run.
   init?(
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,

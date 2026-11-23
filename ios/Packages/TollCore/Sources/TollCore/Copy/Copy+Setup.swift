@@ -6,11 +6,6 @@ extension Copy {
   /// Shown until StoreKit returns the localized price (decisions D34).
   public static let fallbackPrice = "$9.99"
 
-  /// P-1 and D7: the whole deal, before anything else.
-  public static func offer(price: String) -> String {
-    "Seven nights free. Then \(price) once, or it switches off. No subscription."
-  }
-
   /// Hours and minutes of a window: "8 h 30 m".
   public static func length(minutes: Int) -> String {
     let hours = minutes / 60
@@ -31,14 +26,15 @@ extension Copy {
   /// The canvas's onboarding, as amended by docs/design-brief.md.
   public enum Setup {
     public static func step(_ index: Int, of count: Int) -> String { "Step \(index) of \(count)" }
-    public static let sleepName = "Sleep"
+    /// The night's block's stored name; people never see it as a block's name (D68).
+    public static let nightName = "Night"
     public static let homeName = "Home"
     public static let `continue` = "Continue"
     public static let done = "Done"
     public static let tryAgain = "Try again"
     public static let openSettings = "Open Settings"
 
-    public static let welcomeTitle = "Buy back your sleep."
+    public static let welcomeTitle = "Your nights, phone-free."
     public static let welcomeLine =
       "At night, the apps that keep you up stop opening. Everything else works."
     public static let offerTitle = "7 nights free"
@@ -65,7 +61,8 @@ extension Copy {
     public static let nightsStart = "Nights start at"
     public static let differentOnWeekends = "Different on weekends"
     public static let weekendWake = "Weekend wake time"
-    public static let sleepAdvice = "Most adults need 7 to 9 hours. You can change this any time."
+    /// No population norm (D65): the night's length is on the row above.
+    public static let sleepAdvice = "You can change this any time."
     /// Between the moon and the sun (D68): "10:30 pm – 7:00 am".
     public static func nightSpan(start: String, end: String) -> String { "\(start) – \(end)" }
     /// The night drawn as moon start – end sun (D68), read out in one line.
@@ -83,7 +80,7 @@ extension Copy {
     public static let finding = "Finding where you are…"
     public static let noFix = "No exact location yet. Try again by a window or outside."
     public static let homeWithoutLocation =
-      "Location is off, so your night runs on its hours, wherever you are. Turn it on in Settings to set home."
+      "Location is off, so your night starts and ends at its set times, wherever you are. Turn it on in Settings to set home."
     public static let notNow = "Not now"
     public static let cancel = "Cancel"
     public static let mapLabel = "Map of where you are, with home drawn as a circle"
@@ -99,7 +96,7 @@ extension Copy {
     public static let locationLine =
       "Apple asks next. With Always, your night starts when you get home."
     public static let location = "Location"
-    public static let locationWhy = "So the night knows when you're home"
+    public static let locationWhy = "So your night starts when you're home"
     public static let allow = "Allow"
     /// A permission's state, as Settings words it.
     public static let off = "Off"
@@ -113,21 +110,21 @@ extension Copy {
 
     public static let alwaysTitle = "Choose Always"
     public static let alwaysLine =
-      "Location is set to While Using. With Always, your night starts only when you're home. Without it, the night runs on its hours, wherever you are."
+      "Location is set to While Using. With Always, your night starts only when you're home. Without it, your night starts and ends at its set times, wherever you are."
     public static let alwaysHeader = "Allow location access"
     public static let alwaysOptions = ["Never", "Ask Next Time", "While Using the App"]
     public static let alwaysChoice = "Always"
     public static let alwaysPath = "In Settings: \(name) › Location › Always."
-    public static let alwaysLater = "Not now. The night runs on its hours."
+    public static let alwaysLater = "Not now. Use the set times."
 
     /// About the night: onboarding and Tonight don't mention other blocks (D68).
-    public static let locationOffTitle = "Your night runs on its hours"
+    public static let locationOffTitle = "Your night keeps its set times"
     public static let whileUsingFact =
-      "Location is set to While Using. Your night runs on its hours, wherever you are."
+      "Location is set to While Using. Your night starts and ends at its set times, wherever you are."
     public static let approximateFact =
-      "Precise Location is off. Your night runs on its hours, wherever you are."
+      "Precise Location is off. Your night starts and ends at its set times, wherever you are."
     public static let deniedFact =
-      "Location is off. Your night runs on its hours, wherever you are."
+      "Location is off. Your night starts and ends at its set times, wherever you are."
     public static let changeInSettings = "Change in Settings"
 
     public static let blockTitle = "What keeps you up?"
@@ -144,7 +141,7 @@ extension Copy {
     public static func readyLine(_ start: String) -> String { "Tonight at \(start)." }
     public static func readyNow(_ end: String) -> String { "From now until \(end)." }
     public static let anywhere = "Anywhere"
-    public static let anywhereDetail = "Runs on its hours, wherever you are"
+    public static let anywhereDetail = "At its set times, wherever you are"
     /// Ready, before home is set (D68): where tonight runs, and that home comes later.
     public static let anywhereUntilHome =
       "Wherever you are. You can add home after the first night."
@@ -166,7 +163,7 @@ extension Copy {
       "Every app opens for \(minutes) minutes"
     }
     public static func freeWeekEnded(_ day: String, price: String) -> String {
-      "The free week ended \(day). Blocks start after the \(price) purchase."
+      "The free week ended \(day). Nothing is blocked until the \(price) purchase."
     }
     public static func freeUntil(_ day: String, price: String) -> String {
       "Free until the morning of \(day). Then \(price) once, or it switches off."

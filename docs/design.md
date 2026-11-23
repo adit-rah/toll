@@ -104,7 +104,7 @@ SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbo
 | The phone put down ("You put it down", "phone-free tonight") · a personal best | `iphone.slash` · `arrow.up.to.line` |
 | The heads-up before the night (the one notification, D68) | `bell` |
 | Another block | its kind: `book`, `briefcase`, `bolt`, `ellipsis` |
-| **State:** blocked now · starts later · away · paused · nothing can block · working with less (While Using) · waiting for Always | `lock` · `clock` · `figure.walk` · `pause.circle` · `exclamationmark.triangle` (warn) · `location.slash` · `hourglass.bottomhalf.filled` |
+| **State:** blocked now · starts later · away · off (the free week ended, or a block switched off; never a pause glyph, D70) · nothing can block · working with less (While Using) · waiting for Always | `lock` · `clock` · `figure.walk` · `power` · `exclamationmark.triangle` (warn) · `location.slash` · `hourglass.bottomhalf.filled` |
 | A pause (the code's door and unlock, D67) · its wait | `pause` · `timer` |
 | Apps on a blocklist · a block's hours | `square.grid.2x2` · `clock` |
 | Home · another place · no place (anywhere) | `house` · `mappin` · `globe` |
@@ -114,7 +114,7 @@ SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbo
 | Leaves for iOS Settings · privacy | `arrow.up.forward.app` · `hand.raised` |
 | Insights · Settings · add · delete · forward | `chart.bar` · `gearshape` · `plus` · `trash` · `chevron.right` |
 
-**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (paused, Screen Time off), the big time gives way to the state's glyph in a 64 pt tile. **Counts are shapes** (`Pips`): the week's pauses as dots wherever they're shown; the blocks' limits as a bar (`CapacityBar`, the 40 apps and sites) and segments (the 8 time windows). A row Save is still waiting for has a dashed tile (`EmptyTile`). **Actions look like actions:** a screen's main action is a button, never a text link (Pause on Tonight is the exception: a quiet grey capsule by the dots, D61, D67); links that act carry a glyph (`See all ›`, `+ New`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
+**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (off, Screen Time off), the big time gives way to the state's glyph in a 64 pt tile. **Counts are shapes** (`Pips`): the week's pauses as dots wherever they're shown; the blocks' limits as a bar (`CapacityBar`, the 40 apps and sites) and segments (the 8 time windows). A row Save is still waiting for has a dashed tile (`EmptyTile`). **Actions look like actions:** a screen's main action is a button, never a text link (Pause on Tonight is the exception: a quiet grey capsule by the dots, D61, D67); links that act carry a glyph (`See all ›`, `+ New`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
 
 ## 3. Buttons
 

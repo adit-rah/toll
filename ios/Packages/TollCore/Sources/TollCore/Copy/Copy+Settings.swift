@@ -16,23 +16,26 @@ extension Copy {
     public static let onlyAtHome = "Only when I'm home"
     public static let onlyAtHomeOn = "On"
     public static let onlyAtHomeOff = "Off · runs wherever you are"
-    public static let lastNight = "Last night"
+    /// The latest stretch any block was on (`LastNight`), which isn't always a night.
+    public static let lastNight = "Last blocked"
     public static func blocked(_ from: String, _ until: String?) -> String {
-      until.map { "Blocked \(from) – \($0)" } ?? "Blocked from \(from)"
+      until.map { "\(from) – \($0)" } ?? "Since \(from)"
     }
     public static let notYet = "Not yet"
 
     public static let yourWeek = "Your week"
-    public static let freeNights = "Free nights"
+    public static let freeNights = "Free week"
     /// The pill's words: tonight's night hasn't ended, so it isn't "used" yet (spec §3, #48).
     public static func night(_ night: Int, of nights: Int) -> String {
       "Night \(night) of \(nights)"
     }
     public static let purchased = "Purchased"
+    public static let purchasedDetail = "Every night, for good"
     public static func once(_ price: String) -> String { "\(price) once" }
     public static let app = "App"
-    public static func blocksSummary(blocks: Int, items: Int, max: Int) -> String {
-      "\(blocks == 1 ? "1 block" : "\(blocks) blocks")\(middleDot)\(items) of \(max) apps and sites"
+    /// No count of blocks: the night isn't a block to people (D68), and the limit is what matters.
+    public static func blocksSummary(items: Int, max: Int) -> String {
+      "\(items) of \(max) apps and sites"
     }
     public static let testingOnly = "Testing only · removed before launch"
     public static let keepIt = Purchase.keep
@@ -46,17 +49,17 @@ extension Copy {
     public static let matchPhone = "Match iPhone"
 
     public static let help = "Help"
-    public static let howItWorks = "How blocking works"
+    public static let howItWorks = "How it works"
     public static let howItWorksLines = [
-      "A block is on when you're at its place, in its hours.",
-      "Apps on its list don't open. Everything else works.",
+      "During your night, the apps you chose don't open. Everything else works.",
+      "With home set and location on Always, your night starts once you're home. Otherwise it starts and ends at its set times, wherever you are.",
       "Pause opens every app for 10 minutes after a one-minute wait. You get 3 a week, back every Monday at noon.",
-      "Without location set to Always, blocks run on their hours, wherever you are.",
+      "Other blocks work the same way, on their own hours.",
     ]
     public static let privacy = "Privacy"
     public static let privacyLine = "No servers. We never see your data"
     public static let contact = "Contact"
-    public static let log = "Transition log"
+    public static let log = "Activity log"
     public static let logEmpty = "Nothing yet."
     /// Testing only, with the transition log: the night records as a file (#51).
     public static let shareNights = "Share night records"

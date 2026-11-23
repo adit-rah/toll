@@ -25,7 +25,7 @@ extension BlocksSnapshot {
     if Engine.waitsForAlways(block, state) {
       (stateText, rowState) = (Copy.Blocks.waiting, .waiting)
     } else if !block.isOn || !state.trial.entitled || !blocking {
-      (stateText, rowState) = block.isOn ? (Copy.Home.paused, .paused) : (Copy.Home.off, .off)
+      (stateText, rowState) = (Copy.Home.off, .off)
     } else if state.runtime.active[block.id] != nil {
       (stateText, rowState) = (Copy.Home.onNow, .on)
     } else if let next = block.schedule.nextStart(after: now, calendar: calendar) {

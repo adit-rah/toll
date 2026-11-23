@@ -5,7 +5,7 @@ extension Copy {
   public enum Shield {
     public static func title(until end: String) -> String { "Blocked until \(end)" }
     public static let title = "Blocked"
-    public static let subtitle = "It's your sleep time."
+    public static let subtitle = "This app is blocked for the night."
     public static func blockTitle(_ block: String, until end: String) -> String {
       "\(block) · until \(end)"
     }

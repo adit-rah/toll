@@ -10,7 +10,7 @@ struct ShieldTextTests {
     let text = ShieldText(
       state: s, block: s.sleepBlock, now: date(2026, 11, 17, 23), calendar: london)
     #expect(text.title.hasPrefix("Blocked until 7"))
-    #expect(text.subtitle == "It's your sleep time. 3 of 3 pauses left this week.")
+    #expect(text.subtitle == "This app is blocked for the night. 3 of 3 pauses left this week.")
     #expect(text.offersDoor)
   }
 
@@ -35,7 +35,7 @@ struct ShieldTextTests {
     #expect(
       ShieldText(state: s, block: s.sleepBlock, now: date(2026, 11, 17, 23), calendar: london)
         .subtitle
-        == "It's your sleep time. 3 of 3 pauses left this week.")
+        == "This app is blocked for the night. 3 of 3 pauses left this week.")
   }
 
   @Test func atNoneLeftNoPauseIsOfferedAndItSaysWhenTheyComeBack() {
@@ -46,6 +46,6 @@ struct ShieldTextTests {
       state: s, block: s.sleepBlock, now: date(2026, 11, 17, 23), calendar: london)
     #expect(!text.offersDoor)
     #expect(text.unlocksLeft == 0)
-    #expect(text.subtitle == "It's your sleep time. No pauses left · back Monday")
+    #expect(text.subtitle == "This app is blocked for the night. No pauses left · back Monday")
   }
 }

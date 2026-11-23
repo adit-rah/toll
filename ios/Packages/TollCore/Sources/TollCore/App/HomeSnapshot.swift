@@ -6,8 +6,8 @@ public struct HomeSnapshot: Equatable, Sendable {
     case tonight(start: Date, detail: String)
     case blocked(label: String, until: Date, detail: String)
     case away(start: Date)
-    /// After the trial; `endedToday` reads "this morning".
-    case paused(endedToday: Bool)
+    /// After the trial ("Off", D70); `endedToday` reads "this morning".
+    case off(endedToday: Bool)
     /// Screen Time is off for Dusk after setup: nothing can be blocked, so nothing claims it is (#45).
     case screenTimeOff
     case noBlocks
@@ -38,7 +38,7 @@ public struct HomeSnapshot: Equatable, Sendable {
       /// Solid: on now.
       case on
       /// Dashed: the trial is over and nothing will block.
-      case paused
+      case off
     }
 
     public var start: Double
@@ -126,7 +126,7 @@ public struct HomeSnapshot: Equatable, Sendable {
       ? nil : state.location == .scheduleOnly ? .anywhere : sleep?.place != nil ? .home : .anywhere
     let phase: Timeline.Phase =
       !state.trial.entitled || screenTimeOff
-      ? .paused
+      ? .off
       : (sleep.map { state.runtime.active[$0.id] != nil } == true
         ? .on : .upcoming)
     timeline = sleep.flatMap {
@@ -141,7 +141,7 @@ public struct HomeSnapshot: Equatable, Sendable {
         morning == nil ? Self.phoneFree(sleep, start: start, now: now, calendar: calendar) : nil
     }
     freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)
-    if case .paused = hero { supply.refillDay = nil }
+    if case .off = hero { supply.refillDay = nil }
     if !screenTimeOff {
       otherBlock = Self.otherBlock(state, hero: hero, unlocksLeft: unlocksLeft, calendar: calendar)
     }
@@ -153,7 +153,7 @@ public struct HomeSnapshot: Equatable, Sendable {
     _ state: DuskState, sleep: Block?, now: Date, calendar: Calendar, config: TollConfig
   ) -> Hero {
     guard state.trial.entitled else {
-      return .paused(
+      return .off(
         endedToday: Self.trialEndedToday(state, now: now, calendar: calendar, config: config))
     }
     // Only the night takes the hero; another block that's on is one quiet line under it (D68).

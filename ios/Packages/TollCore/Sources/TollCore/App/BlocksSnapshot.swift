@@ -10,7 +10,7 @@ public struct BlocksSnapshot: Equatable, Sendable {
     /// Tonight's night, or the next one; nil only for a schedule with no nights.
     public var picture: NightPicture?
     public var state: Row.State
-    /// "On now", "Tonight", "Paused"; empty when there's nothing to say.
+    /// "On now", "Tonight", "Off"; empty when there's nothing to say.
     public var stateText: String
     /// "4 apps · Home · Weekends differ", or a change held until the night ends (B-3).
     public var detail: String
@@ -20,7 +20,7 @@ public struct BlocksSnapshot: Equatable, Sendable {
   public struct Row: Equatable, Sendable, Identifiable {
     /// What the row's glyph says (#72, rule 2); `stateText` says the same in words.
     public enum State: Equatable, Sendable {
-      case on, later, paused, off, waiting, unscheduled
+      case on, later, off, waiting, unscheduled
     }
 
     public var id: BlockID
@@ -67,7 +67,7 @@ public struct BlocksSnapshot: Equatable, Sendable {
     var picture = NightPicture(block.schedule, now: now, calendar: calendar)
     switch row.state {
     case .on: picture?.timeline.phase = .on
-    case .paused, .off: picture?.timeline.phase = .paused
+    case .off: picture?.timeline.phase = .off
     case .later, .waiting, .unscheduled: break
     }
     return Night(

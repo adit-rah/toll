@@ -47,19 +47,19 @@ struct HomeSnapshotTests {
     #expect(home.pill == .init(text: "Away from home", kind: .away))
   }
 
-  @Test func pausedAfterTheTrial() {
+  @Test func offAfterTheTrial() {
     var s = setUp()
     s.trial.start = date(2026, 11, 1, 12)
     run(&s, date(2026, 11, 17, 15))
     let home = snapshot(s, date(2026, 11, 17, 15))
-    #expect(home.hero == .paused(endedToday: false))
+    #expect(home.hero == .off(endedToday: false))
     #expect(
       YourSleep(state: s, log: [], history: [], now: date(2026, 11, 17, 15), calendar: london)
         .weekTitle == "Your free week")
-    #expect(home.timeline?.phase == .paused)
+    #expect(home.timeline?.phase == .off)
     #expect(
       BlocksSnapshot(state: s, now: date(2026, 11, 17, 15), calendar: london).night?.stateText
-        == Copy.Home.paused)
+        == Copy.Home.off)
   }
 
   @Test func thePillIsQuietAndGoneAtNight() {
@@ -127,11 +127,11 @@ struct HomeSnapshotTests {
     #expect(home.screenTimeOff)
     #expect(home.hero == .screenTimeOff)
     #expect(home.unlocksLeft == nil)
-    #expect(home.timeline?.phase == .paused)
+    #expect(home.timeline?.phase == .off)
     #expect(
       BlocksSnapshot(
         state: s, now: date(2026, 11, 17, 23), calendar: london, screenTime: false
-      ).night?.stateText == Copy.Home.paused)
+      ).night?.stateText == Copy.Home.off)
     #expect(!snapshot(s, date(2026, 11, 17, 23)).screenTimeOff)
   }
 

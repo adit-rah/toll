@@ -58,7 +58,7 @@ private struct NightDot: View {
   private func symbol(_ mark: HomeSnapshot.Bar.Mark) -> TollSymbol {
     switch mark {
     case .away: .away
-    case .off: .paused
+    case .off: .off
     case .noScreenTime: .screenTime
     }
   }
@@ -86,10 +86,19 @@ enum NightSpoken {
 struct Stat: View {
   let value: String
   let label: String
+  var symbol: TollSymbol?
 
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
-      Text(value).tollType(.stat, TollColor.label)
+      HStack(alignment: .firstTextBaseline, spacing: 6) {
+        if let symbol {
+          Image(symbol: symbol).unredacted()
+            .font(.system(size: 15, weight: .medium))
+            .foregroundStyle(TollColor.label2)
+            .accessibilityHidden(true)
+        }
+        Text(value).tollType(.stat, TollColor.label)
+      }
       Text(label).tollType(.caption, TollColor.label2).fixedSize(horizontal: false, vertical: true)
     }
     .frame(maxWidth: .infinity, alignment: .leading)

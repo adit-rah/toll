@@ -39,8 +39,8 @@ struct HomeView: View {
                 phoneFree: home.phoneFree, openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil
               )
             }
-            if case .paused = home.hero {
-              PausedCard(price: price, open: openPurchase).padding(.top, 18)
+            if case .off = home.hero {
+              OffCard(price: price, open: openPurchase).padding(.top, 18)
             }
             if let other = home.otherBlock {
               OtherBlockLine(line: other, openDoor: openDoor).padding(.top, 14)
@@ -193,7 +193,7 @@ struct HomeHero: View {
     case .tonight: (.later, .neutral)
     case .blocked: (.blocked, .accent)
     case .away: (.away, .neutral)
-    case .paused: (.paused, .neutral)
+    case .off: (.off, .neutral)
     case .screenTimeOff: (.broken, .warn)
     case .noBlocks: (.sleep, .neutral)
     }
@@ -201,7 +201,7 @@ struct HomeHero: View {
 
   private var offSymbol: TollSymbol? {
     switch hero {
-    case .paused: .paused
+    case .off: .off
     case .screenTimeOff: .broken
     default: nil
     }
@@ -222,7 +222,7 @@ struct HomeHero: View {
     switch hero {
     case .tonight, .away: Copy.Home.tonight
     case .blocked(let label, _, _): label
-    case .paused: Copy.Home.paused
+    case .off: Copy.Home.off
     case .screenTimeOff: Copy.Home.screenTimeOffEyebrow
     case .noBlocks: ""
     }
@@ -233,13 +233,13 @@ struct HomeHero: View {
     case .tonight(let start, _): start
     case .blocked(_, let until, _): until
     case .away(let start): start
-    case .paused, .screenTimeOff, .noBlocks: nil
+    case .off, .screenTimeOff, .noBlocks: nil
     }
   }
 
   private var title: String {
     switch hero {
-    case .paused, .screenTimeOff: return Copy.Home.notBlocking
+    case .off, .screenTimeOff: return Copy.Home.notBlocking
     default: return Copy.Home.noBlocks
     }
   }
@@ -248,7 +248,7 @@ struct HomeHero: View {
     switch hero {
     case .tonight(_, let detail), .blocked(_, _, let detail): detail
     case .away: Copy.Home.startsWhenHome
-    case .paused(let today): today ? Copy.Home.trialEndedToday : Copy.Home.trialEnded
+    case .off(let today): today ? Copy.Home.trialEndedToday : Copy.Home.trialEnded
     case .screenTimeOff: Copy.Home.screenTimeOffDetail
     case .noBlocks: ""
     }
