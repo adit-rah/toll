@@ -188,12 +188,43 @@ struct BlocksSnapshotTests {
     s.blocks.append(studyBlock())
     arrive(&s, libraryPlace, date(2026, 11, 17, 9))
     run(&s, date(2026, 11, 17, 10))
-    let rows = BlocksSnapshot(state: s, calendar: london).rows
-    #expect(rows[0].detail.hasPrefix("4 apps · Home · "))
-    #expect(rows[0].accent && !rows[0].onNow)
-    #expect(rows[1].onNow)
-    #expect(rows[1].detail.hasPrefix("until 5"))
-    #expect(rows[1].detail.hasSuffix("· Library"))
+    let blocks = BlocksSnapshot(state: s, now: date(2026, 11, 17, 10), calendar: london)
+    // The night leads on its own, never as a row called "Sleep" (D68).
+    #expect(blocks.night?.detail == "4 apps · Home")
+    #expect(blocks.night?.picture?.start.contains("10:30") == true)
+    #expect(blocks.night?.state == .later)
+    #expect(blocks.night?.stateText == "Tonight")
+    #expect(blocks.others.map(\.id) == [BlockID("study")])
+    #expect(blocks.others[0].state == .on)
+    #expect(blocks.others[0].stateText == "On now")
+    #expect(blocks.others[0].detail.hasPrefix("Library · 9"))
+    #expect(blocks.others[0].detail.hasSuffix("· Weekdays"))
+  }
+
+  @Test func laterRowsNameTheirDay() {
+    var s = setUp()
+    s.places.append(libraryPlace)
+    s.blocks.append(studyBlock())
+    // Saturday noon: Study is Monday's.
+    let saturday = BlocksSnapshot(state: s, now: date(2026, 11, 21, 12), calendar: london)
+    #expect(saturday.night?.stateText == "Tonight")
+    #expect(saturday.others[0].stateText == "Mon")
+    #expect(saturday.others[0].state == .later)
+    // Thursday evening: Study is tomorrow, not today.
+    let thursday = BlocksSnapshot(state: s, now: date(2026, 11, 19, 18), calendar: london)
+    #expect(thursday.others[0].stateText == "Fri")
+    let friday = BlocksSnapshot(state: s, now: date(2026, 11, 20, 7), calendar: london)
+    #expect(friday.others[0].stateText == "Today")
+  }
+
+  @Test func theNightSaysWhenWeekendsDiffer() {
+    var s = setUp()
+    s.blocks[0].schedule = WeeklySchedule(rules: [
+      .init(days: Weekday.schoolNights, window: usual),
+      .init(days: Weekday.weekendNights, window: TimeWindow(start: time(23, 30), end: time(9))),
+    ])
+    let night = BlocksSnapshot(state: s, now: date(2026, 11, 17, 12), calendar: london).night
+    #expect(night?.detail.hasSuffix("· Weekends differ") == true)
   }
 }
 
@@ -210,30 +241,27 @@ struct BlockRowsTests {
   @Test func withoutLocationAPlacedBlockSaysAnywhere() {
     var s = withStudy()
     s.location = .scheduleOnly
-    let rows = BlocksSnapshot(state: s, calendar: london).rows
-    #expect(rows.allSatisfy { $0.detail.contains("Anywhere") })
-    #expect(!rows.contains { $0.detail.contains("Library") })
-    let home = HomeSnapshot(state: s, log: [], now: date(2026, 11, 17, 8), calendar: london)
-    #expect(home.blocks.allSatisfy { $0.detail.hasPrefix("Anywhere") })
+    let blocks = BlocksSnapshot(state: s, now: date(2026, 11, 17, 8), calendar: london)
+    #expect(blocks.night?.detail.contains("Anywhere") == true)
+    #expect(blocks.others.allSatisfy { $0.detail.hasPrefix("Anywhere") })
+    #expect(!blocks.others.contains { $0.detail.contains("Library") })
   }
 
   @Test func aHeldDeleteOrEditIsOnTheRow() {
     var s = withStudy()
     run(&s, date(2026, 11, 17, 10))
     _ = apply(.deleteBlock(BlockID("study")), &s, date(2026, 11, 17, 10))
-    let row = BlocksSnapshot(state: s, calendar: london).rows.first { $0.id == BlockID("study") }
+    let row = BlocksSnapshot(state: s, now: date(2026, 11, 17, 10), calendar: london).others
+      .first { $0.id == BlockID("study") }
     #expect(row?.detail.hasPrefix("Deleted at 5") == true)
-    #expect(row?.onNow == true)
+    #expect(row?.state == .on)
     var edited = withStudy()
     run(&edited, date(2026, 11, 17, 10))
     var study = studyBlock()
     study.name = "Library"
     _ = apply(.saveBlock(study), &edited, date(2026, 11, 17, 10))
-    let home = HomeSnapshot(
-      state: edited, log: [], now: date(2026, 11, 17, 10), calendar: london)
-    #expect(
-      home.blocks.first { $0.id == BlockID("study") }?.detail.hasPrefix("Changes apply at 5")
-        == true)
+    let blocks = BlocksSnapshot(state: edited, now: date(2026, 11, 17, 10), calendar: london)
+    #expect(blocks.others.first?.detail.hasPrefix("Changes apply at 5") == true)
   }
 }
 

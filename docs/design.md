@@ -21,7 +21,7 @@ The design canvas (**Sleep App Screens**, linked in `docs/design-brief.md`) is t
 
 - **Gutter** 24 pt (16 pt at 375 pt wide). Content starts under the 59 pt status area, in a 44 pt bar.
 - **Titles:** setup 32/38, 28 pt under the bar; pushed screens 30/35, 8 pt under the bar, then 20 pt to the first card (`ScreenTitle`).
-- **Cards:** `surface`, 18 pt corners, 16 pt sides. Rows 60 pt with a 36 pt tile (editors, Ready, Settings), 58 pt (Home's blocks), 56 pt and 52 pt with a 32 pt tile (apps lists); 14 pt from tile to text; detail 1 pt under the title. Note cards 14/16 padding; the stats card 18/16.
+- **Cards:** `surface`, 18 pt corners, 16 pt sides. Rows 60 pt with a 36 pt tile (editors, Ready, Settings), 58 pt (Blocks' rows), 56 pt and 52 pt with a 32 pt tile (apps lists); 14 pt from tile to text; detail 1 pt under the title. Note cards 14/16 padding; the stats card 18/16.
 - **The main button's bottom edge sits on the bottom safe area** (34 pt on Face ID phones; 16 pt above the edge without a home indicator). A quiet link under it reaches 16 pt into the indicator's space (`tollBottomBar`, `SheetPage`).
 - **Sheets:** iOS's shape and grabber; title 37 pt from the top; the board's height at the default text size, taller with larger text, full height at accessibility sizes.
 - **Small phones and large text scroll;** the main button stays pinned.
@@ -114,7 +114,7 @@ SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbo
 | Leaves for iOS Settings · privacy | `arrow.up.forward.app` · `hand.raised` |
 | Insights · Settings · add · delete · forward | `chart.bar` · `gearshape` · `plus` · `trash` · `chevron.right` |
 
-**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (paused, Screen Time off), the big time gives way to the state's glyph in a 64 pt tile. **Counts are shapes** (`Pips`): the week's pauses as dots wherever they're shown. **Actions look like actions:** a screen's main action is a button, never a text link (Pause on Tonight is the exception: a quiet grey capsule by the dots, D61, D67); links that act carry a glyph (`See all ›`, `+ New`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
+**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (paused, Screen Time off), the big time gives way to the state's glyph in a 64 pt tile. **Counts are shapes** (`Pips`): the week's pauses as dots wherever they're shown; the blocks' limits as a bar (`CapacityBar`, the 40 apps and sites) and segments (the 8 time windows). A row Save is still waiting for has a dashed tile (`EmptyTile`). **Actions look like actions:** a screen's main action is a button, never a text link (Pause on Tonight is the exception: a quiet grey capsule by the dots, D61, D67); links that act carry a glyph (`See all ›`, `+ New`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
 
 ## 3. Buttons
 

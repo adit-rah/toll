@@ -6,6 +6,8 @@ import TollScreenTime
 
 /// A block being made or changed: a draft until Save, which sends it through the app model. The engine
 /// refuses what breaks a limit; the refusal is shown, nothing else checks it (docs/architecture.md).
+/// A new block starts at its kind: the kind brings a name and hours (`BlockDraft`), and picking it
+/// opens the apps picker, so adding one is a kind, the apps and Save (#89).
 @MainActor
 @Observable
 final class BlockEditorModel {
@@ -14,6 +16,10 @@ final class BlockEditorModel {
   var block: Block
   var place: Place?
   var selection: FamilyActivitySelection
+  /// False on a new block until a kind is picked: the screen shows only the kinds.
+  private(set) var kindPicked: Bool
+  /// The title, as saved: it doesn't follow the name field while it's typed.
+  let title: String
   private(set) var refusal: String?
 
   init(app: AppModel, editing id: BlockID?) {
@@ -22,19 +28,21 @@ final class BlockEditorModel {
       isNew = false
       block = existing
       place = app.draftPlace(existing.place)
+      kindPicked = true
+      title = existing.isSleep ? Copy.Blocks.nightTitle : existing.name
     } else {
       isNew = true
-      block = Block(
-        name: Copy.Blocks.kindName(.study), kind: .study, place: nil,
-        schedule: WeeklySchedule(rules: [
-          .init(
-            days: Weekday.weekdays,
-            window: TimeWindow(start: ClockTime(hour: 9), end: ClockTime(hour: 17)))
-        ]), apps: nil)
+      block = BlockDraft.new(.study, config: app.config)
       place = nil
+      kindPicked = false
+      title = Copy.Blocks.new
     }
     // A new block has no apps yet; `block` cannot be read before every property is set.
     selection = Blocklist.selection(from: id.flatMap { app.draft($0) }?.apps)
+    #if DEBUG
+      // Renders can't tap a kind; a scenario names the one it shows picked (docs/renders.md).
+      if isNew, let kind = DemoScenario.current?.newBlockKind { _ = pick(kind) }
+    #endif
   }
 
   var isSleep: Bool { block.isSleep }
@@ -42,15 +50,20 @@ final class BlockEditorModel {
   /// says so.
   var activeUntil: Date? { isNew ? nil : app.state.runtime.active[block.id] }
 
+  var activeNote: String? {
+    guard let end = activeUntil.map({ Copy.time($0) }) else { return nil }
+    return isSleep
+      ? Copy.Blocks.nightActiveNote(until: end) : Copy.Blocks.activeNote(title, until: end)
+  }
+
   /// With a place but no Always, the block runs on its hours wherever the user is (D37); the editor
   /// says so under Place (#49).
   var placeIgnored: String? {
     guard let place, app.state.location == .scheduleOnly,
       let window = block.schedule.windows.first
     else { return nil }
-    if block.onlyAtPlace && !isSleep {
-      return Copy.Blocks.waitsForAlways(block.name, place: place.name)
-    }
+    if isSleep { return Copy.Blocks.nightPlaceIgnored(span: Copy.span(window)) }
+    if block.onlyAtPlace { return Copy.Blocks.waitsForAlways(block.name, place: place.name) }
     return Copy.Blocks.placeIgnored(block.name, span: Copy.span(window))
   }
 
@@ -72,19 +85,35 @@ final class BlockEditorModel {
       categories: selection.categoryTokens.count, apps: Blocklist.items(selection))
   }
 
-  /// The limits with this draft in place, and with one of its rules changed (the hours sheet).
-  func limits(with rule: WeeklySchedule.Rule? = nil, at index: Int = 0) -> BlockLimits {
+  var hasApps: Bool { !Blocklist.isEmpty(selection) }
+
+  /// The name field, cut at the longest name the block screen holds (#62).
+  var name: String {
+    get { block.name }
+    set { block.name = BlockDraft.name(newValue, config: app.config) }
+  }
+
+  /// The limits with this draft in place.
+  func limits() -> BlockLimits {
     var draft = block
     draft.appCount = Blocklist.items(selection)
     draft.categoryCount = selection.categoryTokens.count
-    if let rule, draft.schedule.rules.indices.contains(index) { draft.schedule.rules[index] = rule }
     return BlockLimits(state: app.state, draft: draft, config: app.config)
   }
-  var kinds: [Block.Kind] { [.study, .work, .gym, .other] }
 
-  func choose(_ kind: Block.Kind) {
-    if block.name == Copy.Blocks.kindName(block.kind) { block.name = Copy.Blocks.kindName(kind) }
-    block.kind = kind
+  /// A change of hours that would make a ninth time window (D40): said under the hours, and Save
+  /// stays off until it's undone.
+  var windowsOver: Bool {
+    let limits = limits()
+    return limits.windowsUsed > limits.windowsMax
+  }
+
+  /// Picks a kind: its name and hours follow unless the user changed them (`BlockDraft.change`).
+  /// Returns true when the apps picker should open: the first pick on a new block with no apps yet.
+  func pick(_ kind: Block.Kind) -> Bool {
+    block = BlockDraft.change(block, to: kind, config: app.config)
+    kindPicked = true
+    return isNew && !hasApps
   }
 
   func setRule(_ index: Int, _ rule: WeeklySchedule.Rule) {
@@ -97,6 +126,7 @@ final class BlockEditorModel {
     if let place {
       if let refused = app.save(place) { return refuse(refused) }
     }
+    block = BlockDraft.finished(block)
     block.place = place?.id
     block.apps = Blocklist.encode(selection)
     if let refused = app.save(block) { return refuse(refused) }
@@ -109,12 +139,14 @@ final class BlockEditorModel {
   }
 
   var canSave: Bool {
-    !Blocklist.isEmpty(selection) && block.schedule.isValid && !block.name.isEmpty
+    kindPicked && hasApps && block.schedule.isValid && limits().appsOver == 0 && !windowsOver
+      && (isSleep || BlockDraft.isValidName(block.name, config: app.config))
   }
 
   private func refuse(_ error: CommandError) -> Bool {
     refusal = Copy.Blocks.refused(
-      error, maxApps: app.config.blocks.maxApps, maxBlocks: app.config.blocks.max)
+      error, maxApps: app.config.blocks.maxApps, maxBlocks: app.config.blocks.max,
+      maxName: app.config.blocks.maxNameLength)
     return false
   }
 }

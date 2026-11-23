@@ -40,5 +40,7 @@ public enum CommandError: Error, Equatable, Sendable {
   case tooManyApps
   case tooManyPlaces
   case invalidSchedule
+  /// Empty, or longer than the block screen's title holds (#62).
+  case invalidName
   case unknownPlace
 }

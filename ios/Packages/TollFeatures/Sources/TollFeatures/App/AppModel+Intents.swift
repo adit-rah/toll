@@ -5,6 +5,15 @@ import TollScreenTime
 
 /// What screens ask for. Each is one command, or a few, through `send`.
 extension AppModel {
+  /// The time screens read. Demo launches pin it (docs/renders.md), so a render shows the state its
+  /// fixture built, whatever the runner's clock says.
+  var now: Date {
+    #if DEBUG
+      if let demo = DemoScenario.current { return DemoClock.now(for: demo) }
+    #endif
+    return Date()
+  }
+
   // MARK: Setup and blocks
 
   func finishSetup(sleep: Block, home: Place?) {

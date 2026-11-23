@@ -95,6 +95,7 @@ struct PlacePicker: View {
       }
     }
     .tollPushed(Copy.Blocks.whereTitle)
+    .toolbar(.hidden, for: .tabBar)
     .onAppear { center() }
   }
 

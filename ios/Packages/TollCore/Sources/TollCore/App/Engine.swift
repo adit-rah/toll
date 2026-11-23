@@ -229,6 +229,7 @@ public enum Engine {
 
   static func validate(_ block: Block, in state: DuskState, config: TollConfig) -> CommandError? {
     guard block.schedule.isValid else { return .invalidSchedule }
+    if !block.isSleep, !BlockDraft.isValidName(block.name, config: config) { return .invalidName }
     let others = state.blocks.filter { $0.id != block.id }
     if block.isSleep, others.contains(where: \.isSleep) { return .noSleepBlock }
     if others.count + 1 > config.blocks.max { return .tooManyBlocks }

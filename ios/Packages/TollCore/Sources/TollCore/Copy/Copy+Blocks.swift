@@ -4,8 +4,6 @@ extension Copy {
   /// Blocks and the block editor (the design canvas; decisions D29).
   public enum Blocks {
     public static let title = "Blocks"
-    public static let line =
-      "Each block is a list of apps, the hours they're blocked, and an optional place."
     public static func summary(categories: Int, apps: Int, sites: Int = 0) -> String {
       let count = Setup.blockedCount(categories: categories, apps: apps, sites: sites)
       return count.isEmpty ? "No apps" : count
@@ -21,9 +19,6 @@ extension Copy {
     public static func windowsFull(_ max: Int) -> String {
       "Up to \(max) time windows across all blocks."
     }
-    public static func windowsUsed(_ used: Int, of max: Int) -> String {
-      "\(used) of \(max) time windows used across all blocks. Blocks with the same hours share one."
-    }
     public static func onNowUntil(_ time: String) -> String { "until \(time)" }
     public static func appCount(_ n: Int) -> String { n == 1 ? "1 app" : "\(n) apps" }
     public static func thisBlock(_ n: Int) -> String { "This block: \(n) apps and sites" }
@@ -37,7 +32,7 @@ extension Copy {
     public static let editTitle = "Edit block"
     public static func kindName(_ kind: Block.Kind) -> String {
       switch kind {
-      case .sleep: Setup.sleepName
+      case .sleep: night
       case .study: "Study"
       case .work: "Work"
       case .gym: "Gym"
@@ -45,6 +40,11 @@ extension Copy {
       }
     }
     public static let name = "Name"
+    /// The night's block is the user's nights, never a block called "Sleep" (D68).
+    public static let night = "Night"
+    public static let nightTitle = Setup.yourNights
+    /// New block, before a kind is picked: the apps picker opens on the pick (#89).
+    public static let kindLine = "Pick one, then choose its apps."
     public static let place = "Place"
     public static let anywhere = Setup.anywhere
     public static let hours = "Hours"
@@ -80,7 +80,13 @@ extension Copy {
     public static func activeNote(_ block: String, until time: String) -> String {
       "\(block) is on until \(time). Changes apply when this block ends."
     }
-    public static let sleepStays = "Sleep can be changed but not deleted."
+    public static func nightActiveNote(until time: String) -> String {
+      "Your night is on until \(time). Changes apply when it ends."
+    }
+    public static func nightPlaceIgnored(span: String) -> String {
+      "Location is set to While Using, so your night runs \(span) wherever you are."
+    }
+    public static let sleepStays = "Your nights can be changed but not deleted."
     public static let delete = "Delete block"
     public static func deleteTitle(_ block: String) -> String { "Delete \(block)?" }
     public static func deleteLine(_ items: String, place: String?) -> String {
@@ -115,7 +121,9 @@ extension Copy {
       ["M", "T", "W", "T", "F", "S", "S"][day.rawValue - 1]
     }
 
-    public static func refused(_ error: CommandError, maxApps: Int, maxBlocks: Int) -> String {
+    public static func refused(
+      _ error: CommandError, maxApps: Int, maxBlocks: Int, maxName: Int
+    ) -> String {
       switch error {
       case .tooManyApps: "Up to \(maxApps) apps and sites across all blocks."
       case .tooManyBlocks: "Up to \(maxBlocks) blocks."
@@ -123,9 +131,10 @@ extension Copy {
         "Too many different hours across blocks. Share hours with another block."
       case .tooManyPlaces: "Too many places."
       case .invalidSchedule: "Choose hours at least 15 minutes long, on at least one day."
+      case .invalidName: "Give it a name of up to \(maxName) characters."
       case .unknownPlace: "Choose the place again."
-      case .sleepBlockCannotBeDeleted: "Sleep can be changed but not deleted."
-      case .noSleepBlock: "There is already a Sleep block."
+      case .sleepBlockCannotBeDeleted: sleepStays
+      case .noSleepBlock: "Your nights are already set."
       case .door: ""
       }
     }

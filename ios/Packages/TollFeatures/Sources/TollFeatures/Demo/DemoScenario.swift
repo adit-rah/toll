@@ -32,6 +32,8 @@
     case homeMorning = "home-morning"
     case homeMorningGap = "home-morning-gap"
     case homeMorningAway = "home-morning-away"
+    /// A weekday at 11 am with Study on: Tonight's one quiet line about it (D68, #89).
+    case homeDay = "home-day"
     case sleepMonday = "sleep-monday"
     case sleepBest = "sleep-best"
     /// Home not set (D68): the first evening, then the card the morning after the first night.
@@ -48,8 +50,15 @@
     case purchaseRestoreNone = "purchase-restore-none"
     case purchaseDone = "purchase-done"
     case blocks
+    /// Blocks on a weekday at 11 am, Study on (#89).
+    case blocksDay = "blocks-day"
+    /// New block: the kinds, then (`-gym`) Gym picked with its hours and no apps yet (#89).
     case blockNew = "block-new"
+    case blockNewGym = "block-new-gym"
     case blockEdit = "block-edit"
+    /// Editing Study while it's on, and editing the night (#89).
+    case blockEditOn = "block-edit-on"
+    case blockNight = "block-night"
     case doorChoosing = "door-choosing"
     case doorWaiting = "door-waiting"
     case doorOpen = "door-open"
@@ -122,16 +131,22 @@
     var tab: DuskTab {
       switch self {
       case .insights, .sleepMonday, .sleepBest: .sleep
-      case .blocks, .blockNew, .blockEdit: .blocks
+      case .blocks, .blocksDay, .blockNew, .blockNewGym, .blockEdit, .blockEditOn, .blockNight:
+        .blocks
       default: .tonight
       }
     }
+    /// The kind a new-block scenario shows already picked.
+    var newBlockKind: Block.Kind? { self == .blockNewGym ? .gym : nil }
+    /// Weekday scenarios at 11 am, with Study on.
+    var isDay: Bool { [.homeDay, .blocksDay, .blockEditOn].contains(self) }
     /// Screens pushed on the tab's stack, with the screens under them.
     var routes: [HomeRoute] {
       switch self {
       case .settings, .settingsAnywhere, .settingsHeadsUpDenied: [.settings]
-      case .blockNew: [.block(nil)]
-      case .blockEdit: [.block(BlockID("study"))]
+      case .blockNew, .blockNewGym: [.block(nil)]
+      case .blockEdit, .blockEditOn: [.block(BlockID("study"))]
+      case .blockNight: [.block(BlockID("sleep"))]
       default: []
       }
     }

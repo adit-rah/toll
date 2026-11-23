@@ -239,3 +239,22 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - A heads-up already scheduled still arrives if Screen Time is switched off or the purchase is refunded while Dusk stays closed. The next open clears it.
   - Personal timing (#98) must feed the moved start into `HeadsUp` when it lands.
 
+**D73. Other blocks are secondary and low-friction, as built** (2026-11-23, #89 with #62 and #78; details of D68).
+- **Blocks tab:**
+  - The night leads as its own card: its state, moon start – end sun over Tonight's strip, and its apps and place. It is never a block called "Sleep"; its editor is "Your nights", with no name, kind or Delete.
+  - Other blocks are compact rows with their kind's tile and their state as a glyph and a word. "New block" is the card's last row, one tap from the tab.
+  - The limits stay pinned at the bottom (D64): apps and sites as a bar, time windows as segments.
+- **Adding:**
+  - "New block" shows the four kinds. Picking one opens Apple's apps picker at once.
+  - The kind brings a name and default hours *(config)*: Study, Work and Other 9 am – 5 pm on weekdays (sharing one time window, D40), Gym 6 – 7 pm on weekdays.
+  - The place is optional, last, and Anywhere until chosen. Save is the next tap after the apps.
+- **Editing:**
+  - Hours change in place on the editor, not in a sheet. A ninth window is refused there.
+  - Blocks other than the night have a name (at most 24 characters, not blank) and a kind that can be changed. Name and hours follow a new kind only while they're still the old kind's defaults.
+  - Editors hide the tab bar.
+- **Tonight:**
+  - The hero is only ever the night.
+  - A day block that's on is one quiet line under it ("Study on until 5:00 pm", with a lock and its kind). While the night isn't on, that line carries the Pause capsule, since a pause lifts every block (D67).
+  - The location card shows only when the night has a place and talks only about the night. A day block at a place shows "Anywhere" on Blocks and in its editor. This amends D71 and follows D68's "Tonight never mentions other blocks".
+- **Wordless:** the kind's tile (the moon for the night) says which block; a lock against a clock says whether it's on; the bar and segments say how full the limits are; a dashed tile marks the row Save waits for.
+

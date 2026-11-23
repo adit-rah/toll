@@ -53,19 +53,15 @@ public struct HomeSnapshot: Equatable, Sendable {
     public var hours: [String] = []
   }
 
-  public struct BlockRow: Equatable, Sendable, Identifiable {
-    /// What the row's glyph says (#72, rule 2); the trailing word says the same in words.
-    public enum State: Equatable, Sendable {
-      case on, later, paused, off, waiting, unscheduled
-    }
-
-    public var id: BlockID
-    public var name: String
+  /// A block other than the night that's on now (D68, #89): Tonight's one quiet line about other
+  /// blocks, under the state. Nothing else on Tonight mentions them.
+  public struct OtherBlock: Equatable, Sendable {
+    /// The block that ends last, for the line's glyph.
     public var kind: Block.Kind
-    public var detail: String
-    public var trailing: String
-    public var trailingIsAccent: Bool
-    public var state: State
+    /// "Study on until 5:00 pm", or "2 blocks on until 5:00 pm".
+    public var text: String
+    /// The pause lifts every block (D67); the line offers it when the hero doesn't already.
+    public var offersPause: Bool
   }
 
   /// Where tonight's block runs, for the glyph before the hero's line: at Home, or anywhere on its
@@ -97,7 +93,7 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var phoneFree: String?
   /// The free nights' facts, for the purchase sheet.
   public var freeWeek: FreeWeek?
-  public var blocks: [BlockRow]
+  public var otherBlock: OtherBlock?
 
   public init(
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
@@ -112,10 +108,10 @@ public struct HomeSnapshot: Equatable, Sendable {
     supply = Supply(state: state, now: now, calendar: calendar, config: config)
     unlocksLeft = state.isBlocking && !screenTimeOff ? supply.left : nil
     if case .away = hero { pill = Pill(text: Copy.Home.awayLabel, kind: .away) }
-    // Only a block with a place loses anything without Always; with home not set, nothing does (D68).
+    // Only a night at home loses anything without Always; with home not set, nothing does (D68).
+    // Another block at a place says so on Blocks, since Tonight doesn't mention other blocks.
     locationBanner =
-      state.setupFinishedAt != nil && state.location == .scheduleOnly
-      && state.blocks.contains { $0.place != nil }
+      state.setupFinishedAt != nil && state.location == .scheduleOnly && sleep?.place != nil
     card = Self.card(
       state, now: now, calendar: calendar, warning: screenTimeOff || locationBanner,
       notifications: notifications)
@@ -146,9 +142,8 @@ public struct HomeSnapshot: Equatable, Sendable {
     }
     freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)
     if case .paused = hero { supply.refillDay = nil }
-    let blocking = !screenTimeOff
-    blocks = state.blocks.map {
-      Self.row($0, state: state, now: now, calendar: calendar, blocking: blocking)
+    if !screenTimeOff {
+      otherBlock = Self.otherBlock(state, hero: hero, unlocksLeft: unlocksLeft, calendar: calendar)
     }
   }
 
@@ -161,16 +156,12 @@ public struct HomeSnapshot: Equatable, Sendable {
       return .paused(
         endedToday: Self.trialEndedToday(state, now: now, calendar: calendar, config: config))
     }
-    if let (block, end) = state.activeBlocks.compactMap({ b in
-      state.runtime.active[b.id].map { (b, $0) }
-    })
-    .max(by: { $0.1 < $1.1 }) {
-      let label = block.isSleep ? Copy.Home.blockedUntil : Copy.Home.blockUntil(block.name)
-      let atHome = block.place != nil && state.location == .places
+    // Only the night takes the hero; another block that's on is one quiet line under it (D68).
+    if let sleep, let end = state.runtime.active[sleep.id] {
       return .blocked(
-        label: label, until: end,
+        label: Copy.Home.blockedUntil, until: end,
         detail: Copy.Home.blockedDetail(
-          atHome: block.isSleep && atHome,
+          atHome: sleep.place != nil && state.location == .places,
           unlocksLeft: state.unlocks.left(config, now: now, calendar: calendar)))
     }
     guard let sleep, let start = sleep.schedule.nextStart(after: now, calendar: calendar) else {
@@ -195,6 +186,25 @@ public struct HomeSnapshot: Equatable, Sendable {
     return .tonight(
       start: start,
       detail: Copy.Home.startsIn(Copy.Home.duration(start.timeIntervalSince(now)), atHome: atHome))
+  }
+
+  /// The other blocks on now, as one line: the one that ends last names the time.
+  static func otherBlock(
+    _ state: DuskState, hero: Hero, unlocksLeft: Int?, calendar: Calendar
+  ) -> OtherBlock? {
+    guard state.trial.entitled else { return nil }
+    let on = state.blocks.filter { !$0.isSleep }.compactMap { block in
+      state.runtime.active[block.id].map { (block, $0) }
+    }
+    guard let (last, end) = on.max(by: { $0.1 < $1.1 }) else { return nil }
+    let time = Copy.time(end, in: calendar)
+    let heroOffersPause = if case .blocked = hero { true } else { false }
+    return OtherBlock(
+      kind: last.kind,
+      text: on.count == 1
+        ? Copy.Home.otherBlockOn(last.name, until: time)
+        : Copy.Home.otherBlocksOn(on.count, until: time),
+      offersPause: !heroOffersPause && (unlocksLeft ?? 0) > 0)
   }
 
   /// The free week's last night ended this morning (the canvas's "ended this morning").
