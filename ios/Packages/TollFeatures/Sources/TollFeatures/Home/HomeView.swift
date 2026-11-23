@@ -27,10 +27,15 @@ struct HomeView: View {
           status
           Spacer(minLength: 20)
           VStack(spacing: 0) {
-            HomeHero(
-              hero: home.hero, place: home.heroPlace, supply: home.supply,
-              openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil
-            )
+            // From the end of the night until noon, last night takes the hero's place (#103).
+            if let morning = home.morning {
+              MorningCard(morning: morning, nights: home.bars)
+            } else {
+              HomeHero(
+                hero: home.hero, place: home.heroPlace, supply: home.supply,
+                phoneFree: home.phoneFree, openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil
+              )
+            }
             if case .paused = home.hero {
               PausedCard(price: price, open: openPurchase).padding(.top, 18)
             }
@@ -49,6 +54,7 @@ struct HomeView: View {
     }
     .background(TollColor.bg)
     .animation(Motion.stateChange, value: home.hero)
+    .animation(Motion.stateChange, value: home.morning)
   }
 
   /// The free-night pill and a card, both when both apply: without Always the card used to hide
@@ -148,6 +154,8 @@ struct HomeHero: View {
   let hero: HomeSnapshot.Hero
   var place: HomeSnapshot.HeroPlace?
   var supply: HomeSnapshot.Supply?
+  /// "8 h 30 m phone-free tonight", under the start time (#103).
+  var phoneFree: String?
   let openDoor: (() -> Void)?
   @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -173,6 +181,7 @@ struct HomeHero: View {
             .tollType(TollType(size: 40, lineHeight: 46, weight: .semibold, style: .largeTitle))
             .foregroundStyle(TollColor.label)
         }
+        if let phoneFree { PhoneFreeLine(text: phoneFree) }
         HStack(spacing: 6) {
           if let placeSymbol {
             Image(symbol: placeSymbol).unredacted()
@@ -285,14 +294,5 @@ struct HomeHero: View {
     case .screenTimeOff: Copy.Home.screenTimeOffDetail
     case .noBlocks: ""
     }
-  }
-}
-
-/// What Settings' location says, as one fact (D37).
-func locationFact(_ state: LocationAccess.State) -> String {
-  switch state {
-  case .approximate: Copy.Setup.approximateFact
-  case .denied, .notDetermined: Copy.Setup.deniedFact
-  case .whileUsing, .always: Copy.Setup.whileUsingFact
   }
 }

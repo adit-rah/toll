@@ -31,7 +31,6 @@ struct InsightsSnapshotTests {
     #expect(insights.since == date(2026, 11, 2, 0))
     #expect(insights.hoursBlocked == 14 * 8 + 7)
     #expect(insights.weeks == [28, 7])
-    #expect(insights.change == -75)
     #expect(insights.byHour[1] == 35)
     #expect(insights.peakHour == 23)
   }

@@ -20,8 +20,6 @@ public struct InsightsSnapshot: Equatable, Sendable {
   public var hoursBlocked: Int
   /// Taps on the block screen per week, oldest first, at most the last four.
   public var weeks: [Int]
-  /// Change from the first week to the last, in percent; nil with fewer than two weeks.
-  public var change: Int?
   /// Taps by hour of the night, 10 pm to 6 am (index 0 is 10 pm).
   public var byHour: [Int]
   public var peakHour: Int?
@@ -63,11 +61,6 @@ public struct InsightsSnapshot: Equatable, Sendable {
       self.weeks = Array(weeks.suffix(4))
     } else {
       weeks = []
-    }
-    if weeks.count >= 2, let first = weeks.first, first > 0, let last = weeks.last {
-      change = Int(((Double(last) - Double(first)) / Double(first) * 100).rounded())
-    } else {
-      change = nil
     }
 
     var byHour = Array(repeating: 0, count: 9)

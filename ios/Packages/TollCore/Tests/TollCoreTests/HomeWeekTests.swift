@@ -91,9 +91,8 @@ struct HomeWeekTests {
     #expect(home.nightsBlocked == 7)
   }
 
-  @Test func beforeTheFirstNightItSaysWhenItStarts() {
+  @Test func beforeTheFirstNightEveryNightIsAhead() {
     let home = week(state(setup: date(2026, 11, 17, 15)), date(2026, 11, 17, 19), [])
-    #expect(home.firstWeekLine.hasPrefix("Your first night starts at"))
     #expect(home.bars.allSatisfy { $0.night == .ahead })
   }
 

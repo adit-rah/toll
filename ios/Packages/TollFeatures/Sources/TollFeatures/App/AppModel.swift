@@ -13,6 +13,8 @@ import TollScreenTime
 public final class AppModel {
   public private(set) var state = DuskState()
   public private(set) var log: [Transition] = []
+  /// Every recorded night (D62), so Your sleep's counts outlive the log's trimming (#103).
+  public private(set) var history: [PastNight] = []
   public private(set) var screenTime = ScreenTimeAuthorization.State.notDetermined
   public private(set) var location = LocationAccess.State.notDetermined
   public let config = TollConfig.defaults
@@ -93,6 +95,7 @@ public final class AppModel {
       log: log, sleep: sleep, since: state.setupFinishedAt, now: Date(), calendar: .current,
       regret: TimeInterval(config.door.regretSeconds))
     NightLog().record(nights, calendar: .current)
+    history = NightLog().past(calendar: .current)
   }
 
   /// Every change goes through here.

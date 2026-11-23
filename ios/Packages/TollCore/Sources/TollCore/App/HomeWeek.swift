@@ -1,12 +1,13 @@
 import Foundation
 
 extension HomeSnapshot {
-  /// One night in "Times it stopped you, by night" (the canvas, sticky note s2).
+  /// One night of a week: a dot on the morning card and on Your sleep (#103), a bar in the free week.
   public struct Bar: Equatable, Sendable {
     public enum Night: Equatable, Sendable {
       /// Sleep ran; "Never mind" was tapped this many times (0 is drawn as 0).
       case stopped(Int)
-      /// Sleep was due and nothing blocked, and the user wasn't away: a dash, and it counts.
+      /// Sleep was due and nothing blocked, and the user wasn't away: it counts, and is drawn as a
+      /// plain hollow dot, never a dash or "missed" (D65).
       case missed
       /// Away from home through Sleep's hours: named, and not counted (#44).
       case away
@@ -31,12 +32,6 @@ extension HomeSnapshot {
       if case .stopped(let count) = night { return count }
       return 0
     }
-  }
-
-  /// A number and what it counts.
-  public struct Figure: Equatable, Sendable {
-    public var value: String
-    public var label: String
   }
 
   /// The week's pauses, always shown (D67): how many are left, and when they come back.

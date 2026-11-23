@@ -48,6 +48,11 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 30 | A night away, then a blocked night, with an unlock spent before (#61) | The refill's "N more blocked nights" drops by one only after the blocked night | | |
 | 31 | Block screen of an app on a Study block, then on Sleep, with 2 unlocks left (#75) | The picture is a book over ●●○ for Study, a moon over ●●○ for Sleep | | |
 | 32 | After two nights, Settings › Transition log › Share night records (#51) | A file with one line per ended night; tonight's isn't there until it ends; opening the app again adds no duplicates | | |
+| 33 | After a blocked night with two "Never mind" taps, open the app at 8 am (#103) | Tonight shows Last night: a moon → sun bar with the real on and off times, "You put it down 2 times", last night's dot filled | | |
+| 34 | Pause for 10 minutes during the night, open the app the next morning (#103) | The bar has a gap at the pause; VoiceOver reads "open from … to …" | | |
+| 35 | Open the app at 12:01 pm after a blocked night (#103) | The morning card is gone; the hero shows tonight's start and "8 h 30 m phone-free tonight" | | |
+| 36 | Monday morning after a week of nights, then again after Monday's night starts (#103) | Your sleep reads "A new week · N nights last week" over seven empty dots, then "This week" with Monday filled | | |
+| 37 | Let the transition log trim (more than 10 nights), then compare Your sleep's count before and after (#103) | The count never drops | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

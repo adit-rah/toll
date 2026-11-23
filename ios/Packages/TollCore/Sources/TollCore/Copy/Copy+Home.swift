@@ -22,6 +22,8 @@ extension Copy {
     public static func startsIn(_ duration: String, atHome: Bool) -> String {
       atHome ? "At home · starts in \(duration)" : "Starts in \(duration)"
     }
+    /// Under tonight's start, the night's length (#103).
+    public static func phoneFree(_ length: String) -> String { "\(length) phone-free tonight" }
     public static let youreHome = "You're home"
     /// "You're home · 3 pauses left" under "Blocked until".
     public static func blockedDetail(atHome: Bool, unlocksLeft: Int) -> String {
@@ -40,18 +42,13 @@ extension Copy {
     public static func onceEveryNight(_ price: String) -> String {
       "\(price) once · every night after"
     }
-    public static let noBlockNight = "–"
     public static let noBlockSpoken = "no block"
     public static let missedSpoken = "not blocked"
-    public static let awayNight = "away"
     public static let awaySpoken = "away, nothing blocked"
     public static let offNight = "off"
     public static let noScreenTimeSpoken = "Screen Time off, nothing blocked"
     public static let blockedSpoken = "blocked"
     public static let aheadSpoken = "still to come"
-    public static func stoppedSpoken(_ n: Int) -> String {
-      n == 1 ? "stopped you once" : "stopped you \(n) times"
-    }
     public static let now = "Now"
     public static func unlocksLeft(_ n: Int) -> String {
       n == 1 ? "1 pause left" : "\(n) pauses left"
@@ -77,16 +74,6 @@ extension Copy {
     }
     public static let nightsBlockedLabel = "nights blocked"
     public static let stoppedLabel = "times it stopped you"
-    public static func unlocks(_ left: Int, of max: Int) -> String { "\(left) of \(max)" }
-    public static let unlocksLeftLabel = "pauses left"
-    public static func firstNight(_ time: String) -> String {
-      "Your first night starts at \(time)."
-    }
-    public static let byNight = "Times it stopped you, by night"
-    public static let trendsLater = "Your trends show here after 3 nights."
-    public static func nightsSoFar(_ n: Int) -> String {
-      n == 1 ? "1 night blocked" : "\(n) nights blocked"
-    }
 
     public static let blocks = "Blocks"
     public static let new = "New"

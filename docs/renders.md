@@ -29,7 +29,9 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `empty` | The empty window |
 | `welcome` · `wake` · `home` · `permissions` · `always` · `blocklist` · `ready` | Each onboarding screen; home is placed in London, Screen Time is assumed from `blocklist` on |
 | `home-evening` · `home-blocked` · `home-away` · `home-first-week` · `home-last-night` · `home-paused` · `home-location` | Home in each state, with a Sleep and a Study block and a sample week of log, built around the time of the render |
+| `home-morning` · `home-morning-gap` · `home-morning-away` | Tonight at 8:10 am with the morning card (#103): after a night with taps, with a ten-minute pause, and away |
 | `purchase` · `settings` · `insights` · `blocks` · `block-new` · `block-edit` | The purchase sheet, Settings, the blocks list and the block editor (new, and editing Study), over Home |
+| `sleep-monday` · `sleep-best` | Your sleep at 8:10 am on the latest Monday ("A new week") and Sunday (a personal best) (#103) |
 | `door-choosing` · `door-waiting` · `door-open` · `door-none` | The pause sheet (D67) over a blocked Tonight |
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):
@@ -39,7 +41,7 @@ insights: gesture scroll-down; gesture scroll-down
 ```
 Steps are AXe commands without `axe` and `--udid` (`tap --label`, `tap --id`, `gesture scroll-up|down`, `type 'text'`, `swipe …`). Find labels in a scenario's `ui.json`. For a state no tap reaches, add a scenario.
 
-Demo scenarios run on a pinned clock (`DemoClock`): 11:40 pm for states inside Sleep's 10:30 pm – 7:00 am, 7:55 pm for the evening before it, whatever the runner's time; the fixture is in place before the first frame, and demos never reconcile against the real store. Door countdowns use the real clock.
+Demo scenarios run on a pinned clock (`DemoClock`): 11:40 pm for states inside Sleep's 10:30 pm – 7:00 am, 7:55 pm for the evening before it, 8:10 am for the mornings, whatever the runner's time; the fixture is in place before the first frame, and demos never reconcile against the real store. Door countdowns use the real clock.
 
 Variants: `light`, `dark`, `ax5` (largest Dynamic Type), `dark-ax5`, and `wordless` / `dark-wordless`, which draw every line of text as a placeholder bar for the wordless test (design §5). Pushes render `light`; ask for `ax5` (and `dark` for colour) whenever a change touches layout or type. AX5 renders have already caught truncation that light renders did not.
 

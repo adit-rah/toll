@@ -23,6 +23,11 @@
     case homeLocation = "home-location"
     case homeScreenTimeOff = "home-screen-time-off"
     case homeNoBlocks = "home-no-blocks"
+    case homeMorning = "home-morning"
+    case homeMorningGap = "home-morning-gap"
+    case homeMorningAway = "home-morning-away"
+    case sleepMonday = "sleep-monday"
+    case sleepBest = "sleep-best"
     case purchase, settings, insights
     case purchasePending = "purchase-pending"
     case purchaseFailed = "purchase-failed"
@@ -79,7 +84,7 @@
     /// The tab the screen is on (D63).
     var tab: DuskTab {
       switch self {
-      case .insights: .sleep
+      case .insights, .sleepMonday, .sleepBest: .sleep
       case .blocks, .blockNew, .blockEdit: .blocks
       default: .tonight
       }
@@ -96,7 +101,8 @@
     /// The door and the purchase are sheets over Tonight.
     var presentsSheet: Bool { isDoor || rawValue.hasPrefix("purchase") }
     var isHome: Bool {
-      rawValue.hasPrefix("home-") || rawValue.hasPrefix("block") || isDoor
+      rawValue.hasPrefix("home-") || rawValue.hasPrefix("sleep-") || rawValue.hasPrefix("block")
+        || isDoor
         || rawValue.hasPrefix("purchase") || [.settings, .insights].contains(self)
     }
   }
@@ -134,7 +140,10 @@
         tab: .constant(scenario.tab),
         tonightPath: .constant(scenario.tab == .tonight ? scenario.routes : []),
         blocksPath: .constant(scenario.tab == .blocks ? scenario.routes : []), model: app,
-        week: home, log: fixture.log, openPurchase: {}
+        sleep: YourSleep(
+          state: fixture.state, log: fixture.log, history: fixture.history, now: now,
+          calendar: .current),
+        log: fixture.log, openPurchase: {}
       ) {
         HomeView(
           home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},

@@ -53,7 +53,9 @@ struct HomeSnapshotTests {
     run(&s, date(2026, 11, 17, 15))
     let home = snapshot(s, date(2026, 11, 17, 15))
     #expect(home.hero == .paused(endedToday: false))
-    #expect(home.weekTitle == "Your free week")
+    #expect(
+      YourSleep(state: s, log: [], history: [], now: date(2026, 11, 17, 15), calendar: london)
+        .weekTitle == "Your free week")
     #expect(home.timeline?.phase == .paused)
     #expect(home.blocks.first?.trailing == Copy.Home.paused)
   }
@@ -89,8 +91,6 @@ struct HomeSnapshotTests {
     #expect(home.bars.prefix(3).map(\.night) == [.stopped(2), .stopped(1), .ahead])
     #expect(home.bars.map(\.isLatest) == [false, true, false, false, false, false, false])
     #expect(home.bars.suffix(4).allSatisfy { $0.night == .ahead })
-    #expect(!home.showsTrends)
-    #expect(home.firstWeekLine == "2 nights blocked")
   }
 
   @Test func laterTheLastSevenNightsWithDashesAndZeros() {
