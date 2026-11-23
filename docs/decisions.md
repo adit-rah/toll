@@ -223,3 +223,19 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - Home is saved once, at the end, by `setHome`, which waits during a night (B-3). With location denied, the map offers Open Settings and Not now.
 - **Existing users** with home set see no change.
 
+**D72. The heads-up, as built** (2026-11-23, #104; details of D68).
+- **What:** one local notification, "Night starts in 20 min" *(config)*, with the night's hours as its body. Banners only: no sound, no badge (D65). Nothing else is ever notified.
+- **When:** for each of the coming 7 nights *(config)*, 20 minutes before the start, so each night still gets one while Dusk stays closed. The extensions can't schedule (they never import TollData), so the app schedules the week ahead. The rule is `HeadsUp` in TollCore.
+  - It never sends one late.
+  - A held edit (B-3) sets the hours of every night after the current one.
+  - None before setup, while the night's block is off, while Screen Time is off, for a night after the free week unless bought (P-2, judged night by night), while the Settings switch is off, or while iOS hasn't allowed it.
+- **Rescheduled:** after every change the app makes, on every launch and foreground, and when the app sees a change the monitor wrote.
+- **Asking:** never in onboarding. From the morning after the first night, Tonight's card slot offers "A heads-up before your night?" with a bell and the time it would arrive, plus "Turn on" and "Not now".
+  - Order: warnings, then home, then the heads-up, one card at a time.
+  - It shows only while iOS hasn't been asked. "Not now" hides it for good.
+- **Settings:** a "Heads-up" switch, on by default once allowed. After iOS has said no, the row reads "Off in iOS Settings" and opens them.
+- **Symbol:** `bell`.
+- **Open:**
+  - A heads-up already scheduled still arrives if Screen Time is switched off or the purchase is refunded while Dusk stays closed. The next open clears it.
+  - Personal timing (#98) must feed the moved start into `HeadsUp` when it lands.
+

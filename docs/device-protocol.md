@@ -61,6 +61,13 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 43 | With 0 left, open a blocked app | The block screen has no "Pause in Dusk" button and reads "No pauses left · back Monday" | | |
 | 44 | Fresh install, onboarding with no location ever asked; leave the phone away from where you sleep (#102) | No location prompt in onboarding. The block comes on at the night's start wherever the phone is (Sleep has no place). Tonight reads "Anywhere · starts in …" before it, and the block goes off at the night's end | | |
 | 45 | The morning after row 44: Tonight shows "Only when I'm home?"; tap Set home → This is home → Allow → Always; that night, arrive home after the start (#102) | The card appears after the night ends, not before. After the sheet, Settings › Only when I'm home reads On and the card is gone. That night it stays off while away, then comes on at arrival. Repeating with "Not now": the card never returns and the Settings row stays | | |
+| 46 | The morning after the first night (home set, or after the home card): Tonight shows "A heads-up before your night?" with a bell and "10:10 pm · 20 min before your night"; tap Turn on → Allow; swipe Dusk away and wait for the evening (#104) | The prompt appears only after Turn on, never in onboarding. The card is gone and Settings › Heads-up is on. At 20 min before the start, with Dusk closed, one silent notification: "Night starts in 20 min" / "10:30 pm – 7:00 am" | | |
+| 47 | In the day, change the night's start 30 min later and close Dusk. Then during a night, change it back (held), and don't open Dusk until the next evening | The heads-up follows the new start. After the held edit, the next evening's follows the edited hours | | |
+| 48 | Don't open Dusk for three days | A heads-up every evening, 20 min before each night | | |
+| 49 | Settings › Heads-up off; wait for the evening. Turn it on again | None that evening; after turning it on, the next one is on time | | |
+| 50 | Fresh install: "Not now" on the card. Another install: deny at the prompt | "Not now": the card never returns, nothing arrives. Denied: nothing arrives; Settings › Heads-up reads "Off in iOS Settings" and opens Dusk's iOS Settings page; allow there, return, and the row is on and the heads-up comes that evening | | |
+| 51 | The evening of the last free night, then the evening after (not bought); separately, Screen Time off for Dusk, then open Dusk | One on the last free night, none after. With Screen Time off: none | | |
+| 52 | Over five nights, check Notification Center | Only heads-ups from Dusk, nothing else | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
