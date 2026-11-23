@@ -37,8 +37,12 @@
     /// Home not set (D68): the first evening, then the card the morning after the first night.
     case homeAnywhere = "home-anywhere"
     case homeCard = "home-card"
+    /// The heads-up card (#104): home set, the morning after the first night, iOS not asked yet.
+    case homeHeadsUp = "home-heads-up"
     case purchase, settings, insights
     case settingsAnywhere = "settings-anywhere"
+    /// Settings with notifications denied: the heads-up row leaves for iOS Settings (#104).
+    case settingsHeadsUpDenied = "settings-heads-up-denied"
     case purchasePending = "purchase-pending"
     case purchaseFailed = "purchase-failed"
     case purchaseRestoreNone = "purchase-restore-none"
@@ -105,6 +109,14 @@
       default: isHome ? .always : nil
       }
     }
+    /// Every screen after setup assumes the heads-up is allowed, unless it shows the asking.
+    var notifications: NotificationPermission? {
+      switch self {
+      case .homeHeadsUp: .notAsked
+      case .settingsHeadsUpDenied: .denied
+      default: isHome ? .allowed : nil
+      }
+    }
     var isDoor: Bool { rawValue.hasPrefix("door") }
     /// The tab the screen is on (D63).
     var tab: DuskTab {
@@ -117,7 +129,7 @@
     /// Screens pushed on the tab's stack, with the screens under them.
     var routes: [HomeRoute] {
       switch self {
-      case .settings, .settingsAnywhere: [.settings]
+      case .settings, .settingsAnywhere, .settingsHeadsUpDenied: [.settings]
       case .blockNew: [.block(nil)]
       case .blockEdit: [.block(BlockID("study"))]
       default: []
@@ -160,7 +172,9 @@
       let fixture = DemoFixture(scenario: scenario, now: now)
       let home = HomeSnapshot(
         state: fixture.state, log: fixture.log, now: now, calendar: .current,
-        screenTime: scenario != .homeScreenTimeOff)
+        screenTime: scenario != .homeScreenTimeOff,
+        notifications: scenario.notifications ?? .allowed)
+
       DuskTabs(
         tab: .constant(scenario.tab),
         tonightPath: .constant(scenario.tab == .tonight ? scenario.routes : []),

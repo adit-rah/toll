@@ -47,12 +47,21 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var nights = 7
   }
 
+  public struct HeadsUp: Codable, Sendable, Equatable {
+    public init() {}
+    /// The one notification comes this long before each night (D68).
+    public var leadMinutes = 20
+    /// Nights scheduled at once, so each still gets its heads-up while the app stays closed.
+    public var nightsAhead = 7
+  }
+
   public var window = Window()
   public var home = Home()
   public var door = Door()
   public var unlocks = Unlocks()
   public var trial = Trial()
   public var blocks = Blocks()
+  public var headsUp = HeadsUp()
 
   public init() {}
 

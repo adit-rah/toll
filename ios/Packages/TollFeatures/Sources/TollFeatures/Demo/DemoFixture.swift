@@ -71,7 +71,7 @@
       let nightsAgo =
         scenario == .homeAnywhere || scenario.setHomePath != nil
         ? 0
-        : firstWeek || scenario == .homeCard
+        : firstWeek || scenario == .homeCard || scenario == .homeHeadsUp
           ? 1
           : scenario == .homeLastNight
             ? 6 : later ? 20 : paused ? 8 : scenario == .sleepBest ? 6 : morning ? 9 : 4

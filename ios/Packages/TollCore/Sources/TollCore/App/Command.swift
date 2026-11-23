@@ -15,6 +15,8 @@ public enum Command: Sendable {
   case setHome(Place)
   /// A Tonight card the user put away (#102); it doesn't come back.
   case dismissCard(TonightCard)
+  /// Settings' heads-up switch (D68).
+  case headsUp(Bool)
   case presence(PlaceID, Presence)
   case location(LocationMode)
   case trialStart(Date)
