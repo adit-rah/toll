@@ -185,3 +185,20 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Naming:** the hours are "Night" ("Tonight", "Your nights"), shown as moon start – end sun wherever there's room. Never "sleep window", "bedtime" or "sleep hours" as the name. The block itself is no longer shown as "Sleep" to people; it's their night. `Block.sleep` and `SleepWindow` stay as code names.
 - **Blocks:** the tab stays (D63) but is quieter. Onboarding and Tonight never mention other blocks, and adding one stays one tap away (#89).
 - **Heads-up:** one local notification 20 minutes before each night ("Night starts in 20 min", *(config)*). Permission is asked after the first night, never in onboarding, and Settings can switch it off. No other notifications. This amends spec §2's "no notifications".
+
+**D69. The morning card: last night's facts on Tonight and Your sleep** (2026-11-23, #103; follows D65, D68).
+- **Tonight, from the end of the night until noon:** last night replaces the "starts at" hero.
+  - The planned night is a moon → sun bar, filled where the block shielded. A pause (D67) or leaving home is a gap.
+  - The times shown are when the block first came on and last went off.
+  - "You put it down N times" counts "Never mind" taps while the night's block was on (D46), and shows only above zero.
+  - The last seven nights are dots. A night that ran is filled. A night away, after the trial or with Screen Time off is a hollow dot with its glyph. A night that was due and didn't run is a plain hollow dot, never a dash or "missed". The dots replace This week's bars and dashes (D46); the counting rules stay (#44, D54).
+  - A night that was due and didn't run shows no morning card: Tonight looks ahead.
+- **Evening:** "8 h 30 m phone-free tonight" goes under tonight's start.
+- **Your sleep:**
+  - "N nights" counts every night the block ran, from the night log (D62) and the transition log together, so it never goes down.
+  - This week runs Monday night to Sunday night, keyed noon to noon (D67's week).
+  - "A new week" shows from the end of Sunday's night until Monday's night starts, with "N nights last week" over seven empty dots.
+  - "N nights this week · Your most in a week" shows only when this week beats every earlier week.
+  - The "since week 1" change and the duplicate "nights blocked since" figure are gone: one number per card, and a comparison only when it's better.
+- **Symbols:** `sun.max` (the night's end), `iphone.slash` (the phone put down), `arrow.up.to.line` (a personal best).
+

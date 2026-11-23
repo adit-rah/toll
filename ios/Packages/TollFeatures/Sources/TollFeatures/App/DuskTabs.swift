@@ -14,7 +14,7 @@ struct DuskTabs<Tonight: View>: View {
   @Binding var tonightPath: [HomeRoute]
   @Binding var blocksPath: [HomeRoute]
   let model: AppModel
-  let week: HomeSnapshot
+  let sleep: YourSleep
   let log: [TollCore.Transition]
   let openPurchase: () -> Void
   @ViewBuilder let tonight: Tonight
@@ -32,7 +32,7 @@ struct DuskTabs<Tonight: View>: View {
       }
       Tab(Copy.Tabs.sleep, systemImage: TollSymbol.insights.name, value: DuskTab.sleep) {
         NavigationStack {
-          InsightsView(log: log, week: week)
+          InsightsView(log: log, sleep: sleep)
         }
       }
       Tab(Copy.Tabs.blocks, systemImage: TollSymbol.blocks.name, value: DuskTab.blocks) {

@@ -17,7 +17,7 @@ struct NightPictureView: View {
           .monospacedDigit()
           .multilineTextAlignment(.center)
           .fixedSize(horizontal: false, vertical: true)
-        glyph(.morning)
+        glyph(.sun)
       }
       .frame(maxWidth: .infinity)
       TimelineStrip(timeline: picture.timeline)
