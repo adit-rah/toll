@@ -12,6 +12,8 @@ struct SettingsView: View {
   @State private var explaining = false
   @State private var nothingToRestore = false
   @State private var restoring = false
+  /// "Only when I'm home" (D68): the same flow as Tonight's card, here for good.
+  @State private var settingHome = false
   @AppStorage(Appearance.key) private var appearance = Appearance.standard
 
   var body: some View {
@@ -41,6 +43,16 @@ struct SettingsView: View {
             SettingsRow(Copy.Settings.location) {
               PermissionState(text: location.0, tone: location.1)
             }
+            Button {
+              settingHome = true
+            } label: {
+              SettingsRow(
+                Copy.Settings.onlyAtHome,
+                detail: model.state.homeIsSet
+                  ? Copy.Settings.onlyAtHomeOn : Copy.Settings.onlyAtHomeOff
+              ) { Chevron() }
+            }
+            .buttonStyle(.plain)
             SettingsRow(Copy.Settings.lastNight, detail: lastNight)
           }
         }
@@ -91,6 +103,7 @@ struct SettingsView: View {
     .tollPushed(Copy.Settings.title)
     .sheet(isPresented: $explaining) { HowItWorks() }
     .sheet(isPresented: $nothingToRestore) { RestoreNoneSheet() }
+    .sheet(isPresented: $settingHome) { SetHomeFlow(app: model) { settingHome = false } }
   }
 
   @ViewBuilder private var freeNights: some View {

@@ -14,6 +14,16 @@ extension AppModel {
     send(.edit, [.finishSetup(sleep: Blocklist.counted(sleep), home: home, trialStart: trialStart)])
   }
 
+  /// "Only when I'm home" (D68): Home saved and the night waiting for it, held while a night is on.
+  func setHome(_ home: Place) {
+    send(.edit, [.setHome(home)])
+  }
+
+  /// A Tonight card put away for good (#102).
+  func dismiss(_ card: TonightCard) {
+    send(.edit, [.dismissCard(card)])
+  }
+
   /// A block as the user last chose it: a held edit if one waits (B-3), else what is in force.
   func draft(_ id: BlockID) -> Block? {
     if case .save(let block) = state.pending[id] { return block }

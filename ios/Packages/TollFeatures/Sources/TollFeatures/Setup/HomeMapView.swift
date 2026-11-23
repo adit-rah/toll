@@ -3,14 +3,18 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Setup 2 (the canvas): the map centred on where the user is, home drawn around it; Move lets the map
-/// be dragged under the circle. The privacy line is on screen before the location prompt appears.
+/// "Only when I'm home", first step (the canvas's map, offered after the first night, D68): the map
+/// centred on where the user is, home drawn around it; Move lets the map be dragged under the circle.
+/// The privacy line is on screen before the location prompt appears.
 struct HomeMapView: View {
-  let model: SetupModel
+  let model: SetHomeModel
   @State private var camera = MapCameraPosition.userLocation(fallback: .automatic)
 
   var body: some View {
-    SetupPage(step: SetupModel.Step.home.number, title: Copy.Setup.homeTitle) {
+    SetupPage(
+      step: SetHomeModel.mapStep, of: SetHomeModel.questions, title: Copy.Setup.homeTitle,
+      endsWithLink: blocked
+    ) {
       map.padding(.top, 24)
       if blocked {
         SetupLine(Copy.Setup.homeWithoutLocation).padding(.top, 16)
@@ -36,15 +40,19 @@ struct HomeMapView: View {
       Footnote(Copy.Setup.homeLine, symbol: .privacy).padding(.top, 14)
     } actions: {
       if blocked {
-        PrimaryButton(Copy.Setup.continueWithout) { model.go(.permissions) }
+        // Only Settings can turn location back on; leaving keeps the night running anywhere.
+        PrimaryButton(action: openSystemSettings) {
+          HStack(spacing: 8) {
+            Text(Copy.Setup.openSettings)
+            Image(symbol: .openSettings).unredacted().accessibilityHidden(true)
+          }
+        }
+        QuietButton(Copy.Setup.notNow, type: .smallQuiet) { model.cancel() }
       } else if model.noFix {
         PrimaryButton(Copy.Setup.tryAgain) { Task { await model.retryLocate() } }
       } else {
-        PrimaryButton(Copy.Setup.thisIsHome) {
-          model.moving = false
-          model.go(.permissions)
-        }
-        .disabled(model.home == nil)
+        PrimaryButton(Copy.Setup.thisIsHome) { model.homeChosen() }
+          .disabled(model.home == nil)
       }
     }
     // A moment on screen first, so the line is read before the prompt covers it.
@@ -54,11 +62,11 @@ struct HomeMapView: View {
     }
     .onChange(of: model.app.location) { Task { await model.locate() } }
     .onChange(of: model.home?.id) { center(on: model.home) }
+    // A home already set opens on its circle, not on wherever the phone is.
+    .onAppear { center(on: model.home) }
   }
 
-  private var blocked: Bool {
-    model.app.location == .denied || model.app.location == .approximate
-  }
+  private var blocked: Bool { model.mapBlocked }
 
   private var map: some View {
     Map(position: $camera, interactionModes: model.moving ? [.pan, .zoom] : []) {

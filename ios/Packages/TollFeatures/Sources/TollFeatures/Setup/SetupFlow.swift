@@ -3,7 +3,8 @@ import TollCore
 import TollScreenTime
 import TollUI
 
-/// Welcome, the four questions (with Always when needed), then Ready (the canvas's onboarding).
+/// Onboarding (D68): Welcome, when you get up, Screen Time, the apps, then Ready. Five screens to a
+/// first locked night; home is offered after it (`SetHomeFlow`).
 struct SetupFlow: View {
   @State private var model: SetupModel
 
@@ -25,10 +26,7 @@ struct SetupFlowContent: View {
         .navigationDestination(for: SetupModel.Step.self) { step in
           switch step {
           case .wake: WakeTimeView(model: model)
-          case .home: HomeMapView(model: model)
-          case .permissions: PermissionsView(model: model)
-          case .always: AlwaysView(model: model)
-          case .locationOff: LocationOffView(model: model)
+          case .screenTime: ScreenTimeView(model: model)
           case .blocklist: BlocklistView(model: model)
           case .ready: ReadyView(model: model)
           }
@@ -142,67 +140,5 @@ private struct OfferCard: View {
       TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
     )
     .accessibilityElement(children: .combine)
-  }
-}
-
-/// Ready: what was set up, and when the free week ends (the canvas's Ready and Ready · location While
-/// Using). No back button: setup is done.
-struct ReadyView: View {
-  let model: SetupModel
-
-  var body: some View {
-    SetupPage(step: nil, title: line, eyebrow: Copy.Setup.readyEyebrow) {
-      Card {
-        CardRow(
-          Copy.span(model.window),
-          detail: model.weekendsDiffer ? Copy.Setup.weekendsDiffer : Copy.Setup.everyNight
-        ) { IconTile(.sleep) }
-        CardRow(
-          atHome ? Copy.Setup.atHome : Copy.Setup.anywhere,
-          detail: atHome ? Copy.Setup.yourBuilding : Copy.Setup.anywhereDetail
-        ) { IconTile(atHome ? .home : .anywhere, accent: false) }
-        CardRow(
-          Copy.Setup.blocked,
-          detail: Copy.Setup.blockedCount(
-            categories: model.selection.categoryTokens.count,
-            apps: Blocklist.items(model.selection))
-        ) { IconTile(.apps, accent: false) }
-        CardRow(
-          Copy.Setup.unlocks(model.app.config.unlocks.max),
-          detail: Copy.Setup.unlocksDetail(minutes: model.app.config.door.minutes)
-        ) { IconTile(.unlock, accent: false) }
-      }
-      .padding(.top, TollSpacing.lineToContent)
-    } actions: {
-      if let footnote {
-        Footnote(footnote, alignment: .center)
-          .padding(.horizontal, 12)
-          .padding(.bottom, TollSpacing.aboveButton)
-      }
-      PrimaryButton(Copy.Setup.done) { model.finish() }
-    }
-    .navigationBarBackButtonHidden()
-  }
-
-  private var atHome: Bool { model.blocksAtHome }
-
-  /// From the stored trial start, so a reinstall isn't promised a new week (#46).
-  private var footnote: String? {
-    let day = { (date: Date) in date.formatted(.dateTime.month(.abbreviated).day()) }
-    switch model.offer(now: Date()) {
-    case .fresh(let end?), .running(let end):
-      return Copy.Setup.freeUntil(day(end), price: model.app.price)
-    case .used(let ended): return Copy.Setup.freeWeekEnded(day(ended), price: model.app.price)
-    case .fresh(nil), .purchased: return nil
-    }
-  }
-
-  private var line: String {
-    let now = Date()
-    if let night = model.schedule.occurrence(containing: now, calendar: .current) {
-      return Copy.Setup.readyNow(Copy.time(night.end), atHome: atHome)
-    }
-    let start = model.schedule.nextStart(after: now, calendar: .current) ?? now
-    return Copy.Setup.readyLine(Copy.time(start), atHome: atHome)
   }
 }

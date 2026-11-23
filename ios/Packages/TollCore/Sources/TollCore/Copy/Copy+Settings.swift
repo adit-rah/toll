@@ -12,6 +12,10 @@ extension Copy {
     public static let always = "Always"
     public static let whileUsing = "While Using"
     public static let approximate = "Approximate"
+    /// The same entry as Tonight's home card (D68), kept after the card is dismissed.
+    public static let onlyAtHome = "Only when I'm home"
+    public static let onlyAtHomeOn = "On"
+    public static let onlyAtHomeOff = "Off · runs wherever you are"
     public static let lastNight = "Last night"
     public static func blocked(_ from: String, _ until: String?) -> String {
       until.map { "Blocked \(from) – \($0)" } ?? "Blocked from \(from)"

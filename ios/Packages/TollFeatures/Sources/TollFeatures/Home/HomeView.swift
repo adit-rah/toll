@@ -15,6 +15,9 @@ struct HomeView: View {
   let openPurchase: () -> Void
   let fixLocation: () -> Void
   var turnOnScreenTime: () -> Void = {}
+  /// The Tonight card's link and its "Not now" (#102).
+  var openCard: (TonightCard) -> Void = { _ in }
+  var dismissCard: (TonightCard) -> Void = { _ in }
 
   /// A composition, not a list (D64): what needs attention at the top, the state just above the
   /// middle where the eye lands, and the day strip at the bottom like a horizon. At accessibility
@@ -69,6 +72,9 @@ struct HomeView: View {
         SettingsLink(Copy.Home.fixInSettings, action: fixLocation)
       }
       .padding(.top, home.pill == nil ? 4 : 12)
+    } else if let card = home.card {
+      TonightCardView(card: card, open: { openCard(card) }, dismiss: { dismissCard(card) })
+        .padding(.top, home.pill == nil ? 4 : 12)
     }
   }
 

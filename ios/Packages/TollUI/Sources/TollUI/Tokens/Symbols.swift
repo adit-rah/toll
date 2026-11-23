@@ -13,6 +13,8 @@ public struct TollSymbol: Hashable, Sendable {
 
   // Blocks and nights
   public static let sleep = TollSymbol("moon")
+  /// A night's end, drawn after its time as the moon is before its start (D68).
+  public static let morning = TollSymbol("sun.max")
   public static func block(_ kind: Block.Kind) -> TollSymbol {
     switch kind {
     case .sleep: sleep

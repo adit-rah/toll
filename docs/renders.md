@@ -27,9 +27,11 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | Scenario | Opens on |
 |---|---|
 | `empty` | The empty window |
-| `welcome` · `wake` · `home` · `permissions` · `always` · `blocklist` · `ready` | Each onboarding screen; home is placed in London, Screen Time is assumed from `blocklist` on |
+| `welcome` · `wake` · `wake-weekends` · `screen-time` · `screen-time-allowed` · `screen-time-denied` · `blocklist` · `ready` | Each onboarding screen (D68: no map, no location); Screen Time is assumed from `blocklist` on |
+| `set-home` · `set-home-off` · `set-home-location` · `set-home-always` · `set-home-location-off` | "Only when I'm home" as a sheet over Tonight: the map (home placed in London; `-off` with location denied), the location prompt, Always, and location off |
 | `home-evening` · `home-blocked` · `home-away` · `home-first-week` · `home-last-night` · `home-paused` · `home-location` | Home in each state, with a Sleep and a Study block and a sample week of log, built around the time of the render |
-| `purchase` · `settings` · `insights` · `blocks` · `block-new` · `block-edit` | The purchase sheet, Settings, the blocks list and the block editor (new, and editing Study), over Home |
+| `home-anywhere` · `home-card` | Home not set yet: the first evening ("Anywhere"), and the morning-after card offering home |
+| `purchase` · `settings` · `settings-anywhere` · `insights` · `blocks` · `block-new` · `block-edit` | The purchase sheet, Settings (with home set, and not set), the blocks list and the block editor (new, and editing Study), over Home |
 | `door-choosing` · `door-waiting` · `door-open` · `door-none` | The door sheet over a blocked Home; no app icon (no tokens in the simulator) |
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):

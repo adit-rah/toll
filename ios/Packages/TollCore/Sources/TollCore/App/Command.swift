@@ -11,6 +11,10 @@ public enum Command: Sendable {
   case deleteBlock(BlockID)
   /// Add a place or move one; held while an active block uses it.
   case savePlace(Place)
+  /// "Only when I'm home" (D68): save Home and have the Sleep block wait for it; held while it's on.
+  case setHome(Place)
+  /// A Tonight card the user put away (#102); it doesn't come back.
+  case dismissCard(TonightCard)
   case presence(PlaceID, Presence)
   case location(LocationMode)
   case trialStart(Date)

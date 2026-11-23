@@ -61,6 +61,8 @@ struct LiveHome: View {
   @State private var blocksPath: [HomeRoute] = []
   /// The door sheet, opened by `showsDoor` and kept by `doorPending`.
   @State private var doorUp = false
+  /// "Only when I'm home", from Tonight's card (D68).
+  @State private var settingHome = false
 
   var body: some View {
     DuskTabs(
@@ -73,8 +75,15 @@ struct LiveHome: View {
           locationFact: locationFact(model.location),
           openSettings: { path.append(.settings) }, openDoor: { model.askDoor() },
           openPurchase: { buying = true }, fixLocation: openSystemSettings,
-          turnOnScreenTime: { Task { await model.turnOnScreenTime() } }
+          turnOnScreenTime: { Task { await model.turnOnScreenTime() } },
+          openCard: { card in
+            switch card {
+            case .home: settingHome = true
+            }
+          },
+          dismissCard: { model.dismiss($0) }
         )
+        .sheet(isPresented: $settingHome) { SetHomeFlow(app: model) { settingHome = false } }
       }
     }
     .sheet(isPresented: $buying) { PurchaseSheet(model: model, home: snapshot(Date())) }
