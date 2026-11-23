@@ -8,6 +8,7 @@ struct TonightCardView: View {
   let card: TonightCard
   let open: () -> Void
   let dismiss: () -> Void
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
     HStack(alignment: .top, spacing: TollSpacing.rowGap) {
@@ -15,7 +16,12 @@ struct TonightCardView: View {
       VStack(alignment: .leading, spacing: 0) {
         RowText(title: content.title, detail: content.detail)
           .accessibilityElement(children: .combine)
-        HStack(spacing: 20) {
+        // Side by side; stacked at accessibility sizes so neither action truncates.
+        let actions =
+          typeSize.isAccessibilitySize
+          ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0))
+          : AnyLayout(HStackLayout(spacing: 20))
+        actions {
           Button(action: open) {
             HStack(spacing: 4) {
               Text(content.action)
