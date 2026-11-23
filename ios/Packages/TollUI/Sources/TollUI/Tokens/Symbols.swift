@@ -19,6 +19,8 @@ public struct TollSymbol: Hashable, Sendable {
   public static let phoneDown = TollSymbol("iphone.slash")
   /// A personal best, against the person's own past (D65).
   public static let best = TollSymbol("arrow.up.to.line")
+  /// The heads-up before the night, Dusk's one notification (D68).
+  public static let headsUp = TollSymbol("bell")
   public static func block(_ kind: Block.Kind) -> TollSymbol {
     switch kind {
     case .sleep: sleep

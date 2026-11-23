@@ -6,6 +6,9 @@ import Foundation
 public enum TonightCard: String, Codable, Hashable, Sendable, CaseIterable {
   /// "Only when I'm home?": from the morning after the first night, while home isn't set (D68).
   case home
+  /// "A heads-up before your night?": from the morning after the first night, until iOS has been
+  /// asked (D68, #104). Home goes first: one offer at a time.
+  case headsUp
 }
 
 extension DuskState {
@@ -25,9 +28,10 @@ extension DuskState {
 extension HomeSnapshot {
   /// Offers are quiet: none while anything is blocked, none once the free week is over, none while a
   /// warning holds the slot.
-  static func card(_ state: DuskState, now: Date, calendar: Calendar, warning: Bool)
-    -> TonightCard?
-  {
+  static func card(
+    _ state: DuskState, now: Date, calendar: Calendar, warning: Bool,
+    notifications: NotificationPermission
+  ) -> TonightCard? {
     guard !warning, !state.isBlocking, state.trial.entitled,
       let finished = state.setupFinishedAt, let sleep = state.sleepBlock
     else { return nil }
@@ -35,7 +39,9 @@ extension HomeSnapshot {
     let nightEnded = sleep.schedule.lastEnd(atOrBefore: now, calendar: calendar).map {
       $0 > finished
     }
-    if !state.homeIsSet, !state.dismissed(.home), nightEnded == true { return .home }
+    guard nightEnded == true else { return nil }
+    if !state.homeIsSet, !state.dismissed(.home) { return .home }
+    if notifications == .notAsked, !state.dismissed(.headsUp) { return .headsUp }
     return nil
   }
 }

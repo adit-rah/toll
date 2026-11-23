@@ -14,5 +14,7 @@ struct ConfigTests {
     #expect(config.unlocks.refillWeekday == 2)
     #expect(config.trial.nights == 7)
     #expect(config.blocks.maxApps == 40)
+    #expect(config.headsUp.leadMinutes == 20)
+    #expect(config.headsUp.nightsAhead == 7)
   }
 }

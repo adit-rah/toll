@@ -180,9 +180,9 @@ struct HomeNotSetTests {
 
   @Test func aCardKindFromALaterBuildDoesNotStopTheFileLoading() throws {
     var state = fresh()
-    state.dismissedCards = ["headsUp"]
+    state.dismissedCards = ["someLaterCard"]
     let loaded = DuskStore.decode(try DuskStore.encoder.encode(state))
-    #expect(loaded.dismissedCards == ["headsUp"])
+    #expect(loaded.dismissedCards == ["someLaterCard"])
     #expect(!loaded.dismissed(.home))
     #expect(loaded.blocks.count == 1)
   }

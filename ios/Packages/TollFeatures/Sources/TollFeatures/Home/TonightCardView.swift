@@ -6,6 +6,8 @@ import TollUI
 /// `surface`, the offer's own symbol, one link that opens it and "Not now" that puts it away for good.
 struct TonightCardView: View {
   let card: TonightCard
+  /// The heads-up the card offers, for its time (#104).
+  var headsUp: HeadsUp?
   let open: () -> Void
   let dismiss: () -> Void
   @Environment(\.dynamicTypeSize) private var typeSize
@@ -51,6 +53,15 @@ struct TonightCardView: View {
   private var content: (symbol: TollSymbol, title: String, detail: String, action: String) {
     switch card {
     case .home: (.home, Copy.Home.homeCard, Copy.Home.homeCardDetail, Copy.Home.setHome)
+    // A bell and a time, so it reads without the words (design §5).
+    case .headsUp:
+      (
+        .headsUp, Copy.HeadsUp.card,
+        Copy.HeadsUp.cardDetail(
+          time: headsUp.map { Copy.time($0.at) },
+          minutes: TollConfig.defaults.headsUp.leadMinutes),
+        Copy.HeadsUp.turnOn
+      )
     }
   }
 }
