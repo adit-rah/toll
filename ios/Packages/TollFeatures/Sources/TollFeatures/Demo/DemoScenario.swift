@@ -37,7 +37,7 @@
     /// Home not set (D68): the first evening, then the card the morning after the first night.
     case homeAnywhere = "home-anywhere"
     case homeCard = "home-card"
-    /// The heads-up card (#104): home set, the morning after the first night, iOS not asked yet.
+    /// The heads-up card (#104): home set, the evening after the first night, iOS not asked yet.
     case homeHeadsUp = "home-heads-up"
     case purchase, settings, insights
     case settingsAnywhere = "settings-anywhere"
