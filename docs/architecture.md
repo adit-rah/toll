@@ -23,7 +23,7 @@ Dusk has no server, but it is built like it has one: a domain that knows nothing
 Rules that keep it that way:
 - **Domain and Application are pure and Linux-tested.** No `Date()`, no singletons, no frameworks beyond Foundation value types. Time comes in as an argument.
 - **Every change is a `Command`.** Screens, extensions and region events all send commands. `Engine.apply(command:)` changes state, then `Engine.reconcile` decides what must be true now and returns `Effects`. Only adapters perform effects.
-- **Effects are data.** For example: "shield these selections except this app", "monitor these windows", "watch these places", "append these log lines". The coordinator (`Coordinator`, shared by the app and every extension) loads state, runs the engine, saves, then hands the effects to ports. Tests run the coordinator with fake ports.
+- **Effects are data.** For example: "shield these selections", "monitor these windows", "watch these places", "append these log lines". The coordinator (`Coordinator`, shared by the app and every extension) loads state, runs the engine, saves, then hands the effects to ports. Tests run the coordinator with fake ports.
 - **Screens read snapshots, not state.** `HomeSnapshot`, `DoorSnapshot`, `WeekStats` and the like are built in TollCore from state and the log, and tested. Views lay them out.
 - **Extensions use the same coordinator** with the adapters they are allowed: Monitor and ShieldAction write; ShieldConfig only reads snapshots.
 
