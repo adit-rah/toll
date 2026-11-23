@@ -48,6 +48,10 @@ public enum Engine {
       } else {
         movePlace(place, in: &state)
       }
+    case .setHome(let place):
+      return setHome(place, in: &state, now: now, calendar: calendar, config: config)
+    case .dismissCard(let card):
+      state.dismissedCards.insert(card.rawValue)
     case .presence(let id, let presence):
       state.presence[id] = presence
     case .location(let mode):

@@ -61,37 +61,45 @@ extension Copy {
     public static let yourNights = "Your nights"
     public static let weeknights = "Weeknights"
     public static let weekendNights = "Fri and Sat nights"
-    public static func nights(_ window: TimeWindow, in calendar: Calendar = .current) -> String {
-      "\(span(window, in: calendar)) · \(length(minutes: window.minutes))"
-    }
     public static let change = "Change"
     public static let nightsStart = "Nights start at"
     public static let differentOnWeekends = "Different on weekends"
     public static let weekendWake = "Weekend wake time"
     public static let sleepAdvice = "Most adults need 7 to 9 hours. You can change this any time."
+    /// Between the moon and the sun (D68): "10:30 pm – 7:00 am".
+    public static func nightSpan(start: String, end: String) -> String { "\(start) – \(end)" }
+    /// The night drawn as moon start – end sun (D68), read out in one line.
+    public static func nightLabel(start: String, end: String) -> String {
+      "Night, \(start) to \(end)"
+    }
 
     public static let homeTitle = "Where do you sleep?"
     public static let currentLocation = "Your current location"
     public static let coversBuilding = "This building and the street around it"
     public static let movingDetail = "Drag the map to put home in the circle"
     public static let move = "Move"
-    public static let homeLine = "Location only tells blocks whether you're there. We never see it."
+    public static let homeLine = "Location only tells \(name) whether you're home. We never see it."
     public static let thisIsHome = "This is home"
     public static let finding = "Finding where you are…"
     public static let noFix = "No exact location yet. Try again by a window or outside."
     public static let homeWithoutLocation =
-      "Without location, your blocks run on their hours, wherever you are."
-    public static let continueWithout = "Continue without location"
+      "Location is off, so your night runs on its hours, wherever you are. Turn it on in Settings to set home."
+    public static let notNow = "Not now"
+    public static let cancel = "Cancel"
     public static let mapLabel = "Map of where you are, with home drawn as a circle"
     public static let mapPin = "Home"
 
-    public static let permissionsTitle = "Two permissions"
-    public static let permissionsLine =
-      "Both are Apple's screens. You can change them in Settings."
+    /// Onboarding asks for Screen Time alone (D68); location comes later, with home.
+    public static let screenTimeTitle = "Allow Screen Time"
+    public static let screenTimeLine =
+      "Apple asks next. It's how \(name) keeps apps closed at night. You can change it in Settings."
     public static let screenTime = "Screen Time"
-    public static let screenTimeWhy = "To block apps"
+    public static let screenTimeWhy = "To block apps at night"
+    public static let locationTitle = "Allow location"
+    public static let locationLine =
+      "Apple asks next. With Always, your night starts when you get home."
     public static let location = "Location"
-    public static let locationWhy = "So blocks with a place know when you're there"
+    public static let locationWhy = "So the night knows when you're home"
     public static let allow = "Allow"
     /// A permission's state, as Settings words it.
     public static let off = "Off"
@@ -103,14 +111,14 @@ extension Copy {
     public static let screenTimeDenied =
       "Without Screen Time, \(name) can't block anything. Turn it on in the next screen, or in Settings › Screen Time."
 
-    public static let alwaysTitle = "Choose Always for places"
+    public static let alwaysTitle = "Choose Always"
     public static let alwaysLine =
-      "Location is set to While Using. With Always, Sleep starts only when you're home. Without it, your blocks run on their hours, wherever you are."
+      "Location is set to While Using. With Always, your night starts only when you're home. Without it, the night runs on its hours, wherever you are."
     public static let alwaysHeader = "Allow location access"
     public static let alwaysOptions = ["Never", "Ask Next Time", "While Using the App"]
     public static let alwaysChoice = "Always"
     public static let alwaysPath = "In Settings: \(name) › Location › Always."
-    public static let alwaysLater = "Not now. Blocks run on their hours alone."
+    public static let alwaysLater = "Not now. The night runs on its hours."
 
     public static let locationOffTitle = "Your blocks run on their hours"
     public static let whileUsingFact =
@@ -132,18 +140,13 @@ extension Copy {
     }
 
     public static let readyEyebrow = "You're set"
-    public static func readyLine(_ start: String, atHome: Bool) -> String {
-      atHome ? "Tonight at \(start), if you're home." : "Tonight at \(start)."
-    }
-    public static func readyNow(_ end: String, atHome: Bool) -> String {
-      atHome ? "From now until \(end), if you're home." : "From now until \(end)."
-    }
-    public static let everyNight = "Every night"
-    public static let weekendsDiffer = "Weekends differ"
-    public static let atHome = "At home"
-    public static let yourBuilding = "This building and the street around it"
+    public static func readyLine(_ start: String) -> String { "Tonight at \(start)." }
+    public static func readyNow(_ end: String) -> String { "From now until \(end)." }
     public static let anywhere = "Anywhere"
     public static let anywhereDetail = "Runs on its hours, wherever you are"
+    /// Ready, before home is set (D68): where tonight runs, and that home comes later.
+    public static let anywhereUntilHome =
+      "Wherever you are. You can add home after the first night."
     public static let blocked = "Blocked"
     /// "2 categories · 2 apps": counts, because iOS never tells the app the names (D41).
     public static func blockedCount(categories: Int, apps: Int, sites: Int = 0) -> String {

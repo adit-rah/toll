@@ -45,13 +45,14 @@
         radiusMeters: 150)
       let blocked = scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario.isDoor
       let night = TimeWindow(start: ClockTime(hour: 22, minute: 30), end: ClockTime(hour: 7))
-      state.places = [home, library]
+      state.places = scenario.homeNotSet ? [library] : [home, library]
       state.blocks =
         scenario == .homeNoBlocks
         ? []
         : [
           Block(
-            id: BlockID("sleep"), name: Copy.Setup.sleepName, kind: .sleep, place: home.id,
+            id: BlockID("sleep"), name: Copy.Setup.sleepName, kind: .sleep,
+            place: scenario.homeNotSet ? nil : home.id,
             schedule: .everyDay(night), apps: nil, appCount: 4),
           Block(
             id: BlockID("study"), name: "Study", kind: .study, place: library.id,
@@ -66,14 +67,20 @@
       let later = scenario == .homeWeek || scenario == .sleepMonday
       let paused = scenario == .homePaused
       let morning = scenario.isMorning
+      // Home not set: set up this evening, or the evening before the card's first night ended.
       let nightsAgo =
-        firstWeek
-        ? 1
-        : scenario == .homeLastNight
-          ? 6 : later ? 20 : paused ? 8 : scenario == .sleepBest ? 6 : morning ? 9 : 4
+        scenario == .homeAnywhere || scenario.setHomePath != nil
+        ? 0
+        : firstWeek || scenario == .homeCard
+          ? 1
+          : scenario == .homeLastNight
+            ? 6 : later ? 20 : paused ? 8 : scenario == .sleepBest ? 6 : morning ? 9 : 4
       // A personal best needs weeks before this one, which only the night log still holds.
       let setupAgo = scenario == .sleepBest ? 27 : nightsAgo
-      state.setupFinishedAt = calendar.date(byAdding: .day, value: -setupAgo, to: now)
+      state.setupFinishedAt =
+        setupAgo == 0
+        ? now.addingTimeInterval(-3600)
+        : calendar.date(byAdding: .day, value: -setupAgo, to: now)
       state.trial.start = state.setupFinishedAt
       state.trial.purchased = later || morning
       if scenario == .homePaused {
@@ -118,7 +125,7 @@
           }
         }
       }
-      for back in 1...nightsAgo {
+      for back in stride(from: 1, through: nightsAgo, by: 1) {
         guard let day = calendar.date(byAdding: .day, value: -back, to: now),
           let evening = calendar.date(bySettingHour: 22, minute: 30, second: 0, of: day),
           let morningAfter = calendar.date(byAdding: .hour, value: 8, to: evening)?

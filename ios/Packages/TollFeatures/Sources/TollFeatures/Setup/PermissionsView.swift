@@ -4,48 +4,29 @@ import TollData
 import TollUI
 import UIKit
 
-/// Setup 3 (the canvas's Permissions, and Permissions · Screen Time denied): one button runs Apple's
-/// prompts. Screen Time has no skip; location can stay short of Always, and then blocks run on their
-/// hours alone (decisions D8, D37).
-struct PermissionsView: View {
-  let model: SetupModel
+/// "Only when I'm home", second step (D68): location on its own, after the map. iOS asks While Using
+/// on the map; this asks for Always once. Location can stay short of Always, and then the night runs
+/// on its hours anywhere (decisions D8, D37).
+struct LocationView: View {
+  let model: SetHomeModel
 
   var body: some View {
     SetupPage(
-      step: SetupModel.Step.permissions.number, title: Copy.Setup.permissionsTitle,
-      subtitle: Copy.Setup.permissionsLine
+      step: SetHomeModel.locationStep, of: SetHomeModel.questions,
+      title: Copy.Setup.locationTitle, subtitle: Copy.Setup.locationLine
     ) {
       Card {
-        PermissionRow(
-          symbol: .screenTime, title: Copy.Setup.screenTime, why: Copy.Setup.screenTimeWhy,
-          state: screenTimeState)
         PermissionRow(
           symbol: .location, title: Copy.Setup.location, why: Copy.Setup.locationWhy,
           state: locationState)
       }
       .padding(.top, TollSpacing.lineToContent)
-      if model.app.screenTime == .denied {
-        NoteCard(Copy.Setup.screenTimeDenied, severity: .broken)
-          .padding(.top, 14)
-          .transition(.opacity)
-      }
     } actions: {
-      if model.screenTimeReady && model.locationSettled {
-        PrimaryButton(Copy.Setup.continue) { model.go(model.afterPermissions) }
+      if model.locationSettled {
+        PrimaryButton(Copy.Setup.continue) { model.afterLocation() }
       } else {
-        PrimaryButton(model.app.screenTime == .denied ? Copy.Setup.tryAgain : Copy.Setup.allow) {
-          Task { await model.allow() }
-        }
+        PrimaryButton(Copy.Setup.allow) { model.allowLocation() }
       }
-    }
-    .animation(Motion.stateChange, value: model.app.screenTime)
-  }
-
-  private var screenTimeState: PermissionState? {
-    switch model.app.screenTime {
-    case .approved: PermissionState(text: Copy.Setup.on, tone: .good)
-    case .denied: PermissionState(text: Copy.Setup.off, tone: .bad)
-    case .notDetermined: nil
     }
   }
 
@@ -60,7 +41,7 @@ struct PermissionsView: View {
   }
 }
 
-private struct PermissionRow: View {
+struct PermissionRow: View {
   let symbol: TollSymbol
   let title: String
   let why: String
@@ -80,19 +61,21 @@ private struct PermissionRow: View {
 /// The canvas's Always step: While Using can't start a block with the app closed. Says what happens
 /// without it instead of warning (D37), and draws where the setting is.
 struct AlwaysView: View {
-  let model: SetupModel
+  let model: SetHomeModel
 
   var body: some View {
     SetupPage(
-      step: SetupModel.Step.always.number, title: Copy.Setup.alwaysTitle,
+      step: SetHomeModel.locationStep, of: SetHomeModel.questions, title: Copy.Setup.alwaysTitle,
       subtitle: Copy.Setup.alwaysLine, endsWithLink: true
     ) {
-      SettingsPicture().padding(.top, 24)
+      // The setting it names, by its glyph: wordless, this is a location screen (#76).
+      IconTile(.location, size: .sheet).padding(.top, 24)
+      SettingsPicture().padding(.top, 16)
       Footnote(Copy.Setup.alwaysPath).padding(.top, 14)
     } actions: {
       PrimaryButton {
         openSystemSettings()
-        model.go(.blocklist)
+        model.finish()
       } label: {
         HStack(spacing: 8) {
           Text(Copy.Setup.openSettings)
@@ -101,7 +84,7 @@ struct AlwaysView: View {
       }
       // Its label already says what Not now means; the location-off screen is for Never and
       // Approximate, where there's something to see (#46).
-      QuietButton(Copy.Setup.alwaysLater, type: .smallQuiet) { model.go(.blocklist) }
+      QuietButton(Copy.Setup.alwaysLater, type: .smallQuiet) { model.finish() }
     }
   }
 }
@@ -148,10 +131,13 @@ private struct SettingsPicture: View {
 
 /// The canvas's Location off or approximate: what Settings says now, and what that means.
 struct LocationOffView: View {
-  let model: SetupModel
+  let model: SetHomeModel
 
   var body: some View {
-    SetupPage(step: SetupModel.Step.locationOff.number, title: Copy.Setup.locationOffTitle) {
+    SetupPage(
+      step: SetHomeModel.locationStep, of: SetHomeModel.questions,
+      title: Copy.Setup.locationOffTitle
+    ) {
       Card {
         StateRow(symbol: .location, title: Copy.Setup.location, value: locationValue)
         StateRow(
@@ -164,7 +150,7 @@ struct LocationOffView: View {
       }
       .padding(.top, 14)
     } actions: {
-      PrimaryButton(Copy.Setup.continue) { model.go(.blocklist) }
+      PrimaryButton(Copy.Setup.continue) { model.finish() }
     }
   }
 

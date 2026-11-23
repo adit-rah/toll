@@ -7,8 +7,10 @@ import TollUI
 /// actions pinned at the bottom. Screens set their own gaps; the boards differ by screen.
 struct SetupPage<Content: View, Actions: View>: View {
   let step: Int?
+  let steps: Int
   let title: String
   let eyebrow: String?
+  let eyebrowSymbol: TollSymbol?
   let subtitle: String?
   let endsWithLink: Bool
   let content: Content
@@ -16,13 +18,15 @@ struct SetupPage<Content: View, Actions: View>: View {
   @State private var width: CGFloat = 390
 
   init(
-    step: Int?, title: String, eyebrow: String? = nil, subtitle: String? = nil,
-    endsWithLink: Bool = false, @ViewBuilder content: () -> Content,
-    @ViewBuilder actions: () -> Actions
+    step: Int?, of steps: Int = SetupModel.Step.questions, title: String, eyebrow: String? = nil,
+    eyebrowSymbol: TollSymbol? = nil, subtitle: String? = nil, endsWithLink: Bool = false,
+    @ViewBuilder content: () -> Content, @ViewBuilder actions: () -> Actions
   ) {
     self.step = step
+    self.steps = steps
     self.title = title
     self.eyebrow = eyebrow
+    self.eyebrowSymbol = eyebrowSymbol
     self.subtitle = subtitle
     self.endsWithLink = endsWithLink
     self.content = content()
@@ -33,9 +37,15 @@ struct SetupPage<Content: View, Actions: View>: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
         if let eyebrow {
-          Text(eyebrow)
-            .tollType(.eyebrow, TollColor.label2)
-            .padding(.top, TollSpacing.setupTitleGap)
+          Group {
+            // A state's glyph before its eyebrow, as on Tonight (#72): Ready's "done" reads wordless.
+            if let eyebrowSymbol {
+              StateLine(eyebrow, symbol: eyebrowSymbol, tone: .accent)
+            } else {
+              Text(eyebrow).tollType(.eyebrow, TollColor.label2)
+            }
+          }
+          .padding(.top, TollSpacing.setupTitleGap)
           Text(title)
             .tollType(.setupTitle, TollColor.label)
             .fixedSize(horizontal: false, vertical: true)
@@ -70,8 +80,8 @@ struct SetupPage<Content: View, Actions: View>: View {
       if let step {
         ToolbarItem(placement: .principal) {
           ProgressSegments(
-            count: SetupModel.Step.questions, current: step - 1,
-            accessibilityLabel: Copy.Setup.step(step, of: SetupModel.Step.questions)
+            count: steps, current: step - 1,
+            accessibilityLabel: Copy.Setup.step(step, of: steps)
           )
           .frame(width: progressWidth)
         }

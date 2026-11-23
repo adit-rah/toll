@@ -30,6 +30,15 @@ extension Copy {
       "\(atHome ? youreHome : onNow)\(middleDot)\(unlocksLeft == 0 ? noUnlocksLeft : Self.unlocksLeft(unlocksLeft))"
     }
     public static let noUnlocksLeft = "No pauses left"
+    /// Home not set (D68): the place line says where tonight runs, plainly.
+    public static func anywhereStartsIn(_ duration: String) -> String {
+      "Anywhere · starts in \(duration)"
+    }
+    /// The Tonight card that offers home, from the morning after the first night (D68, #102).
+    public static let homeCard = "Only when I'm home?"
+    public static let homeCardDetail = "Your night starts when you get home, not before."
+    public static let setHome = "Set home"
+    public static let notNow = Setup.notNow
     /// Without location (D37): "Starts at 10:30 pm, wherever you are".
     public static func startsAtAnywhere(_ time: String) -> String {
       "Starts at \(time), wherever you are"

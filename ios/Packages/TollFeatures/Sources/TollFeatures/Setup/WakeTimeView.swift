@@ -3,9 +3,10 @@ import TollCore
 import TollUI
 import UIKit
 
-/// Setup 1 (the canvas's Wake time, and Wake time · weekends on): the wake time sets the night (8 h
-/// 30 m earlier). "Change" on a night opens its own time under it: the start of weeknights, the wake
-/// time of weekends.
+/// Onboarding 1 (the canvas's Wake time, and Wake time · weekends on): the wake time sets the night
+/// (8 h 30 m earlier), drawn under the wheel as moon start – end sun on Tonight's strip (D68), so
+/// turning the wheel visibly moves it. "Change" on a night opens its own time under it: the start of
+/// weeknights, the wake time of weekends.
 struct WakeTimeView: View {
   @Bindable var model: SetupModel
   @State private var editing: Night?
@@ -16,13 +17,23 @@ struct WakeTimeView: View {
 
   var body: some View {
     SetupPage(step: SetupModel.Step.wake.number, title: Copy.Setup.wakeTitle) {
-      WakeWheel(label: Copy.Setup.wakeTitle, time: model.wake, set: model.setWake)
-        .padding(.top, model.weekendsDiffer ? 24 : 32)
+      // The alarm says what the wheel sets: getting up, not going to bed (#76).
+      HStack(spacing: 8) {
+        Image(symbol: .wake).unredacted()
+          .font(.system(size: 20, weight: .medium))
+          .foregroundStyle(TollColor.label2)
+          .accessibilityHidden(true)
+        WakeWheel(label: Copy.Setup.wakeTitle, time: model.wake, set: model.setWake)
+      }
+      .padding(.top, 12)
+      if let night {
+        NightPictureView(picture: night).padding(.top, 8)
+      }
       Card {
+        // The picture above has the times; the row keeps the length and "Change".
         nightRow(
           title: model.weekendsDiffer ? Copy.Setup.weeknights : Copy.Setup.yourNights,
-          detail: model.weekendsDiffer
-            ? Copy.span(model.window) : Copy.Setup.nights(model.window),
+          detail: night?.length ?? Copy.span(model.window),
           night: .nights)
         if editing == .nights {
           InlineTime(
@@ -45,14 +56,19 @@ struct WakeTimeView: View {
           }
         }
       }
-      .padding(.top, model.weekendsDiffer ? 24 : 32)
+      .padding(.top, 20)
       .animation(Motion.stateChange, value: model.weekendsDiffer)
       .animation(Motion.stateChange, value: editing)
       Footnote(Copy.Setup.sleepAdvice).padding(.top, TollSpacing.underCard)
     } actions: {
-      PrimaryButton(Copy.Setup.continue) { model.go(.home) }
+      PrimaryButton(Copy.Setup.continue) { model.go(.screenTime) }
         .disabled(!model.schedule.isValid)
     }
+  }
+
+  /// Weeknights' window, the one the wheel sets.
+  private var night: NightPicture? {
+    NightPicture(.everyDay(model.window), now: Date(), calendar: .current)
   }
 
   private func nightRow(title: String, detail: String, night: Night, symbol: TollSymbol = .sleep)

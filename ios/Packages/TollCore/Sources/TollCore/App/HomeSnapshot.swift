@@ -84,6 +84,8 @@ public struct HomeSnapshot: Equatable, Sendable {
   /// The one way Dusk fails completely: Screen Time switched off after setup (#45). Takes the
   /// location card's place.
   public var screenTimeOff: Bool
+  /// The one optional card under the pill when no warning holds the slot (#102).
+  public var card: TonightCard?
   public var timeline: Timeline?
   /// The last seven nights, as the morning card's dots draw them (#103).
   public var bars: [Bar]
@@ -107,7 +109,11 @@ public struct HomeSnapshot: Equatable, Sendable {
     supply = Supply(state: state, now: now, calendar: calendar, config: config)
     unlocksLeft = state.isBlocking && !screenTimeOff ? supply.left : nil
     if case .away = hero { pill = Pill(text: Copy.Home.awayLabel, kind: .away) }
-    locationBanner = state.setupFinishedAt != nil && state.location == .scheduleOnly
+    // Only a block with a place loses anything without Always; with home not set, nothing does (D68).
+    locationBanner =
+      state.setupFinishedAt != nil && state.location == .scheduleOnly
+      && state.blocks.contains { $0.place != nil }
+    card = Self.card(state, now: now, calendar: calendar, warning: screenTimeOff || locationBanner)
     heroPlace =
       sleep == nil
       ? nil : state.location == .scheduleOnly ? .anywhere : sleep?.place != nil ? .home : .anywhere
@@ -164,6 +170,12 @@ public struct HomeSnapshot: Equatable, Sendable {
     if usesHome, !atHome, let night = sleep.schedule.occurrence(containing: now, calendar: calendar)
     {
       return .away(start: night.start)
+    }
+    // Home not set (D68): the night runs on its hours wherever the phone is, and says so plainly.
+    if sleep.place == nil {
+      return .tonight(
+        start: start,
+        detail: Copy.Home.anywhereStartsIn(Copy.Home.duration(start.timeIntervalSince(now))))
     }
     if state.location == .scheduleOnly {
       return .tonight(

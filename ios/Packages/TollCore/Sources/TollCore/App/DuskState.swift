@@ -24,6 +24,9 @@ public struct DuskState: Codable, Hashable, Sendable {
   /// Screen Time access for Dusk as the app last read it; nil until it has. Extensions can't read it,
   /// so they log what the app saw, and a night with it off is recorded as such (#60).
   public var screenTimeAllowed: Bool?
+  /// Tonight cards the user dismissed (#102), by raw value: a kind a later build adds must not stop
+  /// this file loading.
+  public var dismissedCards: Set<String> = []
   public var runtime = RuntimeState()
 
   public init() {}
