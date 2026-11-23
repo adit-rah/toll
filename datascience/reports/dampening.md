@@ -124,22 +124,3 @@ What the phone would need (not done here; it is a new artifact version and a Swi
 2. **Settle at the plan when the effect is small.** About half of people go back to their own time for good by week 8. That also stops about 5% of people with a real effect of 15 minutes or more. Accept the trade?
 3. **How far a settled start may sit from the plan.** Capping it at 15 minutes halves the benefit (−3.0 against −5.6) without making learning any faster.
 4. **The learning criterion.** The recommendation meets the proposed "half of effects ≥15 minutes by night 56" with 52–54%. Adopting it as the bar (D53) means a policy calmer than this one would fail it.
-
-## Evidence rows
-
-All are simulator results: synthetic people whose sleep follows the assumptions in `sim/scenarios.py`, 8 weeks each.
-
-| E-? | Claim | sim | Size | Source path | § |
-|---|---|---|---|---|---|
-| E-? | In simulation, moving the start by ±15 min instead of ±30 left no person with an insight by night 56 (0% vs 29%) and cut the sleep benefit to about a third (1.8 vs 5.6 min a night earlier). | sim | 1,000 people × 6 scenarios × 8 weeks | datascience/reports/dampening-sweep.json | § 6 |
-| E-? | In simulation, the information a night gives about the start's effect scales with the square of the move. On the −10…+10 grid, no one got an insight by night 56. | sim | 1,000 people × 6 scenarios × 8 weeks | datascience/reports/dampening-sweep.json | § 6 |
-| E-? | In simulation, keeping the plan and exploring only 2 nights a week gave 4% of people an insight by night 56 (29% with nightly exploration) and 1.1 min a night of benefit (5.6). | sim | 1,000 people × 6 scenarios × 8 weeks | datascience/reports/dampening-sweep.json | § 6 |
-| E-? | In simulation, capping the nightly change at 10 min made each change small (7.5 min on average) but the start still changed about 4.6 nights a week, and insights by night 56 fell to 6%. | sim | 1,000 people × 6 scenarios × 8 weeks | datascience/reports/dampening-sweep.json | § 6 |
-| E-? | In simulation, holding one start for a week cut changes in the start from 2.7 to 0.5 a week (mean change 19 to 3.6 min) with the same share of people getting an insight by night 56 (29% vs 30%). | sim | 2,000 people × 9 scenarios × 8 weeks | datascience/reports/dampening-final.json | § 6 |
-| E-? | In simulation, holding a start for a week cost about 1 min a night of benefit against nightly choice (4.9 vs 5.9 min earlier). Settling once the insight shows restored it (5.8). | sim | 2,000 people × 9 scenarios × 8 weeks | datascience/reports/dampening-final.json | § 6 |
-| E-? | In simulation, the recommended policy (hold a week, settle at the insight or at the plan) kept false insights under the null at 3.5% (4.2% with slow drift), within the 5% mark. | sim | 2,000 people × 9 scenarios × 8 weeks | datascience/reports/dampening-final.json | § 6 |
-| E-? | In simulation, the recommended policy gave an insight by night 56 to 52% of people with a true effect of 15 min or more (v0: 58%). | sim | 2,000 people × 9 scenarios × 8 weeks | datascience/reports/dampening-final.json | § 6 |
-| E-? | In simulation, settling at the plan once the 90% range is inside ±15 min returned 54% of null-effect people to their own time by night 56. It also settled 5% of people with a true effect of 15 min or more at the plan. | sim | 2,000 people × 9 scenarios × 8 weeks | datascience/reports/dampening-final.json | § 6 |
-| E-? | In simulation, settling on posterior confidence alone (one start best in 90% of draws) gave the most benefit (7.4 min a night) but halved learning (18% with an insight by night 56). | sim | 1,000 people × 6 scenarios × 8 weeks | datascience/reports/dampening-sweep.json | § 6 |
-| E-? | In simulation, a slow 2-min-a-night random drift in a person's usual sleep onset raised false insights slightly for nightly and weekly-held starts alike (4.0 to 4.3%; 3.8 to 4.4%). | sim | 2,000 people × 8 weeks | datascience/reports/dampening-final.json | § 6 |
-| E-? | In simulation, no dampened policy put a start outside the person's "never earlier" or "never later" limits, and none moves the wake time, which no policy sets. | sim | about 856,000 block nights per finalist | datascience/reports/dampening-final.json | § 8 |
