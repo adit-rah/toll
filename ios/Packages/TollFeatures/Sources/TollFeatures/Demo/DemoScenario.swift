@@ -174,7 +174,6 @@
         state: fixture.state, log: fixture.log, now: now, calendar: .current,
         screenTime: scenario != .homeScreenTimeOff,
         notifications: scenario.notifications ?? .allowed)
-
       DuskTabs(
         tab: .constant(scenario.tab),
         tonightPath: .constant(scenario.tab == .tonight ? scenario.routes : []),
