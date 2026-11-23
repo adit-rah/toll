@@ -2,13 +2,13 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Your sleep, the second tab (D63): this week, then everything from the log on this phone. Being
-/// reframed around the user's improvement (#88); Apple's "Screen time after bedtime" card joins it
-/// with the report extension (#65).
+/// Your sleep, the second tab (D63): the nights so far, this week as dots and a personal best when
+/// there is one (#103), then everything from the log on this phone. Being reframed around the user's
+/// improvement (#88); Apple's "Screen time after bedtime" card joins it with the report extension
+/// (#65).
 struct InsightsView: View {
   let log: [TollCore.Transition]
-  /// This week, moved here from Home with the tabs.
-  var week: HomeSnapshot?
+  let sleep: YourSleep
   @State private var range = InsightsSnapshot.Range.month
 
   var body: some View {
@@ -16,9 +16,13 @@ struct InsightsView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
         ScreenTitle(Copy.Tabs.sleep, kind: .pushed)
-        if let week {
-          SectionHeader(week.weekTitle).padding(.top, 20)
-          WeekCard(home: week).padding(.top, TollSpacing.headerToCard)
+        if let nights = sleep.nights {
+          NightsCard(nights: nights).padding(.top, 20)
+        }
+        SectionHeader(sleep.weekTitle).padding(.top, 28)
+        WeekDotsCard(sleep: sleep).padding(.top, TollSpacing.headerToCard)
+        if let best = sleep.best {
+          BestCard(best: best).padding(.top, 12)
         }
         Picker(Copy.Insights.title, selection: $range) {
           Text(Copy.Insights.week).tag(InsightsSnapshot.Range.week)
@@ -26,15 +30,13 @@ struct InsightsView: View {
           Text(Copy.Insights.all).tag(InsightsSnapshot.Range.all)
         }
         .pickerStyle(.segmented)
-        .padding(.top, week == nil ? 16 : 28)
+        .padding(.top, 28)
         if insights.isEmpty {
           Footnote(Copy.Insights.empty).padding(.top, 20)
         } else {
-          AdaptiveStack(spacing: 28) {
-            Stat(value: "\(insights.nights)", label: since(insights))
-            Stat(value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel)
-          }
-          .padding(.top, 20)
+          // The nights are counted once, at the top; this is the range's one number.
+          Stat(value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel)
+            .padding(.top, 20)
           VStack(spacing: 12) {
             WeeksCard(insights: insights)
             HoursCard(insights: insights)
@@ -49,27 +51,16 @@ struct InsightsView: View {
     .animation(Motion.stateChange, value: range)
     .tollPushed(Copy.Tabs.sleep)
   }
-
-  private func since(_ insights: InsightsSnapshot) -> String {
-    let day = insights.since?.formatted(.dateTime.month(.abbreviated).day()) ?? ""
-    return Copy.Insights.nightsSince(day)
-  }
 }
 
-/// A card with a 15 pt semibold title and a note at its right (the canvas's Insights cards).
+/// A card with a 15 pt semibold title (the canvas's Insights cards).
 private struct InsightCard<Content: View>: View {
   let title: String
-  let note: String?
-  var noteColor = TollColor.label2
   @ViewBuilder let content: Content
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      HStack(alignment: .firstTextBaseline) {
-        Text(title).tollType(.link, TollColor.label).accessibilityAddTraits(.isHeader)
-        Spacer(minLength: 8)
-        if let note { Text(note).tollType(.trailing, noteColor) }
-      }
+      Text(title).tollType(.link, TollColor.label).accessibilityAddTraits(.isHeader)
       content
     }
     .padding(TollSpacing.cardPadding)
@@ -79,15 +70,13 @@ private struct InsightCard<Content: View>: View {
   }
 }
 
-/// Times it stopped you, one bar per week (at most 56 pt), the latest in amber.
+/// Times it stopped you, one bar per week (at most 56 pt), the latest in amber. No change against
+/// week 1: a comparison is shown only when it's better (D65), and more or fewer taps is neither.
 private struct WeeksCard: View {
   let insights: InsightsSnapshot
 
   var body: some View {
-    InsightCard(
-      title: Copy.Insights.stopped, note: insights.change.map(Copy.Insights.change),
-      noteColor: (insights.change ?? 0) <= 0 ? TollColor.ok : TollColor.label2
-    ) {
+    InsightCard(title: Copy.Insights.stopped) {
       let top = max(1, insights.weeks.max() ?? 1)
       HStack(alignment: .bottom, spacing: 8) {
         ForEach(Array(insights.weeks.enumerated()), id: \.offset) { index, count in
@@ -121,7 +110,7 @@ private struct HoursCard: View {
   let insights: InsightsSnapshot
 
   var body: some View {
-    InsightCard(title: Copy.Insights.when, note: nil) {
+    InsightCard(title: Copy.Insights.when) {
       let top = max(1, insights.byHour.max() ?? 1)
       HStack(alignment: .bottom, spacing: 6) {
         ForEach(Array(insights.byHour.enumerated()), id: \.offset) { _, count in

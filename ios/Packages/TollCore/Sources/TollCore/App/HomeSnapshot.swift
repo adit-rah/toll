@@ -91,14 +91,12 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var nightsCounted: Int
   /// "Never mind" taps on Sleep's block screen.
   public var timesStopped: Int
+  /// The last seven nights, as the morning card's dots draw them (#103).
   public var bars: [Bar]
-  /// The chart, from the third night; before it, the slots and `firstWeekLine`.
-  public var showsTrends: Bool
-  public var firstWeekLine: String
-  /// "This week", or after the trial "Your free week", frozen (#48).
-  public var weekTitle: String
-  /// The card's third number: unlocks left, or after the trial the free week's unlocks used.
-  public var unlockStat: Figure
+  /// From the end of the night until noon, last night in place of the "starts at" hero (#103).
+  public var morning: Morning?
+  /// Under tonight's start: "8 h 30 m phone-free tonight" (#103).
+  public var phoneFree: String?
   /// The free nights' facts, for the purchase sheet.
   public var freeWeek: FreeWeek?
   public var blocks: [BlockRow]
@@ -135,24 +133,13 @@ public struct HomeSnapshot: Equatable, Sendable {
     nightsCounted = week.counted
     timesStopped = week.bars.map(\.count).reduce(0, +)
     bars = week.bars
-    showsTrends = week.bars.filter { $0.night != .ahead && $0.night != .noBlock }.count >= 3
-    firstWeekLine = Self.firstWeekLine(week.bars, hero: hero, calendar: calendar)
-    weekTitle = Copy.Home.thisWeek
-    unlockStat = Figure(
-      value: Copy.Home.unlocks(supply.left, of: supply.max), label: Copy.Home.unlocksLeftLabel)
-    freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)
-    // Paused: the free week stands still instead of running down to blanks.
-    if case .paused = hero, let free = freeWeek {
-      weekTitle = Copy.Purchase.eyebrow
-      bars = free.bars
-      nightsBlocked = free.nightsBlocked
-      nightsCounted = free.nightsCounted
-      timesStopped = free.timesStopped
-      showsTrends = true
-      unlockStat = Figure(
-        value: "\(free.unlocksUsed)", label: Copy.Purchase.usedLabel(free.unlocksUsed))
-      supply.nightsToRefill = nil
+    if case .tonight(let start, _) = hero {
+      morning = Morning(state: state, log: log, now: now, calendar: calendar, config: config)
+      phoneFree =
+        morning == nil ? Self.phoneFree(sleep, start: start, now: now, calendar: calendar) : nil
     }
+    freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)
+    if case .paused = hero { supply.nightsToRefill = nil }
     let blocking = !screenTimeOff
     blocks = state.blocks.map {
       Self.row($0, state: state, now: now, calendar: calendar, blocking: blocking)
@@ -195,16 +182,6 @@ public struct HomeSnapshot: Equatable, Sendable {
     return .tonight(
       start: start,
       detail: Copy.Home.startsIn(Copy.Home.duration(start.timeIntervalSince(now)), atHome: atHome))
-  }
-
-  /// Under the first nights: how many blocked, or before the first, when it starts.
-  static func firstWeekLine(_ bars: [Bar], hero: Hero, calendar: Calendar) -> String {
-    let none = bars.allSatisfy { $0.night == .ahead || $0.night == .noBlock }
-    if none, case .tonight(let start, _) = hero {
-      return Copy.Home.firstNight(Copy.time(start, in: calendar))
-    }
-    return Copy.Home.nightsSoFar(
-      bars.filter { if case .stopped = $0.night { true } else { false } }.count)
   }
 
   /// The free week's last night ended this morning (the canvas's "ended this morning").

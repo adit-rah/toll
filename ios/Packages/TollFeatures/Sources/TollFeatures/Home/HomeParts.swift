@@ -1,5 +1,6 @@
 import SwiftUI
 import TollCore
+import TollData
 import TollUI
 
 /// "Turn it back on · $9.99 once · every night after": the one card after the trial (D33).
@@ -99,5 +100,29 @@ private struct HourLabels: View {
     }
     .frame(height: 14)
     .tollType(.micro, TollColor.label2)
+  }
+}
+
+/// What Settings' location says, as one fact (D37).
+func locationFact(_ state: LocationAccess.State) -> String {
+  switch state {
+  case .approximate: Copy.Setup.approximateFact
+  case .denied, .notDetermined: Copy.Setup.deniedFact
+  case .whileUsing, .always: Copy.Setup.whileUsingFact
+  }
+}
+
+/// The night's length under tonight's start (#103), led by the phone put down.
+struct PhoneFreeLine: View {
+  let text: String
+
+  var body: some View {
+    HStack(spacing: 6) {
+      Image(symbol: .phoneDown).unredacted()
+        .font(.system(size: 13, weight: .medium))
+        .accessibilityHidden(true)
+      Text(text)
+    }
+    .tollType(.heroLine, TollColor.label)
   }
 }

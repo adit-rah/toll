@@ -100,7 +100,8 @@ SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbo
 
 | Concept | Symbol |
 |---|---|
-| Sleep, a night | `moon` |
+| Sleep, a night · the night's end | `moon` · `sun.max` |
+| The phone put down ("You put it down", "phone-free tonight") · a personal best | `iphone.slash` · `arrow.up.to.line` |
 | Another block | its kind: `book`, `briefcase`, `bolt`, `ellipsis` |
 | **State:** blocked now · starts later · away · paused · nothing can block · working with less (While Using) · waiting for Always | `lock` · `clock` · `figure.walk` · `pause.circle` · `exclamationmark.triangle` (warn) · `location.slash` · `hourglass.bottomhalf.filled` |
 | An unlock, the door · the door's wait | `lock.open` · `timer` |

@@ -65,7 +65,10 @@ struct LiveHome: View {
   var body: some View {
     DuskTabs(
       tab: $tab, tonightPath: $path, blocksPath: $blocksPath, model: model,
-      week: snapshot(Date()), log: model.trialSummaryLog(), openPurchase: { buying = true }
+      sleep: YourSleep(
+        state: model.state, log: model.log, history: model.history, now: Date(),
+        calendar: .current),
+      log: model.trialSummaryLog(), openPurchase: { buying = true }
     ) {
       TimelineView(.everyMinute) { context in
         HomeView(
