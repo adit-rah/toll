@@ -4,7 +4,7 @@ Carried over from Toll's design doc §2 (MVP spec §7: "Visual foundations and m
 
 ## 1. Principles
 
-1. **One question per screen.** Status answers "is it blocked, and how many unlocks are left." Nothing competes with that.
+1. **One question per screen.** Status answers "is it blocked, and how many pauses are left." Nothing competes with that.
 2. **A glance, then leave.** Under three seconds, under three taps. No screen is a destination.
 3. **One accent.** Everything else is label grays and system backgrounds. Colour means something or it is not there.
 4. **Numbers are the content.** Tabular numerals everywhere; weight and size make hierarchy; icons are rare.
@@ -96,14 +96,14 @@ Never: confetti, pulsing, looping, parallax, rings that fill, typewriter text, s
 
 ### 2.6 Iconography
 
-SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbol** (#72), named in `TollSymbol` (`TollUI/Tokens/Symbols.swift`); no feature types a symbol string. App icons on the door come from the system (`Label(token)`), never drawn by us. No coloured icon circles: tiles use `accentSoft` or `surfaceRaised`.
+SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbol** (#72), named in `TollSymbol` (`TollUI/Tokens/Symbols.swift`); no feature types a symbol string. App icons come from the system (`Label(token)`), never drawn by us. No coloured icon circles: tiles use `accentSoft` or `surfaceRaised`.
 
 | Concept | Symbol |
 |---|---|
 | Sleep, a night | `moon` |
 | Another block | its kind: `book`, `briefcase`, `bolt`, `ellipsis` |
 | **State:** blocked now · starts later · away · paused · nothing can block · working with less (While Using) · waiting for Always | `lock` · `clock` · `figure.walk` · `pause.circle` · `exclamationmark.triangle` (warn) · `location.slash` · `hourglass.bottomhalf.filled` |
-| An unlock, the door · the door's wait | `lock.open` · `timer` |
+| A pause (the code's door and unlock, D67) · its wait | `pause` · `timer` |
 | Apps on a blocklist · a block's hours | `square.grid.2x2` · `clock` |
 | Home · another place · no place (anywhere) | `house` · `mappin` · `globe` |
 | Current position, the Location permission · Precise | `location` · `scope` |
@@ -112,7 +112,7 @@ SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbo
 | Leaves for iOS Settings · privacy | `arrow.up.forward.app` · `hand.raised` |
 | Insights · Settings · add · delete · forward | `chart.bar` · `gearshape` · `plus` · `trash` · `chevron.right` |
 
-**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (paused, Screen Time off), the big time gives way to the state's glyph in a 64 pt tile. **Counts are shapes** (`Pips`): unlocks as dots wherever they're shown. **Actions look like actions:** a screen's main action is a button, never a text link (the door on Home is the exception: a quiet grey capsule by the unlock dots, D61); links that act carry a glyph (`See all ›`, `+ New`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
+**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (paused, Screen Time off), the big time gives way to the state's glyph in a 64 pt tile. **Counts are shapes** (`Pips`): the week's pauses as dots wherever they're shown. **Actions look like actions:** a screen's main action is a button, never a text link (Pause on Tonight is the exception: a quiet grey capsule by the dots, D61, D67); links that act carry a glyph (`See all ›`, `+ New`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
 
 ## 3. Buttons
 
@@ -142,4 +142,4 @@ Two levels:
 - **Wordless** (strict): every line is a bar, digits included. Render variant `wordless` (or `dark-wordless`) draws each `tollType` line as a placeholder bar. Judge with the normal render beside it.
 - **Foreign** (lenient): letters unreadable, digits and symbols kept. Numbers, times and counts carry meaning here, which is why principle 4 holds.
 
-How a screen earns it: one symbol per concept, used everywhere (a moon is Sleep, a lock is an unlock, a pin is a place); geometry for time and supply (the night strip, pips, bars); position that means the same thing on every screen (state at the top, the one action at the bottom); and colour only together with a shape or symbol (§4). This amends principle 4's "icons are rare" to "a symbol wherever it carries a concept". Decoration is still out.
+How a screen earns it: one symbol per concept, used everywhere (a moon is Sleep, a pause symbol is a pause, a pin is a place); geometry for time and supply (the night strip, pips, bars); position that means the same thing on every screen (state at the top, the one action at the bottom); and colour only together with a shape or symbol (§4). This amends principle 4's "icons are rare" to "a symbol wherever it carries a concept". Decoration is still out.

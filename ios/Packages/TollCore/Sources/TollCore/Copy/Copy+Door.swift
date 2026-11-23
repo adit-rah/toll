@@ -1,64 +1,40 @@
 import Foundation
 
 extension Copy {
+  /// The pause (D67): plain words, no Dusk-only terms (D65). The code keeps the spec's `Door`.
   public enum Door {
-    public static func unlocksLeft(_ left: Int, of max: Int) -> String {
-      "Unlocks left: \(left) of \(max)"
+    /// What the dots say, spoken and beside them.
+    public static func pausesLeft(_ left: Int, of max: Int) -> String {
+      "\(left) of \(max) pauses left this week"
     }
-    /// Only nights Sleep ran count toward the refill (#61), so the copy says "blocked nights".
-    public static func refill(after nights: Int) -> String {
-      nights == 1
-        ? "One returns after 1 more blocked night without using any."
-        : "One returns after \(nights) more blocked nights without using any."
+    public static func pausesOf(_ left: Int, _ max: Int) -> String {
+      "\(left) of \(max) left this week"
     }
-    public static func noneLeft(nights: Int) -> String {
-      nights == 1
-        ? "No unlocks left. One returns after 1 blocked night without using any."
-        : "No unlocks left. One returns after \(nights) blocked nights without using any."
+    public static func noneOf(_ max: Int) -> String { "0 of \(max)" }
+    /// The day the week's pauses come back: "Monday", or "today" on the morning of it.
+    public static func refillDay(_ refill: Date, now: Date, in calendar: Calendar = .current)
+      -> String
+    {
+      calendar.isDate(refill, inSameDayAs: now) ? "today" : weekday(refill, in: calendar)
     }
+    public static func back(_ day: String) -> String { "back \(day)" }
+    public static func noneLeftBack(_ day: String) -> String { "No pauses left · back \(day)" }
+    /// Under This week while any is spent.
+    public static func comeBack(_ day: String) -> String { "Pauses come back \(day)." }
 
-    public static func question(minutes: Int) -> String { "Open one app for \(minutes) minutes?" }
+    // Choosing
+    public static func question(minutes: Int) -> String { "Pause blocking for \(minutes) minutes?" }
+    public static func pauseFor(minutes: Int) -> String { "Pause for \(minutes) min" }
     public static let notNow = "Not now"
-    public static let chooseApp = "Choose app"
-    public static func openFor(minutes: Int) -> String { "Open for \(minutes) minutes?" }
-    public static let startWait = "Start the wait"
-    public static let chooseDifferent = "Choose a different app"
-    public static let chooseOneTitle = "Choose one app"
-    public static func pickedSeveral(_ n: Int) -> String {
-      "You picked \(n). The door opens one app at a time."
-    }
-    public static let pickedCategory =
-      "You picked a whole category. The door opens one app at a time."
-    public static let chooseAgain = "Choose again"
-    public static func unlocksOf(_ left: Int, _ max: Int) -> String {
-      "\(left) of \(max) unlocks left"
-    }
     public static func waitFirst(seconds: Int) -> String {
       "You wait \(seconds) seconds first. Cancelling costs nothing."
     }
+
+    // Waiting
     public static func onceWaitEnds(minutes: Int) -> String {
-      "Opens for \(minutes) minutes when the wait ends"
+      "Every app opens for \(minutes) minutes when the wait ends."
     }
     public static let leaveFreely = "You can leave this screen. The wait keeps going."
-    public static let isOpen = "Open now"
-    public static func locksAt(_ time: String) -> String { "Locks again at \(time)" }
-    public static let leftWord = "left"
-    public static func regretFor(_ clock: String) -> String {
-      "Lock again in the next \(clock) and you keep the unlock."
-    }
-    public static let noneTitle = "No unlocks left"
-    public static func noneOf(_ max: Int) -> String { "0 of \(max)" }
-    public static func refillLine(_ nights: Int, after: Int) -> String {
-      "One comes back after \(after) blocked nights without using any. \(nights) \(nights == 1 ? "night" : "nights") to go."
-    }
-    public static let othersWork = "Everything you didn't block still works."
-    public static let fromHomeScreen = "Open it from your Home Screen."
-    public static let notBlockedTitle = "That app isn't blocked right now"
-    public static let notBlockedBody =
-      "It opens as usual, so no unlock was used. Pick one of the apps you blocked."
-    public static let ok = "OK"
-
-    public static func opensIn(_ clock: String) -> String { "Opens in \(clock)." }
     public static func opensInSpoken(minutes: Int, seconds: Int) -> String {
       switch (minutes, seconds) {
       case (0, let s): "Opens in \(s) seconds."
@@ -69,8 +45,11 @@ extension Copy {
     public static let cancel = "Cancel"
     public static let cancelFree = "Cancelling costs nothing."
 
-    public static func open(minutes: Int) -> String { "Open for \(minutes) minutes." }
-    public static func left(_ clock: String) -> String { "\(clock) left" }
+    // Open
+    public static let isOpen = "Paused"
+    public static func locksAt(_ time: String) -> String { "Blocking again at \(time)" }
+    public static let everyAppOpens = "Every app opens until then."
+    public static let leftWord = "left"
     public static func leftSpoken(minutes: Int, seconds: Int) -> String {
       switch (minutes, seconds) {
       case (0, let s): "\(s) seconds left"
@@ -78,10 +57,30 @@ extension Copy {
       case (let m, let s): "\(m) minute\(m == 1 ? "" : "s") \(s) seconds left"
       }
     }
-    public static let lockAgain = "Lock again"
     /// D-4: said here and nowhere else.
-    public static func regret(minutes: Int) -> String {
-      "Lock again in the next \(minutes) minutes and you keep the unlock."
+    public static func regretFor(_ clock: String) -> String {
+      "Lock again in the next \(clock) and you keep the pause."
     }
+    public static let lockAgain = "Lock again"
+
+    // None left
+    public static let noneTitle = "No pauses left"
+    public static func weekly(_ max: Int, refill: Date, in calendar: Calendar = .current) -> String
+    {
+      "You get \(max) a week. They come back when \(weekday(refill, in: calendar)) night starts."
+    }
+    public static let othersWork = "Everything you didn't block still works."
+    public static let ok = "OK"
+  }
+
+  /// The day's name in the phone's language ("Monday").
+  public static func weekday(_ date: Date, in calendar: Calendar = .current) -> String {
+    let locale = calendar.locale.flatMap { $0.identifier.isEmpty ? nil : $0 } ?? .current
+    let formatter = DateFormatter()
+    formatter.locale = locale
+    formatter.calendar = calendar
+    formatter.timeZone = calendar.timeZone
+    formatter.setLocalizedDateFormatFromTemplate("EEEE")
+    return formatter.string(from: date)
   }
 }

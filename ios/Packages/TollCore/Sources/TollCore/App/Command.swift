@@ -17,11 +17,12 @@ public enum Command: Sendable {
   case purchased(Bool)
   /// Screen Time access as the app read it (#60).
   case screenTime(Bool)
-  case startDoor(app: Data)
+  /// "Pause": the wait starts (D67).
+  case startDoor
   case cancelDoor
   case lockDoor
-  /// When the door was asked for, and the app the block screen was showing (D41); nil clears it.
-  case askDoor(Date?, app: Data? = nil)
+  /// When the pause was asked for, from the block screen or Tonight; nil clears it.
+  case askDoor(Date?)
 }
 
 public enum CommandError: Error, Equatable, Sendable {

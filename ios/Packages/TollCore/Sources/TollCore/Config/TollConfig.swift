@@ -15,15 +15,20 @@ public struct TollConfig: Codable, Sendable, Equatable {
 
   public struct Door: Codable, Sendable, Equatable {
     public init() {}
-    public var waitSeconds = 90
-    public var minutes = 5
+    /// The wait before a pause (D67); cancelling it costs nothing.
+    public var waitSeconds = 60
+    /// How long every shield lifts for (D67).
+    public var minutes = 10
     public var regretSeconds = 120
   }
 
   public struct Unlocks: Codable, Sendable, Equatable {
     public init() {}
+    /// Pauses a week, one pool for every block (D67).
     public var max = 3
-    public var refillNights = 7
+    /// The weekday whose night starts a new week of pauses (`Calendar` numbering, 1 = Sunday): 2 is
+    /// Monday (D67). Unused pauses don't carry over.
+    public var refillWeekday = 2
   }
 
   public struct Blocks: Codable, Sendable, Equatable {

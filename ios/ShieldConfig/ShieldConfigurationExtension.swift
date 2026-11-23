@@ -30,7 +30,8 @@ final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
   private func make(app: ApplicationToken?, category: ActivityCategoryToken?) -> ShieldConfiguration
   {
     let state = DuskStore().load()
-    let text = ShieldText(state: state, block: block(in: state, app: app, category: category))
+    let text = ShieldText(
+      state: state, block: block(in: state, app: app, category: category), now: Date())
     return ShieldConfiguration(
       backgroundBlurStyle: nil,
       backgroundColor: ShieldIcon.background,

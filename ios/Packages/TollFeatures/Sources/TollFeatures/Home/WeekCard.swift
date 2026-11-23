@@ -33,8 +33,8 @@ struct WeekCard: View {
           .foregroundStyle(TollColor.label2)
           .padding(.top, 2)
       }
-      if let nights = home.supply.nightsToRefill {
-        Text(Copy.Door.refill(after: nights))
+      if let day = home.supply.refillDay {
+        Text(Copy.Door.comeBack(day))
           .tollType(.caption, TollColor.label2)
           .fixedSize(horizontal: false, vertical: true)
           .padding(.top, 14)

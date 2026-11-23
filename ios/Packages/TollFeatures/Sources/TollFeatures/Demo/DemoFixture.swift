@@ -66,15 +66,16 @@
             startingOn: calendar.startOfDay(for: now), calendar: calendar)?.end
         state.doorAskedAt = scenario.isDoor ? now : nil
         state.unlocks.spent = scenario == .doorNone ? 3 : 1
-        state.unlocks.cleanNights = 3
+        state.unlocks.week = UnlockSupply.week(
+          containing: now, calendar: calendar, config: .defaults)
         if scenario == .doorWaiting || scenario == .doorOpen {
-          // The door's countdowns run on the real clock, so its times do too.
+          // The pause's countdowns run on the real clock, so its times do too.
           let real = Date()
-          var door = Door(
-            app: Data(), waitEndsAt: real.addingTimeInterval(scenario == .doorWaiting ? 84 : -48))
+          var door = Door(waitEndsAt: real.addingTimeInterval(scenario == .doorWaiting ? 54 : -48))
           if scenario == .doorOpen {
             door.openedAt = real.addingTimeInterval(-48)
-            door.expiresAt = door.waitEndsAt.addingTimeInterval(300)
+            door.expiresAt = door.waitEndsAt.addingTimeInterval(
+              TimeInterval(TollConfig.defaults.door.minutes * 60))
           }
           state.door = door
         }

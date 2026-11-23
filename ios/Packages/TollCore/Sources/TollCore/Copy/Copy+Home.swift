@@ -23,11 +23,11 @@ extension Copy {
       atHome ? "At home · starts in \(duration)" : "Starts in \(duration)"
     }
     public static let youreHome = "You're home"
-    /// "You're home · 3 unlocks left" under "Blocked until".
+    /// "You're home · 3 pauses left" under "Blocked until".
     public static func blockedDetail(atHome: Bool, unlocksLeft: Int) -> String {
       "\(atHome ? youreHome : onNow)\(middleDot)\(unlocksLeft == 0 ? noUnlocksLeft : Self.unlocksLeft(unlocksLeft))"
     }
-    public static let noUnlocksLeft = "No unlocks left"
+    public static let noUnlocksLeft = "No pauses left"
     /// Without location (D37): "Starts at 10:30 pm, wherever you are".
     public static func startsAtAnywhere(_ time: String) -> String {
       "Starts at \(time), wherever you are"
@@ -54,9 +54,10 @@ extension Copy {
     }
     public static let now = "Now"
     public static func unlocksLeft(_ n: Int) -> String {
-      n == 1 ? "1 unlock left" : "\(n) unlocks left"
+      n == 1 ? "1 pause left" : "\(n) pauses left"
     }
-    public static let openOneApp = "Open one app"
+    /// The quiet capsule beside the dots (D61, D67).
+    public static let pause = "Pause"
     public static let turnBackOn = "Turn it back on"
     public static func once(_ price: String) -> String { "\(price) once" }
 
@@ -77,7 +78,7 @@ extension Copy {
     public static let nightsBlockedLabel = "nights blocked"
     public static let stoppedLabel = "times it stopped you"
     public static func unlocks(_ left: Int, of max: Int) -> String { "\(left) of \(max)" }
-    public static let unlocksLeftLabel = "unlocks left"
+    public static let unlocksLeftLabel = "pauses left"
     public static func firstNight(_ time: String) -> String {
       "Your first night starts at \(time)."
     }

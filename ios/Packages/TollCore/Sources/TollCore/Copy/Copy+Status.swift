@@ -12,9 +12,10 @@ extension Copy {
     public static func blockOn(_ block: String) -> String { "This app is blocked during \(block)." }
     /// D32, after Opal: the easy way out is the first button.
     public static let neverMind = "Never mind"
-    public static let unlock = "Unlock in \(name)"
-    public static func unlocks(_ left: Int, of max: Int) -> String {
-      "\(left) of \(max) unlocks left."
+    /// Opens the app at the pause sheet (D67): the block screen can't start a wait itself.
+    public static let unlock = "Pause in \(name)"
+    public static func pauses(_ left: Int, of max: Int) -> String {
+      "\(left) of \(max) pauses left this week."
     }
   }
 }

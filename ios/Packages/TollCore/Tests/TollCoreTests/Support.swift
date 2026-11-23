@@ -69,7 +69,7 @@ func run(
 }
 
 func apply(_ command: Command, _ state: inout DuskState, _ now: Date) -> CommandError? {
-  Engine.apply(command, to: &state, now: now)
+  Engine.apply(command, to: &state, now: now, calendar: london)
 }
 
 func arrive(_ state: inout DuskState, _ place: Place = homePlace, _ at: Date, inside: Bool = true) {

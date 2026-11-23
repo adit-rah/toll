@@ -76,7 +76,7 @@ public struct HomeSnapshot: Equatable, Sendable {
 
   public var hero: Hero
   public var pill: Pill?
-  /// Set while a block is on: the hero's "Open one app" link.
+  /// Set while a block is on: the hero's dots and its "Pause" capsule.
   public var unlocksLeft: Int?
   public var supply: Supply
   public var locationBanner: Bool
@@ -112,10 +112,8 @@ public struct HomeSnapshot: Equatable, Sendable {
     hero = Self.hero(state, sleep: sleep, now: now, calendar: calendar, config: config)
     if screenTimeOff, state.trial.entitled { hero = .screenTimeOff }
     pill = Self.pill(state, now: now, calendar: calendar, config: config)
-    unlocksLeft = state.isBlocking && !screenTimeOff ? state.unlocks.left(config) : nil
-    supply = Supply(
-      left: state.unlocks.left(config), max: config.unlocks.max,
-      nightsToRefill: state.unlocks.nightsToRefill(config))
+    supply = Supply(state: state, now: now, calendar: calendar, config: config)
+    unlocksLeft = state.isBlocking && !screenTimeOff ? supply.left : nil
     if case .away = hero { pill = Pill(text: Copy.Home.awayLabel, kind: .away) }
     locationBanner = state.setupFinishedAt != nil && state.location == .scheduleOnly
     heroPlace =
@@ -151,7 +149,7 @@ public struct HomeSnapshot: Equatable, Sendable {
       showsTrends = true
       unlockStat = Figure(
         value: "\(free.unlocksUsed)", label: Copy.Purchase.usedLabel(free.unlocksUsed))
-      supply.nightsToRefill = nil
+      supply.refillDay = nil
     }
     let blocking = !screenTimeOff
     blocks = state.blocks.map {
@@ -177,7 +175,8 @@ public struct HomeSnapshot: Equatable, Sendable {
       return .blocked(
         label: label, until: end,
         detail: Copy.Home.blockedDetail(
-          atHome: block.isSleep && atHome, unlocksLeft: state.unlocks.left(config)))
+          atHome: block.isSleep && atHome,
+          unlocksLeft: state.unlocks.left(config, now: now, calendar: calendar)))
     }
     guard let sleep, let start = sleep.schedule.nextStart(after: now, calendar: calendar) else {
       return .noBlocks

@@ -24,14 +24,12 @@ public struct Effects: Hashable, Sendable {
   }
 }
 
-/// The shield as a whole: every active block's selection, minus the door's app (D-2).
+/// The shield as a whole: every active block's selection, or nothing while a pause is open (D67).
 public struct ShieldPlan: Hashable, Sendable {
   public var selections: [Data]
-  public var doorApp: Data?
 
-  public init(selections: [Data], doorApp: Data? = nil) {
+  public init(selections: [Data]) {
     self.selections = selections
-    self.doorApp = doorApp
   }
 
   public static let off = ShieldPlan(selections: [])

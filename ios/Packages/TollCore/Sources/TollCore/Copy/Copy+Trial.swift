@@ -15,7 +15,7 @@ extension Copy {
       n == 1 ? "Block screen came up: 1 time" : "Block screen came up: \(n) times"
     }
     public static func unlocksUsed(_ n: Int) -> String {
-      n == 1 ? "Unlocks used: 1" : "Unlocks used: \(n)"
+      n == 1 ? "Pauses used: 1" : "Pauses used: \(n)"
     }
     public static func keep(price: String) -> String { "Keep it — \(price) once" }
     public static let restore = "Restore purchase"
@@ -40,8 +40,8 @@ extension Copy {
     public static let restore = "Restore purchase"
     public static let notNow = "Not now"
     public static let footnote = "Without it, nothing is blocked. Your blocks and settings stay."
-    public static let unlocksUsedLabel = "unlocks used"
-    public static func usedLabel(_ n: Int) -> String { n == 1 ? "unlock used" : "unlocks used" }
+    public static let unlocksUsedLabel = "pauses used"
+    public static func usedLabel(_ n: Int) -> String { n == 1 ? "pause used" : "pauses used" }
 
     /// After buying (#77; founders, 21 Nov).
     public static let doneTitle = "Every night is yours"

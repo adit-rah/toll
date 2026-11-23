@@ -1,8 +1,8 @@
 import Foundation
 
 /// One Sleep night as Dusk saw it, from the transition log (#51): when the block ran, how often the
-/// block screen was tapped and when last, the unlocks, and nights that couldn't block (away, paused,
-/// Screen Time off). The night record (`NightRecordLine`) carries these, beside Health's sleep
+/// block screen was tapped and when last, the pauses (D67; named unlocks here and in the record), and
+/// nights that couldn't block (away, paused, Screen Time off). The night record (`NightRecordLine`) carries these, beside Health's sleep
 /// (#86), for the improvement measures (#87) and the sleep model (#59).
 public struct NightFacts: Equatable, Sendable {
   /// The night's key: the day it starts, noon to noon (as This week keys it).
@@ -18,7 +18,7 @@ public struct NightFacts: Equatable, Sendable {
   public var screenTimeOff: Bool
   /// "Never mind" taps while Sleep was on (D46).
   public var stops: Int
-  /// "Unlock in Dusk" taps while Sleep was on.
+  /// "Pause in Dusk" taps while Sleep was on.
   public var doorAsks: Int
   /// The last time the block screen was tapped while Sleep was on: when the phone was last reached
   /// for, the stand-in for sleep onset when Health has none (#87).

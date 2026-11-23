@@ -30,7 +30,8 @@ struct MigrationTests {
     #expect(state.runtime.scheduledWindows == nil)
     #expect(state.trial.start != nil)
     #expect(state.unlocks.spent == 1)
-    #expect(state.door?.app == Data([9]))
+    // A door from before D67 still names an app; it reads as a pause.
+    #expect(state.door?.phase == .waiting)
     #expect(state.setupFinishedAt != nil)
   }
 

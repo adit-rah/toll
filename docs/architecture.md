@@ -37,7 +37,7 @@ DuskState (schema 2, one coordinated JSON file in the App Group)
 ├── location: .places | .scheduleOnly     decisions D8: without Always + Precise, places are ignored
 ├── pending:  [BlockID: BlockEdit]        an edit to an active block waits until it ends (B-3)
 ├── door:     Door?                       one at a time, across all blocks (D-7)
-├── unlocks:  UnlockSupply                shared by all blocks
+├── unlocks:  UnlockSupply                the week's pauses, shared by all blocks (D67)
 ├── trial:    Trial (start, purchased)
 └── runtime:  per-block active night and last end (B-4), clock anchor, scheduled windows
 ```
@@ -45,14 +45,14 @@ DuskState (schema 2, one coordinated JSON file in the App Group)
 - **Block:** an id, a name, a kind (sleep, study, work, gym, other: icon and default name), an optional place, a weekly schedule, the apps it blocks (an opaque selection only the Screen Time adapter can read), and whether it is on.
 - **Weekly schedule:** rules, each a set of days and one time window. A rule's window *starts* on its days and may cross midnight. The Sleep block's "different on weekends" is simply two rules.
 - **Place:** a name, a centre and a radius. Blocks refer to places by id, so moving Home moves every block at Home.
-- **Night:** one occurrence of the Sleep block. The trial and the unlock refill count nights (P-2, D-6). Other blocks have occurrences but no nights.
+- **Night:** one occurrence of the Sleep block. The trial counts nights (P-2); the pauses' week starts with Monday's night (D67). Other blocks have occurrences but no nights.
 
 ## The rules, generalised from the spec
 
 - **Active block (B-1):** entitled, on, inside one of its schedule's occurrences, at its place (or it has none, or location is `.scheduleOnly`), and that occurrence started after the block's last end (B-4).
-- **Shield:** the union of active blocks' apps, sites and categories, minus the door's app (D-2). One ManagedSettings store, so the door's exception applies everywhere at once.
+- **Shield:** the union of active blocks' apps, sites and categories, or nothing while a pause is open (D67). One ManagedSettings store, so a pause lifts every block at once.
 - **Edits (B-3):** edits to an active block, or to a place an active block uses, wait until that block ends. Everything else applies at once.
-- **Door (D-1…D-7):** any app on an active block's list. 90 s wait, then 5 minutes on the clock (decisions D31). It ends when its time is up, on "Lock again", or when no block is active. Unlocks are shared.
+- **Door, shown as "Pause" (D67):** every block's shield. 60 s wait, then 10 minutes on the clock (D31). It ends when its time is up, on "Lock again", or when no block is active. 3 a week, shared by all blocks, back to 3 when Monday's night starts (noon), none carried over.
 - **Limits:** iOS shields at most 50 apps and sites by name, so at most `blocks.maxApps` (40) across all blocks, as designed. At most 20 places (CLMonitor's limit). At most `schedule.maxWindows` distinct time windows, so window, sweep and door schedules stay under DeviceActivity's 20 activities.
 
 ## Scheduling
