@@ -38,7 +38,7 @@ private struct DoorChoose: View {
   let supply: HomeSnapshot.Supply
 
   var body: some View {
-    SheetPage(height: 470, overhang: 16) {
+    SheetPage(height: 410, overhang: 16) {
       IconTile(.unlock, size: .sheet)
       SheetTitle(Copy.Door.question(minutes: model.config.door.minutes)).padding(.top, 18)
       UnlockPips(left: supply.left, max: supply.max, spending: true).padding(.top, 14)
@@ -65,7 +65,7 @@ private struct DoorWaiting: View {
   let now: Date
 
   var body: some View {
-    SheetPage(height: 464, overhang: 8) {
+    SheetPage(height: 420, overhang: 8) {
       Image(symbol: .wait).unredacted()
         .font(.system(size: 22, weight: .medium))
         .foregroundStyle(TollColor.label2)
@@ -115,7 +115,7 @@ private struct DoorOpen: View {
   let now: Date
 
   var body: some View {
-    SheetPage(height: 520) {
+    SheetPage(height: 470) {
       HStack(spacing: 8) {
         Image(symbol: .unlock).unredacted()
           .font(.system(size: 20, weight: .semibold))

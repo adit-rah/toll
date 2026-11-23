@@ -10,7 +10,7 @@ struct DoorNoneLeft: View {
   let supply: HomeSnapshot.Supply
 
   var body: some View {
-    SheetPage(height: 430) {
+    SheetPage(height: 390) {
       IconTile(.unlock, size: .sheet, accent: false)
       SheetTitle(Copy.Door.noneTitle).padding(.top, 18)
       UnlockPips(left: 0, max: supply.max, back: supply.refillDay).padding(.top, 14)
