@@ -34,12 +34,35 @@ extension HomeSnapshot {
     }
   }
 
-  /// The unlocks, always shown (spec §7): how many are left, and when one comes back.
+  /// The week's pauses, always shown (D67): how many are left, and when they come back.
   public struct Supply: Equatable, Sendable {
     public var left: Int
     public var max: Int
-    /// Nights still to go before one returns; nil at the maximum.
-    public var nightsToRefill: Int?
+    /// Noon on the refill day: the start of the night that brings the week's pauses back.
+    public var refill: Date
+    /// "Monday" ("today" on its morning) while any is spent; nil at the maximum.
+    public var refillDay: String?
+    /// Which of the week's seven nights it is, from 1 on the refill night: drawn as the week's
+    /// segments when none are left, so how long until they come back reads without words.
+    public var nightOfWeek: Int
+
+    public init(left: Int, max: Int, refill: Date, refillDay: String?, nightOfWeek: Int) {
+      self.left = left
+      self.max = max
+      self.refill = refill
+      self.refillDay = refillDay
+      self.nightOfWeek = nightOfWeek
+    }
+
+    public init(state: DuskState, now: Date, calendar: Calendar, config: TollConfig = .defaults) {
+      left = state.unlocks.left(config, now: now, calendar: calendar)
+      max = config.unlocks.max
+      refill = UnlockSupply.refill(after: now, calendar: calendar, config: config)
+      refillDay = left < max ? Copy.Door.refillDay(refill, now: now, in: calendar) : nil
+      let week = UnlockSupply.week(containing: now, calendar: calendar, config: config)
+      let night = UnlockSupply.night(of: now, calendar: calendar)
+      nightOfWeek = (calendar.dateComponents([.day], from: week, to: night).day ?? 0) + 1
+    }
   }
 }
 
@@ -56,8 +79,8 @@ struct Week {
   var blocked = 0
   /// Nights Sleep ran or was due at home; away and paused nights are left out.
   var counted = 0
-  /// Unlocks kept in these nights: a door that opened while Sleep was on, less one locked again
-  /// within the regret time (D-4).
+  /// Pauses kept in these nights: one that opened while Sleep was on, less one locked again within
+  /// the regret time (D-4).
   var unlocks = 0
 
   /// `slots` replaces the rolling week with given nights, such as the free week's.

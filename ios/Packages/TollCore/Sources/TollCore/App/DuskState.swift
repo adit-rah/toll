@@ -15,11 +15,9 @@ public struct DuskState: Codable, Hashable, Sendable {
   /// Moves of a place an active block uses; applied when no active block uses it (B-3).
   public var pendingPlaces: [PlaceID: Place] = [:]
   public var door: Door?
-  /// When "Unlock in Dusk" was last tapped on the block screen; the app opens the door if it is recent.
+  /// When a pause was last asked for, on the block screen or Tonight; the app opens the pause sheet if
+  /// it is recent.
   public var doorAskedAt: Date?
-  /// The app the block screen was showing when "Unlock in Dusk" was tapped, encoded; the door opens
-  /// with it chosen (D41). Nil from Home's "Open one app", or when the block screen showed a site.
-  public var doorAskedFor: Data?
   public var unlocks = UnlockSupply()
   public var trial = TrialState()
   public var setupFinishedAt: Date?
@@ -69,7 +67,7 @@ public struct RuntimeState: Codable, Hashable, Sendable {
   public var clockAnchor: ClockAnchor?
   /// The windows the DeviceActivity schedules were last set to, so they are only replaced on a change.
   public var scheduledWindows: [TimeWindow]?
-  /// The wait end of the door whose schedule was started, so it is started once and stopped once.
+  /// The wait end of the pause whose schedule was started, so it is started once and stopped once.
   public var scheduledDoor: Date?
 
   public init() {}

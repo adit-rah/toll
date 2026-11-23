@@ -41,10 +41,11 @@ public struct TollSymbol: Hashable, Sendable {
   /// A block waiting for Always location (#63).
   public static let waiting = TollSymbol("hourglass.bottomhalf.filled")
 
-  // The door
-  public static let unlock = TollSymbol("lock.open")
+  // The pause (D67); the code keeps the spec's door and unlock
+  /// A pause: on its button, its sheet and Home's capsule.
+  public static let unlock = TollSymbol("pause")
   public static let wait = TollSymbol("timer")
-  /// Lock again in time and keep the unlock (D-4).
+  /// Lock again in time and keep the pause (D-4).
   public static let keep = TollSymbol("arrow.uturn.backward")
 
   // What a block holds and where

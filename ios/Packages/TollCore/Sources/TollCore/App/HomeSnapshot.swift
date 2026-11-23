@@ -76,7 +76,7 @@ public struct HomeSnapshot: Equatable, Sendable {
 
   public var hero: Hero
   public var pill: Pill?
-  /// Set while a block is on: the hero's "Open one app" link.
+  /// Set while a block is on: the hero's dots and its "Pause" capsule.
   public var unlocksLeft: Int?
   public var supply: Supply
   public var locationBanner: Bool
@@ -87,12 +87,6 @@ public struct HomeSnapshot: Equatable, Sendable {
   /// The one optional card under the pill when no warning holds the slot (#102).
   public var card: TonightCard?
   public var timeline: Timeline?
-  /// Nights Sleep ran this week.
-  public var nightsBlocked: Int
-  /// Nights Sleep ran or was due at home; away and paused nights aren't misses (#44).
-  public var nightsCounted: Int
-  /// "Never mind" taps on Sleep's block screen.
-  public var timesStopped: Int
   /// The last seven nights, as the morning card's dots draw them (#103).
   public var bars: [Bar]
   /// From the end of the night until noon, last night in place of the "starts at" hero (#103).
@@ -112,10 +106,8 @@ public struct HomeSnapshot: Equatable, Sendable {
     hero = Self.hero(state, sleep: sleep, now: now, calendar: calendar, config: config)
     if screenTimeOff, state.trial.entitled { hero = .screenTimeOff }
     pill = Self.pill(state, now: now, calendar: calendar, config: config)
-    unlocksLeft = state.isBlocking && !screenTimeOff ? state.unlocks.left(config) : nil
-    supply = Supply(
-      left: state.unlocks.left(config), max: config.unlocks.max,
-      nightsToRefill: state.unlocks.nightsToRefill(config))
+    supply = Supply(state: state, now: now, calendar: calendar, config: config)
+    unlocksLeft = state.isBlocking && !screenTimeOff ? supply.left : nil
     if case .away = hero { pill = Pill(text: Copy.Home.awayLabel, kind: .away) }
     // Only a block with a place loses anything without Always; with home not set, nothing does (D68).
     locationBanner =
@@ -135,9 +127,6 @@ public struct HomeSnapshot: Equatable, Sendable {
     }
     let week = Week(
       log: log, now: now, calendar: calendar, since: state.setupFinishedAt, sleep: sleep)
-    nightsBlocked = week.blocked
-    nightsCounted = week.counted
-    timesStopped = week.bars.map(\.count).reduce(0, +)
     bars = week.bars
     if case .tonight(let start, _) = hero {
       morning = Morning(state: state, log: log, now: now, calendar: calendar, config: config)
@@ -145,7 +134,7 @@ public struct HomeSnapshot: Equatable, Sendable {
         morning == nil ? Self.phoneFree(sleep, start: start, now: now, calendar: calendar) : nil
     }
     freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)
-    if case .paused = hero { supply.nightsToRefill = nil }
+    if case .paused = hero { supply.refillDay = nil }
     let blocking = !screenTimeOff
     blocks = state.blocks.map {
       Self.row($0, state: state, now: now, calendar: calendar, blocking: blocking)
@@ -170,7 +159,8 @@ public struct HomeSnapshot: Equatable, Sendable {
       return .blocked(
         label: label, until: end,
         detail: Copy.Home.blockedDetail(
-          atHome: block.isSleep && atHome, unlocksLeft: state.unlocks.left(config)))
+          atHome: block.isSleep && atHome,
+          unlocksLeft: state.unlocks.left(config, now: now, calendar: calendar)))
     }
     guard let sleep, let start = sleep.schedule.nextStart(after: now, calendar: calendar) else {
       return .noBlocks

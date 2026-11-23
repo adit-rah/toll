@@ -25,11 +25,11 @@ extension Copy {
     /// Under tonight's start, the night's length (#103).
     public static func phoneFree(_ length: String) -> String { "\(length) phone-free tonight" }
     public static let youreHome = "You're home"
-    /// "You're home · 3 unlocks left" under "Blocked until".
+    /// "You're home · 3 pauses left" under "Blocked until".
     public static func blockedDetail(atHome: Bool, unlocksLeft: Int) -> String {
       "\(atHome ? youreHome : onNow)\(middleDot)\(unlocksLeft == 0 ? noUnlocksLeft : Self.unlocksLeft(unlocksLeft))"
     }
-    public static let noUnlocksLeft = "No unlocks left"
+    public static let noUnlocksLeft = "No pauses left"
     /// Home not set (D68): the place line says where tonight runs, plainly.
     public static func anywhereStartsIn(_ duration: String) -> String {
       "Anywhere · starts in \(duration)"
@@ -60,9 +60,10 @@ extension Copy {
     public static let aheadSpoken = "still to come"
     public static let now = "Now"
     public static func unlocksLeft(_ n: Int) -> String {
-      n == 1 ? "1 unlock left" : "\(n) unlocks left"
+      n == 1 ? "1 pause left" : "\(n) pauses left"
     }
-    public static let openOneApp = "Open one app"
+    /// The quiet capsule beside the dots (D61, D67).
+    public static let pause = "Pause"
     public static let turnBackOn = "Turn it back on"
     public static func once(_ price: String) -> String { "\(price) once" }
 

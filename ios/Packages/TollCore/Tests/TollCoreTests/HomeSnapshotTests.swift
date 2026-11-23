@@ -36,7 +36,7 @@ struct HomeSnapshotTests {
       home.hero
         == .blocked(
           label: "Blocked until", until: date(2026, 11, 18, 7),
-          detail: "You're home · 3 unlocks left"))
+          detail: "You're home · 3 pauses left"))
     #expect(home.timeline?.phase == .on)
     #expect(home.unlocksLeft == 3)
   }

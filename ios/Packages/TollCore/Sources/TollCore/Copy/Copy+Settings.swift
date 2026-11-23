@@ -50,7 +50,7 @@ extension Copy {
     public static let howItWorksLines = [
       "A block is on when you're at its place, in its hours.",
       "Apps on its list don't open. Everything else works.",
-      "Unlock in \(name) opens one app for 5 minutes after a short wait. You have 3; one comes back after 7 nights without using any.",
+      "Pause opens every app for 10 minutes after a one-minute wait. You get 3 a week, back every Monday at noon.",
       "Without location set to Always, blocks run on their hours, wherever you are.",
     ]
     public static let privacy = "Privacy"
@@ -70,7 +70,7 @@ extension Copy {
       let home = transition.home.map { $0 ? "home" : "away" } ?? "home ?"
       let window = transition.inWindow ? "window" : "no window"
       let change = transition.changed ? "→ \(result)" : "= \(result)"
-      let door = transition.door.map { "door \($0.rawValue)" }
+      let door = transition.door.map { "pause \($0.rawValue)" }
       let blocks = transition.active.map { "blocks \($0.map(\.raw).joined(separator: ","))" }
       let access = transition.screenTime == false ? "Screen Time off" : nil
       return

@@ -158,9 +158,11 @@ extension Copy {
       if sites > 0 { parts.append(sites == 1 ? "1 site" : "\(sites) sites") }
       return parts.joined(separator: middleDot)
     }
-    public static func unlocks(_ n: Int) -> String { n == 1 ? "1 unlock" : "\(n) unlocks" }
+    public static func unlocks(_ n: Int) -> String {
+      n == 1 ? "1 pause a week" : "\(n) pauses a week"
+    }
     public static func unlocksDetail(minutes: Int) -> String {
-      "Open one app for \(minutes) minutes"
+      "Every app opens for \(minutes) minutes"
     }
     public static func freeWeekEnded(_ day: String, price: String) -> String {
       "The free week ended \(day). Blocks start after the \(price) purchase."

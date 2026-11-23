@@ -4,8 +4,9 @@
   @preconcurrency import ManagedSettings
   import TollCore
 
-  /// ShieldPort on ManagedSettings: the union of every active block's apps, sites and categories, minus
-  /// the door's app (D-2, D29).
+  /// ShieldPort on ManagedSettings: the union of every active block's apps, sites and categories
+  /// (D29), in one store, so clearing it lifts every block's shield at once: nothing on, or a pause
+  /// open (D67).
   public struct ShieldAdapter: ShieldPort {
     public init() {}
 
@@ -24,24 +25,10 @@
         sites.formUnion(selection.webDomainTokens)
         categories.formUnion(selection.categoryTokens)
       }
-      let door = DoorApp.token(from: plan.doorApp)
-      if let door { apps.remove(door) }
       store.shield.applications = apps.isEmpty ? nil : apps
       store.shield.webDomains = sites.isEmpty ? nil : sites
-      store.shield.applicationCategories =
-        categories.isEmpty ? nil : .specific(categories, except: door.map { [$0] } ?? [])
+      store.shield.applicationCategories = categories.isEmpty ? nil : .specific(categories)
       store.shield.webDomainCategories = categories.isEmpty ? nil : .specific(categories)
-    }
-  }
-
-  /// The door's one app, stored as its encoded token.
-  public enum DoorApp {
-    public static func token(from data: Data?) -> ApplicationToken? {
-      data.flatMap { try? JSONDecoder().decode(ApplicationToken.self, from: $0) }
-    }
-
-    public static func encode(_ token: ApplicationToken) -> Data? {
-      try? JSONEncoder().encode(token)
     }
   }
 
@@ -75,14 +62,6 @@
       block.appCount = items(selection)
       block.categoryCount = selection.categoryTokens.count
       return block
-    }
-
-    /// Whether the door can open this app: a block that's on names it, or blocks a whole category,
-    /// which may hold it (FamilyControls can't tell which apps a category holds). An app nothing
-    /// blocks would spend an unlock for nothing (#47).
-    public static func doorCanOpen(_ app: ApplicationToken, in blocks: [Block]) -> Bool {
-      blocks.contains { $0.categoryCount > 0 }
-        || !Self.blocks(blocks, containing: app, category: nil).isEmpty
     }
 
     /// The blocks whose selection names this app, directly or by its category.

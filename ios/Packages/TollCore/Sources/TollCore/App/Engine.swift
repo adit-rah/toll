@@ -13,7 +13,8 @@ public enum Engine {
 
   @discardableResult
   public static func apply(
-    _ command: Command, to state: inout DuskState, now: Date, config: TollConfig = .defaults
+    _ command: Command, to state: inout DuskState, now: Date, calendar: Calendar,
+    config: TollConfig = .defaults
   ) -> CommandError? {
     switch command {
     case .finishSetup(let sleep, let home, let trialStart):
@@ -48,7 +49,7 @@ public enum Engine {
         movePlace(place, in: &state)
       }
     case .setHome(let place):
-      return setHome(place, in: &state, now: now, config: config)
+      return setHome(place, in: &state, now: now, calendar: calendar, config: config)
     case .dismissCard(let card):
       state.dismissedCards.insert(card.rawValue)
     case .presence(let id, let presence):
@@ -61,28 +62,22 @@ public enum Engine {
       state.trial.start = state.trial.start.map { min($0, start) } ?? start
     case .purchased(let purchased):
       state.trial.purchased = purchased
-    case .startDoor(let app):
-      if let refusal = DoorRules.start(&state, app: app, now: now, config: config) {
+    case .startDoor:
+      if let refusal = DoorRules.start(&state, now: now, calendar: calendar, config: config) {
         return .door(refusal)
       }
-      // The ask is answered: once this door ends, nothing reopens the choice (#47).
-      clearAsk(&state)
+      // The ask is answered: once this pause ends, nothing reopens the sheet (#47).
+      state.doorAskedAt = nil
     case .cancelDoor:
       DoorRules.cancel(&state)
-      clearAsk(&state)
+      state.doorAskedAt = nil
     case .lockDoor:
-      DoorRules.lockAgain(&state, now: now, config: config)
-      clearAsk(&state)
-    case .askDoor(let at, let app):
+      DoorRules.lockAgain(&state, now: now, calendar: calendar, config: config)
+      state.doorAskedAt = nil
+    case .askDoor(let at):
       state.doorAskedAt = at
-      state.doorAskedFor = at == nil ? nil : app
     }
     return nil
-  }
-
-  static func clearAsk(_ state: inout DuskState) {
-    state.doorAskedAt = nil
-    state.doorAskedFor = nil
   }
 
   @discardableResult
@@ -100,14 +95,7 @@ public enum Engine {
       active = activeOccurrences(state, now: now, calendar: calendar)
     }
     state.runtime.active = active
-    DoorRules.advance(&state, now: now, config: config)
-    DoorRules.countNights(&state, now: now, calendar: calendar, config: config)
-    // After counting, so a night that already ended can't be credited by tonight's block (#61).
-    if let sleep = state.sleepBlock, state.runtime.active[sleep.id] != nil,
-      state.screenTimeAllowed != false
-    {
-      state.unlocks.sleepRan = true
-    }
+    DoorRules.advance(&state, now: now, calendar: calendar, config: config)
     return effects(
       before: before, after: &state, wall: wall, now: now, calendar: calendar, cause: cause)
   }
@@ -193,12 +181,10 @@ public enum Engine {
     cause: ReconcileCause
   ) -> Effects {
     let active = state.activeBlocks
+    // A pause lifts every block's shield at once (D67); reconcile puts it back when the pause ends.
+    let paused = state.door?.phase == .open
     var effects = Effects(
-      shield: active.isEmpty
-        ? .off
-        : ShieldPlan(
-          selections: active.compactMap(\.apps),
-          doorApp: state.door?.phase == .open ? state.door?.app : nil),
+      shield: active.isEmpty || paused ? .off : ShieldPlan(selections: active.compactMap(\.apps)),
       places: state.location == .places ? state.places : [])
     let windows = scheduledWindows(state.blocks)
     if state.runtime.scheduledWindows != windows {

@@ -61,7 +61,7 @@ struct CoordinatorTests {
   @Test func refusedCommandsStillReconcile() {
     let (coordinator, fakes, _) = make()
     let outcome = coordinator.run(
-      .doorChosen, [.startDoor(app: Data([9]))], clock: FixedClock(now: date(2026, 11, 17, 15)))
+      .doorChosen, [.startDoor], clock: FixedClock(now: date(2026, 11, 17, 15)))
     #expect(outcome.error == .door(.notBlocked))
     #expect(fakes.shields.count == 1)
   }
@@ -88,7 +88,7 @@ struct CoordinatorTests {
         .presence(homePlace.id, Presence(isInside: true, at: date(2026, 11, 17, 23))),
       ], clock: FixedClock(now: date(2026, 11, 17, 23)))
     coordinator.run(
-      .doorChosen, [.startDoor(app: Data([9]))], clock: FixedClock(now: date(2026, 11, 17, 23)))
+      .doorChosen, [.startDoor], clock: FixedClock(now: date(2026, 11, 17, 23)))
     coordinator.run(
       .doorCancelled, [.cancelDoor], clock: FixedClock(now: date(2026, 11, 17, 23, 0, 30)))
     #expect(fakes.doors == ["start", "stop"])

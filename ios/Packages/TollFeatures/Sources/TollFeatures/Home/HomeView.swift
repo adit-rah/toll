@@ -154,8 +154,8 @@ private struct PillView: View {
 }
 
 /// The state, centred (#72, rule 2): its glyph and eyebrow, the big time (or the state's glyph
-/// when nothing will block), one line led by where it runs, the unlocks as dots while blocked, and
-/// "Open one app" as a button.
+/// when nothing will block), one line led by where it runs, the week's pauses as dots while blocked,
+/// and "Pause" as a button.
 struct HomeHero: View {
   let hero: HomeSnapshot.Hero
   var place: HomeSnapshot.HeroPlace?
@@ -201,8 +201,8 @@ struct HomeHero: View {
       .multilineTextAlignment(.center)
       .accessibilityElement(children: .combine)
       .accessibilityAddTraits(.isHeader)
-      // The door is the escape hatch: findable, not inviting (D61). A small grey capsule beside the
-      // unlocks, not an amber button across the screen.
+      // The pause is the escape hatch: findable, not inviting (D61, D67). A small grey capsule
+      // beside the week's pauses, not an amber button across the screen.
       if case .blocked = hero, let supply {
         // Side by side; stacked at accessibility sizes so the capsule never squeezes.
         let layout =
@@ -211,14 +211,14 @@ struct HomeHero: View {
         layout {
           Pips(
             filled: supply.left, total: supply.max,
-            spoken: Copy.Door.unlocksLeft(supply.left, of: supply.max))
+            spoken: Copy.Door.pausesLeft(supply.left, of: supply.max))
           if let openDoor {
             Button(action: openDoor) {
               HStack(spacing: 6) {
                 Image(symbol: .unlock).unredacted()
                   .font(.system(size: 13, weight: .semibold))
                   .accessibilityHidden(true)
-                Text(Copy.Home.openOneApp)
+                Text(Copy.Home.pause)
               }
               .tollType(.smallQuiet, TollColor.label2)
               .padding(.horizontal, 12)

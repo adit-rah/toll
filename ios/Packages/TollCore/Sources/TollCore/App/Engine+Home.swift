@@ -6,13 +6,17 @@ extension Engine {
   /// Home and points the Sleep block at it, both as ordinary edits, so a night that's on keeps going as
   /// it started (B-3).
   static func setHome(
-    _ place: Place, in state: inout DuskState, now: Date, config: TollConfig
+    _ place: Place, in state: inout DuskState, now: Date, calendar: Calendar, config: TollConfig
   ) -> CommandError? {
     guard var sleep = state.sleepBlock else { return .noSleepBlock }
     // A held edit is the user's latest word on the block; home is added to it, not to the old one.
     if case .save(let held) = state.pending[sleep.id] { sleep = held }
-    if let error = apply(.savePlace(place), to: &state, now: now, config: config) { return error }
+    if let error = apply(
+      .savePlace(place), to: &state, now: now, calendar: calendar, config: config)
+    {
+      return error
+    }
     sleep.place = place.id
-    return apply(.saveBlock(sleep), to: &state, now: now, config: config)
+    return apply(.saveBlock(sleep), to: &state, now: now, calendar: calendar, config: config)
   }
 }

@@ -1,6 +1,4 @@
-@preconcurrency import FamilyControls
 import Foundation
-@preconcurrency import ManagedSettings
 import TollCore
 import TollData
 import TollScreenTime
@@ -53,10 +51,10 @@ extension AppModel {
     send(.edit, [.deleteBlock(block)])
   }
 
-  // MARK: Door
+  // MARK: Pause (the spec's door, D67)
 
-  /// Opens the door sheet: "Unlock in Dusk" was tapped on the block screen in the last two minutes,
-  /// or a door is under way.
+  /// Opens the pause sheet: "Pause in Dusk" was tapped on the block screen in the last two minutes,
+  /// or a pause is under way.
   var showsDoor: Bool {
     guard state.isBlocking else { return false }
     if state.door != nil { return true }
@@ -64,26 +62,20 @@ extension AppModel {
     return Date().timeIntervalSince(asked) < 120
   }
 
-  /// Keeps an open sheet up: someone choosing for more than two minutes doesn't lose it (#47). It
-  /// ends when the ask is answered or dismissed, the door ends, or the block does.
+  /// Keeps an open sheet up: someone deciding for more than two minutes doesn't lose it (#47). It
+  /// ends when the ask is answered or dismissed, the pause ends, or the block does.
   var doorPending: Bool {
     state.isBlocking && (state.door != nil || state.doorAskedAt != nil)
   }
 
-  /// Starts the wait, unless nothing that's on blocks the app: then nothing is spent (#47).
-  func startDoor(_ app: ApplicationToken) -> Bool {
-    guard Blocklist.doorCanOpen(app, in: state.activeBlocks), let data = DoorApp.encode(app) else {
-      return false
-    }
-    send(.doorChosen, [.startDoor(app: data)])
-    return true
-  }
+  /// "Pause": the wait starts. Every block's shield lifts when it ends (D67).
+  func startDoor() { send(.doorChosen, [.startDoor]) }
 
   func cancelDoor() { send(.doorCancelled, [.cancelDoor]) }
   func lockDoor() { send(.doorLocked, [.lockDoor]) }
   func dismissDoor() { send(.foreground, [.askDoor(nil)]) }
 
-  /// Home's "Open one app": the same door the block screen opens.
+  /// Tonight's "Pause": the same sheet the block screen opens.
   func askDoor() { send(.foreground, [.askDoor(Date())]) }
 
   // MARK: Permissions

@@ -10,8 +10,8 @@ enum ShieldIcon {
   static let accent = rgb(0xE9B96E)
   static let onAccent = rgb(0x1C1408)
 
-  /// The block's own symbol on a soft amber tile, with the unlocks as dots under it (#75): the moon
-  /// only for Sleep, so a Study block shows a book. One draw, in milliseconds.
+  /// The block's own symbol on a soft amber tile, with the week's pauses as dots under it (#75, D67):
+  /// the moon only for Sleep, so a Study block shows a book. One draw, in milliseconds.
   static func image(kind: Block.Kind, left: Int, max: Int) -> UIImage {
     let size = CGSize(width: 72, height: 88)
     return UIGraphicsImageRenderer(size: size).image { _ in

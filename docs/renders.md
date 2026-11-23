@@ -34,7 +34,7 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `home-anywhere` · `home-card` | Home not set yet: the first evening ("Anywhere"), and the morning-after card offering home |
 | `purchase` · `settings` · `settings-anywhere` · `insights` · `blocks` · `block-new` · `block-edit` | The purchase sheet, Settings (with home set, and not set), the blocks list and the block editor (new, and editing Study), over Home |
 | `sleep-monday` · `sleep-best` | Your sleep at 8:10 am on the latest Monday ("A new week") and Sunday (a personal best) (#103) |
-| `door-choosing` · `door-waiting` · `door-open` · `door-none` | The door sheet over a blocked Home; no app icon (no tokens in the simulator) |
+| `door-choosing` · `door-waiting` · `door-open` · `door-none` | The pause sheet (D67) over a blocked Tonight |
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):
 ```
