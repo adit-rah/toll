@@ -68,6 +68,15 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 50 | Fresh install: "Not now" on the card. Another install: deny at the prompt | "Not now": the card never returns, nothing arrives. Denied: nothing arrives; Settings › Heads-up reads "Off in iOS Settings" and opens Dusk's iOS Settings page; allow there, return, and the row is on and the heads-up comes that evening | | |
 | 51 | The evening of the last free night, then the evening after (not bought); separately, Screen Time off for Dusk, then open Dusk | One on the last free night, none after. With Screen Time off: none | | |
 | 52 | Over five nights, check Notification Center | Only heads-ups from Dusk, nothing else | | |
+| 53 | Blocks › New block › Gym (#89) | Apple's apps picker opens at once; after Done the editor shows "Gym", 6:00 pm – 7:00 pm, M–F, Place Anywhere; Save saves with one tap | | |
+| 54 | New block › Study, pick apps, then Place › Current location › Use this place › Save block | Saved in 4 taps after the apps; the row reads the place and "9 am – 5 pm · Weekdays" | | |
+| 55 | Edit Study: rename to "Library", change kind to Work, change Until to 6:00 pm inline, Save | Row and block screen read "Library" with the briefcase; hours 9 am – 6 pm; name and hours kept, not reset by the kind change | | |
+| 56 | Type a 30-character name; then clear it to spaces | Typing stops at 24 characters; with only spaces Save is off | | |
+| 57 | With 8 time windows used, change a block's hours to new times inline | The "Up to 8 time windows" note appears and Save stays off until the hours are put back | | |
+| 58 | During Study's hours (night not on), open Tonight | The hero shows tonight's start or the morning card; one grey line "Study on until 5:00 pm" with lock and book, and Pause beside it; Pause lifts every block | | |
+| 59 | During the night with Study also on | The hero is "Blocked until"; the Study line has no Pause capsule | | |
+| 60 | Location While Using, home not set, Study at a place | Tonight shows no location card; Blocks shows Study's row with "Anywhere" | | |
+| 61 | Open the Blocks tab, then any block editor | The night card leads (moon – sun); the editor hides the tab bar and Save is fully visible | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
