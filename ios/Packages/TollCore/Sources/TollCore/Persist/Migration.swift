@@ -86,7 +86,7 @@ enum Migration {
 extension DuskState {
   enum CodingKeys: String, CodingKey {
     case schema, blocks, places, presence, location, pending, pendingPlaces, door, doorAskedAt
-    case unlocks, trial, setupFinishedAt, runtime, screenTimeAllowed, dismissedCards
+    case unlocks, trial, setupFinishedAt, runtime, screenTimeAllowed, dismissedCards, headsUp
   }
 
   public init(from decoder: Decoder) throws {
@@ -107,6 +107,7 @@ extension DuskState {
     runtime = try c.decodeIfPresent(RuntimeState.self, forKey: .runtime) ?? RuntimeState()
     screenTimeAllowed = try c.decodeIfPresent(Bool.self, forKey: .screenTimeAllowed)
     dismissedCards = try c.decodeIfPresent(Set<String>.self, forKey: .dismissedCards) ?? []
+    headsUp = try c.decodeIfPresent(Bool.self, forKey: .headsUp) ?? true
   }
 }
 

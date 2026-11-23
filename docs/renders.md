@@ -33,7 +33,8 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `home-morning` · `home-morning-gap` · `home-morning-away` | Tonight at 8:10 am with the morning card (#103): after a night with taps, with a ten-minute pause, and away |
 | `home-anywhere` · `home-card` | Home not set yet: the first evening ("Anywhere"), and the morning-after card offering home |
 | `home-day` | Tonight on a weekday at 11 am with Study on: the one quiet line about another block (D68, #89) |
-| `purchase` · `settings` · `settings-anywhere` · `insights` | The purchase sheet, Settings (with home set, and not set) and Your sleep |
+| `home-heads-up` | Home set, the evening after the first night: the card asking for the heads-up (#104) |
+| `purchase` · `settings` · `settings-anywhere` · `settings-heads-up-denied` · `insights` | The purchase sheet, Settings (with home set, and not set; with notifications denied, the heads-up row offers iOS Settings) and Your sleep |
 | `blocks` · `blocks-day` | The Blocks tab (the night, Study and Gym), in the evening and on a weekday at 11 am with Study on |
 | `block-new` · `block-new-gym` | New block: the kinds, then Gym picked with its default hours and no apps yet (the simulator has no app tokens) |
 | `block-edit` · `block-edit-on` · `block-night` | Editing Study, editing it while it's on, and editing the night |

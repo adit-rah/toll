@@ -17,6 +17,8 @@ public final class AppModel {
   public private(set) var history: [PastNight] = []
   public private(set) var screenTime = ScreenTimeAuthorization.State.notDetermined
   public private(set) var location = LocationAccess.State.notDetermined
+  /// iOS's answer for the heads-up (D68); nil until read, and nothing is scheduled or offered before.
+  public internal(set) var notifications: NotificationPermission?
   public let config = TollConfig.defaults
   /// The App Store's localized price once it answers (D34).
   public private(set) var price = Copy.fallbackPrice
@@ -25,6 +27,8 @@ public final class AppModel {
   @ObservationIgnored let locationAccess = LocationAccess()
   @ObservationIgnored let coordinator = Coordinator.live()
   @ObservationIgnored private var started = false
+  /// What was last handed to iOS, so only a change reschedules; nil reschedules on the next sync.
+  @ObservationIgnored var scheduledHeadsUps: [HeadsUp]?
 
   public init() {
     // Read now, so Home's first frame doesn't claim Screen Time is off (#45).
@@ -43,8 +47,10 @@ public final class AppModel {
       if let demo = DemoScenario.current {
         ScreenTimeAuthorization.simulated = demo.screenTime
         LocationAccess.simulated = demo.location
+        NotificationAdapter.simulated = demo.notifications
         screenTime = ScreenTimeAuthorization.state
         location = locationAccess.state
+        notifications = demo.notifications
         if demo.isHome {
           let fixture = DemoFixture(scenario: demo, now: DemoClock.now(for: demo))
           state = fixture.state
@@ -73,6 +79,8 @@ public final class AppModel {
       // A demo launch shows a state it built; reading the store would replace it.
       if DemoScenario.current != nil { return }
     #endif
+    // Opening the app always hands iOS a fresh plan (#104).
+    scheduledHeadsUps = nil
     readPermissions()
     send(.foreground)
     recordNights()
@@ -112,6 +120,8 @@ public final class AppModel {
     log = TransitionLog().read()
     let places = outcome.effects.places
     Task { await PlaceMonitor.shared.sync(places) }
+    // Every change that could move the night passes here: hours, a held edit applying, entitlement.
+    syncHeadsUp()
     return outcome.error
   }
 
@@ -121,7 +131,10 @@ public final class AppModel {
       if DemoScenario.current != nil { return }
     #endif
     let latest = DuskStore().load()
-    if latest != state { state = latest }
+    guard latest != state else { return }
+    state = latest
+    // The monitor applies a held edit when the night ends; the heads-up follows the new hours.
+    syncHeadsUp()
   }
 
   // MARK: Permissions
@@ -142,6 +155,7 @@ public final class AppModel {
     if let mode = Self.locationMode(location), mode != state.location {
       send(.permission, [.location(mode)])
     }
+    Task { await readNotifications() }
   }
 
   /// Region events reach a closed app only with Always and Precise (decisions D10); anything less and

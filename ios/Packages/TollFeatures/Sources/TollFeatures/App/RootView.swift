@@ -82,6 +82,7 @@ struct LiveHome: View {
           openCard: { card in
             switch card {
             case .home: settingHome = true
+            case .headsUp: Task { await model.turnOnHeadsUp() }
             }
           },
           dismissCard: { model.dismiss($0) }
@@ -113,7 +114,9 @@ struct LiveHome: View {
   private func snapshot(_ now: Date) -> HomeSnapshot {
     HomeSnapshot(
       state: model.state, log: model.log, now: now, calendar: .current,
-      screenTime: model.screenTime == .approved)
+      screenTime: model.screenTime == .approved,
+      // Not read yet: no offer, rather than one that vanishes a moment later.
+      notifications: model.notifications ?? .allowed)
   }
 
   private var doorShown: Binding<Bool> {

@@ -82,6 +82,8 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var screenTimeOff: Bool
   /// The one optional card under the pill when no warning holds the slot (#102).
   public var card: TonightCard?
+  /// The first heads-up the night would get, for the card that offers it (#104).
+  public var headsUp: HeadsUp?
   public var timeline: Timeline?
   /// The last seven nights, as the morning card's dots draw them (#103).
   public var bars: [Bar]
@@ -95,7 +97,8 @@ public struct HomeSnapshot: Equatable, Sendable {
 
   public init(
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
-    config: TollConfig = .defaults, screenTime: Bool = true
+    config: TollConfig = .defaults, screenTime: Bool = true,
+    notifications: NotificationPermission = .allowed
   ) {
     let sleep = state.sleepBlock
     screenTimeOff = state.setupFinishedAt != nil && !screenTime
@@ -109,7 +112,15 @@ public struct HomeSnapshot: Equatable, Sendable {
     // Another block at a place says so on Blocks, since Tonight doesn't mention other blocks.
     locationBanner =
       state.setupFinishedAt != nil && state.location == .scheduleOnly && sleep?.place != nil
-    card = Self.card(state, now: now, calendar: calendar, warning: screenTimeOff || locationBanner)
+    card = Self.card(
+      state, now: now, calendar: calendar, warning: screenTimeOff || locationBanner,
+      notifications: notifications)
+    if card == .headsUp {
+      headsUp =
+        HeadsUp.nights(
+          state, screenTime: screenTime, now: now, calendar: calendar, config: config
+        ).first
+    }
     heroPlace =
       sleep == nil
       ? nil : state.location == .scheduleOnly ? .anywhere : sleep?.place != nil ? .home : .anywhere

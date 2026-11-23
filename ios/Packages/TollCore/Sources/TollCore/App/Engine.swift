@@ -52,6 +52,8 @@ public enum Engine {
       return setHome(place, in: &state, now: now, calendar: calendar, config: config)
     case .dismissCard(let card):
       state.dismissedCards.insert(card.rawValue)
+    case .headsUp(let on):
+      state.headsUp = on
     case .presence(let id, let presence):
       state.presence[id] = presence
     case .location(let mode):
