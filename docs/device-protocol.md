@@ -53,6 +53,12 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 35 | Open the app at 12:01 pm after a blocked night (#103) | The morning card is gone; the hero shows tonight's start and "8 h 30 m phone-free tonight" | | |
 | 36 | Monday morning after a week of nights, then again after Monday's night starts (#103) | Your sleep reads "A new week · N nights last week" over seven empty dots, then "This week" with Monday filled | | |
 | 37 | Let the transition log trim (more than 10 nights), then compare Your sleep's count before and after (#103) | The count never drops | | |
+| 38 | During a pause (#99, D67), open apps from every active block | Every blocked app, site and category opens, across all blocks at once | | |
+| 39 | Start a pause, close Dusk, wait | Shields come back 10:00 after the wait ends, with the app closed (the DeviceActivity warning, 5 min before the 15-min interval ends) | | |
+| 40 | Lock again within 2 minutes of a pause opening; then another pause, locked again after 3 minutes | The first: shields back at once and the dots back to the same count. The second: the pause stays spent | | |
+| 41 | Cancel during the 60-second wait | Nothing spent; the dots are unchanged | | |
+| 42 | Spend all 3, then check Sunday night, Monday 11:59 am and Monday 12:00 pm | None back until noon Monday, then 3, on the shield subtitle, Tonight's dots and the sheet | | |
+| 43 | With 0 left, open a blocked app | The block screen has no "Pause in Dusk" button and reads "No pauses left · back Monday" | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

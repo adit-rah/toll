@@ -46,7 +46,7 @@ extension Copy {
     public static let howItWorksLines = [
       "A block is on when you're at its place, in its hours.",
       "Apps on its list don't open. Everything else works.",
-      "Pause opens every app for 10 minutes after a one-minute wait. You get 3 a week, back when Monday night starts.",
+      "Pause opens every app for 10 minutes after a one-minute wait. You get 3 a week, back every Monday at noon.",
       "Without location set to Always, blocks run on their hours, wherever you are.",
     ]
     public static let privacy = "Privacy"

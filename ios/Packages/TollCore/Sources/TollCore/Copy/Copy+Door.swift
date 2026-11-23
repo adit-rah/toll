@@ -67,7 +67,7 @@ extension Copy {
     public static let noneTitle = "No pauses left"
     public static func weekly(_ max: Int, refill: Date, in calendar: Calendar = .current) -> String
     {
-      "You get \(max) a week. They come back when \(weekday(refill, in: calendar)) night starts."
+      "You get \(max) a week. They come back every \(weekday(refill, in: calendar)) at noon."
     }
     public static let othersWork = "Everything you didn't block still works."
     public static let ok = "OK"
