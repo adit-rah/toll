@@ -210,3 +210,16 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Night records** keep their JSON keys (`unlocks_used`, `unlocks_returned`), so the data-science reader is unchanged; they now count pauses.
 - **Open:** the trial-ended state is also called "Paused" (`pause.circle`), which clashes with the escape's "Pause" (D57: one concept per symbol). It gets renamed in the plain-language pass (D65).
 
+**D71. Onboarding to a first night, as built** (2026-11-23, #102, #76; details of D68).
+- **The steps:** Welcome → when you get up → Screen Time → the apps → Ready, with 3 counted steps.
+  - **When you get up** draws the night as moon start – end sun on Tonight's strip, without a "now" marker. Turning the wheel slides the night along a fixed axis, with no motion (§2.5 has no row for it).
+  - **Screen Time:** the answer is a badge on its tile: a tick, or the warning triangle.
+  - **Ready:** a tick before its eyebrow, the night picture, "Anywhere" with a globe, the apps with their count, the 3 pauses as dots, and the free week as segments.
+- **Until home is set:** onboarding saves the night's block with no place, so it runs on its hours wherever the phone is (D37's path). Tonight's line reads "Anywhere · starts in …". The location card shows only when a block has a place.
+- **The home card:** from the first night that ends after setup, while home isn't set, nothing is blocking and the free week runs, Tonight's top status area offers one quiet card: "Only when I'm home?" with a house, "Set home ›" and "Not now".
+  - Warnings take the slot first, so there is one card at a time (`TonightCard` in the snapshot).
+  - "Not now" hides it for good (`dismissedCards`); Settings keeps "Only when I'm home".
+  - Both open a sheet: the map → location (Always asked once) → Always or location-off.
+  - Home is saved once, at the end, by `setHome`, which waits during a night (B-3). With location denied, the map offers Open Settings and Not now.
+- **Existing users** with home set see no change.
+

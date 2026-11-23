@@ -59,6 +59,8 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 41 | Cancel during the 60-second wait | Nothing spent; the dots are unchanged | | |
 | 42 | Spend all 3, then check Sunday night, Monday 11:59 am and Monday 12:00 pm | None back until noon Monday, then 3, on the shield subtitle, Tonight's dots and the sheet | | |
 | 43 | With 0 left, open a blocked app | The block screen has no "Pause in Dusk" button and reads "No pauses left · back Monday" | | |
+| 44 | Fresh install, onboarding with no location ever asked; leave the phone away from where you sleep (#102) | No location prompt in onboarding. The block comes on at the night's start wherever the phone is (Sleep has no place). Tonight reads "Anywhere · starts in …" before it, and the block goes off at the night's end | | |
+| 45 | The morning after row 44: Tonight shows "Only when I'm home?"; tap Set home → This is home → Allow → Always; that night, arrive home after the start (#102) | The card appears after the night ends, not before. After the sheet, Settings › Only when I'm home reads On and the card is gone. That night it stays off while away, then comes on at arrival. Repeating with "Not now": the card never returns and the Settings row stays | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
