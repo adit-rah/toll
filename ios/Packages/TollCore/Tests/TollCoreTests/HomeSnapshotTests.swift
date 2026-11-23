@@ -57,7 +57,9 @@ struct HomeSnapshotTests {
       YourSleep(state: s, log: [], history: [], now: date(2026, 11, 17, 15), calendar: london)
         .weekTitle == "Your free week")
     #expect(home.timeline?.phase == .paused)
-    #expect(home.blocks.first?.trailing == Copy.Home.paused)
+    #expect(
+      BlocksSnapshot(state: s, now: date(2026, 11, 17, 15), calendar: london).night?.stateText
+        == Copy.Home.paused)
   }
 
   @Test func thePillIsQuietAndGoneAtNight() {
@@ -126,7 +128,10 @@ struct HomeSnapshotTests {
     #expect(home.hero == .screenTimeOff)
     #expect(home.unlocksLeft == nil)
     #expect(home.timeline?.phase == .paused)
-    #expect(home.blocks.first?.trailing == Copy.Home.paused)
+    #expect(
+      BlocksSnapshot(
+        state: s, now: date(2026, 11, 17, 23), calendar: london, screenTime: false
+      ).night?.stateText == Copy.Home.paused)
     #expect(!snapshot(s, date(2026, 11, 17, 23)).screenTimeOff)
   }
 
@@ -162,22 +167,6 @@ struct HomeSnapshotTests {
           == .tonight(
             start: date(2026, 11, 17, 22, 30), detail: "Starts at 22:30, wherever you are")
     )
-  }
-
-  @Test func blockRows() {
-    var s = setUp()
-    s.places.append(libraryPlace)
-    s.blocks.append(studyBlock())
-    let rows = snapshot(s, date(2026, 11, 21, 12)).blocks
-    #expect(rows[0].detail.hasPrefix("Home · 10:30"))
-    #expect(rows[0].trailing == "Tonight")
-    #expect(rows[1].detail.hasSuffix("Weekdays"))
-    #expect(rows[1].trailing == "Mon")
-    // Thursday evening: Study is tomorrow, not tonight.
-    let thursday = snapshot(s, date(2026, 11, 19, 18)).blocks
-    #expect(thursday[0].trailing == "Tonight")
-    #expect(thursday[1].trailing == "Fri")
-    #expect(snapshot(s, date(2026, 11, 20, 7)).blocks[1].trailing == "Today")
   }
 
   @Test func theBannerOnlyWithoutLocation() {

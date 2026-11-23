@@ -4,18 +4,26 @@
 
   /// The demo's "now", pinned so every render reads as a night whatever the machine's clock says
   /// (#73): 11:40 pm inside Sleep's 10:30 pm – 7:00 am for states during the night, 7:55 pm before it,
-  /// 8:10 am for the morning card (#103), on a Monday or a Sunday where the week matters.
+  /// 8:10 am for the morning card (#103), 11 am on a weekday with Study on (#89), on a Monday or a
+  /// Sunday where the week matters.
   enum DemoClock {
     static func now(for scenario: DemoScenario, today: Date = Date()) -> Date {
       let calendar = Calendar.current
       let night =
         scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario == .homeAway
         || scenario.isDoor
-      // 1 is Sunday, 2 Monday: the latest such day, today included.
-      let weekday = scenario == .sleepMonday ? 2 : scenario == .sleepBest ? 1 : nil
-      let back = weekday.map { (calendar.component(.weekday, from: today) - $0 + 7) % 7 } ?? 0
+      // 1 is Sunday, 2 Monday: the latest such day, today included. Day scenarios need Study's
+      // hours: the latest weekday.
+      let weekday = calendar.component(.weekday, from: today)
+      let back: Int
+      if scenario == .sleepMonday || scenario == .sleepBest {
+        back = (weekday - (scenario == .sleepMonday ? 2 : 1) + 7) % 7
+      } else {
+        back = scenario.isDay ? [1: 2, 7: 1][weekday] ?? 0 : 0
+      }
       let day = calendar.date(byAdding: .day, value: -back, to: today) ?? today
-      let (hour, minute) = scenario.isMorning ? (8, 10) : night ? (23, 40) : (19, 55)
+      let (hour, minute) =
+        scenario.isMorning ? (8, 10) : night ? (23, 40) : scenario.isDay ? (11, 0) : (19, 55)
       return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: day) ?? day
     }
   }
@@ -62,6 +70,19 @@
                 window: TimeWindow(start: ClockTime(hour: 9), end: ClockTime(hour: 17)))
             ]), apps: nil, appCount: 3),
         ]
+      // The Blocks tab shows more than one other block.
+      if scenario.tab == .blocks {
+        var gym = BlockDraft.new(.gym)
+        gym.id = BlockID("gym")
+        gym.appCount = 2
+        state.blocks.append(gym)
+      }
+      if scenario.isDay, let end = calendar.date(bySettingHour: 17, minute: 0, second: 0, of: now) {
+        state.presence[library.id] = Presence(isInside: true, at: now)
+        state.runtime.active[BlockID("study")] = end
+        state.unlocks.week = UnlockSupply.week(
+          containing: now, calendar: calendar, config: .defaults)
+      }
       state.presence[home.id] = Presence(isInside: scenario != .homeAway, at: now)
       let firstWeek = scenario == .homeFirstWeek
       let later = scenario == .homeWeek || scenario == .sleepMonday

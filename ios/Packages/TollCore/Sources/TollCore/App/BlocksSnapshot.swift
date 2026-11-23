@@ -1,44 +1,79 @@
 import Foundation
 
-/// The Blocks screen (the canvas's Blocks): one row per block and the limits under them.
+/// The Blocks tab (D63, quieter by D68 and #89): the night leads, drawn as moon start – end sun and
+/// never as a block called "Sleep"; the other blocks follow as compact rows, each with its state as a
+/// glyph; the limits sit under them.
 public struct BlocksSnapshot: Equatable, Sendable {
+  /// The night's hours as setup drew them, with its state and what it holds.
+  public struct Night: Equatable, Sendable {
+    public var id: BlockID
+    /// Tonight's night, or the next one; nil only for a schedule with no nights.
+    public var picture: NightPicture?
+    public var state: Row.State
+    /// "On now", "Tonight", "Paused"; empty when there's nothing to say.
+    public var stateText: String
+    /// "4 apps · Home · Weekends differ", or a change held until the night ends (B-3).
+    public var detail: String
+  }
+
+  /// One block other than the night.
   public struct Row: Equatable, Sendable, Identifiable {
+    /// What the row's glyph says (#72, rule 2); `stateText` says the same in words.
+    public enum State: Equatable, Sendable {
+      case on, later, paused, off, waiting, unscheduled
+    }
+
     public var id: BlockID
     public var name: String
     public var kind: Block.Kind
-    /// "On now" leads the line in amber while the block is on.
-    public var onNow: Bool
-    /// "4 apps · Home · 10:30 pm – 7:00 am", or "until 5:00 pm · Robarts Library" while on.
+    /// "Library · 9 am – 5 pm · Weekdays", or a change held until it ends.
     public var detail: String
-    /// The tile is amber for Sleep and for a block that is on.
-    public var accent: Bool
+    /// "On now", "Today", "Mon", "Waiting".
+    public var stateText: String
+    public var state: State
   }
 
-  public var rows: [Row]
+  public var night: Night?
+  public var others: [Row]
   public var limits: BlockLimits
 
-  public init(state: DuskState, calendar: Calendar, config: TollConfig = .defaults) {
-    rows = state.blocks.map { block in
-      let place = BlocksSnapshot.placeText(block, state: state)
-      if let end = state.runtime.active[block.id] {
-        let time = Copy.time(end, in: calendar)
-        let parts =
-          BlocksSnapshot.held(block, state: state, at: time).map { [$0] }
-          ?? [Copy.Blocks.onNowUntil(time), place].compactMap { $0 }
-        return Row(
-          id: block.id, name: block.name, kind: block.kind, onNow: true,
-          detail: parts.joined(separator: Copy.middleDot), accent: true)
-      }
-      var parts = [Copy.Blocks.appCount(block.appCount + block.categoryCount)]
-      if let place { parts.append(place) }
-      if let window = block.schedule.windows.first {
-        parts.append(Copy.span(window, in: calendar))
-      }
-      return Row(
-        id: block.id, name: block.name, kind: block.kind, onNow: false,
-        detail: parts.joined(separator: Copy.middleDot), accent: block.isSleep)
+  /// `screenTime` is false when Screen Time is off for Dusk: nothing is on then, whatever the
+  /// schedule says (#45).
+  public init(
+    state: DuskState, now: Date, calendar: Calendar, config: TollConfig = .defaults,
+    screenTime: Bool = true
+  ) {
+    let blocking = screenTime || state.setupFinishedAt == nil
+    night = state.sleepBlock.map {
+      Self.night($0, state: state, now: now, calendar: calendar, blocking: blocking)
+    }
+    others = state.blocks.filter { !$0.isSleep }.map {
+      Self.row($0, state: state, now: now, calendar: calendar, blocking: blocking)
     }
     limits = BlockLimits(state: state, config: config)
+  }
+
+  static func night(
+    _ block: Block, state: DuskState, now: Date, calendar: Calendar, blocking: Bool
+  ) -> Night {
+    let row = Self.row(block, state: state, now: now, calendar: calendar, blocking: blocking)
+    var parts = [Copy.Blocks.appCount(block.appCount + block.categoryCount)]
+    parts.append(placeText(block, state: state) ?? Copy.Blocks.anywhere)
+    if block.schedule.rules.count > 1 { parts.append(Copy.Home.weekendsDiffer) }
+    let held = state.runtime.active[block.id].flatMap {
+      Self.held(block, state: state, at: Copy.time($0, in: calendar))
+    }
+    // The strip is drawn as Tonight draws it: solid while on, dashed when nothing will block.
+    var picture = NightPicture(block.schedule, now: now, calendar: calendar)
+    switch row.state {
+    case .on: picture?.timeline.phase = .on
+    case .paused, .off: picture?.timeline.phase = .paused
+    case .later, .waiting, .unscheduled: break
+    }
+    return Night(
+      id: block.id, picture: picture,
+      state: row.state, stateText: row.stateText,
+      detail: held ?? parts.joined(separator: Copy.middleDot))
   }
 
   /// Where a block runs as it really runs: its place, or "Anywhere" while location isn't usable

@@ -42,6 +42,9 @@ struct HomeView: View {
             if case .paused = home.hero {
               PausedCard(price: price, open: openPurchase).padding(.top, 18)
             }
+            if let other = home.otherBlock {
+              OtherBlockLine(line: other, openDoor: openDoor).padding(.top, 14)
+            }
           }
           // Twice the room below as above: the state sits a little above centre.
           Spacer(minLength: 28)

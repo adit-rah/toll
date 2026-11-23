@@ -2,17 +2,20 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Blocks (the canvas's Blocks, and Blocks · 8 time windows), pushed from Home: every block, a new
-/// one, and the two limits that bite (D39, D40).
+/// The Blocks tab (D63), quieter (D68, #89): the night leads as moon start – end sun over its strip,
+/// the other blocks follow as compact rows with "New block" under them, and the limits stay pinned
+/// to the bottom (D64, #94). Which block, whether it's on and how full the limits are read from
+/// tiles, state glyphs, a bar and pips (#78).
 struct BlocksView: View {
   let model: AppModel
 
   var body: some View {
-    let snapshot = BlocksSnapshot(state: model.state, calendar: .current, config: model.config)
-    let compact = snapshot.rows.count > 4
+    let snapshot = BlocksSnapshot(
+      state: model.state, now: model.now, calendar: .current, config: model.config,
+      screenTime: model.screenTime == .approved)
     GeometryReader { proxy in
       ScrollView {
-        page(snapshot: snapshot, compact: compact)
+        page(snapshot)
           .frame(minHeight: proxy.size.height, alignment: .top)
       }
     }
@@ -21,120 +24,190 @@ struct BlocksView: View {
   }
 
   /// The limits sit at the bottom, as on the board; spare room goes above them.
-  private func page(snapshot: BlocksSnapshot, compact: Bool) -> some View {
+  private func page(_ snapshot: BlocksSnapshot) -> some View {
     VStack(alignment: .leading, spacing: 0) {
       ScreenTitle(Copy.Blocks.title, kind: .pushed)
-      if !compact {
-        SetupLine(Copy.Blocks.line).padding(.top, 8)
+      if let night = snapshot.night {
+        NavigationLink(value: HomeRoute.block(night.id)) {
+          NightCard(night: night)
+        }
+        .buttonStyle(.plain)
+        .padding(.top, TollSpacing.titleToContent)
       }
       Card {
-        ForEach(snapshot.rows) { row in
+        ForEach(snapshot.others) { row in
           NavigationLink(value: HomeRoute.block(row.id)) {
-            BlockListRow(row: row, compact: compact)
+            OtherBlockRow(row: row)
           }
           .buttonStyle(.plain)
         }
+        NewBlockRow(limits: snapshot.limits)
       }
-      .padding(.top, compact ? 16 : 24)
-      NewBlockRow(limits: snapshot.limits).padding(.top, 12)
+      .padding(.top, 12)
       Spacer(minLength: 24)
-      Card {
-        LimitRow(
-          title: Copy.Blocks.appsAndSites,
-          value: Copy.Blocks.used(snapshot.limits.appsUsed, of: snapshot.limits.appsMax),
-          full: snapshot.limits.appsOver > 0)
-        LimitRow(
-          title: Copy.Blocks.timeWindows,
-          value: Copy.Blocks.used(snapshot.limits.windowsUsed, of: snapshot.limits.windowsMax),
-          full: snapshot.limits.windowsFull)
-      }
-      Footnote(Copy.Blocks.unlocksShared, alignment: .center).padding(.top, TollSpacing.underCard)
+      LimitsCard(limits: snapshot.limits)
+      Footnote(Copy.Blocks.unlocksShared, symbol: .unlock, alignment: .center)
+        .padding(.top, TollSpacing.underCard)
     }
     .tollGutter()
     .padding(.bottom, 30)
   }
 }
 
-/// 72 pt with a 40 pt tile; 56 pt with a 36 pt tile once the list is long.
-private struct BlockListRow: View {
-  let row: BlocksSnapshot.Row
-  let compact: Bool
+/// The night: its state, moon start – end sun over the strip Tonight draws, and what it holds.
+private struct NightCard: View {
+  let night: BlocksSnapshot.Night
 
   var body: some View {
-    HStack(spacing: TollSpacing.rowGap) {
-      IconTile(.block(row.kind), size: compact ? .row : .large, accent: row.accent)
-      VStack(alignment: .leading, spacing: 1) {
-        Text(row.name).tollType(.rowTitle, TollColor.label)
-        (row.onNow
-          ? Text(
-            "\(Text(Copy.Home.onNow).foregroundStyle(TollColor.accent).fontWeight(.semibold))\(Copy.middleDot)\(row.detail)"
-          )
-          : Text(row.detail))
-          .tollType(.detail, TollColor.label2)
+    VStack(alignment: .leading, spacing: 10) {
+      HStack {
+        BlockState(state: night.state, text: night.stateText)
+        Spacer(minLength: 8)
+        Chevron()
       }
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      Chevron()
+      if let picture = night.picture {
+        NightPictureView(picture: picture)
+      }
+      Text(night.detail)
+        .tollType(.detail, TollColor.label2)
+        .fixedSize(horizontal: false, vertical: true)
     }
-    .padding(.vertical, 8)
-    .frame(minHeight: compact ? 56 : 72)
+    .padding(.vertical, TollSpacing.statsCardVertical)
+    .padding(.horizontal, TollSpacing.cardPadding)
+    .background(
+      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
+    )
     .contentShape(Rectangle())
     .accessibilityElement(children: .combine)
   }
 }
 
-/// "New block", off with its reason once the blocks or the time windows are used up.
-private struct NewBlockRow: View {
-  let limits: BlockLimits
+/// A block other than the night: its kind's tile (amber while on), name and hours, and its state as a
+/// glyph and a word.
+private struct OtherBlockRow: View {
+  let row: BlocksSnapshot.Row
 
   var body: some View {
-    Card {
-      NavigationLink(value: HomeRoute.block(nil)) {
-        HStack(spacing: TollSpacing.rowGap) {
-          Image(symbol: .add).unredacted()
-            .font(.system(size: 18, weight: .semibold))
-            .foregroundStyle(limits.canAddBlock ? TollColor.accent : TollColor.label3)
-            .frame(width: 40)
-            .accessibilityHidden(true)
-          VStack(alignment: .leading, spacing: 1) {
-            Text(Copy.Blocks.new)
-              .tollType(
-                TollType(size: 16, lineHeight: 21, weight: .semibold, style: .callout),
-                limits.canAddBlock ? TollColor.accent : TollColor.label3)
-            if !limits.canAddBlock {
-              // Whichever limit is the one that's reached (#49).
-              Text(
-                limits.blocksUsed >= limits.blocksMax
-                  ? Copy.Blocks.blocksFull(limits.blocksMax)
-                  : Copy.Blocks.windowsFull(limits.windowsMax)
-              )
-              .tollType(.detail, TollColor.label2)
-            }
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(.vertical, 8)
-        .frame(minHeight: 60)
-        .contentShape(Rectangle())
+    CardRow(row.name, detail: row.detail, size: .list) {
+      IconTile(.block(row.kind), accent: row.state == .on)
+    } trailing: {
+      HStack(spacing: 10) {
+        BlockState(state: row.state, text: row.stateText)
+        Chevron()
       }
-      .buttonStyle(.plain)
-      .disabled(!limits.canAddBlock)
+    }
+    .accessibilityElement(children: .combine)
+  }
+}
+
+/// A block's state: the glyph first, so it reads without the word (#72, design §2.6).
+struct BlockState: View {
+  let state: BlocksSnapshot.Row.State
+  let text: String
+
+  var body: some View {
+    if state != .unscheduled {
+      StatusValue(text, symbol: symbol, tone: state == .on ? .accent : .neutral)
+    }
+  }
+
+  private var symbol: TollSymbol {
+    switch state {
+    case .on: .blocked
+    case .later, .unscheduled: .later
+    case .paused, .off: .paused
+    case .waiting: .waiting
     }
   }
 }
 
-private struct LimitRow: View {
+/// "New block", one tap from the tab (#89); off with its reason once the blocks or the time windows
+/// are used up.
+private struct NewBlockRow: View {
+  let limits: BlockLimits
+
+  var body: some View {
+    NavigationLink(value: HomeRoute.block(nil)) {
+      HStack(spacing: TollSpacing.rowGap) {
+        Image(symbol: .add).unredacted()
+          .font(.system(size: 18, weight: .semibold))
+          .foregroundStyle(limits.canAddBlock ? TollColor.accent : TollColor.label3)
+          .frame(width: TileSize.row.side)
+          .accessibilityHidden(true)
+        VStack(alignment: .leading, spacing: 1) {
+          Text(Copy.Blocks.new)
+            .tollType(
+              TollType(size: 16, lineHeight: 21, weight: .semibold, style: .callout),
+              limits.canAddBlock ? TollColor.accent : TollColor.label3)
+          if !limits.canAddBlock {
+            // Whichever limit is the one that's reached (#49).
+            Text(
+              limits.blocksUsed >= limits.blocksMax
+                ? Copy.Blocks.blocksFull(limits.blocksMax)
+                : Copy.Blocks.windowsFull(limits.windowsMax)
+            )
+            .tollType(.detail, TollColor.label2)
+          }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .padding(.vertical, 8)
+      .frame(minHeight: RowSize.compact.minHeight)
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .disabled(!limits.canAddBlock)
+  }
+}
+
+/// The two limits that bite (D39, D40), as a bar and as pips, with the counts in words (#78).
+private struct LimitsCard: View {
+  let limits: BlockLimits
+
+  var body: some View {
+    Card {
+      LimitRow(
+        symbol: .apps, title: Copy.Blocks.appsAndSites,
+        value: Copy.Blocks.used(limits.appsUsed, of: limits.appsMax), full: limits.appsOver > 0
+      ) {
+        CapacityBar(used: limits.appsUsed, of: limits.appsMax)
+      }
+      LimitRow(
+        symbol: .hours, title: Copy.Blocks.timeWindows,
+        value: Copy.Blocks.used(limits.windowsUsed, of: limits.windowsMax),
+        full: limits.windowsFull
+      ) {
+        Pips(
+          filled: limits.windowsUsed, total: limits.windowsMax, style: .segments,
+          spoken: Copy.Blocks.used(limits.windowsUsed, of: limits.windowsMax)
+        )
+        .accessibilityHidden(true)
+      }
+    }
+  }
+}
+
+private struct LimitRow<Meter: View>: View {
+  let symbol: TollSymbol
   let title: String
   let value: String
   let full: Bool
+  @ViewBuilder let meter: Meter
 
   var body: some View {
-    HStack {
-      Text(title).tollType(.rowTitle, TollColor.label)
-      Spacer()
-      Text(value).tollType(.action, full ? TollColor.warn : TollColor.label2)
+    VStack(alignment: .leading, spacing: 8) {
+      HStack(spacing: 8) {
+        Image(symbol: symbol).unredacted()
+          .font(.system(size: 14, weight: .medium))
+          .foregroundStyle(TollColor.label2)
+          .accessibilityHidden(true)
+        Text(title).tollType(.rowTitle, TollColor.label)
+        Spacer(minLength: 8)
+        Text(value).tollType(.action, full ? TollColor.warn : TollColor.label2)
+      }
+      meter
     }
-    .frame(minHeight: 46)
+    .padding(.vertical, 12)
     .accessibilityElement(children: .combine)
   }
 }

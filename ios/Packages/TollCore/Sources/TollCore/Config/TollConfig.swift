@@ -40,6 +40,28 @@ public struct TollConfig: Codable, Sendable, Equatable {
     /// Distinct time windows across every block: each needs a window and a sweep schedule, and
     /// DeviceActivity monitors at most 20 (docs/architecture.md).
     public var maxWindows = 8
+    /// A block's name fits one line on the block screen's title (#62).
+    public var maxNameLength = 24
+    /// The hours a new block starts with, by kind, so adding one is a kind, the apps and Save (#89).
+    /// Study, Work and Other share 9 to 5 on weekdays: blocks with the same hours share one time
+    /// window (D40), so the defaults don't use up the eight.
+    public var study = Hours(start: ClockTime(hour: 9), end: ClockTime(hour: 17))
+    public var work = Hours(start: ClockTime(hour: 9), end: ClockTime(hour: 17))
+    public var gym = Hours(start: ClockTime(hour: 18), end: ClockTime(hour: 19))
+    public var other = Hours(start: ClockTime(hour: 9), end: ClockTime(hour: 17))
+  }
+
+  /// One default rule: a window on some days.
+  public struct Hours: Codable, Sendable, Equatable {
+    public var start: ClockTime
+    public var end: ClockTime
+    public var days: Set<Weekday>
+
+    public init(start: ClockTime, end: ClockTime, days: Set<Weekday> = Weekday.weekdays) {
+      self.start = start
+      self.end = end
+      self.days = days
+    }
   }
 
   public struct Trial: Codable, Sendable, Equatable {

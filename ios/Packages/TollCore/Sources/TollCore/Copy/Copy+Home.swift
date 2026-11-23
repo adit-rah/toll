@@ -17,7 +17,13 @@ extension Copy {
     public static let awayLabel = "Away from home"
     public static let paused = "Paused"
     public static let noBlocks = "No blocks"
-    public static func blockUntil(_ block: String) -> String { "\(block) until" }
+    /// Tonight's one line about another block, while it's on (D68, #89).
+    public static func otherBlockOn(_ block: String, until time: String) -> String {
+      "\(block) on until \(time)"
+    }
+    public static func otherBlocksOn(_ count: Int, until time: String) -> String {
+      "\(count) blocks on until \(time)"
+    }
 
     public static func startsIn(_ duration: String, atHome: Bool) -> String {
       atHome ? "At home · starts in \(duration)" : "Starts in \(duration)"
