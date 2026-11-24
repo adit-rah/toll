@@ -54,6 +54,8 @@ public struct YourSleep: Equatable, Sendable {
   /// "23 nights locked": every night the block ran, from the night log and the transition log together,
   /// so trimming the log never takes one away. Nil before the first.
   public var nights: String?
+  /// One star for each of those nights, over the number (D79).
+  public var sky: Sky
   /// "This week", "A new week" on Monday, or after the trial "Your free week" (#48).
   public var weekTitle: String
   public var dots: [HomeSnapshot.Bar]
@@ -70,19 +72,11 @@ public struct YourSleep: Equatable, Sendable {
     let sleep = state.sleepBlock
     sleepID = sleep?.id
     let lines = log.sorted { $0.at < $1.at }
-    var ran: [Date: Bool] = [:]
-    for night in history { ran[night.night] = ran[night.night] == true || night.ran }
-    if let sleep, let setup = state.setupFinishedAt {
-      // Nights before the log's first line would all read as not run; they're in the history.
-      let since = max(setup, lines.first.map { $0.at.addingTimeInterval(-86_400) } ?? setup)
-      for night in NightFacts.ended(
-        log: lines, sleep: sleep, since: since, now: now, calendar: calendar)
-      {
-        ran[night.night] = ran[night.night] == true || night.ran
-      }
-    }
-    let total = ran.values.filter { $0 }.count
+    let ran = NightsRan.keys(
+      state: state, log: lines, history: history, now: now, calendar: calendar)
+    let total = ran.count
     nights = total > 0 ? Copy.YourSleep.nights(total) : nil
+    sky = NightsRan.sky(ran, sleep: sleep, now: now, calendar: calendar, config: config)
 
     // The week of the night that's on or next: last night's until it ends, then tonight's.
     let inNight = sleep?.schedule.occurrence(containing: now, calendar: calendar) != nil
@@ -107,9 +101,7 @@ public struct YourSleep: Equatable, Sendable {
       return
     }
     var perWeek: [Date: Int] = [:]
-    for (night, didRun) in ran {
-      perWeek[Self.monday(of: night, calendar), default: 0] += didRun ? 1 : 0
-    }
+    for night in ran { perWeek[Self.monday(of: night, calendar), default: 0] += 1 }
     let isNew =
       dots.allSatisfy { $0.night == .ahead } && state.setupFinishedAt.map { $0 < monday } == true
     if isNew {

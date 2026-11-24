@@ -29,7 +29,7 @@ extension Copy {
 
   /// Your sleep (D63, D65, #103): one number per card, compared only with the person's own past.
   public enum YourSleep {
-    /// Says what was counted (the founder's words): nights the apps were locked.
+    /// "23 nights locked" (founder, 24 Nov): the count says what it counts.
     public static func nights(_ n: Int) -> String {
       n == 1 ? "1 night locked" : "\(n) nights locked"
     }

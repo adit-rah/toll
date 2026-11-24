@@ -82,6 +82,8 @@ public struct TollSymbol: Hashable, Sendable {
   public static let add = TollSymbol("plus")
   public static let delete = TollSymbol("trash")
   public static let forward = TollSymbol("chevron.right")
+  /// Sharing Your sky's picture, on a landmark morning only (D79).
+  public static let share = TollSymbol("square.and.arrow.up")
 }
 
 extension Image {

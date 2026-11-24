@@ -43,6 +43,15 @@
     case homePauseOpen = "home-pause-open"
     case sleepMonday = "sleep-monday"
     case sleepBest = "sleep-best"
+    /// Your sky (D79) after 5, 7, 30 and 100 nights, the morning after the last; and Tonight's
+    /// morning card on the 30th, a landmark.
+    case sleepSky5 = "sleep-sky-5"
+    case sleepSky7 = "sleep-sky-7"
+    case sleepSky30 = "sleep-sky-30"
+    case sleepSky100 = "sleep-sky-100"
+    case homeMorningLandmark = "home-morning-landmark"
+    /// The picture a landmark shares, at 30 nights, as the share sheet would send it.
+    case skyShare = "sky-share"
     /// Home not set (D68): the first evening, then the card the morning after the first night.
     case homeAnywhere = "home-anywhere"
     case homeCard = "home-card"
@@ -137,7 +146,8 @@
     /// The tab the screen is on (D63).
     var tab: DuskTab {
       switch self {
-      case .insights, .sleepMonday, .sleepBest: .sleep
+      case .insights, .sleepMonday, .sleepBest, .sleepSky5, .sleepSky7, .sleepSky30, .sleepSky100:
+        .sleep
       case .blocks, .blocksDay, .blockNew, .blockNewGym, .blockEdit, .blockEditOn, .blockNight:
         .blocks
       default: .tonight
@@ -182,6 +192,13 @@
       Group {
         if let path = scenario.setupPath {
           DemoSetup(app: app, path: path)
+        } else if scenario == .skyShare,
+          let landmark = Sky(nights: 30, newestIsNew: true).landmark
+        {
+          SkyPicture(sky: landmark.sky, number: landmark.number)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.black)
+            .ignoresSafeArea()
         } else if scenario.isHome {
           DemoHome(app: app, scenario: scenario)
         } else {
@@ -211,7 +228,7 @@
       let home = HomeSnapshot(
         state: fixture.state, log: fixture.log, now: now, calendar: .current,
         screenTime: scenario != .homeScreenTimeOff,
-        notifications: scenario.notifications ?? .allowed)
+        notifications: scenario.notifications ?? .allowed, history: fixture.history)
       DuskTabs(
         tab: .constant(scenario.tab),
         tonightPath: .constant(scenario.tab == .tonight ? scenario.routes : []),

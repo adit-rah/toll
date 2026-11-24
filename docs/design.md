@@ -66,6 +66,8 @@ The canvas's tokens (sticky note s4), dark first (decisions D36). Light mode is 
 | `ok` | `#86C9A9` | `#2E7D5B` | A number going the right way |
 | `warn` · `warnSoft` | `#EE9E74` · @ 12% | `#B4542C` · @ 12% | Over a limit; deleting |
 
+Your sky (D79) is a night in both appearances: drawn with the dark tokens on dark `bg`, stars in `label`, lines in `label3`, the newest star in `accent` with a faint glow of it.
+
 All text ≥ 4.5:1 in both; Increase Contrast pushes the accent further. Appearance: Dark (default) · Light · Match iPhone, in Settings.
 
 ### 2.4 Shape and depth
@@ -88,6 +90,7 @@ Motion explains where things came from and where they went. It never celebrates,
 | Door: choosing → waiting → open | Content crossfades 300 ms inside the sheet; the sheet does not move. |
 | Countdown | `contentTransition(.numericText(countsDown: true))` each second; the colon never blinks. |
 | Regret line expires | Fades out 200 ms; nothing else moves. |
+| Your sky's newest star (D79) | Crossfades in 200 ms, with its lines, once: the first time Your sleep opens after the night that lit it. Nothing twinkles or loops; a landmark line arrives with the morning card. |
 | Settings | System list and pushes. |
 | Block screen (system) | None of ours; Apple animates the shield. |
 
@@ -114,6 +117,7 @@ SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbo
 | Done (also a block's hours that have ended today, on the strip's snippet, D75) · purchased · failed · waiting for approval · nothing found | `checkmark` · `checkmark.seal` · `xmark` · `person.badge.clock` · `magnifyingglass` |
 | Leaves for iOS Settings · privacy | `arrow.up.forward.app` · `hand.raised` |
 | Insights · Settings · add · delete · forward | `chart.bar` · `gearshape` · `plus` · `trash` · `chevron.right` |
+| Share Your sky's picture (landmark mornings only, D79) | `square.and.arrow.up` |
 
 **State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (off, Screen Time off), the big time gives way to the state's glyph at 64 pt, with no tile: a filled tile reads as a button. **The eyebrow says what the big time means** (D75): "Apps lock at", "Apps locked until", "Paused until", "Night ends at"; never "Tonight" alone. **Tonight's strip is the whole day** (D75), from the night's end to the same time tomorrow: the night is a 24 pt amber bar with its moon, other blocks are 14 pt grey bars with their kind's glyph (shorter and a different symbol, never colour alone), solid while on, outlined before, faint once over, dashed when nothing will block; a 2 pt line marks now; hours every six on the clock. Each segment is a button at least 44 pt wide (segments too close to tap apart share one); its snippet shows the block's tile, state, hours, apps, place and "Edit ›". Setup's and Blocks' night picture keep the night-only strip. **Counts are shapes** (`Pips`): the week's pauses as dots wherever they're shown; the blocks' limits as a bar (`CapacityBar`, the 40 apps and sites) and segments (the 8 time windows). A row Save is still waiting for has a dashed tile (`EmptyTile`). **Actions look like actions:** a screen's main action is a button, never a text link (Pause on Tonight is the exception: a quiet grey capsule by the dots, D61, D67, and "Lock again" in its place while a pause is open); links that act carry a glyph (`See all ›`, `+ New`, the free-week pill's `›`, D75); anything tappable dims while pressed (`tollPressable`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
 

@@ -80,7 +80,7 @@ public struct HomeSnapshot: Equatable, Sendable {
   public init(
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
     config: TollConfig = .defaults, screenTime: Bool = true,
-    notifications: NotificationPermission = .allowed
+    notifications: NotificationPermission = .allowed, history: [PastNight] = []
   ) {
     let sleep = state.sleepBlock
     screenTimeOff = state.setupFinishedAt != nil && !screenTime
@@ -120,6 +120,13 @@ public struct HomeSnapshot: Equatable, Sendable {
       morning = Morning(state: state, log: log, now: now, calendar: calendar, config: config)
       // The morning card is last night, so the strip under it names tonight (the audit).
       if morning != nil { day.label = Copy.Strip.tonightAt(Copy.time(start, in: calendar)) }
+      if morning?.outcome == .ran {
+        // Only a night that ran can be a landmark; the count reads the night log too (D79).
+        let ran = NightsRan.keys(
+          state: state, log: log, history: history, now: now, calendar: calendar)
+        morning?.landmark =
+          NightsRan.sky(ran, sleep: sleep, now: now, calendar: calendar, config: config).landmark
+      }
     }
     timeline = day.segments.isEmpty ? nil : day
     freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)

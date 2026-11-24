@@ -123,7 +123,7 @@ struct LiveHome: View {
       state: model.state, log: model.log, now: now, calendar: .current,
       screenTime: model.screenTime == .approved,
       // Not read yet: no offer, rather than one that vanishes a moment later.
-      notifications: model.notifications ?? .allowed)
+      notifications: model.notifications ?? .allowed, history: model.history)
   }
 
   private var doorShown: Binding<Bool> {

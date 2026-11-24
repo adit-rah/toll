@@ -35,6 +35,9 @@ public struct Morning: Equatable, Sendable {
   /// What the bar and its times are (D75): "Apps locked last night" when it ran; "Last night"
   /// when it didn't, since the card's line says why.
   public var eyebrow: String
+  /// At 7, 30, 100 and 365 nights, a quiet line, the newly completed shape and a picture to share
+  /// (D79).
+  public var landmark: Sky.Landmark?
 
   /// Nil outside the morning, before setup, after the trial (the off hero speaks then), and
   /// when last night was due and simply didn't run.

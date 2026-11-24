@@ -77,6 +77,12 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 59 | During the night with Study also on | The hero is "Blocked until"; the Study line has no Pause capsule | | |
 | 60 | Location While Using, home not set, Study at a place | Tonight shows no location card; Blocks shows Study's row with "Anywhere" | | |
 | 61 | Open the Blocks tab, then any block editor | The night card leads (moon – sun); the editor hides the tab bar and Save is fully visible | | |
+| 62 | The morning after the 7th night the lock ran (#118) | Tonight's card shows the Big Dipper tile, "7 nights. The Big Dipper is in your sky." and share. Your sleep's sky shows 7 stars with the last in amber, fading in once; reopening doesn't fade again | | |
+| 63 | Tap share on a landmark morning | The share sheet shows the sky and "7 nights locked"; saving to Photos works. No network prompt; nothing else is in the image | | |
+| 64 | A night away after a lock night; check the next morning and during the following night | No new star and the same count; the amber star turns white once the next night starts | | |
+| 65 | VoiceOver on Your sleep | "Your sky. N nights locked. M constellations."; "Share" only on landmark days | | |
+| 66 | Reduce Motion on, the morning after a night | The newest star still crossfades 200 ms; nothing else moves | | |
+| 67 | AX5 on a landmark morning | The sky stays full width; the landmark shape stacks above its line; nothing is truncated | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

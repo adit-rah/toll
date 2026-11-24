@@ -32,6 +32,18 @@
     /// Scenarios set the morning after a night: Tonight's morning card and Your sleep's weeks.
     var isMorning: Bool {
       [.homeMorning, .homeMorningGap, .homeMorningAway, .sleepMonday, .sleepBest].contains(self)
+        || skyNights != nil
+    }
+
+    /// Nights the lock has run in Your sky's scenarios (D79), the last of them last night.
+    var skyNights: Int? {
+      switch self {
+      case .sleepSky5: 5
+      case .sleepSky7: 7
+      case .sleepSky30, .homeMorningLandmark: 30
+      case .sleepSky100: 100
+      default: nil
+      }
     }
   }
 
@@ -96,9 +108,16 @@
         : firstWeek || scenario == .homeCard || scenario == .homeHeadsUp
           ? 1
           : scenario == .homeLastNight
-            ? 6 : later ? 20 : paused ? 8 : scenario == .sleepBest ? 6 : morning ? 9 : 4
-      // A personal best needs weeks before this one, which only the night log still holds.
-      let setupAgo = scenario == .sleepBest ? 27 : nightsAgo
+            ? 6
+            : later
+              ? 20
+              : paused
+                ? 8
+                : scenario == .sleepBest
+                  ? 6 : scenario.skyNights.map { min($0, 5) } ?? (morning ? 9 : 4)
+      // A personal best and a long sky need nights before these, which only the night log holds.
+      let setupAgo =
+        scenario == .sleepBest ? 27 : scenario.skyNights.map { $0 + 1 } ?? nightsAgo
       state.setupFinishedAt =
         setupAgo == 0
         ? now.addingTimeInterval(-3600)
@@ -145,6 +164,13 @@
             PastNight(
               night: calendar.startOfDay(for: $0),
               ran: ![9, 12, 15, 17, 18, 22, 25].contains(back))
+          }
+        }
+      }
+      if let sky = scenario.skyNights, sky > nightsAgo {
+        history = (nightsAgo + 1...sky).compactMap { back in
+          calendar.date(byAdding: .day, value: -back, to: now).map {
+            PastNight(night: calendar.startOfDay(for: $0), ran: true)
           }
         }
       }
