@@ -113,8 +113,6 @@ extension Copy {
     public static let alwaysLine =
       "Location is set to While Using. With Always, your night starts only when you're home. Without it, your night starts and ends at its set times, wherever you are."
     public static let alwaysHeader = "Allow location access"
-    /// Over the picture of iOS's list, so it isn't taken for buttons here (the audit).
-    public static let inSettings = "In Settings"
     public static let alwaysOptions = ["Never", "Ask Next Time", "While Using the App"]
     public static let alwaysChoice = "Always"
     public static let alwaysPath = "In Settings: \(name) › Location › Always."

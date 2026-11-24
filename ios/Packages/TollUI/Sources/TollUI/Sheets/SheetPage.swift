@@ -32,7 +32,7 @@ public struct SheetPage<Content: View, Actions: View>: View {
           .padding(.bottom, 24)
       }
       .scrollBounceBehavior(.basedOnSize)
-      actions
+      VStack(alignment: .leading, spacing: 0) { actions }.padding(.top, 8)
     }
     .tollGutter()
     .padding(.top, 37)

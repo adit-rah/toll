@@ -115,7 +115,7 @@ struct HowItWorks: View {
   @Environment(\.dismiss) private var dismiss
 
   var body: some View {
-    SheetPage(height: 420) {
+    SheetPage(height: 540) {
       SheetTitle(Copy.Settings.howItWorks)
       ForEach(Copy.Settings.howItWorksLines, id: \.self) { line in
         Text(line)
