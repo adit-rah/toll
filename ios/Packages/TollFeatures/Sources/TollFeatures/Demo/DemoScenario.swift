@@ -236,7 +236,7 @@
         sleep: YourSleep(
           state: fixture.state, log: fixture.log, history: fixture.history, now: now,
           calendar: .current),
-        log: fixture.log, openPurchase: {}
+        openPurchase: {}
       ) {
         HomeView(
           home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {},

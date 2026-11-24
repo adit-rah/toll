@@ -26,6 +26,11 @@ public struct NightFacts: Equatable, Sendable {
   public var unlocksUsed: Int
   public var unlocksReturned: Int
   public var weekend: Bool
+  /// How long the night's block shielded, pauses left out: Your sleep's hours (the audit), which the
+  /// record keeps once the transition log has trimmed the night.
+  public var locked: TimeInterval = 0
+  /// When each "Never mind" tap was, for Your sleep's hours of the night.
+  public var taps: [Date] = []
 
   public var ran: Bool { blockStart != nil }
 
@@ -62,6 +67,7 @@ public struct NightFacts: Equatable, Sendable {
         unlocksReturned: 0,
         weekend: [6, 7].contains(calendar.component(.weekday, from: occurrence.start)))
       var lastSleeping: Date?
+      var lockedSince: Date?
       var wasOpen = false
       var opened: Date?
       for line in group {
@@ -70,7 +76,12 @@ public struct NightFacts: Equatable, Sendable {
           if facts.blockStart == nil { facts.blockStart = line.at }
           lastSleeping = line.at
           if line.cause == .blockScreen || line.cause == .doorAsked {
-            if line.cause == .blockScreen { facts.stops += 1 } else { facts.doorAsks += 1 }
+            if line.cause == .blockScreen {
+              facts.stops += 1
+              facts.taps.append(line.at)
+            } else {
+              facts.doorAsks += 1
+            }
             facts.lastReach = line.at
           }
         } else if let last = lastSleeping, facts.blockEnd.map({ $0 < last }) ?? true {
@@ -83,6 +94,12 @@ public struct NightFacts: Equatable, Sendable {
         if line.screenTime == false { facts.screenTimeOff = true }
         if !sleeping, line.inWindow, line.home == false { facts.away = true }
         let isOpen = line.door == .open
+        let locking = sleeping && !isOpen
+        if locking, lockedSince == nil { lockedSince = line.at }
+        if !locking, let since = lockedSince {
+          facts.locked += line.at.timeIntervalSince(since)
+          lockedSince = nil
+        }
         if isOpen, !wasOpen, sleeping {
           facts.unlocksUsed += 1
           opened = line.at
@@ -94,6 +111,8 @@ public struct NightFacts: Equatable, Sendable {
         }
         wasOpen = isOpen
       }
+      // A missed end-of-night wake still stops counting at the night's end.
+      if let since = lockedSince { facts.locked += max(0, occurrence.end.timeIntervalSince(since)) }
       if facts.ran { facts.away = false }
       nights.append(facts)
     }

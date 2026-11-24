@@ -12,6 +12,7 @@ struct PurchaseSheet: View {
   @Environment(\.dismiss) private var dismiss
   @State private var working = false
   @State private var outcome: Outcome?
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   init(model: AppModel, home: HomeSnapshot, outcome: Outcome? = nil) {
     self.model = model
@@ -80,24 +81,29 @@ struct PurchaseSheet: View {
         .foregroundStyle(TollColor.label)
         .accessibilityAddTraits(.isHeader)
         .padding(.top, 8)
-      // The free nights only, frozen once they've ended (#48).
-      let free = home.freeWeek
-      AdaptiveStack(spacing: 12) {
-        // Counts, never "5 of 7": a shortfall isn't shown (D65).
-        let nights = free?.nightsBlocked ?? 0
-        let putDown = free?.timesStopped ?? 0
-        let used = free?.unlocksUsed ?? 0
-        Stat(value: "\(nights)", label: Copy.Home.nightsLabel(nights), symbol: .sleep)
-        Stat(value: "\(putDown)", label: Copy.Home.putDownLabel(putDown), symbol: .phoneDown)
-        Stat(value: "\(used)", label: Copy.Purchase.usedLabel(used), symbol: .unlock)
+      // The free nights only, frozen once they've ended (#48). Counts, never "5 of 7", and no
+      // zeros: a shortfall isn't shown (D65), least of all when asking for money (the audit).
+      let nights = home.freeWeek?.nightsBlocked ?? 0
+      let choseSleep = home.freeWeek?.timesStopped ?? 0
+      if nights > 0 || choseSleep > 0 {
+        AdaptiveStack(spacing: 12) {
+          if nights > 0 {
+            Stat(value: "\(nights)", label: Copy.Home.nightsLabel(nights), symbol: .sleep)
+          }
+          if choseSleep > 0 {
+            Stat(
+              value: "\(choseSleep)", label: Copy.Home.putDownLabel(choseSleep), symbol: .phoneDown)
+          }
+        }
+        .padding(.vertical, TollSpacing.statsCardVertical)
+        .padding(.horizontal, TollSpacing.cardPadding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+          TollColor.surfaceRaised,
+          in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
+        )
+        .padding(.top, 22)
       }
-      .padding(.vertical, TollSpacing.statsCardVertical)
-      .padding(.horizontal, TollSpacing.cardPadding)
-      .background(
-        TollColor.surfaceRaised,
-        in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
-      )
-      .padding(.top, 22)
       VStack(alignment: .leading, spacing: 0) {
         ForEach(Copy.Purchase.benefits, id: \.self) { benefit in
           HStack(spacing: 12) {
@@ -114,27 +120,39 @@ struct PurchaseSheet: View {
         }
       }
       .padding(.top, 22)
-    } actions: {
-      HStack(alignment: .firstTextBaseline, spacing: 8) {
-        Text(model.price)
-          .tollType(
-            TollType(size: 34, lineHeight: 40, weight: .semibold, style: .largeTitle, tabular: true)
-          )
-          .foregroundStyle(TollColor.label)
-        Text(Copy.Purchase.once).tollType(.body, TollColor.label2)
+      // At accessibility sizes the price and its terms scroll, so "Keep it" stays pinned (§2.1).
+      if typeSize.isAccessibilitySize {
+        price.padding(.top, 22)
+        footnote.padding(.top, 8)
       }
-      .accessibilityElement(children: .combine)
-      .padding(.bottom, 14)
+    } actions: {
+      if !typeSize.isAccessibilitySize { price.padding(.bottom, 14) }
       PrimaryButton(Copy.Purchase.keep) { Task { await buy() } }.disabled(working)
       QuietButton(Copy.Purchase.restore, type: .smallQuiet) { Task { await restore() } }
         .frame(maxWidth: .infinity)
         .disabled(working)
-      Text(Copy.Purchase.footnote)
-        .tollType(TollType(size: 12, lineHeight: 17, weight: .regular, style: .caption))
-        .foregroundStyle(TollColor.label2)
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: .infinity)
+      if !typeSize.isAccessibilitySize { footnote }
     }
+  }
+
+  private var price: some View {
+    HStack(alignment: .firstTextBaseline, spacing: 8) {
+      Text(model.price)
+        .tollType(
+          TollType(size: 34, lineHeight: 40, weight: .semibold, style: .largeTitle, tabular: true)
+        )
+        .foregroundStyle(TollColor.label)
+      Text(Copy.Purchase.once).tollType(.body, TollColor.label2)
+    }
+    .accessibilityElement(children: .combine)
+  }
+
+  private var footnote: some View {
+    Text(Copy.Purchase.footnote)
+      .tollType(TollType(size: 12, lineHeight: 17, weight: .regular, style: .caption))
+      .foregroundStyle(TollColor.label2)
+      .multilineTextAlignment(.center)
+      .frame(maxWidth: .infinity)
   }
 
   private func buy() async {

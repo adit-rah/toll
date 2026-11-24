@@ -3,7 +3,8 @@ import SwiftUI
 /// A sheet laid out as the canvas draws one: `surface` behind, the title 37 pt from the top (under
 /// iOS's grabber), the content, and the actions at the bottom on the same line as a screen's main
 /// button. The sheet is the board's height at the default text size, grows with larger text, and
-/// opens full height at accessibility sizes, where the page scrolls.
+/// opens full height at accessibility sizes, where the content scrolls and the actions stay pinned
+/// under it (design §2.1).
 public struct SheetPage<Content: View, Actions: View>: View {
   let height: CGFloat
   let overhang: CGFloat
@@ -24,16 +25,14 @@ public struct SheetPage<Content: View, Actions: View>: View {
   }
 
   public var body: some View {
-    GeometryReader { proxy in
+    VStack(alignment: .leading, spacing: 0) {
       ScrollView {
-        VStack(alignment: .leading, spacing: 0) {
-          content
-          Spacer(minLength: 24)
-          actions
-        }
-        .frame(maxWidth: .infinity, minHeight: proxy.size.height, alignment: .topLeading)
+        VStack(alignment: .leading, spacing: 0) { content }
+          .frame(maxWidth: .infinity, alignment: .topLeading)
+          .padding(.bottom, 24)
       }
       .scrollBounceBehavior(.basedOnSize)
+      actions
     }
     .tollGutter()
     .padding(.top, 37)

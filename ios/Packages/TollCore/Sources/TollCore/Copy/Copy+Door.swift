@@ -31,8 +31,9 @@ extension Copy {
     }
 
     // Waiting
+    /// Blocked apps, not "every app": nothing else was closed (the audit).
     public static func onceWaitEnds(minutes: Int) -> String {
-      "Every app opens for \(minutes) minutes when the wait ends."
+      "Blocked apps open for \(minutes) minutes when the wait ends."
     }
     public static let leaveFreely = "You can leave this screen. The wait keeps going."
     public static func opensInSpoken(minutes: Int, seconds: Int) -> String {
@@ -43,12 +44,11 @@ extension Copy {
       }
     }
     public static let cancel = "Cancel"
-    public static let cancelFree = "Cancelling costs nothing."
 
     // Open
     public static let isOpen = "Paused"
     public static func locksAt(_ time: String) -> String { "Blocking again at \(time)" }
-    public static let everyAppOpens = "Every app opens until then."
+    public static let everyAppOpens = "Blocked apps are open until then."
     public static let leftWord = "left"
     public static func leftSpoken(minutes: Int, seconds: Int) -> String {
       switch (minutes, seconds) {
@@ -62,6 +62,8 @@ extension Copy {
       "Lock again in the next \(clock) and you keep the pause."
     }
     public static let lockAgain = "Lock again"
+    /// Over "Lock again" once the regret window is over: the button now ends a pause that's spent.
+    public static let pauseUsed = "This pause is used. Locking ends it early."
 
     // None left
     public static let noneTitle = "No pauses left"

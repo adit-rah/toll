@@ -16,10 +16,14 @@ extension Copy {
     public static let onlyAtHome = "Only when I'm home"
     public static let onlyAtHomeOn = "On"
     public static let onlyAtHomeOff = "Off · runs wherever you are"
-    /// The latest stretch any block was on (`LastNight`), which isn't always a night.
-    public static let lastNight = "Last blocked"
-    public static func blocked(_ from: String, _ until: String?) -> String {
-      until.map { "\(from) – \($0)" } ?? "Since \(from)"
+    /// A change made during the night waits for it to end (B-3), and the row says when.
+    public static func onlyAtHomeFrom(_ on: Bool, _ time: String) -> String {
+      "\(on ? onlyAtHomeOn : off) from \(time)"
+    }
+    /// The latest night the block ran (`PastNight.latest`), with its day.
+    public static let lastNight = "Last night"
+    public static func lastNightSpan(day: String, _ from: String, _ until: String) -> String {
+      "\(day) \(from) – \(until)"
     }
     public static let notYet = "Not yet"
 

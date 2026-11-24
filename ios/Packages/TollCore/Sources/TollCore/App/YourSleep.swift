@@ -1,17 +1,5 @@
 import Foundation
 
-/// A night as the night log keeps it (D62): its key and whether the block ran. The transition log
-/// holds about ten nights, so counts that must never go down read these too.
-public struct PastNight: Equatable, Sendable {
-  public var night: Date
-  public var ran: Bool
-
-  public init(night: Date, ran: Bool) {
-    self.night = night
-    self.ran = ran
-  }
-}
-
 extension HomeSnapshot.Bar {
   /// How a night reads as a dot (D65): filled when the block ran; hollow when it didn't, with a mark
   /// for a night that couldn't block. A night that was due and didn't run is a plain hollow dot,
@@ -62,18 +50,24 @@ public struct YourSleep: Equatable, Sendable {
   /// On a new week, last week in one line over seven empty dots; nil when it had no nights.
   public var lastWeek: String?
   public var best: Best?
-  /// The night's block, so the hours below count only its own (InsightsSnapshot).
-  public var sleepID: BlockID?
+  /// Every ended night, for the ranges below the week (InsightsSnapshot), and the night's hours.
+  public var past: [PastNight]
+  public var hours: InsightsSnapshot.NightHours
+  /// The moment this was read, so the ranges end where the rest of the tab does.
+  public var now: Date
 
   public init(
     state: DuskState, log: [Transition], history: [PastNight], now: Date, calendar: Calendar,
     config: TollConfig = .defaults
   ) {
     let sleep = state.sleepBlock
-    sleepID = sleep?.id
     let lines = log.sorted { $0.at < $1.at }
-    let ran = NightsRan.keys(
-      state: state, log: lines, history: history, now: now, calendar: calendar)
+    past = PastNight.merged(
+      history: history, state: state, log: lines, now: now, calendar: calendar,
+      regret: TimeInterval(config.door.regretSeconds))
+    hours = InsightsSnapshot.NightHours(sleep?.schedule)
+    self.now = now
+    let ran = Set(past.filter(\.ran).map(\.night))
     let total = ran.count
     nights = total > 0 ? Copy.YourSleep.nights(total) : nil
     sky = NightsRan.sky(ran, sleep: sleep, now: now, calendar: calendar, config: config)

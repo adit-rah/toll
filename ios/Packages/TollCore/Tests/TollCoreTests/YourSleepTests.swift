@@ -97,8 +97,7 @@ struct YourSleepTests {
         now: date(2026, 11, 17, 9), calendar: london
       ).first)
     let line = try #require(NightRecordLine.encode(facts, calendar: london))
-    #expect(
-      NightRecordLine.past(line, calendar: london)
-        == PastNight(night: date(2026, 11, 16, 0), ran: true))
+    let past = try #require(NightRecordLine.past(line, calendar: london))
+    #expect(past.night == date(2026, 11, 16, 0) && past.ran)
   }
 }

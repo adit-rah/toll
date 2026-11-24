@@ -70,7 +70,7 @@ struct LiveHome: View {
       sleep: YourSleep(
         state: model.state, log: model.log, history: model.history, now: Date(),
         calendar: .current),
-      log: model.trialSummaryLog(), openPurchase: { buying = true }
+      openPurchase: { buying = true }
     ) {
       TimelineView(.everyMinute) { context in
         HomeView(

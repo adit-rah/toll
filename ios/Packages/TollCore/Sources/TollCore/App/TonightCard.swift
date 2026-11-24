@@ -20,6 +20,15 @@ extension DuskState {
     return sleep.place != nil
   }
 
+  /// When a change to "Only when I'm home" made during the night takes effect (B-3): the night's
+  /// end, while the held edit changes the place. Nil when nothing waits.
+  public var homeChangeAt: Date? {
+    guard let sleep = sleepBlock, case .save(let draft) = pending[sleep.id],
+      draft.place != sleep.place
+    else { return nil }
+    return runtime.active[sleep.id]
+  }
+
   public func dismissed(_ card: TonightCard) -> Bool {
     dismissedCards.contains(card.rawValue)
   }
