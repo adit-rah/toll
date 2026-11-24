@@ -47,9 +47,11 @@ struct NightStrip: View {
         ZStack(alignment: .topLeading) {
           RoundedRectangle(cornerRadius: 4).fill(TollColor.surfaceRaised).frame(height: 8)
           if let lock = strip.lock, lock < strip.start {
+            // 15 minutes is a few points: drawn at least 8 wide, ending 2 pt before the night.
+            let step = max(8, width * (strip.start - lock) - 2)
             gap
-              .frame(width: max(2, width * (strip.start - lock) - 2), height: 4)
-              .offset(x: width * lock, y: 2)
+              .frame(width: step, height: 4)
+              .offset(x: width * strip.start - 2 - step, y: 2)
           }
           night
             .frame(width: max(8, width * (strip.end - strip.start)), height: 8)

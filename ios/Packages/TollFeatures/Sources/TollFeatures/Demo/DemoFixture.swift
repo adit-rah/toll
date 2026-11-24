@@ -186,10 +186,13 @@
       }
       for back in stride(from: 1, through: nightsAgo, by: 1) {
         guard let day = calendar.date(byAdding: .day, value: -back, to: now),
-          let evening = calendar.date(bySettingHour: 22, minute: 30, second: 0, of: day),
-          let morningAfter = calendar.date(byAdding: .hour, value: 8, to: evening)?
+          let bed = calendar.date(bySettingHour: 22, minute: 30, second: 0, of: day),
+          let morningAfter = calendar.date(byAdding: .hour, value: 8, to: bed)?
             .addingTimeInterval(30 * 60)
         else { continue }
+        // The lock started the gap before bed (D76).
+        let evening = bed.addingTimeInterval(
+          -TimeInterval(state.gap.minutes(forNight: calendar.startOfDay(for: day)) * 60))
         if morningAfter < now {
           log.append(
             Transition(

@@ -12,12 +12,15 @@ struct SegmentBar: View {
 
   static let gapHeight: CGFloat = 14
   static let notch: CGFloat = 2
+  /// 15 minutes is under 4 pt of a day: the step is drawn at least this wide so it can be seen.
+  static let gapMinWidth: CGFloat = 8
 
   var body: some View {
     if let share = gapShare {
       HStack(spacing: Self.notch) {
         bar(glyph: false)
-          .frame(width: max(2, width * share - Self.notch / 2), height: Self.gapHeight)
+          .frame(
+            width: max(Self.gapMinWidth, width * share - Self.notch / 2), height: Self.gapHeight)
         bar(glyph: true)
       }
     } else {
@@ -29,7 +32,7 @@ struct SegmentBar: View {
   private var gapShare: Double? {
     guard segment.isNight, let bed = segment.bed, segment.end > segment.start else { return nil }
     let share = (bed - segment.start) / (segment.end - segment.start)
-    return share > 0 && share < 1 && width * share >= 4 ? share : nil
+    return share > 0 && share < 1 && width * (1 - share) >= 2 * Self.gapMinWidth ? share : nil
   }
 
   private func bar(glyph showsGlyph: Bool) -> some View {
