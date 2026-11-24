@@ -21,7 +21,6 @@ extension Copy {
       "Up to \(max) sets of hours across all blocks."
     }
     public static func onNowUntil(_ time: String) -> String { "until \(time)" }
-    public static func appCount(_ n: Int) -> String { n == 1 ? "1 app" : "\(n) apps" }
     public static func thisBlock(_ n: Int) -> String { "This block: \(n) apps and sites" }
     public static func allBlocks(_ used: Int, of max: Int) -> String {
       "All blocks: \(used) of \(max)"
@@ -121,6 +120,36 @@ extension Copy {
     }
     public static func dayLetter(_ day: Weekday) -> String {
       ["M", "T", "W", "T", "F", "S", "S"][day.rawValue - 1]
+    }
+
+    /// Over the night's day chips: a chip is the day a night starts (the audit).
+    public static let nightsStarting = "Nights starting"
+    /// Under them, which nights those are: "Sun–Thu night → Mon–Fri morning". A lone "S" could be
+    /// either day, and Sunday-to-Thursday reads as Monday-to-Thursday on a Monday-first row.
+    public static func nightSpan(_ days: Set<Weekday>, crossesMidnight: Bool) -> String? {
+      guard !days.isEmpty else { return nil }
+      if days == Weekday.all { return "Every night" }
+      // Runs of days in a row, wrapping from Sunday to Monday.
+      let order = Weekday.allCases
+      guard let gap = order.firstIndex(where: { !days.contains($0) }) else { return nil }
+      var runs: [(Weekday, Weekday)] = []
+      for step in 1...7 {
+        let day = order[(gap + step) % 7]
+        guard days.contains(day) else { continue }
+        if let last = runs.last, last.1.next == day {
+          runs[runs.count - 1].1 = day
+        } else {
+          runs.append((day, day))
+        }
+      }
+      runs.sort { $0.0 < $1.0 }
+      func name(_ run: (Weekday, Weekday)) -> String {
+        run.0 == run.1 ? Home.shortDay(run.0) : "\(Home.shortDay(run.0))–\(Home.shortDay(run.1))"
+      }
+      let starts = runs.map(name).joined(separator: ", ")
+      guard crossesMidnight else { return starts }
+      let ends = runs.map { name(($0.0.next, $0.1.next)) }.joined(separator: ", ")
+      return "\(starts) night → \(ends) morning"
     }
 
     public static func refused(

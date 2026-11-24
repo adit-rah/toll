@@ -3,7 +3,7 @@ import TollCore
 import TollUI
 
 /// The pause (D67; the spec's door, D-3, D-4, D31), a sheet over Tonight opened by the block
-/// screen's "Pause in Dusk" or Tonight's "Pause". Four states, each read without words: the pause
+/// screen's "Open Dusk to pause" or Tonight's "Pause". Four states, each read without words: the pause
 /// symbol and the dots, the wait's countdown, the pause's countdown, and the empty dots. They
 /// crossfade (design §2.5).
 struct DoorSheet: View {

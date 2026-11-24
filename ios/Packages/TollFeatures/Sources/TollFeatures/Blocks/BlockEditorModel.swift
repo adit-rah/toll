@@ -116,6 +116,11 @@ final class BlockEditorModel {
     return isNew && !hasApps
   }
 
+  /// The set-home flow saved home, or anywhere, itself: the draft follows it, so Save doesn't undo it.
+  func homeChanged() {
+    place = app.draftPlace(app.sleepDraft?.place)
+  }
+
   func setRule(_ index: Int, _ rule: WeeklySchedule.Rule) {
     guard block.schedule.rules.indices.contains(index) else { return }
     block.schedule.rules[index] = rule

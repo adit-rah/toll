@@ -75,6 +75,12 @@ extension Copy {
     public static let ok = "OK"
   }
 
+  /// The day's short name in the phone's language ("Mon").
+  public static func shortWeekday(_ date: Date, in calendar: Calendar = .current) -> String {
+    date.formatted(
+      Date.FormatStyle(calendar: calendar, timeZone: calendar.timeZone).weekday(.abbreviated))
+  }
+
   /// The day's name in the phone's language ("Monday").
   public static func weekday(_ date: Date, in calendar: Calendar = .current) -> String {
     let locale = calendar.locale.flatMap { $0.identifier.isEmpty ? nil : $0 } ?? .current

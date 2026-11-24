@@ -47,7 +47,8 @@ public struct PastNight: Equatable, Sendable {
     history: [PastNight], state: DuskState, log: [Transition], now: Date, calendar: Calendar,
     regret: TimeInterval = 120
   ) -> [PastNight] {
-    var byNight = Dictionary(history.map { ($0.night, $0) }, uniquingKeysWith: { first, _ in first })
+    var byNight = Dictionary(
+      history.map { ($0.night, $0) }, uniquingKeysWith: { first, _ in first })
     let lines = log.sorted { $0.at < $1.at }
     if let sleep = state.sleepBlock, let setup = state.setupFinishedAt {
       // Nights before the log's first line would all read as not run; they're in the history.

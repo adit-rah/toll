@@ -16,6 +16,8 @@ struct BlockEditorView: View {
   @State private var choosingPlace = false
   @State private var confirmingDelete = false
   @State private var askingAlways = false
+  /// The night's place is home, set with the same map as Tonight and Settings (the audit).
+  @State private var settingHome = false
 
   init(app: AppModel, editing id: BlockID?) {
     _model = State(initialValue: BlockEditorModel(app: app, editing: id))
@@ -44,6 +46,12 @@ struct BlockEditorView: View {
           model.block.onlyAtPlace = only
           if model.save() { dismiss() }
         }
+      }
+    }
+    .sheet(isPresented: $settingHome) {
+      SetHomeFlow(app: model.app) {
+        settingHome = false
+        model.homeChanged()
       }
     }
     .sheet(isPresented: $confirmingDelete) {
@@ -91,11 +99,11 @@ struct BlockEditorView: View {
       .buttonStyle(.plain)
       ForEach(model.block.schedule.rules.indices, id: \.self) { index in
         HoursInline(
-          title: hoursTitle(index), rule: model.block.schedule.rules[index]
+          title: hoursTitle(index), rule: model.block.schedule.rules[index], isNight: model.isSleep
         ) { model.setRule(index, $0) }
       }
       Button {
-        choosingPlace = true
+        if model.isSleep { settingHome = true } else { choosingPlace = true }
       } label: {
         CardRow(Copy.Blocks.place, detail: model.place?.name ?? Copy.Blocks.anywhere) {
           IconTile(placeSymbol, accent: false)

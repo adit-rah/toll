@@ -26,6 +26,11 @@ extension AppModel {
     send(.edit, [.setHome(home)])
   }
 
+  /// The way back: the night runs on its hours wherever the phone is; home stays saved.
+  func useAnywhere() {
+    send(.edit, [.useAnywhere])
+  }
+
   /// A Tonight card put away for good (#102).
   func dismiss(_ card: TonightCard) {
     send(.edit, [.dismissCard(card)])
@@ -62,7 +67,7 @@ extension AppModel {
 
   // MARK: Pause (the spec's door, D67)
 
-  /// Opens the pause sheet: "Pause in Dusk" was tapped on the block screen in the last two minutes,
+  /// Opens the pause sheet: "Open Dusk to pause" was tapped on the block screen in the last two minutes,
   /// or a pause is under way.
   var showsDoor: Bool {
     guard state.isBlocking else { return false }

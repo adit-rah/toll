@@ -227,7 +227,8 @@
       return PastNight(
         night: calendar.startOfDay(for: day), ran: ran, start: ran ? start : nil,
         end: ran ? end : nil, locked: ran ? 8.5 * 3600 : 0,
-        taps: ran ? (0..<(back % 3)).map { start.addingTimeInterval(Double($0 * 40 + 50) * 60) } : [])
+        taps: ran
+          ? (0..<(back % 3)).map { start.addingTimeInterval(Double($0 * 40 + 50) * 60) } : [])
     }
   }
 #endif

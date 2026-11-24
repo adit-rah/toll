@@ -5,8 +5,8 @@ import UIKit
 
 /// Onboarding 1 (the canvas's Wake time, and Wake time · weekends on): the wake time sets the night
 /// (8 h 30 m earlier), drawn under the wheel as moon start – end sun on Tonight's strip (D68), so
-/// turning the wheel visibly moves it. "Change" on a night opens its own time under it: the start of
-/// weeknights, the wake time of weekends.
+/// turning the wheel visibly moves it. "Start" on weeknights and "Wake" on weekends open that time
+/// under the row.
 struct WakeTimeView: View {
   @Bindable var model: SetupModel
   @State private var editing: Night?
@@ -77,9 +77,12 @@ struct WakeTimeView: View {
     CardRow(title, detail: detail, size: .night) {
       IconTile(symbol)
     } trailing: {
-      Button(Copy.Setup.change) { editing = editing == night ? nil : night }
-        .tollType(.link, TollColor.accent)
-        .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
+      Button(night == .nights ? Copy.Setup.changeStart : Copy.Setup.changeWake) {
+        editing = editing == night ? nil : night
+      }
+      .tollType(.link, TollColor.accent)
+      .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
+      .accessibilityLabel(night == .nights ? Copy.Setup.nightsStart : Copy.Setup.weekendWake)
     }
   }
 }

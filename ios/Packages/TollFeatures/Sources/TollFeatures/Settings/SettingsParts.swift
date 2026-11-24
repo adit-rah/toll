@@ -97,8 +97,10 @@ struct AppearancePicker: View {
   }
 }
 
-/// How it works, as a sheet.
+/// How it works, as a sheet, with a button to close it: a swipe isn't the only way out (the audit).
 struct HowItWorks: View {
+  @Environment(\.dismiss) private var dismiss
+
   var body: some View {
     SheetPage(height: 420) {
       SheetTitle(Copy.Settings.howItWorks)
@@ -109,7 +111,7 @@ struct HowItWorks: View {
           .padding(.top, 12)
       }
     } actions: {
-      EmptyView()
+      PrimaryButton(Copy.Setup.done) { dismiss() }
     }
   }
 }

@@ -43,6 +43,9 @@ public enum Weekday: Int, Codable, CaseIterable, Comparable, Sendable {
   ]
   public static let weekendNights: Set<Weekday> = [.friday, .saturday]
 
+  /// The day after, Sunday wrapping to Monday.
+  public var next: Weekday { Weekday(rawValue: rawValue % 7 + 1) ?? .monday }
+
   public init(of date: Date, calendar: Calendar) {
     let gregorian = calendar.component(.weekday, from: date)
     self = Weekday(rawValue: (gregorian + 5) % 7 + 1) ?? .monday

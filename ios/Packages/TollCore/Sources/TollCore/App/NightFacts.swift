@@ -18,7 +18,7 @@ public struct NightFacts: Equatable, Sendable {
   public var screenTimeOff: Bool
   /// "Never mind" taps while Sleep was on (D46).
   public var stops: Int
-  /// "Pause in Dusk" taps while Sleep was on.
+  /// "Open Dusk to pause" taps while Sleep was on.
   public var doorAsks: Int
   /// The last time the block screen was tapped while Sleep was on: when the phone was last reached
   /// for, the stand-in for sleep onset when Health has none (#87).

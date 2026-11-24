@@ -57,12 +57,14 @@ extension Copy {
     public static let yourNights = "Your nights"
     public static let weeknights = "Weeknights"
     public static let weekendNights = "Fri and Sat nights"
-    public static let change = "Change"
+    /// What each row's link changes (the audit): "Change" didn't say, and the wheel sets the wake.
+    public static let changeStart = "Start"
+    public static let changeWake = "Wake"
     public static let nightsStart = "Nights start at"
     public static let differentOnWeekends = "Different on weekends"
     public static let weekendWake = "Weekend wake time"
     /// No population norm (D65): the night's length is on the row above.
-    public static let sleepAdvice = "You can change this any time."
+    public static let sleepAdvice = "You can change this later in Blocks."
     /// Between the moon and the sun (D68): "10:30 pm – 7:00 am".
     public static func nightSpan(start: String, end: String) -> String { "\(start) – \(end)" }
     /// The night drawn as moon start – end sun (D68), read out in one line.
@@ -103,15 +105,16 @@ extension Copy {
     public static let on = "On"
     public static let always = "Always"
     public static let whileUsing = "While Using"
-    public static let never = "Never"
     public static let preciseLocation = "Precise Location"
     public static let screenTimeDenied =
-      "Without Screen Time, \(name) can't block anything. Turn it on in the next screen, or in Settings › Screen Time."
+      "Without Screen Time, \(name) can't block anything. Tap Try again and choose Continue, or turn it on in Settings › Screen Time."
 
     public static let alwaysTitle = "Choose Always"
     public static let alwaysLine =
       "Location is set to While Using. With Always, your night starts only when you're home. Without it, your night starts and ends at its set times, wherever you are."
     public static let alwaysHeader = "Allow location access"
+    /// Over the picture of iOS's list, so it isn't taken for buttons here (the audit).
+    public static let inSettings = "In Settings"
     public static let alwaysOptions = ["Never", "Ask Next Time", "While Using the App"]
     public static let alwaysChoice = "Always"
     public static let alwaysPath = "In Settings: \(name) › Location › Always."

@@ -145,7 +145,6 @@ struct HomeDestination: View {
   var body: some View {
     switch route {
     case .settings: SettingsView(model: model, openPurchase: openPurchase)
-    case .blocks: BlocksView(model: model)
     case .block(let id): BlockEditorView(app: model, editing: id)
     case .log: TransitionLogView(model: model)
     }
@@ -155,7 +154,7 @@ struct HomeDestination: View {
 /// Screens pushed from Tonight, with Apple's back button reading "Tonight" (D75: "Home" is also the
 /// place).
 enum HomeRoute: Hashable {
-  case settings, blocks, log
+  case settings, log
   /// A block to edit, or nil for a new one; pushed over Blocks, or over Tonight from the strip's
   /// snippet (D75), so Back returns where it came from.
   case block(BlockID?)

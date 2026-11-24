@@ -12,6 +12,8 @@ struct SettingsView: View {
   @State private var explaining = false
   @State private var nothingToRestore = false
   @State private var restoring = false
+  /// Restored on this visit: the row stays to say so (`Copy.Settings.restored`).
+  @State private var restored = false
   /// "Only when I'm home" (D68): the same flow as Tonight's card, here for good.
   @State private var settingHome = false
   @AppStorage(Appearance.key) private var appearance = Appearance.standard
@@ -40,17 +42,11 @@ struct SettingsView: View {
               }
               .buttonStyle(.plain)
             }
-            SettingsRow(Copy.Settings.location) {
-              PermissionState(text: location.0, tone: location.1)
-            }
+            locationRow
             Button {
               settingHome = true
             } label: {
-              SettingsRow(
-                Copy.Settings.onlyAtHome,
-                detail: model.state.homeIsSet
-                  ? Copy.Settings.onlyAtHomeOn : Copy.Settings.onlyAtHomeOff
-              ) { Chevron() }
+              SettingsRow(Copy.Settings.onlyAtHome, detail: onlyAtHome) { Chevron() }
             }
             .buttonStyle(.plain)
             HeadsUpRow(model: model)
@@ -59,21 +55,21 @@ struct SettingsView: View {
         }
         SettingsSection(Copy.Settings.app) {
           Card {
-            NavigationLink(value: HomeRoute.blocks) {
-              SettingsRow(Copy.Settings.blocks, detail: blocksSummary) { Chevron() }
-            }
-            .buttonStyle(.plain)
             SettingsRow(Copy.Settings.appearance, minHeight: 50) {
               AppearancePicker(selection: $appearance)
             }
             freeNights
-            Button {
-              Task { await restore() }
-            } label: {
-              SettingsRow(Copy.Settings.restore) { Chevron() }
+            // An action, not a place: no chevron. Gone once bought, except to say it worked.
+            if !model.state.trial.purchased || restored {
+              Button {
+                Task { await restore() }
+              } label: {
+                SettingsRow(
+                  Copy.Settings.restore, detail: restored ? Copy.Settings.restored : nil)
+              }
+              .buttonStyle(.plain)
+              .disabled(restoring || restored)
             }
-            .buttonStyle(.plain)
-            .disabled(restoring)
           }
         }
         SettingsSection(Copy.Settings.help) {
@@ -84,11 +80,20 @@ struct SettingsView: View {
               SettingsRow(Copy.Settings.howItWorks) { Chevron() }
             }
             .buttonStyle(.plain)
-            link(AppLinks.privacy) {
-              SettingsRow(Copy.Settings.privacy, detail: Copy.Settings.privacyLine) { Chevron() }
+            // Rows that leave the app say so with the glyph; a row with nowhere to go isn't shown.
+            if let privacy = AppLinks.privacy {
+              Link(destination: privacy) {
+                SettingsRow(Copy.Settings.privacy, detail: Copy.Settings.privacyLine) {
+                  LeavesApp()
+                }
+              }
+              .buttonStyle(.plain)
             }
-            if let address = AppLinks.supportAddress {
-              link(AppLinks.support) { SettingsRow(Copy.Settings.contact, detail: address) }
+            if let address = AppLinks.supportAddress, let support = AppLinks.support {
+              Link(destination: support) {
+                SettingsRow(Copy.Settings.contact, detail: address) { LeavesApp() }
+              }
+              .buttonStyle(.plain)
             }
             NavigationLink(value: HomeRoute.log) {
               SettingsRow(Copy.Settings.log, detail: Copy.Settings.testingOnly) { Chevron() }
@@ -96,6 +101,10 @@ struct SettingsView: View {
             .buttonStyle(.plain)
           }
         }
+        Text(Copy.Settings.versionLine(AppLinks.version))
+          .tollType(.detail, TollColor.label3)
+          .frame(maxWidth: .infinity)
+          .padding(.top, 20)
       }
       .tollGutter()
       .padding(.bottom, 32)
@@ -124,14 +133,31 @@ struct SettingsView: View {
     }
   }
 
-  @ViewBuilder private func link<Content: View>(_ url: URL?, @ViewBuilder content: () -> Content)
-    -> some View
-  {
-    if let url {
-      Link(destination: url) { content() }.buttonStyle(.plain)
+  /// With home set and location short of Always, location is why home doesn't work, so the row
+  /// opens iOS Settings (the audit); otherwise it only reports.
+  @ViewBuilder private var locationRow: some View {
+    if model.state.homeIsSet, model.location != .always {
+      Button(action: openSystemSettings) {
+        SettingsRow(Copy.Settings.location) {
+          HStack(spacing: 8) {
+            PermissionState(text: location.0, tone: location.1)
+            LeavesApp()
+          }
+        }
+      }
+      .buttonStyle(.plain)
     } else {
-      content()
+      SettingsRow(Copy.Settings.location) {
+        PermissionState(text: location.0, tone: location.1)
+      }
     }
+  }
+
+  /// "On", or when a change made during the night applies (B-3).
+  private var onlyAtHome: String {
+    let on = model.state.homeIsSet
+    if let at = model.state.homeChangeAt { return Copy.Settings.onlyAtHomeFrom(on, Copy.time(at)) }
+    return on ? Copy.Settings.onlyAtHomeOn : Copy.Settings.onlyAtHomeOff
   }
 
   private var screenTime: (String, PermissionState.Tone) {
@@ -148,20 +174,33 @@ struct SettingsView: View {
   }
 
   private var lastNight: String {
-    guard let night = LastNight(log: Array(model.log.reversed())) else {
-      return Copy.Settings.notYet
-    }
-    return Copy.Settings.blocked(Copy.time(night.on), night.off.map { Copy.time($0) })
-  }
-
-  private var blocksSummary: String {
-    Copy.Settings.blocksSummary(
-      items: model.state.blocks.map(\.appCount).reduce(0, +), max: model.config.blocks.maxApps)
+    guard
+      let night = PastNight.latest(
+        history: model.history, state: model.state, log: model.log, now: model.now,
+        calendar: .current),
+      let start = night.start, let end = night.end
+    else { return Copy.Settings.notYet }
+    return Copy.Settings.lastNightSpan(
+      day: Copy.shortWeekday(night.night), Copy.time(start), Copy.time(end))
   }
 
   private func restore() async {
     restoring = true
     defer { restoring = false }
-    if !(await model.restore()) { nothingToRestore = true }
+    if await model.restore() {
+      restored = true
+    } else {
+      nothingToRestore = true
+    }
+  }
+}
+
+/// A row that leaves the app for somewhere else (design §2.6).
+private struct LeavesApp: View {
+  var body: some View {
+    Image(symbol: .openSettings).unredacted()
+      .font(.system(size: 13, weight: .semibold))
+      .foregroundStyle(TollColor.label3)
+      .accessibilityHidden(true)
   }
 }

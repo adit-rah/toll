@@ -6,7 +6,7 @@ public struct ShieldText: Equatable, Sendable {
   public var title: String
   /// Why it's blocked, then the pauses left this week: the supply shows wherever a pause is offered.
   public var subtitle: String
-  /// "Pause in Dusk", dropped at 0: no pause is offered then (#47, D67).
+  /// "Open Dusk to pause", dropped at 0: no pause is offered then (#47, D67).
   public var offersDoor: Bool
   /// What the block screen's picture draws (#75): the block's symbol, and the pauses as dots.
   public var kind: Block.Kind
@@ -28,13 +28,12 @@ public struct ShieldText: Equatable, Sendable {
     let supply =
       left > 0
       ? Copy.Shield.pauses(left, of: config.unlocks.max)
-      : Copy.Door.noneLeftBack(Copy.Door.refillDay(refill, now: now, in: calendar))
+      : Copy.Shield.noneLeft(back: Copy.Door.refillDay(refill, now: now, in: calendar))
+    title = time.map(Copy.Shield.title(until:)) ?? Copy.Shield.title
     guard let block, !block.isSleep else {
-      title = time.map(Copy.Shield.title(until:)) ?? Copy.Shield.title
       subtitle = "\(Copy.Shield.subtitle) \(supply)"
       return
     }
-    title = time.map { Copy.Shield.blockTitle(block.name, until: $0) } ?? block.name
     subtitle = "\(Copy.Shield.blockOn(block.name)) \(supply)"
   }
 }

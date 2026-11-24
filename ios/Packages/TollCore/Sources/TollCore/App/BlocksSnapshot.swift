@@ -57,7 +57,9 @@ public struct BlocksSnapshot: Equatable, Sendable {
     _ block: Block, state: DuskState, now: Date, calendar: Calendar, blocking: Bool
   ) -> Night {
     let row = Self.row(block, state: state, now: now, calendar: calendar, blocking: blocking)
-    var parts = [Copy.Blocks.appCount(block.appCount + block.categoryCount)]
+    var parts = [
+      Copy.Blocks.summary(categories: block.categoryCount, apps: block.appCount)
+    ]
     parts.append(placeText(block, state: state) ?? Copy.Blocks.anywhere)
     if block.schedule.rules.count > 1 { parts.append(Copy.Home.weekendsDiffer) }
     let held = state.runtime.active[block.id].flatMap {
