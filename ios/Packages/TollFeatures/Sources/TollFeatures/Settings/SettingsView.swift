@@ -46,7 +46,7 @@ struct SettingsView: View {
             Button {
               settingHome = true
             } label: {
-              SettingsRow(Copy.Settings.onlyAtHome, detail: onlyAtHome) { Chevron() }
+              SettingsRow(Copy.Settings.onlyAtHome, detail: onlyAtHome, glyph: true) { Chevron() }
             }
             .buttonStyle(.plain)
             HeadsUpRow(model: model)
@@ -77,13 +77,13 @@ struct SettingsView: View {
             Button {
               explaining = true
             } label: {
-              SettingsRow(Copy.Settings.howItWorks) { Chevron() }
+              SettingsRow(Copy.Settings.howItWorks, glyph: true) { Chevron() }
             }
             .buttonStyle(.plain)
             // Rows that leave the app say so with the glyph; a row with nowhere to go isn't shown.
             if let privacy = AppLinks.privacy {
               Link(destination: privacy) {
-                SettingsRow(Copy.Settings.privacy, detail: Copy.Settings.privacyLine) {
+                SettingsRow(Copy.Settings.privacy, detail: Copy.Settings.privacyLine, glyph: true) {
                   LeavesApp()
                 }
               }
@@ -91,12 +91,14 @@ struct SettingsView: View {
             }
             if let address = AppLinks.supportAddress, let support = AppLinks.support {
               Link(destination: support) {
-                SettingsRow(Copy.Settings.contact, detail: address) { LeavesApp() }
+                SettingsRow(Copy.Settings.contact, detail: address, glyph: true) { LeavesApp() }
               }
               .buttonStyle(.plain)
             }
             NavigationLink(value: HomeRoute.log) {
-              SettingsRow(Copy.Settings.log, detail: Copy.Settings.testingOnly) { Chevron() }
+              SettingsRow(Copy.Settings.log, detail: Copy.Settings.testingOnly, glyph: true) {
+                Chevron()
+              }
             }
             .buttonStyle(.plain)
           }

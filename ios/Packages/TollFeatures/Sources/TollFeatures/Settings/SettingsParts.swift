@@ -29,22 +29,35 @@ struct SettingsRow<Trailing: View>: View {
   let title: String
   let detail: String?
   let minHeight: CGFloat?
+  /// A small trailing glyph (a chevron, the leaves-the-app arrow) stays beside the title at
+  /// accessibility sizes instead of sitting alone on a line of its own (the audit).
+  let glyph: Bool
   let trailing: Trailing
 
   init(
-    _ title: String, detail: String? = nil, minHeight: CGFloat? = nil,
+    _ title: String, detail: String? = nil, minHeight: CGFloat? = nil, glyph: Bool = false,
     @ViewBuilder trailing: () -> Trailing
   ) {
     self.title = title
     self.detail = detail
     self.minHeight = minHeight
+    self.glyph = glyph
     self.trailing = trailing()
   }
 
   var body: some View {
-    AdaptiveStack(spacing: TollSpacing.rowGap) {
-      RowText(title: title, detail: detail)
-      trailing
+    Group {
+      if glyph {
+        HStack(spacing: TollSpacing.rowGap) {
+          RowText(title: title, detail: detail)
+          trailing
+        }
+      } else {
+        AdaptiveStack(spacing: TollSpacing.rowGap) {
+          RowText(title: title, detail: detail)
+          trailing
+        }
+      }
     }
     .padding(.vertical, 8)
     .frame(minHeight: minHeight ?? (detail == nil ? 46 : 54))
