@@ -77,3 +77,17 @@ _Filled in once every screen is reviewed._
 | "How it works" is a sheet with no button: swipe-down only. At AX5 it's full height. | Dead end | P3 | A "Done" button in its actions. |
 | The version is shown only inside "Activity log", which is "removed before launch". After launch there's no version anywhere for support. | Polish | P3 | A quiet version footnote at the bottom of Settings. |
 | Settings is reachable only from Tonight's gear; from Your sleep and Blocks there's no way to it. | Polish | P3 | Accept (D63), or put the gear on all three tabs. |
+
+## Your sleep (`insights`, `sleep-monday`, `sleep-best`)
+
+| Issue | Type | Sev | Fix |
+|---|---|---|---|
+| The first card is "23 nights" beside a moon, with no word for what a night is: nights of sleep? nights tracked? nights since install? | Vague | P1 | "23 nights phone-free" (`Copy.Home.nightsLabel`, already in `Copy`) as the card's detail, or "23 nights with apps locked". |
+| "214 h phone-free" adds up every block's hours, Study and Gym included (`InsightsSnapshot.hoursBlocked` reads every `blockOn` line), on a tab called Your sleep, next to a chart of the night. It's also not "phone-free": everything not on the list stayed open. | Misleading | P1 | Count the night's block only, and say what it is: "61 h with apps locked at night". Same family as the founder's "phone-free tonight" flag. |
+| "30 days" and "All time" read the transition log, which keeps 2,000 lines (about ten nights by `YourSleep`'s own comment). After a few weeks "All time" shows less than the "23 nights" card above it. | Misleading | P1 | Build the range stats from the night log (`nights.jsonl`, D62), which never trims, or drop "All time" until they do. |
+| The range picker sits under the week cards but only changes the stat and the chart below it. It looks like it scopes the whole tab. | Vague | P2 | Put the picker under a section header ("Over time") or replace it with one fixed range ("Last 30 nights"). |
+| "When you put it down" is a bar chart of "Never mind" taps by hour, 10 pm to 6 am, whatever the person's night is. Its title doesn't say what's counted, and a 12:30 – 8:30 am night loses its last two hours. | Vague | P2 | Title "When you closed a blocked app"; fit the hours to the night's own span (as D60 did for the strip). |
+| The chart is hidden from VoiceOver; only "Most at 11 pm" is read. | Rules (AX) | P2 | An `accessibilityLabel` that reads the peak and the total, or an Audio Graph (`accessibilityChartDescriptor`). |
+| `InsightsView` labels its picker "Your nights" (`Copy.Insights.title`), the night editor's title, on the tab "Your sleep". | Inconsistent | P3 | Label it by what it picks: "Range". |
+| The tab is named Your sleep and shows no sleep: everything here is about the lock. Until Health lands (#86) the name promises more than it gives. | Misleading | P3 | Note for product; no change before #86 (D63, D65). |
+| "A new week" shows seven empty dashed dots on Monday morning. | Polish | P3 | Fine (D69); the line "N nights last week" carries it. When last week had no nights, the card is only dashed rings: add nothing, but check it with the renders. |
