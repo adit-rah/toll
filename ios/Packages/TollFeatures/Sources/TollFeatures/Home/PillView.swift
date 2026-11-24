@@ -2,11 +2,13 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// The pill under the bar. A free night is grey on `surface`, the last one amber on its tint (D33).
+/// The pill in the bar (under it at accessibility sizes). A free night is grey on `surface`, the last one amber on its tint (D33).
 /// It opens the purchase sheet (D75), so it carries a chevron, dims while pressed and says what a tap
 /// does. Away from home has no pill: the hero says it (the audit).
 struct PillView: View {
   let pill: HomeSnapshot.Pill
+  /// Off only where the bar is too narrow for both: the words still say which night.
+  var segments = true
   let open: () -> Void
 
   var body: some View {
@@ -15,10 +17,12 @@ struct PillView: View {
       HStack(spacing: 6) {
         // The free nights as segments, the ones already ended filled and tonight's ringed (#77,
         // the audit): night 2 and night 9 look different without the words.
-        FreeNights(
-          used: pill.night - 1, total: pill.nights, tonight: pill.night - 1, spoken: pill.text
-        )
-        .accessibilityHidden(true)
+        if segments {
+          FreeNights(
+            used: pill.night - 1, total: pill.nights, tonight: pill.night - 1, spoken: pill.text
+          )
+          .accessibilityHidden(true)
+        }
         Text(pill.text)
         Image(symbol: .forward).unredacted().font(.system(size: 10, weight: .bold))
           .accessibilityHidden(true)

@@ -28,95 +28,174 @@ struct HomeView: View {
   var snippet: BlockID?
   @Environment(\.dynamicTypeSize) private var typeSize
 
-  /// A composition, not a list (D64): what needs attention at the top, the state just above the
-  /// middle where the eye lands, and the day's strip at the bottom like a horizon (D75). At
-  /// accessibility sizes the spacers collapse, the screen scrolls, and the state comes before any
-  /// card, so a card can't push it off the screen (the audit).
+  private static let bottomMargin: CGFloat = 28
+
+  /// A composition, not a list (D64): the bar with the pill in it, the state just above the middle
+  /// where the eye lands, and the day's strip at the bottom like a horizon (D75). A card or note
+  /// floats in the room left over and never moves the state (`HomeLayout`). At accessibility sizes
+  /// the screen is one column that scrolls, the state before the pill and any card, so a card can't
+  /// push it off the screen (the audit). Either way VoiceOver reads the state before the card.
   var body: some View {
     GeometryReader { proxy in
       ScrollView {
-        VStack(alignment: .leading, spacing: 0) {
-          topBar
-          if !typeSize.isAccessibilitySize { status }
-          Spacer(minLength: 20)
-          VStack(spacing: 0) {
-            // From the end of the night until noon, last night takes the hero's place (#103).
-            if let morning = home.morning {
-              MorningCard(morning: morning, nights: home.bars)
-            } else {
-              HomeHero(
-                hero: home.hero, eyebrow: home.eyebrow, beforeBed: home.beforeBed,
-                place: home.heroPlace, supply: home.supply,
-                openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil, lockAgain: lockAgain,
-                setNight: home.setNight.map { night -> () -> Void in { openBlock(night) } },
-                openHelpers: home.untilBed == nil ? nil : openHelpers
-              )
-            }
-            if case .off = home.hero {
-              OffCard(price: price, open: openPurchase).padding(.top, 18)
-            }
-            if let other = home.otherBlock {
-              OtherBlockLine(line: other, openDoor: openDoor).padding(.top, 14)
-            }
-            if typeSize.isAccessibilitySize { status.padding(.top, 20) }
-          }
-          // Twice the room below as above: the state sits a little above centre.
-          Spacer(minLength: 28)
-          Spacer(minLength: 0)
-          if let timeline = home.timeline {
-            DayStrip(timeline: timeline, openBlock: openBlock, initial: snippet)
+        Group {
+          if typeSize.isAccessibilitySize {
+            stacked
+          } else {
+            floating(height: proxy.size.height - Self.bottomMargin)
           }
         }
         .tollGutter()
-        .padding(.bottom, 28)
+        .padding(.bottom, Self.bottomMargin)
         .frame(minHeight: proxy.size.height)
       }
     }
     .background(TollColor.bg)
     .animation(Motion.stateChange, value: home.hero)
     .animation(Motion.stateChange, value: home.morning)
+    // Design §2.5: a card fades in place; nothing else moves.
+    .animation(Motion.stateChange, value: note)
   }
 
-  /// The free-night pill and a card, both when both apply: without Always the card used to hide
-  /// the last free night (#45). The card sits 12 pt under the pill.
+  /// Below accessibility sizes. The sort priorities read the bar, the state, the card, the strip.
+  private func floating(height: CGFloat) -> some View {
+    HomeLayout(height: height) {
+      topBar(withPill: true)
+        .accessibilityElement(children: .contain)
+        .layoutValue(key: HomeRoleKey.self, value: .bar)
+        .accessibilitySortPriority(3)
+      heroBlock
+        .layoutValue(key: HomeRoleKey.self, value: .hero)
+        .accessibilitySortPriority(2)
+      if let note {
+        noteView(note)
+          .accessibilityElement(children: .contain)
+          .layoutValue(key: HomeRoleKey.self, value: .note)
+          .accessibilitySortPriority(1)
+          .transition(.opacity)
+          .id(note)
+      }
+      strip.layoutValue(key: HomeRoleKey.self, value: .strip)
+    }
+    .accessibilityElement(children: .contain)
+  }
+
+  /// Accessibility sizes: the state, then the pill and any card, then the strip.
+  private var stacked: some View {
+    VStack(alignment: .leading, spacing: 0) {
+      topBar(withPill: false)
+      Spacer(minLength: 20)
+      VStack(spacing: 0) {
+        heroBlock
+        status.padding(.top, 20)
+      }
+      // Twice the room below as above: the state sits a little above centre.
+      Spacer(minLength: 28)
+      Spacer(minLength: 0)
+      strip
+    }
+  }
+
+  /// The state, and what belongs with it: the purchase card once Off, the line about another block.
+  private var heroBlock: some View {
+    VStack(spacing: 0) {
+      // From the end of the night until noon, last night takes the hero's place (#103).
+      if let morning = home.morning {
+        MorningCard(morning: morning, nights: home.bars)
+      } else {
+        HomeHero(
+          hero: home.hero, eyebrow: home.eyebrow, beforeBed: home.beforeBed,
+          place: home.heroPlace, supply: home.supply,
+          openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil, lockAgain: lockAgain,
+          setNight: home.setNight.map { night -> () -> Void in { openBlock(night) } },
+          openHelpers: home.untilBed == nil ? nil : openHelpers
+        )
+      }
+      if case .off = home.hero {
+        OffCard(price: price, open: openPurchase).padding(.top, 18)
+      }
+      if let other = home.otherBlock {
+        OtherBlockLine(line: other, openDoor: openDoor).padding(.top, 14)
+      }
+    }
+    .frame(maxWidth: .infinity)
+    .accessibilityElement(children: .contain)
+  }
+
+  @ViewBuilder private var strip: some View {
+    if let timeline = home.timeline {
+      DayStrip(timeline: timeline, openBlock: openBlock, initial: snippet)
+    }
+  }
+
+  /// One at a time, the most pressing first: Screen Time off, then location, then Tonight's card.
+  private var note: HomeNote? {
+    if home.screenTimeOff { return .screenTimeOff }
+    if home.locationBanner { return .location }
+    return home.card.map(HomeNote.card)
+  }
+
+  /// At accessibility sizes, the free-night pill and a card, both when both apply: without Always
+  /// the card used to hide the last free night (#45). The card sits 12 pt under the pill.
   @ViewBuilder private var status: some View {
     if let pill = home.pill {
       PillView(pill: pill, open: openPurchase)
         .frame(maxWidth: .infinity)
         .padding(.top, 4)
     }
-    if home.screenTimeOff {
+    if let note {
+      noteView(note).padding(.top, home.pill == nil ? 4 : 12)
+    }
+  }
+
+  @ViewBuilder private func noteView(_ note: HomeNote) -> some View {
+    switch note {
+    case .screenTimeOff:
       NoteCard(Copy.Home.screenTimeOffCard, severity: .broken) {
         SettingsLink(Copy.Home.turnOn, action: turnOnScreenTime)
       }
-      .padding(.top, home.pill == nil ? 4 : 12)
-    } else if home.locationBanner {
+    case .location:
       NoteCard(locationFact, severity: .degraded) {
         SettingsLink(Copy.Home.fixInSettings, action: fixLocation)
       }
-      .padding(.top, home.pill == nil ? 4 : 12)
-    } else if let card = home.card {
+    case .card(let card):
       TonightCardView(
         card: card, headsUp: home.headsUp, gap: home.gapCard, untilBed: home.untilBed,
         open: { openCard(card) },
         dismiss: { dismissCard(card) }
       )
-      .padding(.top, home.pill == nil ? 4 : 12)
     }
   }
 
-  private var topBar: some View {
-    HStack {
-      Spacer()
-      Button(action: openSettings) {
-        Image(symbol: .settings).unredacted()
-          .font(.system(size: 20, weight: .regular))
-          .foregroundStyle(TollColor.label2)
-          .frame(width: TollSpacing.minTapTarget, height: TollSpacing.minTapTarget)
+  /// The gear, and the pill centred in the bar, so its coming and going moves nothing; it drops its
+  /// segments before it would crowd the gear. At accessibility sizes it's under the state instead.
+  private func topBar(withPill: Bool) -> some View {
+    ZStack {
+      HStack {
+        Spacer()
+        Button(action: openSettings) {
+          Image(symbol: .settings).unredacted()
+            .font(.system(size: 20, weight: .regular))
+            .foregroundStyle(TollColor.label2)
+            .frame(width: TollSpacing.minTapTarget, height: TollSpacing.minTapTarget)
+        }
+        .accessibilityLabel(Copy.Home.settings)
+        .padding(.trailing, -10)
       }
-      .accessibilityLabel(Copy.Home.settings)
-      .padding(.trailing, -10)
+      if withPill, let pill = home.pill {
+        ViewThatFits(in: .horizontal) {
+          PillView(pill: pill, open: openPurchase)
+          PillView(pill: pill, segments: false, open: openPurchase)
+        }
+        .padding(.horizontal, TollSpacing.minTapTarget)
+      }
     }
     .frame(height: TollSpacing.barHeight)
   }
+}
+
+/// What may float over Tonight, one at a time.
+enum HomeNote: Hashable {
+  case screenTimeOff, location
+  case card(TonightCard)
 }
