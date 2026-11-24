@@ -11,7 +11,7 @@
       let calendar = Calendar.current
       let night =
         scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario == .homeAway
-        || scenario.isDoor
+        || scenario.isDoor || scenario == .homePauseOpen
       // 1 is Sunday, 2 Monday: the latest such day, today included. Day scenarios need Study's
       // hours: the latest weekday.
       let weekday = calendar.component(.weekday, from: today)
@@ -63,27 +63,28 @@
       let library = Place(
         id: PlaceID("library"), name: "Robarts Library", latitude: 43.6644, longitude: -79.3995,
         radiusMeters: 150)
-      let blocked = scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario.isDoor
+      let pauseOpen = scenario == .doorOpen || scenario == .homePauseOpen
+      let blocked =
+        scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario.isDoor || pauseOpen
       let night = TimeWindow(start: ClockTime(hour: 22, minute: 30), end: ClockTime(hour: 7))
       state.places = scenario.homeNotSet ? [library] : [home, library]
-      state.blocks =
-        scenario == .homeNoBlocks
-        ? []
-        : [
-          Block(
-            id: BlockID("sleep"), name: Copy.Setup.nightName, kind: .sleep,
-            place: scenario.homeNotSet ? nil : home.id,
-            schedule: .everyDay(night), apps: nil, appCount: 4),
-          Block(
-            id: BlockID("study"), name: "Study", kind: .study, place: library.id,
-            schedule: WeeklySchedule(rules: [
-              .init(
-                days: Weekday.weekdays,
-                window: TimeWindow(start: ClockTime(hour: 9), end: ClockTime(hour: 17)))
-            ]), apps: nil, appCount: 3),
-        ]
-      // The Blocks tab shows more than one other block.
-      if scenario.tab == .blocks {
+      // "Nothing scheduled" is a night with no hours: the one block Dusk always has (D73).
+      state.blocks = [
+        Block(
+          id: BlockID("sleep"), name: Copy.Setup.nightName, kind: .sleep,
+          place: scenario.homeNotSet ? nil : home.id,
+          schedule: scenario == .homeNoBlocks ? WeeklySchedule(rules: []) : .everyDay(night),
+          apps: nil, appCount: 4),
+        Block(
+          id: BlockID("study"), name: "Study", kind: .study, place: library.id,
+          schedule: WeeklySchedule(rules: [
+            .init(
+              days: Weekday.weekdays,
+              window: TimeWindow(start: ClockTime(hour: 9), end: ClockTime(hour: 17)))
+          ]), apps: nil, appCount: 3),
+      ]
+      // The Blocks tab shows more than one other block, and a weekday strip shows Gym after Study.
+      if scenario.tab == .blocks || scenario.isDay {
         var gym = BlockDraft.new(.gym)
         gym.id = BlockID("gym")
         gym.appCount = 2
@@ -96,7 +97,7 @@
           containing: now, calendar: calendar, config: .defaults)
       }
       state.presence[home.id] = Presence(isInside: scenario != .homeAway, at: now)
-      let firstWeek = scenario == .homeFirstWeek
+      let firstWeek = scenario == .homeFirstWeek || scenario == .homePillPurchase
       let later = scenario == .homeWeek || scenario == .sleepMonday
       let paused = scenario == .homePaused
       let morning = scenario.isMorning
@@ -136,11 +137,12 @@
         state.unlocks.spent = scenario == .doorNone ? 3 : 1
         state.unlocks.week = UnlockSupply.week(
           containing: now, calendar: calendar, config: .defaults)
-        if scenario == .doorWaiting || scenario == .doorOpen {
-          // The pause's countdowns run on the real clock, so its times do too.
-          let real = Date()
+        if scenario == .doorWaiting || pauseOpen {
+          // The pause's countdowns run on the real clock, so its times do too; Tonight's hero has
+          // no countdown, so it keeps the demo's.
+          let real = scenario == .homePauseOpen ? now : Date()
           var door = Door(waitEndsAt: real.addingTimeInterval(scenario == .doorWaiting ? 54 : -48))
-          if scenario == .doorOpen {
+          if pauseOpen {
             door.openedAt = real.addingTimeInterval(-48)
             door.expiresAt = door.waitEndsAt.addingTimeInterval(
               TimeInterval(TollConfig.defaults.door.minutes * 60))

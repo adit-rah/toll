@@ -72,3 +72,36 @@ These had no caller. They were deleted so the scan and the next pass read only w
 - **"N nights last week"** on a new week: a fact about your own past, not set against this week.
 - **"Your most in a week"**: shown only when this week beats every earlier week (D69). It's a fact, not praise.
 - **"Every night is yours"** (after buying): the founders' words (D59).
+
+## Tonight says what its times mean (D75)
+
+The founder's review of Tonight (24 Nov 2026): an eyebrow must say what the big time is, and a quantity must say what it counts.
+
+| Where | Before | After | Why |
+|---|---|---|---|
+| Tonight, evening eyebrow (`Home.locksAt`, `locksTomorrowAt`, `locksOn`) | Tonight | Apps lock at · Apps lock tomorrow at · Apps lock Monday at | "Tonight" didn't say what the time was. A start that isn't tonight names its day. |
+| Tonight, evening (`Home.phoneFree`) | 8 h 30 m phone-free tonight | (removed) | Read as time off the phone today, not the night's length. |
+| Tonight, blocked eyebrow (`Home.blockedUntil`) | Blocked until | Apps locked until | Pairs with "Apps lock at". |
+| Tonight, blocked line (`Home.youreHome`) and the dots (`Door.pausesOf`) | You're home · 3 pauses left (or On now · 3 pauses left) | You're home (or nothing), and "3 of 3 left this week" beside the dots | "On now" repeated the eyebrow, and the line repeated the dots without saying over what period (the audit). |
+| Tonight, "Pause" capsule, VoiceOver (`Home.pauseSpoken`) | Pause | Pause blocking | "Pause" alone had no object (the audit). |
+| Tonight, while a pause is open (`Home.lockAgain`) | (the sheet only) | Lock again, a capsule by the dots | The pause sheet can be swiped away now; the hero keeps its one action (the audit). |
+| Tonight, pause open (`Home.pausedUntil`, `thenLockedUntil`) | Blocked until 7:00 am | Paused until 11:52 pm · Then locked until 7:00 am | The apps were open; the hero said they were blocked. |
+| Tonight, away (`Home.nightEndsAt`, `locksWhenHome`) | Tonight · 10:30 pm · Starts when you're home | Night ends at · 7:00 am · Apps lock when you're home | The time shown had already passed. |
+| Tonight, away, the pill (`Home.awayLabel`) | Away from home | (removed) | The hero says it with the same glyph; a capsule on Tonight is something to tap (the audit). |
+| Tonight, off card (`Home.turnBackOn`, `onceEveryNight`) | Turn it back on · $9.99 once · every night after | Turn Dusk back on · $9.99 once, for good | "Every night after" read as a charge each night, and "it" wasn't named (the audit). Its tile is Off's power glyph. |
+| Tonight, Screen Time off line (`Home.screenTimeOffDetail`) | Turn it on to block tonight. | Nothing blocks tonight | The card above already says how to turn it on (the audit). |
+| Tonight, nothing scheduled (`Home.setNight`) | (no way forward) | Set your night | A dead end (the audit). The pill hides too. |
+| Tonight, the strip under the morning card (`Strip.tonightAt`) | (no label) | Tonight 10:30 pm, over the night | The card is last night and the strip is today; the label says which night is which (the audit). |
+| Tonight, without location (`Home.anywhereStartsIn`) | Starts at 10:30 pm, wherever you are | Anywhere · starts in 2 h 35 m | The start is already the big time. Same words as home not set. |
+| Tonight, a start days away (`Home.duration`) | Starts in 55 h 30 m | Starts in 2 d 7 h | Readable at a glance. |
+| Tonight, off eyebrow (`Home.isOff`) | Off | Dusk is off | Says what's off. |
+| Tonight, Screen Time eyebrow (`Home.screenTimeOffEyebrow`) | Screen Time off | Screen Time is off | A sentence, like the others. |
+| Tonight, nothing scheduled eyebrow (`Home.yourNight`) | (empty) | Your night | Every eyebrow says what the line under it is about. |
+| Morning card eyebrow (`Morning.lockedLastNight`) | Last night | Apps locked last night (when it ran) | Says what the bar and its times are. Away or Screen Time off keeps "Last night". |
+| Purchase sheet, nights (`Home.nightsLabel`) | 5 · nights phone-free | 5 · nights with apps locked | Counts nights the apps were locked, not time off the phone. |
+| Your sleep, hours (`Insights.hoursLabel`) | 161 h phone-free | 161 h locked at night | Locked hours, not time off the phone, and now only the night's: Study and Gym hours aren't sleep (the audit, the founder). |
+| Your sleep, the count (`YourSleep.nights`) | 23 nights | 23 nights locked | Nights of what (the audit; the founder's words). |
+| "Never mind" taps (`Morning.putDown`, `Home.putDownLabel`, `Insights.when`) | You put it down 3 times · 3 times you put it down · When you put it down | You chose sleep 3 times · 3 times you chose sleep · When you chose sleep | Closing a blocked app isn't putting the phone down, and "it" had no referent (the audit; the founder's words). |
+| Back button from Tonight (`Home.backTitle`) | Home | Tonight | "Home" is also the place. |
+| The pill, VoiceOver hint (`Home.pillHint`) | (none) | Shows your free week and the price | The pill now opens the purchase sheet. |
+| The strip and its snippet (`Copy.Strip`) | Tonight, 10:30 pm to 7:00 am | Your night, 10:30 pm – 7:00 am, 4 apps, Home, Tonight · Edit | Each segment is a button with its snippet. |

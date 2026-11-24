@@ -27,11 +27,14 @@ public struct Morning: Equatable, Sendable {
   /// Where the block was on; the room between two of them is a gap (a pause, or a time away).
   public var ran: [Span]
   public var gaps: [Span]
-  /// "You put it down 3 times": the "Never mind" taps while the night's block was on (D46). Nil at
+  /// "You chose sleep 3 times": the "Never mind" taps while the night's block was on (D46). Nil at
   /// zero, since nothing new means nothing shown.
   public var putDown: String?
   /// The bar and its times in words, for VoiceOver.
   public var spoken: String
+  /// What the bar and its times are (D75): "Apps locked last night" when it ran; "Last night"
+  /// when it didn't, since the card's line says why.
+  public var eyebrow: String
   /// At 7, 30, 100 and 365 nights, a quiet line, the newly completed shape and a picture to share
   /// (D79).
   public var landmark: Sky.Landmark?
@@ -79,6 +82,7 @@ public struct Morning: Equatable, Sendable {
     from = Copy.time(first, in: calendar)
     to = Copy.time(last, in: calendar)
     putDown = outcome == .ran && night.stops > 0 ? Copy.Morning.putDown(night.stops) : nil
+    eyebrow = outcome == .ran ? Copy.Morning.lockedLastNight : Copy.Morning.lastNight
     switch outcome {
     case .ran:
       spoken = Copy.Morning.spokenRan(
@@ -107,18 +111,6 @@ public struct Morning: Equatable, Sendable {
     }
     if let start = since { stretches.append((start, max(start, end))) }
     return stretches
-  }
-}
-
-extension HomeSnapshot {
-  /// Under tonight's start, the night's length: "8 h 30 m phone-free tonight" (#103). Only for a
-  /// night starting within a day, so a weekday schedule on a Friday doesn't call Monday "tonight".
-  static func phoneFree(_ sleep: Block?, start: Date, now: Date, calendar: Calendar) -> String? {
-    guard start.timeIntervalSince(now) < 24 * 3600,
-      let night = sleep?.schedule.occurrence(containing: start, calendar: calendar)
-    else { return nil }
-    return Copy.Home.phoneFree(
-      Copy.length(minutes: Int(night.end.timeIntervalSince(night.start) / 60)))
   }
 }
 

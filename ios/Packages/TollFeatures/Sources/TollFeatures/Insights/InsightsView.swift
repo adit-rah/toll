@@ -12,7 +12,8 @@ struct InsightsView: View {
   @State private var range = InsightsSnapshot.Range.month
 
   var body: some View {
-    let insights = InsightsSnapshot(log: log, now: Date(), calendar: .current, range: range)
+    let insights = InsightsSnapshot(
+      log: log, now: Date(), calendar: .current, range: range, sleep: sleep.sleepID)
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
         ScreenTitle(Copy.Tabs.sleep, kind: .pushed)
@@ -37,7 +38,7 @@ struct InsightsView: View {
           // The nights are counted once, at the top; this is the range's one number.
           Stat(
             value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel,
-            symbol: .phoneDown
+            symbol: .blocked
           )
           .padding(.top, 20)
           HoursCard(insights: insights).padding(.top, 20)
@@ -69,7 +70,7 @@ private struct InsightCard<Content: View>: View {
   }
 }
 
-/// When you put it down, by hour from 10 pm to 6 am (48 pt at most), the busiest hour in amber.
+/// When you chose sleep, by hour from 10 pm to 6 am (48 pt at most), the busiest hour in amber.
 private struct HoursCard: View {
   let insights: InsightsSnapshot
 

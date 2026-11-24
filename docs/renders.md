@@ -32,7 +32,9 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `home-evening` · `home-blocked` · `home-away` · `home-first-week` · `home-last-night` · `home-paused` · `home-location` | Home in each state, with a Sleep and a Study block and a sample week of log, built around the time of the render |
 | `home-morning` · `home-morning-gap` · `home-morning-away` | Tonight at 8:10 am with the morning card (#103): after a night with taps, with a ten-minute pause, and away |
 | `home-anywhere` · `home-card` | Home not set yet: the first evening ("Anywhere"), and the morning-after card offering home |
-| `home-day` | Tonight on a weekday at 11 am with Study on: the one quiet line about another block (D68, #89) |
+| `home-day` | Tonight on a weekday at 11 am with Study on: the one quiet line about another block (D68, #89), and Study and Gym on the day's strip (D75) |
+| `home-strip-night` · `home-strip-day` | The strip's snippet open (D75): on the night in the evening, and on Study at 11 am. A tap reaches the same: `home-evening: tap --id strip.sleep --wait-timeout 5` |
+| `home-pill-purchase` · `home-pause-open` | The purchase sheet the free-week pill opens, over Tonight in the first week (D75; a tap reaches it too: `home-first-week: tap --id tonight.pill --wait-timeout 5`), and Tonight's hero while a pause is open ("Paused until") |
 | `home-heads-up` | Home set, the evening after the first night: the card asking for the heads-up (#104) |
 | `purchase` · `settings` · `settings-anywhere` · `settings-heads-up-denied` · `insights` | The purchase sheet, Settings (with home set, and not set; with notifications denied, the heads-up row offers iOS Settings) and Your sleep |
 | `blocks` · `blocks-day` | The Blocks tab (the night, Study and Gym), in the evening and on a weekday at 11 am with Study on |

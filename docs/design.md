@@ -86,6 +86,7 @@ Motion explains where things came from and where they went. It never celebrates,
 | Status state line changes | Crossfade 200 ms. Numbers in it use `numericText`, 300 ms. |
 | A pip empties or fills | Crossfade 200 ms (#72). |
 | Door sheet opens or closes | System sheet. |
+| Tonight's strip: a segment's snippet opens or closes | System popover (a system sheet at accessibility sizes), D75. A pressed segment or pill dims at once, with no motion. |
 | Door: choosing → waiting → open | Content crossfades 300 ms inside the sheet; the sheet does not move. |
 | Countdown | `contentTransition(.numericText(countsDown: true))` each second; the colon never blinks. |
 | Regret line expires | Fades out 200 ms; nothing else moves. |
@@ -104,21 +105,21 @@ SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbo
 | Concept | Symbol |
 |---|---|
 | Sleep, a night · the night's end | `moon` · `sun.max` |
-| The phone put down ("You put it down", "phone-free tonight") · a personal best | `iphone.slash` · `arrow.up.to.line` |
+| A "Never mind" tap ("You chose sleep") · a personal best | `iphone.slash` · `arrow.up.to.line` |
 | The heads-up before the night (the one notification, D68) | `bell` |
 | Another block | its kind: `book`, `briefcase`, `bolt`, `ellipsis` |
-| **State:** blocked now · starts later · away · off (the free week ended, or a block switched off; never a pause glyph, D70) · nothing can block · working with less (While Using) · waiting for Always | `lock` · `clock` · `figure.walk` · `power` · `exclamationmark.triangle` (warn) · `location.slash` · `hourglass.bottomhalf.filled` |
+| **State:** blocked now (also the hours apps were locked, D75) · starts later · away · off (the free week ended, or a block switched off; never a pause glyph, D70) · nothing can block · working with less (While Using) · waiting for Always | `lock` · `clock` · `figure.walk` · `power` · `exclamationmark.triangle` (warn) · `location.slash` · `hourglass.bottomhalf.filled` |
 | A pause (the code's door and unlock, D67) · its wait | `pause` · `timer` |
 | Apps on a blocklist · a block's hours | `square.grid.2x2` · `clock` |
 | Home · another place · no place (anywhere) | `house` · `mappin` · `globe` |
 | Current position, the Location permission · Precise | `location` · `scope` |
 | Screen Time · weekends differ · wake time | `hourglass` · `calendar` · `alarm` |
-| Done · purchased · failed · waiting for approval · nothing found | `checkmark` · `checkmark.seal` · `xmark` · `person.badge.clock` · `magnifyingglass` |
+| Done (also a block's hours that have ended today, on the strip's snippet, D75) · purchased · failed · waiting for approval · nothing found | `checkmark` · `checkmark.seal` · `xmark` · `person.badge.clock` · `magnifyingglass` |
 | Leaves for iOS Settings · privacy | `arrow.up.forward.app` · `hand.raised` |
 | Insights · Settings · add · delete · forward | `chart.bar` · `gearshape` · `plus` · `trash` · `chevron.right` |
 | Share Your sky's picture (landmark mornings only, D79) | `square.and.arrow.up` |
 
-**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (off, Screen Time off), the big time gives way to the state's glyph in a 64 pt tile. **Counts are shapes** (`Pips`): the week's pauses as dots wherever they're shown; the blocks' limits as a bar (`CapacityBar`, the 40 apps and sites) and segments (the 8 time windows). A row Save is still waiting for has a dashed tile (`EmptyTile`). **Actions look like actions:** a screen's main action is a button, never a text link (Pause on Tonight is the exception: a quiet grey capsule by the dots, D61, D67); links that act carry a glyph (`See all ›`, `+ New`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
+**State has a glyph, in the same place** (`StateLine`): before the eyebrow on Home, and with the word on every row and status value (`StatusValue`). When nothing will block (off, Screen Time off), the big time gives way to the state's glyph at 64 pt, with no tile: a filled tile reads as a button. **The eyebrow says what the big time means** (D75): "Apps lock at", "Apps locked until", "Paused until", "Night ends at"; never "Tonight" alone. **Tonight's strip is the whole day** (D75), from the night's end to the same time tomorrow: the night is a 24 pt amber bar with its moon, other blocks are 14 pt grey bars with their kind's glyph (shorter and a different symbol, never colour alone), solid while on, outlined before, faint once over, dashed when nothing will block; a 2 pt line marks now; hours every six on the clock. Each segment is a button at least 44 pt wide (segments too close to tap apart share one); its snippet shows the block's tile, state, hours, apps, place and "Edit ›". Setup's and Blocks' night picture keep the night-only strip. **Counts are shapes** (`Pips`): the week's pauses as dots wherever they're shown; the blocks' limits as a bar (`CapacityBar`, the 40 apps and sites) and segments (the 8 time windows). A row Save is still waiting for has a dashed tile (`EmptyTile`). **Actions look like actions:** a screen's main action is a button, never a text link (Pause on Tonight is the exception: a quiet grey capsule by the dots, D61, D67, and "Lock again" in its place while a pause is open); links that act carry a glyph (`See all ›`, `+ New`, the free-week pill's `›`, D75); anything tappable dims while pressed (`tollPressable`); anything that leaves for Settings carries `arrow.up.forward.app` (`SettingsLink`). **Notes have a severity** (`NoteCard(severity:)`): info, degraded (`location.slash`), broken (`exclamationmark.triangle` on `warnSoft`).
 
 ## 3. Buttons
 
@@ -148,4 +149,4 @@ Two levels:
 - **Wordless** (strict): every line is a bar, digits included. Render variant `wordless` (or `dark-wordless`) draws each `tollType` line as a placeholder bar. Judge with the normal render beside it.
 - **Foreign** (lenient): letters unreadable, digits and symbols kept. Numbers, times and counts carry meaning here, which is why principle 4 holds.
 
-How a screen earns it: one symbol per concept, used everywhere (a moon is Sleep, a pause symbol is a pause, a pin is a place); geometry for time and supply (the night strip, pips, bars); position that means the same thing on every screen (state at the top, the one action at the bottom); and colour only together with a shape or symbol (§4). This amends principle 4's "icons are rare" to "a symbol wherever it carries a concept". Decoration is still out.
+How a screen earns it: one symbol per concept, used everywhere (a moon is Sleep, a pause symbol is a pause, a pin is a place); geometry for time and supply (the day's strip, the night picture, pips, bars); position that means the same thing on every screen (state at the top, the one action at the bottom); and colour only together with a shape or symbol (§4). This amends principle 4's "icons are rare" to "a symbol wherever it carries a concept". Decoration is still out.

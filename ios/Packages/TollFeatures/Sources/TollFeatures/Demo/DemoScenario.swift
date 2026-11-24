@@ -32,8 +32,15 @@
     case homeMorning = "home-morning"
     case homeMorningGap = "home-morning-gap"
     case homeMorningAway = "home-morning-away"
-    /// A weekday at 11 am with Study on: Tonight's one quiet line about it (D68, #89).
+    /// A weekday at 11 am with Study on: Tonight's one quiet line about it (D68, #89), and Study and
+    /// Gym on the day's strip (D75).
     case homeDay = "home-day"
+    /// The strip's snippet open (D75): on the night in the evening, and on Study at 11 am.
+    case homeStripNight = "home-strip-night"
+    case homeStripDay = "home-strip-day"
+    /// The free-week pill's purchase sheet over Tonight (D75), and the hero while a pause is open.
+    case homePillPurchase = "home-pill-purchase"
+    case homePauseOpen = "home-pause-open"
     case sleepMonday = "sleep-monday"
     case sleepBest = "sleep-best"
     /// Your sky (D79) after 5, 7, 30 and 100 nights, the morning after the last; and Tonight's
@@ -149,7 +156,15 @@
     /// The kind a new-block scenario shows already picked.
     var newBlockKind: Block.Kind? { self == .blockNewGym ? .gym : nil }
     /// Weekday scenarios at 11 am, with Study on.
-    var isDay: Bool { [.homeDay, .blocksDay, .blockEditOn].contains(self) }
+    var isDay: Bool { [.homeDay, .homeStripDay, .blocksDay, .blockEditOn].contains(self) }
+    /// The block whose snippet the strip opens on (D75).
+    var snippet: BlockID? {
+      switch self {
+      case .homeStripNight: BlockID("sleep")
+      case .homeStripDay: BlockID("study")
+      default: nil
+      }
+    }
     /// Screens pushed on the tab's stack, with the screens under them.
     var routes: [HomeRoute] {
       switch self {
@@ -198,6 +213,14 @@
   private struct DemoHome: View {
     let app: AppModel
     let scenario: DemoScenario
+    /// The purchase sheet from the pill, so a scripted tap on it opens what the app's does (D75).
+    @State private var buying: Bool
+
+    init(app: AppModel, scenario: DemoScenario) {
+      self.app = app
+      self.scenario = scenario
+      _buying = State(initialValue: scenario == .homePillPurchase)
+    }
 
     var body: some View {
       let now = DemoClock.now(for: scenario)
@@ -216,8 +239,10 @@
         log: fixture.log, openPurchase: {}
       ) {
         HomeView(
-          home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {}, openPurchase: {},
-          fixLocation: {})
+          home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {},
+          openPurchase: { buying = true }, fixLocation: {}, snippet: scenario.snippet
+        )
+        .sheet(isPresented: $buying) { PurchaseSheet(model: app, home: home) }
       }
       .sheet(isPresented: .constant(scenario.presentsSheet)) {
         switch scenario {

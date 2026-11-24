@@ -3,7 +3,7 @@ import TollCore
 import TollUI
 
 /// Last night, in the hero's place from the end of the night until noon (D65, #103): the night as a
-/// moon → sun bar filled where the block ran, a break where it was open; "You put it down 3 times"
+/// moon → sun bar filled where the block ran, a break where it was open; "You chose sleep 3 times"
 /// when there were any; and the last seven nights as dots. One number, and it reads without words.
 struct MorningCard: View {
   let morning: Morning
@@ -11,7 +11,7 @@ struct MorningCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      StateLine(Copy.Morning.lastNight, symbol: .sleep)
+      StateLine(morning.eyebrow, symbol: .sleep)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
       NightBar(morning: morning).padding(.top, 16)

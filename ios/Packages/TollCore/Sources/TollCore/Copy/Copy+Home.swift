@@ -4,18 +4,36 @@ extension Copy {
   /// Home, in every state (the design canvas, amended by docs/design-brief.md).
   public enum Home {
     public static let settings = "Settings"
-    /// Home's name on the back button of the screens it opens.
-    public static let backTitle = "Home"
+    /// Tonight's name on the back button of the screens it opens: the tab's name, since "Home" is
+    /// also the place (D75).
+    public static let backTitle = Tabs.tonight
     public static func nightPill(_ night: Int, of nights: Int) -> String {
       "Night \(night) of \(nights) free"
     }
     public static let lastNightPill = "Last free night tonight"
+    /// What a tap on the free-week pill does, for VoiceOver (D75).
+    public static let pillHint = "Shows your free week and the price"
 
     public static let tonight = "Tonight"
     public static let today = "Today"
-    public static let blockedUntil = "Blocked until"
-    public static let awayLabel = "Away from home"
+    /// Over the big time, what it means (D75): when the apps lock, until when they're locked.
+    public static let locksAt = "Apps lock at"
+    public static let locksTomorrowAt = "Apps lock tomorrow at"
+    /// A start that isn't tonight: "Apps lock Monday at".
+    public static func locksOn(_ day: String) -> String { "Apps lock \(day) at" }
+    public static let blockedUntil = "Apps locked until"
+    /// A pause is open (D67): until it ends, then the night goes on.
+    public static let pausedUntil = "Paused until"
+    public static func thenLockedUntil(_ time: String) -> String { "Then locked until \(time)" }
+    /// Away in the night's hours: the big time is the night's end.
+    public static let nightEndsAt = "Night ends at"
+    public static let locksWhenHome = Strip.whenHome
+    /// After the free week (D70, D74): what's off is the app, said with its name.
+    public static let isOff = "\(name) is off"
+    public static let yourNight = Strip.yourNight
     public static let noBlocks = "Nothing scheduled"
+    /// The way forward from "Nothing scheduled": the night's editor.
+    public static let setNight = "Set your night"
     /// Tonight's one line about another block, while it's on (D68, #89).
     public static func otherBlockOn(_ block: String, until time: String) -> String {
       "\(block) on until \(time)"
@@ -27,13 +45,8 @@ extension Copy {
     public static func startsIn(_ duration: String, atHome: Bool) -> String {
       atHome ? "At home · starts in \(duration)" : "Starts in \(duration)"
     }
-    /// Under tonight's start, the night's length (#103).
-    public static func phoneFree(_ length: String) -> String { "\(length) phone-free tonight" }
+    /// Under "Apps locked until" at home. The pauses are said beside their dots, with their week.
     public static let youreHome = "You're home"
-    /// "You're home · 3 pauses left" under "Blocked until".
-    public static func blockedDetail(atHome: Bool, unlocksLeft: Int) -> String {
-      "\(atHome ? youreHome : onNow)\(middleDot)\(unlocksLeft == 0 ? noUnlocksLeft : Self.unlocksLeft(unlocksLeft))"
-    }
     public static let noUnlocksLeft = "No pauses left"
     /// Home not set (D68): the place line says where tonight runs, plainly.
     public static func anywhereStartsIn(_ duration: String) -> String {
@@ -44,17 +57,13 @@ extension Copy {
     public static let homeCardDetail = "Your night starts when you get home, not before."
     public static let setHome = "Set home"
     public static let notNow = Setup.notNow
-    /// Without location (D37): "Starts at 10:30 pm, wherever you are".
-    public static func startsAtAnywhere(_ time: String) -> String {
-      "Starts at \(time), wherever you are"
-    }
     public static let onNow = "On now"
-    public static let startsWhenHome = "Starts when you're home"
     public static let notBlocking = "Not blocking"
     public static let trialEnded = "Your free week ended."
     public static let trialEndedToday = "Your free week ended this morning."
+    /// "Every night after" read as a charge each night.
     public static func onceEveryNight(_ price: String) -> String {
-      "\(price) once · every night after"
+      "\(price) once, for good"
     }
     public static let noBlockSpoken = "no block"
     public static let missedSpoken = "not blocked"
@@ -69,26 +78,32 @@ extension Copy {
     }
     /// The quiet capsule beside the dots (D61, D67).
     public static let pause = "Pause"
-    public static let turnBackOn = "Turn it back on"
+    /// The capsule's VoiceOver label: "Pause" alone has no object.
+    public static let pauseSpoken = "Pause blocking"
+    /// While a pause is open, on the hero: locks now, as the pause sheet's button does.
+    public static let lockAgain = Door.lockAgain
+    public static let turnBackOn = "Turn \(name) back on"
     public static func once(_ price: String) -> String { "\(price) once" }
 
     public static let locationBanner = Setup.whileUsingFact
     /// D37: running without location is a fact, not a fault (#45).
     public static let fixInSettings = Copy.Setup.changeInSettings
-    public static let screenTimeOffEyebrow = "Screen Time off"
-    public static let screenTimeOffDetail = "Turn it on to block tonight."
+    public static let screenTimeOffEyebrow = "Screen Time is off"
+    /// The card above says how to turn it on; the hero says only what's true tonight.
+    public static let screenTimeOffDetail = "Nothing blocks tonight"
     public static let screenTimeOffCard = "Screen Time is off for Dusk. Nothing can be blocked."
     public static let turnOn = "Turn on"
 
     public static let thisWeek = "This week"
     public static let seeAll = "See all"
-    /// Under a count of nights, never "of 7": a shortfall isn't shown (D65).
+    /// Under a count of nights, never "of 7": a shortfall isn't shown (D65). Says what was counted,
+    /// not "phone-free", which read as time off the phone (D75).
     public static func nightsLabel(_ n: Int) -> String {
-      n == 1 ? "night phone-free" : "nights phone-free"
+      n == 1 ? "night with apps locked" : "nights with apps locked"
     }
-    /// "Never mind" taps, about the person rather than the app's work (D65).
+    /// "Never mind" taps, about the person rather than the app's work (D65), in the founder's words.
     public static func putDownLabel(_ n: Int) -> String {
-      n == 1 ? "time you put it down" : "times you put it down"
+      n == 1 ? "time you chose sleep" : "times you chose sleep"
     }
 
     public static let blocks = "Blocks"
@@ -104,14 +119,14 @@ extension Copy {
       ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][day.rawValue - 1]
     }
 
-    /// "3 h 12 m", "45 m".
+    /// "3 h 12 m", "45 m"; past a day, "2 d 7 h" rather than "55 h 12 m" (D75).
     public static func duration(_ seconds: TimeInterval) -> String {
       let minutes = max(0, Int(seconds / 60))
+      if minutes >= 1440 {
+        let hours = (minutes % 1440) / 60
+        return hours == 0 ? "\(minutes / 1440) d" : "\(minutes / 1440) d \(hours) h"
+      }
       return minutes >= 60 ? length(minutes: minutes) : "\(minutes) m"
-    }
-
-    public static func timelineLabel(start: String, end: String) -> String {
-      "Tonight, \(start) to \(end)"
     }
   }
 }

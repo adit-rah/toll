@@ -41,7 +41,8 @@ struct OtherBlockLine: View {
           .frame(minHeight: TollSpacing.minTapTarget)
           .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.tollPressable)
+        .accessibilityLabel(Copy.Home.pauseSpoken)
       }
     }
     .frame(maxWidth: .infinity)
