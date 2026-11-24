@@ -267,3 +267,30 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Welcome:** "Your nights, phone-free." replaces "Buy back your sleep.", an idiom that reads as paying for sleep and doesn't translate. The App Store subtitle is the founders' call (`docs/app-store.md`).
 - **Limits:** "Time windows" are now "Sets of hours".
 
+
+**D76. Apps lock before bed, and the gap grows with you** (2026-11-24, founder, in chat; amends spec §7 Setup, D66 and D68).
+- **Terms:**
+  - **Bed** is the night's start as set today (wake minus 8 h 30 m, editable).
+  - **The lock** starts a gap before bed. Wake never moves.
+  - On screen: "Apps lock at 10:15 pm · 15 min before bed". `CopyTermsTests` bans "bedtime" (D74), so it's "before bed".
+- **The gap:** starts at 15 minutes and grows toward 60 *(config)*. The app never grows it past 60; a person may choose up to 90 by hand.
+- **Weekly rule,** judged at Monday noon, with the pauses' week (D70) and personal timing's held week (D66):
+  - **Smooth week** (the lock ran at least 4 nights, at most 1 pause started inside the gap, Screen Time never off): +15.
+  - **Hard week** (2 or more pauses started inside the gap): −15.
+  - **Screen Time switched off:** −15, and no growth for 2 weeks.
+  - **Anything else:** hold.
+  - After an ease, two smooth weeks in a row are needed to grow again. A pause used outside the gap never counts against anyone (D67). "Never mind" taps don't gate.
+- **What people see:**
+  - **Tonight:** shows the lock time and the gap.
+  - **Monday:** a card says this week's gap and last week's ("Up from 15"), with one tap to keep the old one. An ease shows only the new number (D65).
+  - **Settings › Before bed:** "Grows with you" (now and next), or a fixed gap from 0 to 90.
+  - **The heads-up** (D72) comes 20 minutes before the lock.
+- **With personal timing (D66):** the gap sets the plan. For people who opt in, personal timing still tries −30, 0 or +30 around it, held for a week.
+  - If earlier helps, the gap keeps growing.
+  - If the effect is small and the start settles, growth stops.
+  - If later helps, the gap eases a step.
+  - This stands only if the simulator shows D66's marks still hold. If not, personal timing waits until the gap settles.
+- **Rollout:**
+  - New installs start at 15 minutes.
+  - People already using Dusk keep their night as it is (gap 0), and see one card: "Lock apps 15 min before bed?".
+- **Data:** night records gain the gap and the bed time; `planned_bedtime` means bed. This is a contract change (D62), so both readers update.
