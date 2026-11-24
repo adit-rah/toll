@@ -86,7 +86,7 @@ public struct Keychain: Sendable {
       kSecAttrService as String: service,
       kSecAttrAccount as String: key.rawValue,
     ]
-    if scope == .appleID { query[kSecAttrSynchronizable as String] = kCFBooleanTrue }
+    if scope == .appleID { query[kSecAttrSynchronizable as String] = true }
     return query
   }
 }
