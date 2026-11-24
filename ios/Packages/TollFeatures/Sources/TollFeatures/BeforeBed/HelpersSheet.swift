@@ -14,6 +14,7 @@ struct HelpersSheet: View {
   /// The tone, observed so its page follows it; demo renders stand in a time without a sound.
   private let tone = BreathTone.shared
   private let demoUntil: Date?
+  @Environment(\.dynamicTypeSize) private var typeSize
   static let height: CGFloat = 520
 
   /// Reopened while the tone plays, it opens on the tone.
@@ -89,11 +90,19 @@ struct HelpersSheet: View {
       model.openHelper(helper)
       page = helper
     } label: {
-      AdaptiveStack(spacing: TollSpacing.rowGap) {
+      // Side by side with the chevron centred; at accessibility sizes the tile above the words, and
+      // no chevron left alone on a line.
+      let layout =
+        typeSize.isAccessibilitySize
+        ? AnyLayout(VStackLayout(alignment: .leading, spacing: TollSpacing.rowGap))
+        : AnyLayout(HStackLayout(spacing: TollSpacing.rowGap))
+      layout {
         IconTile(.helper(helper), accent: false)
         RowText(title: title, detail: detail)
-        Spacer(minLength: 0)
-        Chevron()
+        if !typeSize.isAccessibilitySize {
+          Spacer(minLength: 0)
+          Chevron()
+        }
       }
       .padding(.vertical, 8)
       .frame(minHeight: 60)

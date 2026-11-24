@@ -57,7 +57,7 @@ struct BeforeBedSheet: View {
 
   var body: some View {
     let gap = model.config.gap
-    SheetPage(height: 700) {
+    SheetPage(height: 640) {
       SheetTitle(Copy.Gap.sheetTitle)
       SheetBody(Copy.Gap.sheetBody)
       // Rows on the sheet itself: a card would vanish into the sheet's own surface.
