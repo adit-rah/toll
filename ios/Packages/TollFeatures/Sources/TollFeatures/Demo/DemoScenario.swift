@@ -34,6 +34,9 @@
     case homeMorning = "home-morning"
     case homeMorningGap = "home-morning-gap"
     case homeMorningAway = "home-morning-away"
+    /// The morning after the first night with home not set: the morning card and Tonight's card
+    /// together, so a card's place beside the morning card can be seen.
+    case homeMorningCard = "home-morning-card"
     /// A weekday at 11 am with Study on: Tonight's one quiet line about it (D68, #89), and Study and
     /// Gym on the day's strip (D75).
     case homeDay = "home-day"
@@ -130,7 +133,7 @@
     /// Home not set yet (D68): onboarding's Sleep block has no place.
     var homeNotSet: Bool {
       (setHomePath != nil && self != .setHomeSet)
-        || [.homeAnywhere, .homeCard, .settingsAnywhere].contains(self)
+        || [.homeAnywhere, .homeCard, .homeMorningCard, .settingsAnywhere].contains(self)
     }
 
     /// The simulator cannot grant Family Controls or answer the location prompt; each screen past
@@ -151,7 +154,7 @@
         .whileUsing
       case .setHomeOff: .denied
       case .setHomeLocationOff: .approximate
-      case .homeAnywhere, .homeCard, .settingsAnywhere: .notDetermined
+      case .homeAnywhere, .homeCard, .homeMorningCard, .settingsAnywhere: .notDetermined
       default: isHome ? .always : nil
       }
     }
