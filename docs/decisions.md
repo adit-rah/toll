@@ -325,3 +325,16 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - Never notified, never counted, never a task, and nothing on the morning card or the sky. Settings can switch it off.
 - A private flag in the night record notes that a helper was used. It's never shown to the person; it's there for the pilot (a D62 contract change).
 - No meditation library and no sleep sounds.
+
+**D81. Your sky, as built** (2026-11-24, #118; details of D79).
+- **The count:** one star per night the lock ran, D69's count, now one rule (`NightsRan`) for Your sleep and the morning card. The card reads "N nights locked" (founder).
+- **The stars:**
+  - 150 from the Yale Bright Star Catalogue (5th revised edition, public domain), embedded as Swift data, so nothing is fetched.
+  - 23 simplified stick figures. Each keeps its real shape; sizes are evened out so small figures read, and their places relative to each other are arranged, not real.
+  - Lighting order: Big Dipper (7), Cassiopeia, Little Dipper, Orion (30) … Pegasus (100) … Draco (150).
+- **Past 150:** nights light the stars again, each pass a little brighter, so every night still adds.
+- **The card:** a dark sky in both appearances, running to the card's edges above the moon and number. It frames the lit stars and widens as it fills.
+- **The newest star:** accent, from the morning until the next night starts. It crossfades in 200 ms once, the first time Your sleep shows it (design §2.5).
+- **Landmarks** at 7, 30, 100 and 365 *(config)*. The morning card shows the completed shape, "30 nights. Orion is in your sky." and share. The shared image (`ImageRenderer`, `ShareLink`) is the sky, the moon and "N nights locked", and nothing else.
+- **VoiceOver:** "Your sky. 23 nights locked. 3 constellations."
+
