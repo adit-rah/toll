@@ -77,9 +77,9 @@ STRESS = ["null+drift", "differ+drift", "differ+fade"]
 DRIFT_SD = 2.0  # minutes a night: the person's usual onset wanders, about 15 min over 8 weeks
 
 
-def make_world(scenario: str, people: int, seed: int):
+def make_world(scenario: str, people: int, seed: int, nights: int = NIGHTS):
     name, _, twist = scenario.partition("+")
-    w = world(name, people, seed, fade=twist == "fade")
+    w = world(name, people, seed, fade=twist == "fade", nights=nights)
     if twist == "drift":
         steps = np.random.default_rng([seed, 7]).normal(0.0, DRIFT_SD, w.noise.shape)
         w.noise = w.noise + np.cumsum(steps, axis=1)
