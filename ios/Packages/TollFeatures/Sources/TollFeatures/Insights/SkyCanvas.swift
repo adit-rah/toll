@@ -40,8 +40,9 @@ struct SkyCanvas: View {
     let origin = CGPoint(
       x: (size.width - bounds.width * scale) / 2 - bounds.x * scale,
       y: (size.height - bounds.height * scale) / 2 - bounds.y * scale)
-    // Star sizes are set for a sky about 313 points wide, and grow only a little past it.
-    let grow = min(1.6, max(0.8, scale / 313))
+    // Star sizes are set for the whole sky about 313 points wide; closer in, they grow more slowly
+    // than the sky does, as a nearer look would show them.
+    let grow = min(1.5, max(0.8, (scale / 313).squareRoot()))
     func point(_ star: Sky.Star) -> CGPoint {
       CGPoint(x: origin.x + star.x * scale, y: origin.y + star.y * scale)
     }
@@ -72,7 +73,8 @@ struct SkyCanvas: View {
 
     for (index, star) in drawing.stars.enumerated() where (index == drawing.newest) == newest {
       let center = point(star)
-      let r = radius(star)
+      // The newest star is never too faint to find, whatever its magnitude.
+      let r = newest ? max(radius(star), 1.7 * grow) : radius(star)
       if newest {
         let glow = r + 2.5 * grow
         context.fill(
@@ -117,20 +119,22 @@ struct SkyShare: View {
   @State private var picture: Image?
 
   var body: some View {
-    Group {
-      if let picture {
-        ShareLink(
-          item: picture, preview: SharePreview(Copy.Sky.title, image: picture)
-        ) {
-          Image(symbol: .share).unredacted()
-            .font(.system(size: 17, weight: .medium))
-            .foregroundStyle(TollColor.accent)
-            .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
+    Color.clear
+      .frame(width: TollSpacing.minTapTarget, height: TollSpacing.minTapTarget)
+      .overlay {
+        if let picture {
+          ShareLink(
+            item: picture, preview: SharePreview(Copy.Sky.title, image: picture)
+          ) {
+            Image(symbol: .share).unredacted()
+              .font(.system(size: 17, weight: .medium))
+              .foregroundStyle(TollColor.accent)
+              .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
+          }
+          .accessibilityLabel(Copy.Sky.share)
         }
-        .accessibilityLabel(Copy.Sky.share)
       }
-    }
-    .task(id: landmark) { picture = render() }
+      .task(id: landmark) { picture = render() }
   }
 
   private func render() -> Image? {

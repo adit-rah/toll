@@ -43,6 +43,8 @@
     case sleepSky30 = "sleep-sky-30"
     case sleepSky100 = "sleep-sky-100"
     case homeMorningLandmark = "home-morning-landmark"
+    /// The picture a landmark shares, at 30 nights, as the share sheet would send it.
+    case skyShare = "sky-share"
     /// Home not set (D68): the first evening, then the card the morning after the first night.
     case homeAnywhere = "home-anywhere"
     case homeCard = "home-card"
@@ -175,6 +177,13 @@
       Group {
         if let path = scenario.setupPath {
           DemoSetup(app: app, path: path)
+        } else if scenario == .skyShare,
+          let landmark = Sky(nights: 30, newestIsNew: true).landmark
+        {
+          SkyPicture(sky: landmark.sky, number: landmark.number)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.black)
+            .ignoresSafeArea()
         } else if scenario.isHome {
           DemoHome(app: app, scenario: scenario)
         } else {

@@ -72,9 +72,7 @@ public struct Sky: Equatable, Sendable {
       .filter { $0.0 < lit && $0.1 < lit }
       .map { Line(from: $0.0, to: $0.1) }
     let newest = newestIsNew && nights > 0 ? (nights - 1) % table.count : nil
-    drawing = Drawing(
-      stars: stars, lines: lines, newest: newest,
-      bounds: Bounds(x: 0, y: 0, width: 1, height: SkyCatalogue.aspect))
+    drawing = Drawing(stars: stars, lines: lines, newest: newest, bounds: Self.frame(stars))
     let completed = SkyCatalogue.figures.filter { $0.stars.upperBound <= lit }
     constellations = completed.count
     spoken = Copy.Sky.spoken(nights: nights, constellations: constellations)
@@ -93,6 +91,30 @@ public struct Sky: Equatable, Sendable {
   /// night that lit it. `seen` is the count the sky last showed.
   public func fadesIn(seen: Int) -> Bool {
     drawing.newest != nil && seen < nights
+  }
+
+  /// The part of the sky that holds the lit stars, at the sky's own shape: close in while there
+  /// are few, so the first week's Big Dipper reads, widening as the sky fills, never past it. It
+  /// changes only when a star is added.
+  static func frame(_ stars: [Star]) -> Bounds {
+    let aspect = SkyCatalogue.aspect
+    guard let first = stars.first else { return Bounds(x: 0, y: 0, width: 1, height: aspect) }
+    let pad = 0.07
+    var minX = first.x
+    var maxX = first.x
+    var minY = first.y
+    var maxY = first.y
+    for star in stars {
+      minX = min(minX, star.x)
+      maxX = max(maxX, star.x)
+      minY = min(minY, star.y)
+      maxY = max(maxY, star.y)
+    }
+    let width = min(1, max(0.5, maxX - minX + 2 * pad, (maxY - minY + 2 * pad) / aspect))
+    let height = width * aspect
+    let x = min(max(0, (minX + maxX - width) / 2), 1 - width)
+    let y = min(max(0, (minY + maxY - height) / 2), aspect - height)
+    return Bounds(x: x, y: y, width: width, height: height)
   }
 
   /// One figure alone, framed around its own stars with a little room.

@@ -28,6 +28,24 @@ struct SkyTests {
     #expect(Sky(nights: 301, newestIsNew: false).drawing.stars.first?.times == 3)
   }
 
+  /// Close in on a few stars, at the sky's shape, and widen to the whole sky as it fills.
+  @Test func theFrameHoldsTheLitStars() {
+    for nights in [1, 5, 30, 100] {
+      let drawing = Sky(nights: nights, newestIsNew: false).drawing
+      let frame = drawing.bounds
+      #expect(abs(frame.height / frame.width - SkyCatalogue.aspect) < 1e-9)
+      #expect(frame.x >= 0 && frame.x + frame.width <= 1 + 1e-9)
+      #expect(frame.y >= 0 && frame.y + frame.height <= SkyCatalogue.aspect + 1e-9)
+      #expect(
+        drawing.stars.allSatisfy {
+          $0.x >= frame.x && $0.x <= frame.x + frame.width && $0.y >= frame.y
+            && $0.y <= frame.y + frame.height
+        })
+    }
+    #expect(Sky(nights: 5, newestIsNew: false).drawing.bounds.width == 0.5)
+    #expect(Sky(nights: 150, newestIsNew: false).drawing.bounds.width == 1)
+  }
+
   @Test func completedConstellations() {
     let counts = [6, 7, 12, 19, 29, 30, 100, 150, 400].map {
       Sky(nights: $0, newestIsNew: false).constellations

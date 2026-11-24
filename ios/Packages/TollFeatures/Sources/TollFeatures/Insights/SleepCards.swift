@@ -17,8 +17,9 @@ struct NightsCard: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 16) {
-      SkyCanvas(drawing: sky.drawing, newestShown: newestShown)
+    // The sky runs to the card's edges, like a picture, with the number under it.
+    VStack(alignment: .leading, spacing: 0) {
+      SkyCanvas(drawing: sky.drawing, newestShown: newestShown, corner: 0)
       HStack(spacing: 14) {
         HStack(spacing: 14) {
           IconTile(.sleep, size: .large)
@@ -33,11 +34,10 @@ struct NightsCard: View {
           SkyShare(landmark: landmark)
         }
       }
+      .padding(TollSpacing.cardPadding)
     }
-    .padding(TollSpacing.cardPadding)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
-    )
+    .background(TollColor.surface)
+    .clipShape(RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
     .onAppear {
       SkySeen.count = sky.nights
       guard !newestShown else { return }
