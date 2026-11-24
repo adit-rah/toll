@@ -18,20 +18,21 @@ final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
   }
 
   override func configuration(shielding webDomain: WebDomain) -> ShieldConfiguration {
-    make(app: nil, category: nil)
+    make(app: nil, category: nil, site: true)
   }
 
   override func configuration(shielding webDomain: WebDomain, in category: ActivityCategory)
     -> ShieldConfiguration
   {
-    make(app: nil, category: category.token)
+    make(app: nil, category: category.token, site: true)
   }
 
-  private func make(app: ApplicationToken?, category: ActivityCategoryToken?) -> ShieldConfiguration
-  {
+  private func make(
+    app: ApplicationToken?, category: ActivityCategoryToken?, site: Bool = false
+  ) -> ShieldConfiguration {
     let state = DuskStore().load()
     let text = ShieldText(
-      state: state, block: block(in: state, app: app, category: category), now: Date())
+      state: state, block: block(in: state, app: app, category: category), now: Date(), site: site)
     return ShieldConfiguration(
       backgroundBlurStyle: nil,
       backgroundColor: ShieldIcon.background,

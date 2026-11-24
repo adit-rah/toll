@@ -171,7 +171,7 @@ public struct DayTimeline: Equatable, Sendable {
       hours: Copy.span(
         TimeWindow(start: clock(occurrence.start), end: clock(occurrence.end)), in: calendar,
         short: true),
-      apps: Copy.Blocks.appCount(block.appCount + block.categoryCount),
+      apps: Copy.Blocks.summary(categories: block.categoryCount, apps: block.appCount),
       place: placeText ?? Copy.Blocks.anywhere, placeKind: placeKind,
       stateText: Self.text(
         segmentState, block, occurrence, placeKind, now: now, calendar: calendar),

@@ -13,7 +13,7 @@ struct HomeMapView: View {
   var body: some View {
     SetupPage(
       step: SetHomeModel.mapStep, of: SetHomeModel.questions, title: Copy.Setup.homeTitle,
-      endsWithLink: blocked
+      endsWithLink: blocked || model.offersAnywhere
     ) {
       map.padding(.top, 24)
       if blocked {
@@ -47,12 +47,22 @@ struct HomeMapView: View {
             Image(symbol: .openSettings).unredacted().accessibilityHidden(true)
           }
         }
-        QuietButton(Copy.Setup.notNow, type: .smallQuiet) { model.cancel() }
-      } else if model.noFix {
-        PrimaryButton(Copy.Setup.tryAgain) { Task { await model.retryLocate() } }
+        if model.offersAnywhere {
+          QuietButton(Copy.Blocks.useAnywhere, type: .smallQuiet) { model.useAnywhere() }
+        } else {
+          QuietButton(Copy.Setup.notNow, type: .smallQuiet) { model.cancel() }
+        }
       } else {
-        PrimaryButton(Copy.Setup.thisIsHome) { model.homeChosen() }
-          .disabled(model.home == nil)
+        if model.noFix {
+          PrimaryButton(Copy.Setup.tryAgain) { Task { await model.retryLocate() } }
+        } else {
+          PrimaryButton(Copy.Setup.thisIsHome) { model.homeChosen() }
+            .disabled(model.home == nil)
+        }
+        // Home set: the way back to anywhere is here, under the map (the audit).
+        if model.offersAnywhere {
+          QuietButton(Copy.Blocks.useAnywhere, type: .smallQuiet) { model.useAnywhere() }
+        }
       }
     }
     // A moment on screen first, so the line is read before the prompt covers it.

@@ -35,7 +35,7 @@ struct LocationView: View {
     case .always: PermissionState(text: Copy.Setup.always, tone: .good)
     case .whileUsing: PermissionState(text: Copy.Setup.whileUsing, tone: .neutral)
     case .approximate: PermissionState(text: Copy.Settings.approximate, tone: .neutral)
-    case .denied: PermissionState(text: Copy.Setup.never, tone: .neutral)
+    case .denied: PermissionState(text: Copy.Setup.off, tone: .neutral)
     case .notDetermined: nil
     }
   }
@@ -89,41 +89,34 @@ struct AlwaysView: View {
   }
 }
 
-/// A picture of iOS's location setting with Always chosen, read out as the path to it.
+/// A picture of iOS's location setting with Always chosen, read out as the path to it. Drawn small,
+/// inset and framed like a screenshot, with no row heights or dividers, over the caption that names
+/// the path, so it isn't taken for a list to tap here (the audit).
 private struct SettingsPicture: View {
+  private let shape = RoundedRectangle(cornerRadius: TollRadius.field, style: .continuous)
+  private let small = TollType(size: 13, lineHeight: 18, weight: .regular, style: .footnote)
+
   var body: some View {
-    VStack(spacing: 0) {
-      Text(Copy.Setup.alwaysHeader)
-        .tollType(
-          TollType(
-            size: 12, lineHeight: 16, weight: .semibold, style: .caption, tracking: 0.6,
-            uppercase: true)
-        )
-        .foregroundStyle(TollColor.label2)
-        .frame(maxWidth: .infinity, minHeight: 40, alignment: .leading)
-        .padding(.horizontal, TollSpacing.cardPadding)
+    VStack(alignment: .leading, spacing: 6) {
+      Text(Copy.Setup.alwaysHeader).tollType(small).foregroundStyle(TollColor.label3)
       ForEach(Copy.Setup.alwaysOptions, id: \.self) { option in
-        Hairline()
-        Text(option)
-          .tollType(TollType(size: 15, lineHeight: 20, weight: .regular, style: .subheadline))
-          .foregroundStyle(TollColor.label)
-          .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-          .padding(.horizontal, TollSpacing.cardPadding)
+        Text(option).tollType(small).foregroundStyle(TollColor.label2)
       }
-      Hairline()
-      HStack {
-        Text(Copy.Setup.alwaysChoice).tollType(.link, TollColor.label)
-        Spacer()
+      HStack(spacing: 6) {
+        Text(Copy.Setup.alwaysChoice)
+          .tollType(TollType(size: 13, lineHeight: 18, weight: .semibold, style: .footnote))
+          .foregroundStyle(TollColor.label)
+        Spacer(minLength: 0)
         Image(symbol: .done).unredacted()
-          .font(.system(size: 15, weight: .semibold))
+          .font(.system(size: 12, weight: .semibold))
           .foregroundStyle(TollColor.accent)
       }
-      .frame(minHeight: 48)
-      .padding(.horizontal, TollSpacing.cardPadding)
-      .background(TollColor.accentSoft)
     }
-    .background(TollColor.surface)
-    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    .padding(14)
+    .frame(maxWidth: 260, alignment: .leading)
+    .background(TollColor.surfaceRaised, in: shape)
+    .overlay(shape.strokeBorder(TollColor.separator))
+    .frame(maxWidth: .infinity)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(Copy.Setup.alwaysPath)
   }
@@ -156,7 +149,7 @@ struct LocationOffView: View {
 
   private var locationValue: String {
     switch model.app.location {
-    case .denied, .notDetermined: Copy.Setup.never
+    case .denied, .notDetermined: Copy.Setup.off
     default: model.app.locationAccess.isAlways ? Copy.Setup.always : Copy.Setup.whileUsing
     }
   }

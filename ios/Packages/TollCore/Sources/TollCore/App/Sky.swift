@@ -147,18 +147,9 @@ enum NightsRan {
   static func keys(
     state: DuskState, log: [Transition], history: [PastNight], now: Date, calendar: Calendar
   ) -> Set<Date> {
-    let lines = log.sorted { $0.at < $1.at }
-    var ran = Set(history.filter(\.ran).map(\.night))
-    if let sleep = state.sleepBlock, let setup = state.setupFinishedAt {
-      // Nights before the log's first line would all read as not run; they're in the history.
-      let since = max(setup, lines.first.map { $0.at.addingTimeInterval(-86_400) } ?? setup)
-      for night in NightFacts.ended(
-        log: lines, sleep: sleep, since: since, now: now, calendar: calendar)
-      where night.ran {
-        ran.insert(night.night)
-      }
-    }
-    return ran
+    Set(
+      PastNight.merged(history: history, state: state, log: log, now: now, calendar: calendar)
+        .filter(\.ran).map(\.night))
   }
 
   /// The newest star is new until the next night starts (D79), even when that night doesn't run.

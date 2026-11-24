@@ -19,4 +19,14 @@ extension Engine {
     sleep.place = place.id
     return apply(.saveBlock(sleep), to: &state, now: now, calendar: calendar, config: config)
   }
+
+  /// The way back from "Only when I'm home" (the audit): the night runs on its hours again.
+  static func useAnywhere(
+    in state: inout DuskState, now: Date, calendar: Calendar, config: TollConfig
+  ) -> CommandError? {
+    guard var sleep = state.sleepBlock else { return .noSleepBlock }
+    if case .save(let held) = state.pending[sleep.id] { sleep = held }
+    sleep.place = nil
+    return apply(.saveBlock(sleep), to: &state, now: now, calendar: calendar, config: config)
+  }
 }

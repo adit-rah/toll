@@ -52,6 +52,8 @@ public enum Engine {
       }
     case .setHome(let place):
       return setHome(place, in: &state, now: now, calendar: calendar, config: config)
+    case .useAnywhere:
+      return useAnywhere(in: &state, now: now, calendar: calendar, config: config)
     case .dismissCard(let card):
       switch card {
       // Monday's card is this week's; next week's change shows again.

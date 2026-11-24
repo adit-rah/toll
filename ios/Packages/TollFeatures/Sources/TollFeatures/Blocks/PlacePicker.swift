@@ -111,6 +111,7 @@ struct PlacePicker: View {
           Image(symbol: .done).unredacted()
             .font(.system(size: 15, weight: .semibold))
             .foregroundStyle(TollColor.accent)
+            .accessibilityHidden(true)
         }
       }
     }

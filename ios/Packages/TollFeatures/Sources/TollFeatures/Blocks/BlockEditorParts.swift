@@ -37,9 +37,12 @@ struct KindChips: View {
           if model.pick(kind) { openPicker(true) }
         } label: {
           VStack(spacing: 6) {
+            // One glyph height, so every label sits on the same line (the audit).
             Image(symbol: .block(kind)).unredacted()
               .font(.system(size: 20, weight: .medium))
               .foregroundStyle(selected ? TollColor.accent : TollColor.label2)
+              .frame(height: 24)
+              .accessibilityHidden(true)
             Text(Copy.Blocks.kindName(kind))
               .tollType(TollType(size: 13, lineHeight: 18, weight: .semibold, style: .footnote))
               .foregroundStyle(TollColor.label)
@@ -57,7 +60,8 @@ struct KindChips: View {
   }
 }
 
-/// The block's name, typed in place (#62); it starts as the kind's name.
+/// The block's name, typed in place (#62); it starts as the kind's name. Drawn as a field, with the
+/// field's shape and corners (design §2.4), so it reads as editable before it's tapped (the audit).
 struct NameRow: View {
   @Binding var name: String
   @Environment(\.dynamicTypeSize) private var typeSize
@@ -65,7 +69,7 @@ struct NameRow: View {
   var body: some View {
     let layout =
       typeSize.isAccessibilitySize
-      ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+      ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6))
       : AnyLayout(HStackLayout(spacing: TollSpacing.rowGap))
     layout {
       Text(Copy.Blocks.name)
@@ -73,9 +77,13 @@ struct NameRow: View {
         .accessibilityHidden(true)
       TextField(Copy.Blocks.name, text: $name)
         .tollType(.rowTitle, TollColor.label)
-        .multilineTextAlignment(typeSize.isAccessibilitySize ? .leading : .trailing)
         .submitLabel(.done)
         .accessibilityLabel(Copy.Blocks.name)
+        .padding(.horizontal, 12)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .background(
+          TollColor.surfaceRaised,
+          in: RoundedRectangle(cornerRadius: TollRadius.field, style: .continuous))
     }
     .padding(.vertical, 8)
     .frame(minHeight: RowSize.compact.minHeight)

@@ -73,7 +73,7 @@ struct YourSleepTests {
     let history = past([2, 3, 4, 5]) + past([9, 10, 11, 12, 13])
     let sunday = date(2026, 11, 22, 9)
     let six = sleep(sunday, log: nights([16, 17, 18, 19, 20, 21]), history: history)
-    #expect(six.best == .init(title: "6 nights this week", detail: "Your most in a week"))
+    #expect(six.best == .init(title: "Your most in a week", detail: "6 nights this week"))
     #expect(sleep(sunday, log: nights([16, 17, 18, 19, 20]), history: history).best == nil)
     // Nothing to compare with: no best.
     #expect(sleep(sunday, log: nights([16, 17, 18, 19, 20, 21])).best == nil)
@@ -98,8 +98,7 @@ struct YourSleepTests {
         now: date(2026, 11, 17, 9), calendar: london
       ).first)
     let line = try #require(NightRecordLine.encode(facts, calendar: london))
-    #expect(
-      NightRecordLine.past(line, calendar: london)
-        == PastNight(night: date(2026, 11, 16, 0), ran: true))
+    let past = try #require(NightRecordLine.past(line, calendar: london))
+    #expect(past.night == date(2026, 11, 16, 0) && past.ran)
   }
 }

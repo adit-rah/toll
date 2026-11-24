@@ -7,13 +7,12 @@ import TollUI
 /// improvement (#88); Apple's "Screen time after bedtime" card joins it with the report extension
 /// (#65).
 struct InsightsView: View {
-  let log: [TollCore.Transition]
   let sleep: YourSleep
   @State private var range = InsightsSnapshot.Range.month
 
   var body: some View {
     let insights = InsightsSnapshot(
-      log: log, now: Date(), calendar: .current, range: range, sleep: sleep.sleepID)
+      nights: sleep.past, hours: sleep.hours, now: sleep.now, calendar: .current, range: range)
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
         ScreenTitle(Copy.Tabs.sleep, kind: .pushed)
@@ -25,13 +24,14 @@ struct InsightsView: View {
         if let best = sleep.best {
           BestCard(best: best).padding(.top, 12)
         }
-        Picker(Copy.Insights.title, selection: $range) {
+        SectionHeader(Copy.Insights.overTime).padding(.top, 28)
+        Picker(Copy.Insights.range, selection: $range) {
           Text(Copy.Insights.week).tag(InsightsSnapshot.Range.week)
           Text(Copy.Insights.month).tag(InsightsSnapshot.Range.month)
           Text(Copy.Insights.all).tag(InsightsSnapshot.Range.all)
         }
         .pickerStyle(.segmented)
-        .padding(.top, 28)
+        .padding(.top, TollSpacing.headerToCard)
         if insights.isEmpty {
           Footnote(Copy.Insights.empty).padding(.top, 20)
         } else {
@@ -41,7 +41,10 @@ struct InsightsView: View {
             symbol: .blocked
           )
           .padding(.top, 20)
-          HoursCard(insights: insights).padding(.top, 20)
+          // No row of empty bars: a range without taps shows only its hours (D65).
+          if insights.taps > 0 {
+            HoursCard(insights: insights).padding(.top, 20)
+          }
         }
       }
       .tollGutter()
@@ -70,7 +73,7 @@ private struct InsightCard<Content: View>: View {
   }
 }
 
-/// When you chose sleep, by hour from 10 pm to 6 am (48 pt at most), the busiest hour in amber.
+/// When you chose sleep, by hour of the night's own hours (48 pt at most), the busiest in amber.
 private struct HoursCard: View {
   let insights: InsightsSnapshot
 
@@ -86,16 +89,20 @@ private struct HoursCard: View {
         }
       }
       .frame(height: 48, alignment: .bottom)
-      .accessibilityHidden(true)
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel(
+        Copy.Insights.chartSpoken(
+          peak: insights.peakHour.map { Copy.Insights.hourName($0) }, total: insights.taps))
       HStack {
-        Text(Copy.time(ClockTime(hour: 22), short: true))
+        Text(Copy.time(ClockTime(hour: insights.hours.first), short: true))
         Spacer(minLength: 4)
         if let peak = insights.peakHour {
           Text(Copy.Insights.mostAt(Copy.Insights.hourName(peak)))
         }
         Spacer(minLength: 4)
-        Text(Copy.time(ClockTime(hour: 6), short: true))
+        Text(Copy.time(ClockTime(hour: insights.hours.last), short: true))
       }
+      .accessibilityHidden(true)
       .tollType(.micro, TollColor.label2)
       .padding(.top, -4)
       .tollChartTypeLimit()

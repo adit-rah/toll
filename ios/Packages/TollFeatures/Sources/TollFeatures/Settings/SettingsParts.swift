@@ -29,22 +29,35 @@ struct SettingsRow<Trailing: View>: View {
   let title: String
   let detail: String?
   let minHeight: CGFloat?
+  /// A small trailing glyph (a chevron, the leaves-the-app arrow) stays beside the title at
+  /// accessibility sizes instead of sitting alone on a line of its own (the audit).
+  let glyph: Bool
   let trailing: Trailing
 
   init(
-    _ title: String, detail: String? = nil, minHeight: CGFloat? = nil,
+    _ title: String, detail: String? = nil, minHeight: CGFloat? = nil, glyph: Bool = false,
     @ViewBuilder trailing: () -> Trailing
   ) {
     self.title = title
     self.detail = detail
     self.minHeight = minHeight
+    self.glyph = glyph
     self.trailing = trailing()
   }
 
   var body: some View {
-    AdaptiveStack(spacing: TollSpacing.rowGap) {
-      RowText(title: title, detail: detail)
-      trailing
+    Group {
+      if glyph {
+        HStack(spacing: TollSpacing.rowGap) {
+          RowText(title: title, detail: detail)
+          trailing
+        }
+      } else {
+        AdaptiveStack(spacing: TollSpacing.rowGap) {
+          RowText(title: title, detail: detail)
+          trailing
+        }
+      }
     }
     .padding(.vertical, 8)
     .frame(minHeight: minHeight ?? (detail == nil ? 46 : 54))
@@ -97,10 +110,12 @@ struct AppearancePicker: View {
   }
 }
 
-/// How it works, as a sheet.
+/// How it works, as a sheet, with a button to close it: a swipe isn't the only way out (the audit).
 struct HowItWorks: View {
+  @Environment(\.dismiss) private var dismiss
+
   var body: some View {
-    SheetPage(height: 420) {
+    SheetPage(height: 540) {
       SheetTitle(Copy.Settings.howItWorks)
       ForEach(Copy.Settings.howItWorksLines, id: \.self) { line in
         Text(line)
@@ -109,7 +124,7 @@ struct HowItWorks: View {
           .padding(.top, 12)
       }
     } actions: {
-      EmptyView()
+      PrimaryButton(Copy.Setup.done) { dismiss() }
     }
   }
 }

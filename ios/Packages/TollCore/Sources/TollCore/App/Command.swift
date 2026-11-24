@@ -13,6 +13,9 @@ public enum Command: Sendable {
   case savePlace(Place)
   /// "Only when I'm home" (D68): save Home and have the Sleep block wait for it; held while it's on.
   case setHome(Place)
+  /// "Use anywhere": the Sleep block stops waiting for home; held while it's on (B-3). Home stays
+  /// saved, so setting it again opens where it was.
+  case useAnywhere
   /// A Tonight card the user put away (#102); it doesn't come back.
   case dismissCard(TonightCard)
   /// Settings' heads-up switch (D68).
