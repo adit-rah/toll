@@ -19,6 +19,8 @@ enum GapRules {
     // Judged from what the next night would use, a held change included.
     let before = gap.upcoming
     gap.minutes = before
+    // A fixed gap chosen tonight is fixed already: the rule leaves it alone.
+    if case .fixed = gap.pending { gap.mode = .fixed }
     var tally = gap.tally
     var monday = tallied
     // Weeks nothing reconciled through ran no nights: each one holds. Bounded, for a long absence.
@@ -32,6 +34,7 @@ enum GapRules {
     }
     let after = gap.minutes
     gap.minutes = state.gap.minutes
+    gap.mode = state.gap.mode
     gap.tally = Gap.Tally(week: week)
     state.gap = gap
     guard after != before, state.gap.mode == .grows else { return }

@@ -117,8 +117,8 @@ public struct Gap: Codable, Hashable, Sendable {
     }
   }
 
-  /// Puts a setting in force from the night after `now`'s key. A new growing gap starts the rule
-  /// afresh.
+  /// Puts a setting in force from the next night to start, keyed by today. A gap that starts
+  /// growing starts the rule afresh.
   mutating func put(_ setting: Setting, now: Date, calendar: Calendar) {
     let old = (minutes, mode)
     switch setting {
