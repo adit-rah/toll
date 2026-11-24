@@ -81,7 +81,8 @@ final class BlockEditorModel {
 
   /// "2 categories · 2 apps", counted, since iOS never gives the app the names (D41).
   var appsSummary: String {
-    Copy.Blocks.summary(
+    guard hasApps else { return Copy.Blocks.chooseAppsToSave }
+    return Copy.Blocks.summary(
       categories: selection.categoryTokens.count, apps: Blocklist.items(selection))
   }
 
@@ -114,6 +115,11 @@ final class BlockEditorModel {
     block = BlockDraft.change(block, to: kind, config: app.config)
     kindPicked = true
     return isNew && !hasApps
+  }
+
+  /// The set-home flow saved home, or anywhere, itself: the draft follows it, so Save doesn't undo it.
+  func homeChanged() {
+    place = app.draftPlace(app.sleepDraft?.place)
   }
 
   func setRule(_ index: Int, _ rule: WeeklySchedule.Rule) {

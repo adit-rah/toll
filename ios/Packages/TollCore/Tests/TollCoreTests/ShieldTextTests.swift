@@ -22,10 +22,18 @@ struct ShieldTextTests {
     run(&s, date(2026, 11, 17, 10))
     let text = ShieldText(
       state: s, block: s.block(BlockID("study")), now: date(2026, 11, 17, 10), calendar: london)
-    #expect(text.title.hasPrefix("Study · until 5"))
+    #expect(text.title.hasPrefix("Blocked until 5"))
     #expect(text.subtitle == "This app is blocked during Study. 3 of 3 pauses left this week.")
     #expect(text.kind == .study)
     #expect(text.unlocksLeft == 3 && text.unlocksMax == 3)
+  }
+
+  @Test func aWebsiteIsASite() {
+    var s = setUp()
+    run(&s, date(2026, 11, 17, 23))
+    let text = ShieldText(
+      state: s, block: s.sleepBlock, now: date(2026, 11, 17, 23), calendar: london, site: true)
+    #expect(text.subtitle.hasPrefix("This site is blocked for the night."))
   }
 
   @Test func withoutLocationNoPlaceIsClaimed() {
@@ -46,6 +54,7 @@ struct ShieldTextTests {
       state: s, block: s.sleepBlock, now: date(2026, 11, 17, 23), calendar: london)
     #expect(!text.offersDoor)
     #expect(text.unlocksLeft == 0)
-    #expect(text.subtitle == "This app is blocked for the night. No pauses left · back Monday")
+    #expect(
+      text.subtitle == "This app is blocked for the night. No pauses left. They come back Monday.")
   }
 }

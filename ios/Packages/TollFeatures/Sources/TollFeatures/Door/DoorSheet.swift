@@ -3,7 +3,7 @@ import TollCore
 import TollUI
 
 /// The pause (D67; the spec's door, D-3, D-4, D31), a sheet over Tonight opened by the block
-/// screen's "Pause in Dusk" or Tonight's "Pause". Four states, each read without words: the pause
+/// screen's "Open Dusk to pause" or Tonight's "Pause". Four states, each read without words: the pause
 /// symbol and the dots, the wait's countdown, the pause's countdown, and the empty dots. They
 /// crossfade (design §2.5).
 struct DoorSheet: View {
@@ -65,7 +65,7 @@ private struct DoorWaiting: View {
   let now: Date
 
   var body: some View {
-    SheetPage(height: 420, overhang: 8) {
+    SheetPage(height: 420) {
       Image(symbol: .wait).unredacted()
         .font(.system(size: 22, weight: .medium))
         .foregroundStyle(TollColor.label2)
@@ -101,14 +101,15 @@ private struct DoorWaiting: View {
         .frame(maxWidth: .infinity)
         .padding(.top, 6)
     } actions: {
+      // Choosing already said cancelling costs nothing.
       PrimaryButton(Copy.Door.cancel, tone: .neutral) { model.cancelDoor() }
-      Footnote(Copy.Door.cancelFree, alignment: .center).padding(.top, 10)
     }
   }
 }
 
 /// Pause · open, counting down (D31): the pause symbol and "Paused", when blocking comes back, the
-/// time left over a draining bar, and the regret line while it lasts (D-4).
+/// time left over a draining bar, and the regret line while it lasts (D-4); after it, a quiet line
+/// over "Lock again" says the pause is spent.
 private struct DoorOpen: View {
   let model: AppModel
   let door: Door
@@ -176,6 +177,9 @@ private struct DoorOpen: View {
         .transition(.opacity)
       }
     } actions: {
+      if let regretEnd = door.regretEndsAt(model.config), now >= regretEnd {
+        Footnote(Copy.Door.pauseUsed, alignment: .center).padding(.bottom, 10)
+      }
       PrimaryButton {
         model.lockDoor()
       } label: {

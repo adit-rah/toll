@@ -3,6 +3,23 @@ import Testing
 
 @testable import TollCore
 
+/// The night's day chips say which nights they are (the audit).
+struct NightSpanTests {
+  @Test func nightsReadAsNights() {
+    #expect(
+      Copy.Blocks.nightSpan(Weekday.schoolNights, crossesMidnight: true)
+        == "Sun–Thu night → Mon–Fri morning")
+    #expect(
+      Copy.Blocks.nightSpan(Weekday.weekendNights, crossesMidnight: true)
+        == "Fri–Sat night → Sat–Sun morning")
+    #expect(Copy.Blocks.nightSpan([.sunday], crossesMidnight: true) == "Sun night → Mon morning")
+    #expect(
+      Copy.Blocks.nightSpan([.monday, .wednesday], crossesMidnight: false) == "Mon, Wed")
+    #expect(Copy.Blocks.nightSpan(Weekday.all, crossesMidnight: true) == "Every night")
+    #expect(Copy.Blocks.nightSpan([], crossesMidnight: true) == nil)
+  }
+}
+
 /// Several blocks at once (D29): each by its own place and hours, the shield their union.
 struct BlocksTests {
   func withStudy(atLibrary: Bool = true) -> DuskState {
@@ -191,6 +208,13 @@ struct BlocksSnapshotTests {
     let blocks = BlocksSnapshot(state: s, now: date(2026, 11, 17, 10), calendar: london)
     // The night leads on its own, never as a row called "Sleep" (D68).
     #expect(blocks.night?.detail == "4 apps · Home")
+    // A whole category is a category, not one more app (the audit).
+    var categories = s
+    categories.blocks[0].appCount = 2
+    categories.blocks[0].categoryCount = 2
+    #expect(
+      BlocksSnapshot(state: categories, now: date(2026, 11, 17, 10), calendar: london).night?.detail
+        == "2 categories · 2 apps · Home")
     #expect(blocks.night?.picture?.start.contains("10:30") == true)
     #expect(blocks.night?.state == .later)
     #expect(blocks.night?.stateText == "Tonight")
@@ -208,13 +232,13 @@ struct BlocksSnapshotTests {
     // Saturday noon: Study is Monday's.
     let saturday = BlocksSnapshot(state: s, now: date(2026, 11, 21, 12), calendar: london)
     #expect(saturday.night?.stateText == "Tonight")
-    #expect(saturday.others[0].stateText == "Mon")
+    #expect(saturday.others[0].stateText.hasPrefix("Mon 9"))
     #expect(saturday.others[0].state == .later)
     // Thursday evening: Study is tomorrow, not today.
     let thursday = BlocksSnapshot(state: s, now: date(2026, 11, 19, 18), calendar: london)
-    #expect(thursday.others[0].stateText == "Fri")
+    #expect(thursday.others[0].stateText.hasPrefix("Fri 9"))
     let friday = BlocksSnapshot(state: s, now: date(2026, 11, 20, 7), calendar: london)
-    #expect(friday.others[0].stateText == "Today")
+    #expect(friday.others[0].stateText.hasPrefix("Today 9"))
   }
 
   @Test func theNightSaysWhenWeekendsDiffer() {

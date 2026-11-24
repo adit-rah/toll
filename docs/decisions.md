@@ -360,3 +360,12 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Records:** `planned_bedtime` is bed; `bed` and `gap_min` are added. Older records read as gap 0.
 - **Words and pictures:** the hero adds "15 min before bed" under "Apps lock at"; the heads-up is "Apps lock in 20 min"; Ready's title is "Apps lock at 10:15 pm tonight."; Monday's card is "This week, apps lock 30 min before bed · Up from 15" with "Keep 15". The strip draws the gap as a lower step before the moon, at least 8 pt wide, so it reads without colour. The glyph is `moon.haze`.
 - **Open (#127):** if Dusk isn't opened between Monday noon and Monday's lock, that night's schedule and heads-up still use last week's gap.
+
+**D84. The audit outside Tonight** (2026-11-24, #121; findings in `docs/ux-audit-2026-11.md`).
+- **Your sleep counts every night:** 7 days, 30 days and All time read the night records (D62) merged with the transition log's nights not yet recorded, a record winning. Night records gain `dusk.locked_min` (the night's block shielding, pauses left out) and `dusk.taps` (each "Never mind"); the model's readers ignore them, so the D62 contract holds. Older records fall back to block end − block start. The chart spans the night's own hours and has a spoken summary; it is hidden when a range has no taps.
+- **One home picker:** the map, reached from Tonight, Settings and the night editor's Place row. Once home is set it offers "Use anywhere" (`Command.useAnywhere`), held during the night like any edit (B-3); Settings' row shows the held change as "On/Off from 7:00 am".
+- **Sheets pin their actions** under scrolling content at every size (design §2.1): the pause sheet's "Lock again", the purchase sheet's "Keep it". After the 2-minute window the pause sheet says "This pause is used. Locking ends it early."
+- **The block screen** offers "Open Dusk to pause", titles every block "Blocked until …", says "This site" for a website, and with none left reads "No pauses left. They come back Monday."
+- **Settings:** "Last night · Mon 10:30 pm – 7:00 am" is the night's own; restore says "Purchase restored."; the Blocks row is gone (Blocks is a tab); links that leave the app have the leave glyph; a version line sits at the bottom.
+- **One sentence for the pause everywhere:** "A pause opens blocked apps for 10 minutes."
+- **The purchase sheet** hides stats at 0 and drops "pauses used".

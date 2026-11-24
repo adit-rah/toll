@@ -16,10 +16,14 @@ extension Copy {
     public static let onlyAtHome = "Only when I'm home"
     public static let onlyAtHomeOn = "On"
     public static let onlyAtHomeOff = "Off · runs wherever you are"
-    /// The latest stretch any block was on (`LastNight`), which isn't always a night.
-    public static let lastNight = "Last blocked"
-    public static func blocked(_ from: String, _ until: String?) -> String {
-      until.map { "\(from) – \($0)" } ?? "Since \(from)"
+    /// A change made during the night waits for it to end (B-3), and the row says when.
+    public static func onlyAtHomeFrom(_ on: Bool, _ time: String) -> String {
+      "\(on ? onlyAtHomeOn : off) from \(time)"
+    }
+    /// The latest night the block ran (`PastNight.latest`), with its day.
+    public static let lastNight = "Last night"
+    public static func lastNightSpan(day: String, _ from: String, _ until: String) -> String {
+      "\(day) \(from) – \(until)"
     }
     public static let notYet = "Not yet"
 
@@ -33,16 +37,11 @@ extension Copy {
     public static let purchasedDetail = "Every night, for good"
     public static func once(_ price: String) -> String { "\(price) once" }
     public static let app = "App"
-    /// No count of blocks: the night isn't a block to people (D68), and the limit is what matters.
-    public static func blocksSummary(items: Int, max: Int) -> String {
-      "\(items) of \(max) apps and sites"
-    }
     public static let testingOnly = "Testing only · removed before launch"
     public static let keepIt = Purchase.keep
     public static let restore = Purchase.restore
     public static let restored = "Purchase restored."
 
-    public static let blocks = Blocks.title
     public static let appearance = "Appearance"
     public static let dark = "Dark"
     public static let light = "Light"
@@ -53,7 +52,7 @@ extension Copy {
     public static let howItWorksLines = [
       "During your night, the apps you chose don't open. Everything else works.",
       "With home set and location on Always, your night starts once you're home. Otherwise it starts and ends at its set times, wherever you are.",
-      "Pause opens every app for 10 minutes after a one-minute wait. You get 3 a week, back every Monday at noon.",
+      "A pause opens blocked apps for 10 minutes, after a one-minute wait. You get 3 a week, back every Monday at noon.",
       "Other blocks work the same way, on their own hours.",
     ]
     public static let privacy = "Privacy"
@@ -64,6 +63,7 @@ extension Copy {
     /// Testing only, with the transition log: the night records as a file (#51).
     public static let shareNights = "Share night records"
     public static let version = "Version"
+    public static func versionLine(_ number: String) -> String { "\(version) \(number)" }
 
     public static func line(_ transition: Transition, in calendar: Calendar = .current) -> String {
       let day = transition.at.formatted(

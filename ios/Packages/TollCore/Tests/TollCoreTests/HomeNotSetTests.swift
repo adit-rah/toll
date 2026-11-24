@@ -90,6 +90,48 @@ struct HomeNotSetTests {
     #expect(s.sleepBlock?.place == homePlace.id)
   }
 
+  /// The way back to anywhere (the audit): home stays saved, the night stops waiting for it, and
+  /// during the night the change waits for its end, which Settings shows.
+  @Test func useAnywhereUndoesHome() {
+    var s = setUp()
+    s.setupFinishedAt = date(2026, 11, 10, 20)
+    #expect(apply(.useAnywhere, &s, date(2026, 11, 17, 15)) == nil)
+    #expect(!s.homeIsSet && s.sleepBlock?.place == nil)
+    #expect(s.places == [homePlace])
+    #expect(s.homeChangeAt == nil)
+
+    var night = setUp()
+    night.setupFinishedAt = date(2026, 11, 10, 20)
+    run(&night, date(2026, 11, 17, 23))
+    #expect(apply(.useAnywhere, &night, date(2026, 11, 17, 23, 30)) == nil)
+    #expect(!night.homeIsSet)
+    #expect(night.sleepBlock?.place == homePlace.id)
+    #expect(night.homeChangeAt == date(2026, 11, 18, 7))
+    run(&night, date(2026, 11, 18, 7, 5))
+    #expect(night.sleepBlock?.place == nil && night.homeChangeAt == nil)
+  }
+
+  /// Settings' last night is the night's own, with its day, not the latest of any block.
+  @Test func lastNightIsTheNights() throws {
+    var s = setUp()
+    s.setupFinishedAt = date(2026, 11, 10, 20)
+    s.blocks.append(studyBlock())
+    func line(_ at: Date, _ active: [BlockID]) -> Transition {
+      Transition(
+        at: at, cause: .windowStart, blockOn: !active.isEmpty, changed: true, home: true,
+        inWindow: true, entitled: true, active: active)
+    }
+    let log = [
+      line(date(2026, 11, 16, 22, 30), [sleepID]), line(date(2026, 11, 17, 7), []),
+      line(date(2026, 11, 17, 9), [BlockID("study")]), line(date(2026, 11, 17, 17), []),
+    ]
+    let last = try #require(
+      PastNight.latest(
+        history: [], state: s, log: log, now: date(2026, 11, 17, 18), calendar: london))
+    #expect(last.night == date(2026, 11, 16, 0))
+    #expect(last.start == date(2026, 11, 16, 22, 30) && last.end == date(2026, 11, 17, 7))
+  }
+
   @Test func settingHomeNeedsTheSleepBlock() {
     var s = DuskState()
     #expect(apply(.setHome(homePlace), &s, date(2026, 11, 17, 15)) == .noSleepBlock)

@@ -28,7 +28,7 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 |---|---|
 | `empty` | The empty window |
 | `welcome` · `wake` · `wake-weekends` · `screen-time` · `screen-time-allowed` · `screen-time-denied` · `blocklist` · `ready` | Each onboarding screen (D68: no map, no location); Screen Time is assumed from `blocklist` on |
-| `set-home` · `set-home-off` · `set-home-location` · `set-home-always` · `set-home-location-off` | "Only when I'm home" as a sheet over Tonight: the map (home placed in London; `-off` with location denied), the location prompt, Always, and location off |
+| `set-home` · `set-home-off` · `set-home-location` · `set-home-always` · `set-home-location-off` · `set-home-set` | "Only when I'm home" as a sheet over Tonight: the map (home placed in London; `-off` with location denied), the location prompt, Always, and location off; `-set`: the map with home already set, offering "Use anywhere" |
 | `home-evening` · `home-blocked` · `home-away` · `home-first-week` · `home-last-night` · `home-paused` · `home-location` | Home in each state, with a Sleep and a Study block and a sample week of log, built around the time of the render |
 | `home-morning` · `home-morning-gap` · `home-morning-away` | Tonight at 8:10 am with the morning card (#103): after a night with taps, with a ten-minute pause, and away |
 | `home-anywhere` · `home-card` | Home not set yet: the first evening ("Anywhere"), and the morning-after card offering home |
@@ -37,7 +37,7 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `home-pill-purchase` · `home-pause-open` | The purchase sheet the free-week pill opens, over Tonight in the first week (D75; a tap reaches it too: `home-first-week: tap --id tonight.pill --wait-timeout 5`), and Tonight's hero while a pause is open ("Paused until") |
 | `home-heads-up` | Home set, the evening after the first night: the card asking for the heads-up (#104) |
 | `home-gap-week` · `home-gap-offer` | The gap before bed (D76): Monday evening after the gap grew from 15 to 30 minutes ("Keep 15"), and the one card offering the gap to an install from before it |
-| `purchase` · `settings` · `settings-anywhere` · `settings-heads-up-denied` · `insights` | The purchase sheet, Settings (with home set, and not set; with notifications denied, the heads-up row offers iOS Settings) and Your sleep |
+| `purchase` · `settings` · `settings-anywhere` · `settings-heads-up-denied` · `settings-while-using` · `insights` | The purchase sheet, Settings (with home set, and not set; with notifications denied, the heads-up row offers iOS Settings; with location While Using, the Location row does) and Your sleep |
 | `blocks` · `blocks-day` | The Blocks tab (the night, Study and Gym), in the evening and on a weekday at 11 am with Study on |
 | `block-new` · `block-new-gym` | New block: the kinds, then Gym picked with its default hours and no apps yet (the simulator has no app tokens) |
 | `block-edit` · `block-edit-on` · `block-night` | Editing Study, editing it while it's on, and editing the night |

@@ -15,13 +15,13 @@ extension Copy {
     /// The schedules iOS lets the app keep (D40), in plain words: blocks with the same hours share one.
     public static let timeWindows = "Sets of hours"
     public static func used(_ used: Int, of max: Int) -> String { "\(used) of \(max)" }
-    public static let unlocksShared = "A pause opens every block at once."
+    /// One sentence for the pause everywhere it's explained (the audit).
+    public static let unlocksShared = "A pause opens blocked apps for 10 minutes."
     public static func blocksFull(_ max: Int) -> String { "Up to \(max) blocks." }
     public static func windowsFull(_ max: Int) -> String {
       "Up to \(max) sets of hours across all blocks."
     }
     public static func onNowUntil(_ time: String) -> String { "until \(time)" }
-    public static func appCount(_ n: Int) -> String { n == 1 ? "1 app" : "\(n) apps" }
     public static func thisBlock(_ n: Int) -> String { "This block: \(n) apps and sites" }
     public static func allBlocks(_ used: Int, of max: Int) -> String {
       "All blocks: \(used) of \(max)"
@@ -78,16 +78,19 @@ extension Copy {
     public static func placeIgnored(_ block: String, span: String) -> String {
       "Location is set to While Using, so \(block) runs \(span) wherever you are."
     }
+    /// Save says when changes apply ("Save for after 5:00 pm"); the note doesn't repeat it.
     public static func activeNote(_ block: String, until time: String) -> String {
-      "\(block) is on until \(time). Changes apply when this block ends."
+      "\(block) is on until \(time)."
     }
     public static func nightActiveNote(until time: String) -> String {
-      "Your night is on until \(time). Changes apply when it ends."
+      "Your night is on until \(time)."
     }
     public static func nightPlaceIgnored(span: String) -> String {
       "Location is set to While Using, so your night runs \(span) wherever you are."
     }
     public static let sleepStays = "Your nights can be changed but not deleted."
+    /// The apps row while it's empty: why Save is off (the audit).
+    public static let chooseAppsToSave = "Choose apps to save"
     public static let delete = "Delete block"
     public static func deleteTitle(_ block: String) -> String { "Delete \(block)?" }
     public static func deleteLine(_ items: String, place: String?) -> String {
@@ -121,6 +124,36 @@ extension Copy {
     }
     public static func dayLetter(_ day: Weekday) -> String {
       ["M", "T", "W", "T", "F", "S", "S"][day.rawValue - 1]
+    }
+
+    /// Over the night's day chips: a chip is the day a night starts (the audit).
+    public static let nightsStarting = "Nights starting"
+    /// Under them, which nights those are: "Sun–Thu night → Mon–Fri morning". A lone "S" could be
+    /// either day, and Sunday-to-Thursday reads as Monday-to-Thursday on a Monday-first row.
+    public static func nightSpan(_ days: Set<Weekday>, crossesMidnight: Bool) -> String? {
+      guard !days.isEmpty else { return nil }
+      if days == Weekday.all { return "Every night" }
+      // Runs of days in a row, wrapping from Sunday to Monday.
+      let order = Weekday.allCases
+      guard let gap = order.firstIndex(where: { !days.contains($0) }) else { return nil }
+      var runs: [(Weekday, Weekday)] = []
+      for step in 1...7 {
+        let day = order[(gap + step) % 7]
+        guard days.contains(day) else { continue }
+        if let last = runs.last, last.1.next == day {
+          runs[runs.count - 1].1 = day
+        } else {
+          runs.append((day, day))
+        }
+      }
+      runs.sort { $0.0 < $1.0 }
+      func name(_ run: (Weekday, Weekday)) -> String {
+        run.0 == run.1 ? Home.shortDay(run.0) : "\(Home.shortDay(run.0))–\(Home.shortDay(run.1))"
+      }
+      let starts = runs.map(name).joined(separator: ", ")
+      guard crossesMidnight else { return starts }
+      let ends = runs.map { name(($0.0.next, $0.1.next)) }.joined(separator: ", ")
+      return "\(starts) night → \(ends) morning"
     }
 
     public static func refused(

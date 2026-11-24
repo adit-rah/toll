@@ -58,7 +58,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 40 | Lock again within 2 minutes of a pause opening; then another pause, locked again after 3 minutes | The first: shields back at once and the dots back to the same count. The second: the pause stays spent | | |
 | 41 | Cancel during the 60-second wait | Nothing spent; the dots are unchanged | | |
 | 42 | Spend all 3, then check Sunday night, Monday 11:59 am and Monday 12:00 pm | None back until noon Monday, then 3, on the shield subtitle, Tonight's dots and the sheet | | |
-| 43 | With 0 left, open a blocked app | The block screen has no "Pause in Dusk" button and reads "No pauses left · back Monday" | | |
+| 43 | With 0 left, open a blocked app | The block screen has no pause button and reads "No pauses left. They come back Monday." | | |
 | 44 | Fresh install, onboarding with no location ever asked; leave the phone away from where you sleep (#102) | No location prompt in onboarding. The block comes on at the night's start wherever the phone is (Sleep has no place). Tonight reads "Anywhere · starts in …" before it, and the block goes off at the night's end | | |
 | 45 | The morning after row 44: Tonight shows "Only when I'm home?"; tap Set home → This is home → Allow → Always; that night, arrive home after the start (#102) | The card appears after the night ends, not before. After the sheet, Settings › Only when I'm home reads On and the card is gone. That night it stays off while away, then comes on at arrival. Repeating with "Not now": the card never returns and the Settings row stays | | |
 | 46 | The morning after the first night (home set, or after the home card): Tonight shows "A heads-up before your night?" with a bell and "10:10 pm · 20 min before your night"; tap Turn on → Allow; swipe Dusk away and wait for the evening (#104) | The prompt appears only after Turn on, never in onboarding. The card is gone and Settings › Heads-up is on. At 20 min before the start, with Dusk closed, one silent notification: "Night starts in 20 min" / "10:30 pm – 7:00 am" | | |
@@ -105,6 +105,15 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 87 | After a week with ≥4 locked nights and ≤1 pause before bed, open Dusk Monday after noon | "This week, apps lock 30 min before bed · Up from 15"; "Keep 15" puts the lock back at bed − 15 that night | | |
 | 88 | Install a build from before D76, update, open the day after a night | The night is unchanged; Tonight offers "Lock apps 15 min before bed?"; "Turn on" makes it 15, growing | | |
 | 89 | Turn Screen Time off for Dusk midweek, then back on | At Monday noon the gap eases by 15 and doesn't grow for the next 2 Mondays | | |
+| 90 | Run a night, foreground the app next morning, share the night records (#121) | Each line has `dusk.locked_min` (about 510 for 10:30 pm – 7:00 am, less 10 per pause) and `dusk.taps` with one time per "Never mind" | | |
+| 91 | After 15+ nights, open Your sleep › All time | Nights and hours count every night since setup, not only the last ~10 | | |
+| 92 | Home set: during the night, Settings › Only when I'm home › Use anywhere | The sheet closes, the row reads "Off from 7:00 am", and the night stays home-gated until it ends | | |
+| 93 | Blocks › your night › Place | The same map opens, with "Use anywhere" under it | | |
+| 94 | Open a blocked website | "This site is blocked for the night." | | |
+| 95 | With pauses left, open a blocked app | The second button reads "Open Dusk to pause" | | |
+| 96 | Restore purchase in Settings with a purchase on the Apple ID | The row reads "Purchase restored." and is gone the next time Settings opens | | |
+| 97 | AX5: open a pause and wait 2 minutes | "This pause is used. Locking ends it early." over a pinned "Lock again" | | |
+| 98 | AX5: open the purchase sheet | "Keep it" stays pinned; the price and footnote scroll | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

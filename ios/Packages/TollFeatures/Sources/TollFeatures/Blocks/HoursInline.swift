@@ -8,6 +8,8 @@ import TollUI
 struct HoursInline: View {
   let title: String
   let rule: WeeklySchedule.Rule
+  /// The night's chips are the days its nights start, and say so.
+  var isNight = false
   let set: (WeeklySchedule.Rule) -> Void
   @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -37,10 +39,27 @@ struct HoursInline: View {
           set(next)
         }
       }
+      if isNight {
+        Text(Copy.Blocks.nightsStarting)
+          .tollType(
+            TollType(
+              size: 12, lineHeight: 16, weight: .semibold, style: .caption, tracking: 0.6,
+              uppercase: true)
+          )
+          .foregroundStyle(TollColor.label2)
+          .accessibilityHidden(true)
+      }
       DayChips(days: rule.days) { days in
         var next = rule
         next.days = days
         set(next)
+      }
+      if isNight,
+        let span = Copy.Blocks.nightSpan(rule.days, crossesMidnight: rule.window.crossesMidnight)
+      {
+        Text(span)
+          .tollType(.detail, TollColor.label2)
+          .fixedSize(horizontal: false, vertical: true)
       }
     }
     .padding(.vertical, 12)

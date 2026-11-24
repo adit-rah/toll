@@ -19,6 +19,8 @@
     case setHomeLocation = "set-home-location"
     case setHomeAlways = "set-home-always"
     case setHomeLocationOff = "set-home-location-off"
+    /// The map with home already set: "Use anywhere" under it (the audit).
+    case setHomeSet = "set-home-set"
     case homeEvening = "home-evening"
     case homeBlocked = "home-blocked"
     case homeAway = "home-away"
@@ -65,6 +67,8 @@
     case settingsAnywhere = "settings-anywhere"
     /// Settings with notifications denied: the heads-up row leaves for iOS Settings (#104).
     case settingsHeadsUpDenied = "settings-heads-up-denied"
+    /// Home set, location While Using: the Location row leaves for iOS Settings (the audit).
+    case settingsWhileUsing = "settings-while-using"
     case purchasePending = "purchase-pending"
     case purchaseFailed = "purchase-failed"
     case purchaseRestoreNone = "purchase-restore-none"
@@ -105,7 +109,7 @@
     /// The set-home sheet's screens under the map.
     var setHomePath: [SetHomeModel.Step]? {
       switch self {
-      case .setHome, .setHomeOff: []
+      case .setHome, .setHomeOff, .setHomeSet: []
       case .setHomeLocation: [.location]
       case .setHomeAlways: [.location, .always]
       case .setHomeLocationOff: [.location, .locationOff]
@@ -115,7 +119,8 @@
 
     /// Home not set yet (D68): onboarding's Sleep block has no place.
     var homeNotSet: Bool {
-      setHomePath != nil || [.homeAnywhere, .homeCard, .settingsAnywhere].contains(self)
+      (setHomePath != nil && self != .setHomeSet)
+        || [.homeAnywhere, .homeCard, .settingsAnywhere].contains(self)
     }
 
     /// The simulator cannot grant Family Controls or answer the location prompt; each screen past
@@ -131,7 +136,9 @@
 
     var location: LocationAccess.State? {
       switch self {
-      case .setHome, .setHomeLocation, .setHomeAlways, .homeLocation: .whileUsing
+      case .setHome, .setHomeLocation, .setHomeAlways, .homeLocation, .setHomeSet,
+        .settingsWhileUsing:
+        .whileUsing
       case .setHomeOff: .denied
       case .setHomeLocationOff: .approximate
       case .homeAnywhere, .homeCard, .settingsAnywhere: .notDetermined
@@ -172,7 +179,7 @@
     /// Screens pushed on the tab's stack, with the screens under them.
     var routes: [HomeRoute] {
       switch self {
-      case .settings, .settingsAnywhere, .settingsHeadsUpDenied: [.settings]
+      case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing: [.settings]
       case .blockNew, .blockNewGym: [.block(nil)]
       case .blockEdit, .blockEditOn: [.block(BlockID("study"))]
       case .blockNight: [.block(BlockID("sleep"))]
@@ -240,7 +247,7 @@
         sleep: YourSleep(
           state: fixture.state, log: fixture.log, history: fixture.history, now: now,
           calendar: .current),
-        log: fixture.log, openPurchase: {}
+        openPurchase: {}
       ) {
         HomeView(
           home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {},

@@ -130,4 +130,12 @@ final class SetHomeModel {
   }
 
   func cancel() { done() }
+
+  /// Offered once home is set: the one way back to anywhere, from Settings and the night editor alike.
+  var offersAnywhere: Bool { app.state.homeIsSet }
+
+  func useAnywhere() {
+    app.useAnywhere()
+    done()
+  }
 }

@@ -57,12 +57,14 @@ extension Copy {
     public static let yourNights = "Your nights"
     public static let weeknights = "Weeknights"
     public static let weekendNights = "Fri and Sat nights"
-    public static let change = "Change"
+    /// What each row's link changes (the audit): "Change" didn't say, and the wheel sets the wake.
+    public static let changeStart = "Start"
+    public static let changeWake = "Wake"
     public static let nightsStart = "Nights start at"
     public static let differentOnWeekends = "Different on weekends"
     public static let weekendWake = "Weekend wake time"
     /// No population norm (D65): the night's length is on the row above.
-    public static let sleepAdvice = "You can change this any time."
+    public static let sleepAdvice = "You can change this later in Blocks."
     /// Between the moon and the sun (D68): "10:30 pm – 7:00 am".
     public static func nightSpan(start: String, end: String) -> String { "\(start) – \(end)" }
     /// The night drawn as moon start – end sun (D68), read out in one line.
@@ -103,10 +105,9 @@ extension Copy {
     public static let on = "On"
     public static let always = "Always"
     public static let whileUsing = "While Using"
-    public static let never = "Never"
     public static let preciseLocation = "Precise Location"
     public static let screenTimeDenied =
-      "Without Screen Time, \(name) can't block anything. Turn it on in the next screen, or in Settings › Screen Time."
+      "Without Screen Time, \(name) can't block anything. Tap Try again and choose Continue, or turn it on in Settings › Screen Time."
 
     public static let alwaysTitle = "Choose Always"
     public static let alwaysLine =

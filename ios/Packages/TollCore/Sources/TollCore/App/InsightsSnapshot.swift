@@ -1,7 +1,9 @@
 import Foundation
 
-/// Insights from the transition log (the design canvas): nights with a block on, hours blocked, taps on
-/// the block screen by week and by hour. Pure and tested; the view lays it out.
+/// Your sleep over a range (the design canvas): the hours the night kept its apps locked and the
+/// "Never mind" taps by hour of the night. Read from the ended nights (`PastNight.merged`), so 30 days
+/// and All time count every night the night log kept, not the ten or so the transition log holds
+/// (the audit). Only the night's block counts; Study's hours aren't sleep. Pure and tested.
 public struct InsightsSnapshot: Equatable, Sendable {
   public enum Range: String, CaseIterable, Sendable {
     case week, month, all
@@ -15,73 +17,72 @@ public struct InsightsSnapshot: Equatable, Sendable {
     }
   }
 
-  public var nights: Int
-  public var since: Date?
-  public var hoursBlocked: Int
-  /// Taps on the block screen per week, oldest first, at most the last four.
-  public var weeks: [Int]
-  /// Taps by hour of the night, 10 pm to 6 am (index 0 is 10 pm).
-  public var byHour: [Int]
-  public var peakHour: Int?
+  /// The chart's hours: from the hour the earliest night starts to the hour the latest ends in, so
+  /// a 12:30 – 8:30 am night keeps its last hours (the audit).
+  public struct NightHours: Equatable, Sendable {
+    /// The first bar's hour on the clock (22 is 10 pm).
+    public var first: Int
+    public var count: Int
 
-  /// `sleep` is the night's block: nights and hours count only it, not Study or Gym (the audit). Lines
-  /// written before blocks (D29) don't say which was on, so they count as the night's.
-  public init(
-    log: [Transition], now: Date, calendar: Calendar, range: Range, sleep: BlockID? = nil
-  ) {
-    let from = range.days.flatMap { calendar.date(byAdding: .day, value: -$0, to: now) }
-    let lines = log.filter { line in from.map { line.at >= $0 } ?? true }.sorted { $0.at < $1.at }
-    func night(_ date: Date) -> Date {
-      calendar.startOfDay(for: date.addingTimeInterval(-12 * 3600))
-    }
-    func nightOn(_ line: Transition) -> Bool {
-      if line.screenTime == false { return false }
-      guard let sleep, let active = line.active else { return line.blockOn }
-      return active.contains(sleep)
+    public static let standard = NightHours(first: 22, count: 9)
+
+    init(first: Int, count: Int) {
+      self.first = first
+      self.count = count
     }
 
-    let onNights = Set(lines.filter { nightOn($0) && $0.changed }.map { night($0.at) })
-    nights = onNights.count
-    since = onNights.min()
-
-    var seconds: TimeInterval = 0
-    var onSince: Date?
-    for line in lines {
-      if nightOn(line), onSince == nil { onSince = line.at }
-      if !nightOn(line), let start = onSince {
-        seconds += line.at.timeIntervalSince(start)
-        onSince = nil
+    public init(_ schedule: WeeklySchedule?) {
+      let windows = schedule?.windows.filter(\.isValid) ?? []
+      // Minutes since noon, so a night that crosses midnight is one span.
+      let starts = windows.map { ($0.start.minuteOfDay - 720 + 1440) % 1440 }
+      let ends = windows.map { ($0.start.minuteOfDay - 720 + 1440) % 1440 + $0.minutes }
+      guard let start = starts.min(), let end = ends.max() else {
+        self = .standard
+        return
       }
-    }
-    if let start = onSince { seconds += now.timeIntervalSince(start) }
-    hoursBlocked = Int(seconds / 3600)
-
-    let taps = lines.filter { $0.cause == .blockScreen }
-    if let first = onNights.min() ?? taps.first.map({ night($0.at) }) {
-      // Whole weeks only, so a week that has just begun cannot read as a drop; before the first whole
-      // week, the one so far.
-      let count = max(
-        1, (calendar.dateComponents([.day], from: first, to: night(now)).day ?? 0) / 7)
-      var weeks = Array(repeating: 0, count: count)
-      for tap in taps {
-        let index = (calendar.dateComponents([.day], from: first, to: night(tap.at)).day ?? 0) / 7
-        if weeks.indices.contains(index) { weeks[index] += 1 }
-      }
-      self.weeks = Array(weeks.suffix(4))
-    } else {
-      weeks = []
+      let from = start / 60
+      self.init(first: (from + 12) % 24, count: min(24, (end - 1) / 60 - from + 1))
     }
 
-    var byHour = Array(repeating: 0, count: 9)
-    for tap in taps {
-      let hour = calendar.component(.hour, from: tap.at)
-      let index = (hour - 22 + 24) % 24
-      if index < byHour.count { byHour[index] += 1 }
+    /// The bar a moment falls in, if it's inside the night's hours.
+    func index(of hour: Int) -> Int? {
+      let index = (hour - first + 24) % 24
+      return index < count ? index : nil
     }
-    self.byHour = byHour
-    let top = byHour.max() ?? 0
-    peakHour = top > 0 ? byHour.firstIndex(of: top).map { ($0 + 22) % 24 } : nil
+
+    /// The clock hour of the last bar.
+    public var last: Int { (first + count - 1) % 24 }
   }
 
-  public var isEmpty: Bool { nights == 0 && weeks.allSatisfy { $0 == 0 } }
+  /// Nights the block ran in the range.
+  public var nights: Int
+  public var hoursBlocked: Int
+  /// Taps by hour of the night; index 0 is `hours.first`.
+  public var byHour: [Int]
+  public var hours: NightHours
+  public var peakHour: Int?
+  public var taps: Int
+
+  public init(
+    nights past: [PastNight], hours: NightHours = .standard, now: Date, calendar: Calendar,
+    range: Range
+  ) {
+    let tonight = calendar.startOfDay(for: now.addingTimeInterval(-12 * 3600))
+    let from = range.days.flatMap { calendar.date(byAdding: .day, value: -$0, to: tonight) }
+    let inRange = past.filter { night in from.map { night.night > $0 } ?? true }
+    nights = inRange.filter(\.ran).count
+    hoursBlocked = Int(inRange.map(\.lockedTime).reduce(0, +) / 3600)
+    self.hours = hours
+
+    var byHour = Array(repeating: 0, count: hours.count)
+    for tap in inRange.flatMap({ $0.taps ?? [] }) {
+      if let index = hours.index(of: calendar.component(.hour, from: tap)) { byHour[index] += 1 }
+    }
+    self.byHour = byHour
+    taps = byHour.reduce(0, +)
+    let top = byHour.max() ?? 0
+    peakHour = top > 0 ? byHour.firstIndex(of: top).map { (hours.first + $0) % 24 } : nil
+  }
+
+  public var isEmpty: Bool { nights == 0 && taps == 0 }
 }

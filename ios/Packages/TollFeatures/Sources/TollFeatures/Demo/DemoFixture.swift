@@ -169,20 +169,12 @@
       }
       if scenario == .sleepBest {
         // Weeks of 5, 4 and 5 nights before this one's 6.
-        history = (7...27).compactMap { back in
-          calendar.date(byAdding: .day, value: -back, to: now).map {
-            PastNight(
-              night: calendar.startOfDay(for: $0),
-              ran: ![9, 12, 15, 17, 18, 22, 25].contains(back))
-          }
+        history = (7...27).compactMap {
+          Self.recorded($0, before: now, ran: ![9, 12, 15, 17, 18, 22, 25].contains($0))
         }
       }
       if let sky = scenario.skyNights, sky > nightsAgo {
-        history = (nightsAgo + 1...sky).compactMap { back in
-          calendar.date(byAdding: .day, value: -back, to: now).map {
-            PastNight(night: calendar.startOfDay(for: $0), ran: true)
-          }
-        }
+        history = (nightsAgo + 1...sky).compactMap { Self.recorded($0, before: now, ran: true) }
       }
       for back in stride(from: 1, through: nightsAgo, by: 1) {
         guard let day = calendar.date(byAdding: .day, value: -back, to: now),
@@ -236,6 +228,20 @@
         }
       }
       log.sort { $0.at < $1.at }
+    }
+
+    /// A night the night log kept, `back` nights before `now`: 10:30 pm to 7 am, with a tap or two.
+    static func recorded(_ back: Int, before now: Date, ran: Bool) -> PastNight? {
+      let calendar = Calendar.current
+      guard let day = calendar.date(byAdding: .day, value: -back, to: now),
+        let start = calendar.date(bySettingHour: 22, minute: 30, second: 0, of: day)
+      else { return nil }
+      let end = start.addingTimeInterval(8.5 * 3600)
+      return PastNight(
+        night: calendar.startOfDay(for: day), ran: ran, start: ran ? start : nil,
+        end: ran ? end : nil, locked: ran ? 8.5 * 3600 : 0,
+        taps: ran
+          ? (0..<(back % 3)).map { start.addingTimeInterval(Double($0 * 40 + 50) * 60) } : [])
     }
   }
 #endif
