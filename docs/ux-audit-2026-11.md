@@ -111,3 +111,24 @@ _Filled in once every screen is reviewed._
 | Save just pops back. Nothing says it saved, and a held save ("Save for after 7:00 am") leaves only the row's small "Changes apply at 7:00 am". | Feedback | P3 | Fine for an immediate save (the row changes). For a held save, keep the editor's note on the Blocks row in `accent` with the `clock` glyph so it's noticed. |
 | "Your nights can be changed but not deleted." answers a question nobody asked on the night's editor. | Wordy | P3 | Drop it; the night has no Delete button, which says the same. |
 | New block, before a kind: four tiles and "Pick one, then choose its apps." Picking a tile opens Apple's picker at once; cancelling the picker leaves the kind picked with an empty apps row and no hint why Save is off. | Feedback | P3 | The empty-apps dashed tile (#78) is there; add the detail "Choose apps to save" to that row while empty. |
+
+## Onboarding (`welcome`, `wake`, `wake-weekends`, `screen-time*`, `blocklist`, `ready`)
+
+| Issue | Type | Sev | Fix |
+|---|---|---|---|
+| Ready's title is "Tonight at 10:30 pm.": a fragment that doesn't say what happens at 10:30. | Vague | P2 | "Apps lock tonight at 10:30 pm." (and with D76, the lock time, not bed). |
+| Ready's row "Blocked · 2 categories · 2 apps" reads as a state ("blocked now") on a screen where nothing is blocked yet. | Misleading | P3 | Title the row "Apps to lock" (`Copy.Blocks.apps` is "Apps to block"; use that). |
+| Ready is the first time pauses appear ("3 pauses a week · Every app opens for 10 minutes"), with no word on how to take one or that there's a wait. | Vague | P3 | Detail: "Each opens your apps for 10 minutes, after a 1-minute wait." |
+| Screen Time denied: "Turn it on in the next screen, or in Settings › Screen Time." There is no next screen; "Try again" re-asks Apple. | Vague | P2 | "Tap Try again and choose Continue, or turn it on in Settings › Screen Time." |
+| Wake: two controls set one night. The wheel sets the end, and "Change" on the Your nights row sets the start, while the row's detail is the length. "Change" doesn't say what it changes. | Vague | P2 | Label the link by what it sets: "Start" (weeknights) and "Wake" (weekends), or drop it and let the editor on Blocks do it later. |
+| "You can change this any time." doesn't say where. | Vague | P3 | "You can change this later in Blocks." |
+| Welcome's offer card draws seven empty segments under "7 nights free": the same drawing as Blocks' "Sets of hours" and the pause sheet's week. | Inconsistent | P3 | See the pause sheet: give the free nights their own drawing (night dots, empty). |
+| "Start my free week" and "7 nights free" (D78: 14 nights). | Polish | P3 | With #115: "Start 14 free nights". |
+
+## Only when I'm home (`set-home*`)
+
+| Issue | Type | Sev | Fix |
+|---|---|---|---|
+| Location denied reads "Never" on the location step and "Off" in Settings. | Inconsistent | P3 | One word: "Off" (Settings' word). |
+| The map's row is "Your current location · This building and the street around it", and the place picker on Blocks offers "Building / Street / Campus" radii. Home's radius is fixed at 150 m, with no choice. | Inconsistent | P3 | Accept (home is one size); just make the map's circle say so visually, which it does. Note only. |
+| After "This is home" on a night that's on, the save waits for the night to end (B-3), and the sheet just closes. | Feedback | P2 | A line on Tonight's hero detail ("Home applies from tomorrow") or a held note in Settings' row: "On from 7:00 am". |
