@@ -36,7 +36,7 @@ struct HomeHero: View {
             .foregroundStyle(TollColor.label)
         }
         if !detail.isEmpty {
-          HStack(spacing: 6) {
+          HStack(alignment: .firstTextBaseline, spacing: 6) {
             if let placeSymbol {
               Image(symbol: placeSymbol).unredacted()
                 .font(.system(size: 13, weight: .medium))
