@@ -17,7 +17,7 @@ struct InsightsView: View {
       VStack(alignment: .leading, spacing: 0) {
         ScreenTitle(Copy.Tabs.sleep, kind: .pushed)
         if let nights = sleep.nights {
-          NightsCard(nights: nights).padding(.top, 20)
+          NightsCard(nights: nights, sky: sleep.sky).padding(.top, 20)
         }
         SectionHeader(sleep.weekTitle).padding(.top, 28)
         WeekDotsCard(sleep: sleep).padding(.top, TollSpacing.headerToCard)

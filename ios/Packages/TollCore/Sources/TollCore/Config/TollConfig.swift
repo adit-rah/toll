@@ -77,6 +77,13 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var nightsAhead = 7
   }
 
+  public struct Sky: Codable, Sendable, Equatable {
+    public init() {}
+    /// Nights the lock ran that make a quiet landmark morning, the only times the sky can be
+    /// shared (D79).
+    public var landmarks = [7, 30, 100, 365]
+  }
+
   public var window = Window()
   public var home = Home()
   public var door = Door()
@@ -84,6 +91,7 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public var trial = Trial()
   public var blocks = Blocks()
   public var headsUp = HeadsUp()
+  public var sky = Sky()
 
   public init() {}
 

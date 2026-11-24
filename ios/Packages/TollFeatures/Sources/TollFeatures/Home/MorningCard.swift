@@ -28,6 +28,9 @@ struct MorningCard: View {
         .accessibilityElement(children: .combine)
         .padding(.top, 18)
       }
+      if let landmark = morning.landmark {
+        LandmarkLine(landmark: landmark).padding(.top, 18)
+      }
       Hairline().padding(.vertical, 16)
       NightDots(bars: nights)
     }

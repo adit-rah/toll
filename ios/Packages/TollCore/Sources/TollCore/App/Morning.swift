@@ -32,6 +32,9 @@ public struct Morning: Equatable, Sendable {
   public var putDown: String?
   /// The bar and its times in words, for VoiceOver.
   public var spoken: String
+  /// At 7, 30, 100 and 365 nights, a quiet line, the newly completed shape and a picture to share
+  /// (D79).
+  public var landmark: Sky.Landmark?
 
   /// Nil outside the morning, before setup, after the trial (the off hero speaks then), and
   /// when last night was due and simply didn't run.
