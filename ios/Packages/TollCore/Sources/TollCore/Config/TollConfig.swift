@@ -78,6 +78,30 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var nightsAhead = 7
   }
 
+  /// The lock starts a gap before bed, and the gap grows with smooth weeks (D76). The weekly rule's
+  /// numbers are `datascience/sim/gap_rule.py`'s, so the app does what the simulator measured.
+  public struct Gap: Codable, Sendable, Equatable {
+    public init() {}
+    /// A new install's gap; installs from before D76 keep 0 and are offered this once.
+    public var start = 15
+    public var step = 15
+    /// The weekly rule never grows it past this; a person may choose more by hand.
+    public var cap = 60
+    public var manualMax = 90
+    /// Settings' fixed gap moves in these steps, 0 to `manualMax`.
+    public var manualStep = 15
+    /// A smooth week: the lock ran at least this many nights, at most `smoothMaxPauses` pauses
+    /// started inside the gap, and Screen Time was never off.
+    public var smoothMinNights = 4
+    public var smoothMaxPauses = 1
+    /// A hard week: at least this many pauses started inside the gap.
+    public var hardPauses = 2
+    /// After Screen Time is switched off, the next this many Mondays don't grow it.
+    public var offFreezeWeeks = 2
+    /// After an ease, smooth weeks in a row before it grows again.
+    public var smoothAfterEase = 2
+  }
+
   public struct Sky: Codable, Sendable, Equatable {
     public init() {}
     /// Nights the lock ran that make a quiet landmark morning, the only times the sky can be
@@ -92,6 +116,7 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public var trial = Trial()
   public var blocks = Blocks()
   public var headsUp = HeadsUp()
+  public var gap = Gap()
   public var sky = Sky()
 
   public init() {}

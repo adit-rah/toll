@@ -20,7 +20,10 @@ public enum NightRecordLine {
     day.dateFormat = "yyyy-MM-dd"
     let record: [String: Any] = [
       "night": day.string(from: facts.night),
-      "planned_bedtime": time(facts.plannedStart),
+      // Bed, not the lock: sleep is measured from bed (D76). The lock is bed minus `gap_min`.
+      "planned_bedtime": time(facts.bed),
+      "bed": time(facts.bed),
+      "gap_min": facts.gap,
       "planned_wake": time(facts.plannedEnd),
       "block_start": time(facts.blockStart),
       "block_end": time(facts.blockStart == nil ? nil : facts.blockEnd ?? facts.plannedEnd),

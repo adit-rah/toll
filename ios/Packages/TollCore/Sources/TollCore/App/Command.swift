@@ -17,6 +17,10 @@ public enum Command: Sendable {
   case dismissCard(TonightCard)
   /// Settings' heads-up switch (D68).
   case headsUp(Bool)
+  /// Settings › Before bed, or the card that offers the gap (D76); held while the night is on (B-3).
+  case gap(Gap.Setting)
+  /// Monday's card: keep last week's gap.
+  case keepGap
   case presence(PlaceID, Presence)
   case location(LocationMode)
   case trialStart(Date)

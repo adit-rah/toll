@@ -7,8 +7,13 @@ import Foundation
 public struct NightFacts: Equatable, Sendable {
   /// The night's key: the day it starts, noon to noon (as This week keys it).
   public var night: Date
+  /// When the lock was planned to start: the gap before bed (D76).
   public var plannedStart: Date
   public var plannedEnd: Date
+  /// Bed, the night's start as set; the record's `planned_bedtime` (D76).
+  public var bed: Date
+  /// Minutes the lock started before bed that night.
+  public var gap: Int
   public var blockStart: Date?
   public var blockEnd: Date?
   /// The latest arrival home before the night ended.
@@ -29,10 +34,11 @@ public struct NightFacts: Equatable, Sendable {
 
   public var ran: Bool { blockStart != nil }
 
-  /// Every Sleep night from setup that has ended by `now`, oldest first.
+  /// Every Sleep night from setup that has ended by `now`, oldest first. `sleep` is the block as
+  /// stored, bed to wake; each night's lock starts the gap it had then before bed (D76).
   public static func ended(
-    log: [Transition], sleep: Block, since setup: Date?, now: Date, calendar: Calendar,
-    regret: TimeInterval = 120
+    log: [Transition], sleep: Block, gap: Gap = Gap(), since setup: Date?, now: Date,
+    calendar: Calendar, regret: TimeInterval = 120
   ) -> [NightFacts] {
     func key(_ date: Date) -> Date { calendar.startOfDay(for: date.addingTimeInterval(-12 * 3600)) }
     func isSleep(_ line: Transition) -> Bool {
@@ -56,8 +62,10 @@ public struct NightFacts: Equatable, Sendable {
         occurrence.end <= now, occurrence.end > setup
       else { continue }
       let group = byNight[day] ?? []
+      let minutes = gap.minutes(forNight: day)
       var facts = NightFacts(
-        night: day, plannedStart: occurrence.start, plannedEnd: occurrence.end, away: false,
+        night: day, plannedStart: occurrence.start.addingTimeInterval(-TimeInterval(minutes * 60)),
+        plannedEnd: occurrence.end, bed: occurrence.start, gap: minutes, away: false,
         paused: false, screenTimeOff: false, stops: 0, doorAsks: 0, unlocksUsed: 0,
         unlocksReturned: 0,
         weekend: [6, 7].contains(calendar.component(.weekday, from: occurrence.start)))

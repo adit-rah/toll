@@ -1,6 +1,10 @@
 """Night records (contract 1) and what the model takes from each one.
 
 A record is a dict with the JSON field names. Times are local ISO 8601 with the offset.
+
+Since the lock starts a gap before bed (decisions D76), `planned_bedtime` is bed, never the lock, and
+records carry `bed` and `gap_min`: the lock was planned for bed minus `gap_min`. Records from before
+have neither; their gap was 0 and their `planned_bedtime` was bed.
 """
 
 from __future__ import annotations
@@ -34,6 +38,8 @@ RECORD_FIELDS = [
     "asleep_min",
     "awake_min",
     "sleep_source",
+    "bed",
+    "gap_min",
 ]
 
 
@@ -66,8 +72,18 @@ def _minutes(later: datetime, earlier: datetime) -> float:
     return (later - earlier).total_seconds() / 60.0
 
 
+def bed_of(record: dict) -> datetime:
+    """Bed: sleep onset is measured from it, never from the lock."""
+    return _time(record.get("bed") or record["planned_bedtime"])
+
+
+def gap_of(record: dict) -> int:
+    """Minutes the lock was planned to start before bed."""
+    return int(record.get("gap_min") or 0)
+
+
 def context_of(record: dict, params: Params) -> Context:
-    bedtime = _time(record["planned_bedtime"])
+    bedtime = bed_of(record)
     arrival = _time(record.get("home_arrival"))
     late = arrival is not None and _minutes(bedtime, arrival) < params.late_home_within_min
     return Context(weekend=bool(record["weekend"]), late=late)
@@ -92,7 +108,7 @@ def features(record: dict, params: Params) -> NightFeatures:
         return skip("no_block")
     if offset not in params.actions:
         return skip("unknown_action")
-    y = _minutes(onset, _time(record["planned_bedtime"]))
+    y = _minutes(onset, bed_of(record))
     if abs(y) > params.max_onset_from_plan_min:
         return skip("onset_far")
     return NightFeatures(True, None, y, offset, context)

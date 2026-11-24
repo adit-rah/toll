@@ -17,6 +17,8 @@ public struct NightPicture: Equatable, Sendable {
 
     public var start: Double
     public var end: Double
+    /// Where the lock starts, the gap before bed (D76); nil with no gap.
+    public var lock: Double?
     public var phase: Phase
     public var label: String
     /// Five hour labels, evenly spaced from the strip's start to its end ("6 pm" … "10 am").
@@ -30,8 +32,9 @@ public struct NightPicture: Equatable, Sendable {
   /// No "now" on it: the strip stays put while the wheel turns, and only the night moves.
   public var timeline: Strip
 
-  /// The night on at `now`, or the next one the schedule holds.
-  public init?(_ schedule: WeeklySchedule, now: Date, calendar: Calendar) {
+  /// The night on at `now`, or the next one the schedule holds. `gap` draws the lock before bed
+  /// (D76); the times stay bed to wake.
+  public init?(_ schedule: WeeklySchedule, gap: Int = 0, now: Date, calendar: Calendar) {
     guard
       let night = schedule.occurrence(containing: now, calendar: calendar)
         ?? schedule.nextStart(after: now, calendar: calendar).flatMap({
@@ -47,9 +50,13 @@ public struct NightPicture: Equatable, Sendable {
     start = Copy.time(night.start, in: calendar)
     end = Copy.time(night.end, in: calendar)
     length = Copy.length(minutes: Int(night.end.timeIntervalSince(night.start) / 60))
+    let lock = night.start.addingTimeInterval(-TimeInterval(gap * 60))
+    let label = Copy.Setup.nightLabel(start: start, end: end)
     timeline = Strip(
-      start: fraction(night.start), end: fraction(night.end), phase: .upcoming,
-      label: Copy.Setup.nightLabel(start: start, end: end),
+      start: fraction(night.start), end: fraction(night.end),
+      lock: gap > 0 ? fraction(lock) : nil, phase: .upcoming,
+      label: gap > 0
+        ? label + ", " + Copy.Gap.locksAt(Copy.time(lock, in: calendar)) : label,
       hours: (0...4).map {
         Copy.time(
           spanStart.addingTimeInterval(TimeInterval($0 * step * 3600)), in: calendar, short: true)

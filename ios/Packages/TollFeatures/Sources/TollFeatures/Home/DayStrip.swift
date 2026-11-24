@@ -132,46 +132,6 @@ private struct StripTargetStyle: ButtonStyle {
   }
 }
 
-/// One segment: solid while on, outlined before, faint once over, dashed when nothing will block.
-/// The night in amber; other blocks in greys. The kind's glyph when there's room for it.
-private struct SegmentBar: View {
-  let segment: DayTimeline.Segment
-  let width: CGFloat
-
-  var body: some View {
-    let shape = RoundedRectangle(cornerRadius: segment.isNight ? 6 : 4, style: .continuous)
-    ZStack {
-      switch segment.phase {
-      case .on: shape.fill(segment.isNight ? TollColor.accent : TollColor.label2)
-      case .later:
-        shape.fill(segment.isNight ? TollColor.accentSoft : TollColor.bg)
-          .overlay(
-            shape.strokeBorder(
-              segment.isNight ? TollColor.accent : TollColor.label3, lineWidth: 1.5))
-      case .ended: shape.fill(segment.isNight ? TollColor.accentSoft : TollColor.bar)
-      case .off:
-        shape.fill(TollColor.bg)
-          .overlay(
-            shape.strokeBorder(TollColor.label3, style: StrokeStyle(lineWidth: 1.5, dash: [4, 3])))
-      }
-      if width >= 22 {
-        Image(symbol: .block(segment.kind)).unredacted()
-          .font(.system(size: segment.isNight ? 11 : 9, weight: .semibold))
-          .foregroundStyle(glyph)
-      }
-    }
-  }
-
-  private var glyph: Color {
-    switch segment.phase {
-    case .on: segment.isNight ? TollColor.onAccent : TollColor.bg
-    case .later: segment.isNight ? TollColor.accent : TollColor.label2
-    case .ended: segment.isNight ? TollColor.accent : TollColor.label3
-    case .off: TollColor.label3
-    }
-  }
-}
-
 /// Every six hours on the clock, each label centred on its hour.
 private struct HourMarks: View {
   let hours: [DayTimeline.Hour]

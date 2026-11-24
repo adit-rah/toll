@@ -101,8 +101,8 @@ public final class AppModel {
   func recordNights() {
     guard let sleep = state.sleepBlock else { return }
     let nights = NightFacts.ended(
-      log: log, sleep: sleep, since: state.setupFinishedAt, now: Date(), calendar: .current,
-      regret: TimeInterval(config.door.regretSeconds))
+      log: log, sleep: sleep, gap: state.gap, since: state.setupFinishedAt, now: Date(),
+      calendar: .current, regret: TimeInterval(config.door.regretSeconds))
     NightLog().record(nights, calendar: .current)
     history = NightLog().past(calendar: .current)
   }

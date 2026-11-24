@@ -9,6 +9,11 @@ public enum TonightCard: String, Codable, Hashable, Sendable, CaseIterable {
   /// "A heads-up before your night?": from the morning after the first night, until iOS has been
   /// asked (D68, #104). Home goes first: one offer at a time.
   case headsUp
+  /// Monday's card (D76): this week's gap, and last week's to keep. From the judgement at noon until
+  /// Tuesday's noon, unless answered. It goes before the offers: it's about tonight.
+  case gapWeek
+  /// "Lock apps 15 min before bed?": once, for an install from before D76.
+  case gapOffer
 }
 
 extension DuskState {
@@ -40,8 +45,12 @@ extension HomeSnapshot {
       $0 > finished
     }
     guard nightEnded == true else { return nil }
+    if let change = state.gap.change, !change.seen, change.week == nightKey(now, calendar) {
+      return .gapWeek
+    }
     if !state.homeIsSet, !state.dismissed(.home) { return .home }
     if notifications == .notAsked, !state.dismissed(.headsUp) { return .headsUp }
+    if state.gap.offered, state.gap.minutes == 0 { return .gapOffer }
     return nil
   }
 }

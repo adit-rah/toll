@@ -138,7 +138,8 @@ extension Copy {
     }
 
     public static let readyEyebrow = "You're set"
-    public static func readyLine(_ start: String) -> String { "Tonight at \(start)." }
+    /// The lock, which starts the gap before bed (D76); bed is on the night's picture.
+    public static func readyLine(_ lock: String) -> String { "Apps lock at \(lock) tonight." }
     public static func readyNow(_ end: String) -> String { "From now until \(end)." }
     public static let anywhere = "Anywhere"
     public static let anywhereDetail = "At its set times, wherever you are"

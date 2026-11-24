@@ -98,6 +98,13 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 80 | On the second phone, finish setup before the Keychain item arrives, then reopen later | The night count jumps to match the first phone; the free nights end on the same morning | | |
 | 81 | With iCloud Keychain off, set up, then delete and reinstall | Same night count as before; nothing else changes | | |
 | 82 | Last free night: look at the pill | "Last free night tonight", 13 segments filled and the 14th outlined, on the amber tint | | |
+| 83 | With no night on, set Settings › Before bed to Fixed 30 (#113) | Tonight's lock starts 30 min before bed; the night still ends at wake | | |
+| 84 | During a locked night, change Before bed to Fixed 45 | Tonight's lock is unchanged and the row says "From tomorrow night"; tomorrow it locks 45 min before bed | | |
+| 85 | Change the gap from 15 to 45, open Dusk, check pending notifications | The heads-up moves 30 min earlier, to 20 min before the new lock | | |
+| 86 | New install, finish setup at 3 pm | The lock starts at bed − 15 that night; the heads-up comes 35 min before bed | | |
+| 87 | After a week with ≥4 locked nights and ≤1 pause before bed, open Dusk Monday after noon | "This week, apps lock 30 min before bed · Up from 15"; "Keep 15" puts the lock back at bed − 15 that night | | |
+| 88 | Install a build from before D76, update, open the day after a night | The night is unchanged; Tonight offers "Lock apps 15 min before bed?"; "Turn on" makes it 15, growing | | |
+| 89 | Turn Screen Time off for Dusk midweek, then back on | At Monday noon the gap eases by 15 and doesn't grow for the next 2 Mondays | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
