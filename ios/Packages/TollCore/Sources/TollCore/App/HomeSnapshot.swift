@@ -63,6 +63,8 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var card: TonightCard?
   /// The first heads-up the night would get, for the card that offers it (#104).
   public var headsUp: HeadsUp?
+  /// The words of a gap card, Monday's or the offer (D76).
+  public var gapCard: GapCard?
   /// The whole day as a strip, every block on it (D75).
   public var timeline: DayTimeline?
   /// The last seven nights, as the morning card's dots draw them (#103).
@@ -76,6 +78,9 @@ public struct HomeSnapshot: Equatable, Sendable {
   /// The free nights' facts, for the purchase sheet.
   public var freeWeek: FreeWeek?
   public var otherBlock: OtherBlock?
+  /// Under "Apps lock at 10:15 pm": "15 min before bed" (D76). Nil with no gap, or when the hero
+  /// isn't the lock to come.
+  public var beforeBed: String?
 
   public init(
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
@@ -84,7 +89,8 @@ public struct HomeSnapshot: Equatable, Sendable {
   ) {
     let sleep = state.sleepBlock
     screenTimeOff = state.setupFinishedAt != nil && !screenTime
-    hero = Self.hero(state, sleep: sleep, now: now, calendar: calendar, config: config)
+    // The hero's times are the lock's, which starts the gap before bed (D76).
+    hero = Self.hero(state, sleep: state.lockSleep, now: now, calendar: calendar, config: config)
     if screenTimeOff, state.trial.entitled { hero = .screenTimeOff }
     pill = Self.pill(state, now: now, calendar: calendar, config: config)
     supply = Supply(state: state, now: now, calendar: calendar, config: config)
@@ -108,6 +114,7 @@ public struct HomeSnapshot: Equatable, Sendable {
           state, screenTime: screenTime, now: now, calendar: calendar, config: config
         ).first
     }
+    gapCard = Self.gapCard(card, state: state, now: now, calendar: calendar, config: config)
     heroPlace =
       sleep == nil
       ? nil : state.location == .scheduleOnly ? .anywhere : sleep?.place != nil ? .home : .anywhere
@@ -129,6 +136,9 @@ public struct HomeSnapshot: Equatable, Sendable {
       }
     }
     timeline = day.segments.isEmpty ? nil : day
+    if case .tonight = hero, state.gap.minutes > 0 {
+      beforeBed = Copy.Gap.beforeBed(state.gap.minutes)
+    }
     freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)
     if case .off = hero { supply.refillDay = nil }
     if !screenTimeOff {

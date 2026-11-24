@@ -44,9 +44,9 @@ struct HeadsUpTests {
     #expect(ups.last?.at == date(2026, 11, 23, 22, 10))
   }
 
-  @Test func itSaysNightAndTheNightsHours() {
+  @Test func itSaysAppsLockAndTheNightsHours() {
     let first = schedule(state(), date(2026, 11, 17, 15)).first
-    #expect(first?.title == "Night starts in 20 min")
+    #expect(first?.title == "Apps lock in 20 min")
     #expect(plain(first?.body) == "10:30 pm – 7:00 am")
   }
 

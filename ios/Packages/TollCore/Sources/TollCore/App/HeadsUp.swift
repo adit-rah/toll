@@ -5,8 +5,9 @@ public enum NotificationPermission: String, Codable, Hashable, Sendable {
   case notAsked, allowed, denied
 }
 
-/// The one notification Dusk sends (D68, #104): "Night starts in 20 min", before a night that will
-/// block. Nothing else is ever notified.
+/// The one notification Dusk sends (D68, #104): "Apps lock in 20 min", before a night that will
+/// block. It comes before the lock, which starts the gap before bed (D76). Nothing else is ever
+/// notified.
 public struct HeadsUp: Hashable, Sendable {
   /// When it arrives: the lead before the night's start.
   public var at: Date
@@ -37,8 +38,9 @@ public struct HeadsUp: Hashable, Sendable {
     let tonightEnds = state.runtime.active[sleep.id]
     if case .save(let draft) = state.pending[sleep.id] { sleep = draft }
     guard sleep.isOn else { return [] }
+    // Every night after now uses the gap as it will be: a change held through tonight counts.
     return nights(
-      sleep.schedule, trial: state.trial, screenTime: screenTime, now: now, after: tonightEnds,
+      sleep.schedule.locking(state.gap.upcoming), trial: state.trial, screenTime: screenTime, now: now, after: tonightEnds,
       calendar: calendar, config: config)
   }
 

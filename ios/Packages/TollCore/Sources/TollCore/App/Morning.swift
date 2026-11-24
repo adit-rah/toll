@@ -52,7 +52,8 @@ public struct Morning: Equatable, Sendable {
     // Only last night matters, so the search starts a day and a half back rather than at setup.
     guard
       let night = NightFacts.ended(
-        log: lines, sleep: sleep, since: max(setup, now.addingTimeInterval(-36 * 3600)),
+        log: lines, sleep: sleep, gap: state.gap,
+        since: max(setup, now.addingTimeInterval(-36 * 3600)),
         now: now, calendar: calendar, regret: TimeInterval(config.door.regretSeconds)
       ).last,
       night.night == nightKey(now, calendar), !night.paused
