@@ -1,11 +1,17 @@
 import Foundation
 
 /// One night as the app logs it (model spec, contract 1). Times are local ISO 8601 with the offset,
-/// kept as written; the model reads them through `LocalTime`.
+/// kept as written; the model reads them through `LocalTime`. Since the lock starts a gap before bed
+/// (decisions D76), `plannedBedtime` is bed and the record says the gap; a record from before has
+/// neither, and its gap was 0.
 public struct NightRecord: Codable, Sendable, Equatable {
   public var night: String
   public var plannedBedtime: String
   public var plannedWake: String
+  /// Bed, the same as `plannedBedtime` since D76; nil in older records.
+  public var bed: String?
+  /// Minutes the lock was planned to start before bed; nil in older records, which had none.
+  public var gapMin: Int?
   public var blockStart: String?
   public var blockEnd: String?
   public var actionOffsetMin: Int
@@ -26,7 +32,8 @@ public struct NightRecord: Codable, Sendable, Equatable {
   public var sleepSource: String?
 
   enum CodingKeys: String, CodingKey {
-    case night, policy, weekend, wake
+    case night, policy, weekend, wake, bed
+    case gapMin = "gap_min"
     case plannedBedtime = "planned_bedtime"
     case plannedWake = "planned_wake"
     case blockStart = "block_start"
@@ -80,9 +87,13 @@ public struct NightFeatures: Sendable, Equatable {
 }
 
 extension NightRecord {
+  /// Bed: sleep onset is measured from it, never from the lock.
+  public var bedtime: String { bed ?? plannedBedtime }
+  public var gap: Int { gapMin ?? 0 }
+
   public func context(_ artifact: ModelArtifact) -> NightContext {
     var late = false
-    if let bedtime = LocalTime(plannedBedtime), let arrival = homeArrival.flatMap(LocalTime.init) {
+    if let bedtime = LocalTime(bedtime), let arrival = homeArrival.flatMap(LocalTime.init) {
       late = bedtime.minutes(since: arrival) < artifact.context.lateHomeWithinMin
     }
     return NightContext(weekend: weekend, late: late)
@@ -98,7 +109,7 @@ extension NightRecord {
     if tzChanged { return skip(.tzChanged) }
     guard blockStart != nil else { return skip(.noBlock) }
     guard artifact.actions.contains(actionOffsetMin) else { return skip(.unknownAction) }
-    guard let bedtime = LocalTime(plannedBedtime) else { return skip(.noSleepData) }
+    guard let bedtime = LocalTime(bedtime) else { return skip(.noSleepData) }
     let y = onset.minutes(since: bedtime)
     guard abs(y) <= artifact.usableNight.maxOnsetFromPlanMin else { return skip(.onsetFar) }
     return NightFeatures(skip: nil, onset: y, offset: actionOffsetMin, context: context)

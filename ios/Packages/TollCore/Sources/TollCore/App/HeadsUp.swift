@@ -40,7 +40,8 @@ public struct HeadsUp: Hashable, Sendable {
     guard sleep.isOn else { return [] }
     // Every night after now uses the gap as it will be: a change held through tonight counts.
     return nights(
-      sleep.schedule.locking(state.gap.upcoming), trial: state.trial, screenTime: screenTime, now: now, after: tonightEnds,
+      sleep.schedule.locking(state.gap.upcoming), trial: state.trial, screenTime: screenTime,
+      now: now, after: tonightEnds,
       calendar: calendar, config: config)
   }
 

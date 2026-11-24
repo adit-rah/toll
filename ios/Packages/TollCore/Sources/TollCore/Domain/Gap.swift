@@ -125,6 +125,10 @@ public struct Gap: Codable, Hashable, Sendable {
     }
     pending = nil
     guard minutes != old.0 else { return }
+    // The gap every night before the first change had.
+    if history.isEmpty {
+      history.append(Entry(night: Date(timeIntervalSince1970: 0), minutes: old.0))
+    }
     let night = calendar.startOfDay(for: now)
     history.removeAll { $0.night >= night }
     history.append(Entry(night: night, minutes: minutes))

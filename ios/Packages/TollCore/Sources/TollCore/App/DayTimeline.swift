@@ -173,7 +173,8 @@ public struct DayTimeline: Equatable, Sendable {
         short: true),
       apps: Copy.Blocks.appCount(block.appCount + block.categoryCount),
       place: placeText ?? Copy.Blocks.anywhere, placeKind: placeKind,
-      stateText: Self.text(segmentState, block, occurrence, placeKind, now: now, calendar: calendar),
+      stateText: Self.text(
+        segmentState, block, occurrence, placeKind, now: now, calendar: calendar),
       bed: bed.map(fraction), bedText: bed.map { Copy.Gap.bedAt(Copy.time($0, in: calendar)) }
     )
   }
