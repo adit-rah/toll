@@ -20,6 +20,8 @@ struct HomeView: View {
   /// The Tonight card's link and its "Not now" (#102).
   var openCard: (TonightCard) -> Void = { _ in }
   var dismissCard: (TonightCard) -> Void = { _ in }
+  /// Before bed's helpers, from the capsule in the gap (D80).
+  var openHelpers: () -> Void = {}
   /// A block's editor, from the strip's snippet (D75).
   var openBlock: (BlockID) -> Void = { _ in }
   /// Demo renders open the strip on this block's snippet (docs/renders.md).
@@ -46,7 +48,8 @@ struct HomeView: View {
                 hero: home.hero, eyebrow: home.eyebrow, beforeBed: home.beforeBed,
                 place: home.heroPlace, supply: home.supply,
                 openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil, lockAgain: lockAgain,
-                setNight: home.setNight.map { night -> () -> Void in { openBlock(night) } }
+                setNight: home.setNight.map { night -> () -> Void in { openBlock(night) } },
+                openHelpers: home.untilBed == nil ? nil : openHelpers
               )
             }
             if case .off = home.hero {
@@ -94,7 +97,8 @@ struct HomeView: View {
       .padding(.top, home.pill == nil ? 4 : 12)
     } else if let card = home.card {
       TonightCardView(
-        card: card, headsUp: home.headsUp, gap: home.gapCard, open: { openCard(card) },
+        card: card, headsUp: home.headsUp, gap: home.gapCard, untilBed: home.untilBed,
+        open: { openCard(card) },
         dismiss: { dismissCard(card) }
       )
       .padding(.top, home.pill == nil ? 4 : 12)

@@ -21,6 +21,21 @@ public struct TollSymbol: Hashable, Sendable {
   public static let best = TollSymbol("arrow.up.to.line")
   /// The gap before bed, when apps lock before the moon (D76): Tonight's gap cards and Ready.
   public static let beforeBed = TollSymbol("moon.haze")
+  /// Before bed's helpers in the gap (D80): tomorrow's list on paper, the breathing tone, the word
+  /// game with eyes closed. The capsule that opens them is the gap's own `beforeBed`.
+  public static let list = TollSymbol("pencil")
+  public static let breathe = TollSymbol("wind")
+  public static let words = TollSymbol("eye.half.closed")
+  /// The breathing tone playing, and stopping it.
+  public static let tone = TollSymbol("speaker.wave.2")
+  public static let stopTone = TollSymbol("speaker.slash")
+  public static func helper(_ helper: Helper) -> TollSymbol {
+    switch helper {
+    case .list: list
+    case .breathe: breathe
+    case .words: words
+    }
+  }
   /// The heads-up before the night, Dusk's one notification (D68).
   public static let headsUp = TollSymbol("bell")
   public static func block(_ kind: Block.Kind) -> TollSymbol {

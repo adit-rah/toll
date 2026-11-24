@@ -114,6 +114,13 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 96 | Restore purchase in Settings with a purchase on the Apple ID | The row reads "Purchase restored." and is gone the next time Settings opens | | |
 | 97 | AX5: open a pause and wait 2 minutes | "This pause is used. Locking ends it early." over a pinned "Lock again" | | |
 | 98 | AX5: open the purchase sheet | "Keep it" stays pinned; the price and footnote scroll | | |
+| 99 | Open Tonight in the gap, after the lock and before bed (#119) | "Before bed" capsule under the pauses; the card once, with the minutes left until bed | | |
+| 100 | Same, after bed, during a pause, or with Settings › Before bed's switch off | No capsule, no card | | |
+| 101 | Breathe for 3 min with the silent switch on, then lock the phone | The tone is audible, keeps playing while locked, fades and stops at 3 min | | |
+| 102 | Play a podcast, then start the tone | The podcast pauses; it may resume after the tone ends | | |
+| 103 | A phone call, or unplug headphones, while the tone plays | The tone stops and doesn't come back; the sheet shows "Done" | | |
+| 104 | Set the tone to 1 min in Settings, then breathe | It stops after 1 min | | |
+| 105 | Open a helper, then foreground the next morning | That night's record has `"helper"`; the morning card, Your sleep and the sky are unchanged; no notification about helpers ever arrives | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

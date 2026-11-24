@@ -65,6 +65,9 @@ public enum Engine {
       GapRules.set(setting, &state, now: now, calendar: calendar, config: config)
     case .keepGap:
       GapRules.keep(&state, now: now, calendar: calendar, config: config)
+    case .helpers(let helpers):
+      state.helpers = helpers
+      state.helpers.breathMinutes = helpers.breath(config)
     case .headsUp(let on):
       state.headsUp = on
     case .presence(let id, let presence):

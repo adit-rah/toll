@@ -5,6 +5,10 @@ A record is a dict with the JSON field names. Times are local ISO 8601 with the 
 Since the lock starts a gap before bed (decisions D76), `planned_bedtime` is bed, never the lock, and
 records carry `bed` and `gap_min`: the lock was planned for bed minus `gap_min`. Records from before
 have neither; their gap was 0 and their `planned_bedtime` was bed.
+
+Since the helpers before bed (decisions D80), records carry `helper`: which one was last opened in
+the gap that night ("list", "breathe" or "words"), or null. It is private to the pilot: never shown
+to the person and never a model feature. Records from before have no `helper`; none was used.
 """
 
 from __future__ import annotations
@@ -40,7 +44,10 @@ RECORD_FIELDS = [
     "sleep_source",
     "bed",
     "gap_min",
+    "helper",
 ]
+
+HELPERS = ("list", "breathe", "words")
 
 
 @dataclass(frozen=True)
@@ -80,6 +87,12 @@ def bed_of(record: dict) -> datetime:
 def gap_of(record: dict) -> int:
     """Minutes the lock was planned to start before bed."""
     return int(record.get("gap_min") or 0)
+
+
+def helper_of(record: dict) -> str | None:
+    """The helper last opened before bed that night, or None; unknown values read as None."""
+    helper = record.get("helper")
+    return helper if helper in HELPERS else None
 
 
 def context_of(record: dict, params: Params) -> Context:

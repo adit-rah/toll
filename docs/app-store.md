@@ -37,6 +37,8 @@ Dusk stands for the product name, not chosen yet (spec header). Copy rules from 
 >
 > **Location (5.1.1, 5.1.5, 2.5.4).** Location is used for one thing: whether the user is inside one circle around the home they confirmed, so the block can start and stop with the app closed. That is why the app asks for Always. It keeps a single yes or no, never a history, and stores no coordinates but the home point. Location is optional, and the paid function does not depend on it: without it, the block runs every night in the sleep window wherever the user is.
 >
+> **Background audio (2.5.4).** The app declares the audio background mode for one thing: Before bed's breathing tone. In the minutes before bed, the person can choose "Breathe for 3 minutes"; the app makes a soft tone on the phone (no file, no network), rising and falling about six times a minute, and asks them to lock the phone and put it down. The tone keeps playing with the screen locked for the length they set (1 to 10 minutes), then fades and stops, and the audio session is released. Nothing else plays in the background, and nothing starts without the person tapping it. To hear it: once apps lock for the night (15 minutes before bed for a new install), tap "Before bed" on Tonight, then "Breathe for 3 minutes", and lock the phone. Settings → Before bed turns the helpers off.
+>
 > **How to see it work.**
 > 1. Finish setup; on the wake-time screen, tap Change and set the night to start a minute from now.
 > 2. Allow Screen Time and location, and block any app.

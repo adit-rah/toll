@@ -369,3 +369,10 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Settings:** "Last night · Mon 10:30 pm – 7:00 am" is the night's own; restore says "Purchase restored."; the Blocks row is gone (Blocks is a tab); links that leave the app have the leave glyph; a version line sits at the bottom.
 - **One sentence for the pause everywhere:** "A pause opens blocked apps for 10 minutes."
 - **The purchase sheet** hides stats at 0 and drops "pauses used".
+
+**D85. Before bed's helpers, as built** (2026-11-24, #119; details of D80).
+- **Where:** a grey "Before bed" capsule (`moon.haze`) under the pauses on Tonight, only while the night is locked and not paused, before bed, with the helpers on. One card introduces it: "Something for the next N minutes?", where N is the minutes left until bed, with "Show me" and "Not now". Answering the card or opening the capsule puts it away. In the gap it comes after any warning; other offers never show while apps are locked.
+- **Settings:** no second row. Settings › Before bed's sheet holds the helpers' switch (on by default) and the tone's length (3 min, 1–10) under the gap. They apply at once; B-3 doesn't apply to them.
+- **The sheet:** "Pick one. Each ends with the phone down." Write tomorrow's list (pencil), Breathe for 3 minutes (`wind`), Try this in bed (`eye.half.closed`). Each page has "Done" and "Something else". Pages swap without motion and keep one height.
+- **The tone:** a sine made on the phone with AVAudioEngine, 196 to 262 Hz, 4.5 s up and 5.5 s down, in over 3 s and fading over the last 15 s. It plays like a timer: through the silent switch and with the screen locked (the background audio mode, `ios/Config/App-Info.plist`; review note in `docs/app-store.md`), pausing other audio until it ends. A call, an alarm or headphones coming out end it. No visual pacer.
+- **Records:** `helper` names the last helper opened that night ("list", "breathe", "words") or is null; older records read as none. Nothing shows or counts it.

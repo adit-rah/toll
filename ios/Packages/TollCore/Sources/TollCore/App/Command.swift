@@ -24,6 +24,9 @@ public enum Command: Sendable {
   case gap(Gap.Setting)
   /// Monday's card: keep last week's gap.
   case keepGap
+  /// Settings › Before bed's helpers: on or off, and the breath's length (D80). Applies at once:
+  /// nothing about the night's hours changes.
+  case helpers(Helpers)
   case presence(PlaceID, Presence)
   case location(LocationMode)
   case trialStart(Date)

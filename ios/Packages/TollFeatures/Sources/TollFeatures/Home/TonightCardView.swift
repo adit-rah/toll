@@ -10,6 +10,8 @@ struct TonightCardView: View {
   var headsUp: HeadsUp?
   /// A gap card's words (D76): Monday's, or the offer.
   var gap: GapCard?
+  /// Minutes until bed, for Before bed's card (D80).
+  var untilBed: Int?
   let open: () -> Void
   let dismiss: () -> Void
   @Environment(\.dynamicTypeSize) private var typeSize
@@ -75,6 +77,12 @@ struct TonightCardView: View {
       (
         .beforeBed, gap?.title ?? "", gap?.detail, gap?.action,
         gap?.dismiss ?? Copy.Home.notNow
+      )
+    // The capsule's glyph, so the card reads as the capsule's (D80).
+    case .beforeBed:
+      (
+        .beforeBed, Copy.Helpers.card(minutes: untilBed ?? 0), Copy.Helpers.cardDetail,
+        Copy.Helpers.showMe, Copy.Home.notNow
       )
     }
   }

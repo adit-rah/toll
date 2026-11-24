@@ -43,6 +43,8 @@ public enum NightRecordLine {
       "asleep_min": NSNull(),
       "awake_min": NSNull(),
       "sleep_source": NSNull(),
+      // Private (D80): which helper before bed was last opened, or null. Never shown, never counted.
+      "helper": facts.helper.map { $0.rawValue as Any } ?? NSNull(),
       "dusk": [
         "ran": facts.ran,
         "stops": facts.stops,

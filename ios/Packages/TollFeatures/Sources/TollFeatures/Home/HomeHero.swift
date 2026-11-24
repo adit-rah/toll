@@ -17,6 +17,8 @@ struct HomeHero: View {
   var lockAgain: (() -> Void)?
   /// With no night: its editor ("Set your night").
   var setNight: (() -> Void)?
+  /// In the gap before bed: the helpers' sheet (D80).
+  var openHelpers: (() -> Void)?
   @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
@@ -66,6 +68,11 @@ struct HomeHero: View {
       .accessibilityAddTraits(.isHeader)
       if showsPauses, let supply {
         pauses(supply)
+      }
+      // Under the pauses, the same quiet shape: findable, not inviting (D61, D80).
+      if let openHelpers {
+        capsule(Copy.Helpers.capsule, symbol: .beforeBed, action: openHelpers)
+          .accessibilityHint(Copy.Helpers.capsuleHint)
       }
       if case .noBlocks = hero, let setNight {
         PrimaryButton(Copy.Home.setNight, action: setNight).padding(.top, 18)
