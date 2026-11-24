@@ -376,3 +376,16 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **The sheet:** "Pick one. Each ends with the phone down." Write tomorrow's list (pencil), Breathe for 3 minutes (`wind`), Try this in bed (`eye.half.closed`). Each page has "Done" and "Something else". Pages swap without motion and keep one height.
 - **The tone:** a sine made on the phone with AVAudioEngine, 196 to 262 Hz, 4.5 s up and 5.5 s down, in over 3 s and fading over the last 15 s. It plays like a timer: through the silent switch and with the screen locked (the background audio mode, `ios/Config/App-Info.plist`; review note in `docs/app-store.md`), pausing other audio until it ends. A call, an alarm or headphones coming out end it. No visual pacer.
 - **Records:** `helper` names the last helper opened that night ("list", "breathe", "words") or is null; older records read as none. Nothing shows or counts it.
+
+**D86. Tonight's cards float; a card never moves the state** (2026-11-24, founder feedback).
+- **The layout** (below accessibility sizes): Tonight is laid out as if there were no card. The bar is at the top. The state sits a little above centre, with a third of the free room above it and two thirds below. The strip is at the bottom.
+- **The pill:** the free-night pill sits centred in the bar, beside the gear. It drops its segments before it would crowd the gear, so it appearing or ending moves nothing.
+- **The card:** a card or note (Screen Time off, location, Tonight's card) shows one at a time, in that order. It goes where it fits without touching the state, its pauses, the Before bed capsule or the strip:
+  1. 20 pt above the strip;
+  2. else 4 pt under the bar;
+  3. else 20 pt under the state block. The strip then moves down and the screen scrolls, while the state stays put.
+- **Not a popup:** no scrim, dimming, blur or extra shadow, and nothing is modal. A card arrives and leaves with a 200 ms fade in place (design §2.5).
+- **At accessibility sizes nothing changes:** one scrolling column with the state, then the pill and card, then the strip.
+- **VoiceOver** reads the bar, the state, the card, then the strip.
+- **Replaces** D48's "the card 12 pt under the pill" below accessibility sizes. D48 still holds at accessibility sizes.
+- **Not changed:** the block editor's note for a running block still pushes the editor down when it appears (#133).
