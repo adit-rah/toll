@@ -1,0 +1,2997 @@
+{
+  "people_per_scenario": 1000,
+  "draws": 300,
+  "seed": 7,
+  "nights": 56,
+  "seconds": 65.2,
+  "variants": {
+    "fixed0/base": {
+      "variant": {
+        "name": "fixed0/base",
+        "rule": {
+          "grows": false,
+          "start": 0,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": 0.0,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        },
+        "same": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        }
+      }
+    },
+    "fixed15/base": {
+      "variant": {
+        "name": "fixed15/base",
+        "rule": {
+          "grows": false,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -3.75622040585877,
+          "sleep_vs_bed_weeks_5_8": -3.755239572629581,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.021,
+          "hard_week_share": 0.029173887926054305,
+          "off_week_share": 0.006354708261120739,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.2255,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        },
+        "same": {
+          "sleep_vs_bed": -1.4903030811854587,
+          "sleep_vs_bed_weeks_5_8": -1.4862593495251701,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.009,
+          "hard_week_share": 0.023422905589883605,
+          "off_week_share": 0.0040235666043971835,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.212375,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        }
+      }
+    },
+    "fixed30/base": {
+      "variant": {
+        "name": "fixed30/base",
+        "rule": {
+          "grows": false,
+          "start": 30,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -7.36398687658301,
+          "sleep_vs_bed_weeks_5_8": -7.318245098609917,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.068,
+          "hard_week_share": 0.09335302806499261,
+          "off_week_share": 0.018316100443131464,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.38675,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        },
+        "same": {
+          "sleep_vs_bed": -2.910712786499874,
+          "sleep_vs_bed_weeks_5_8": -2.8648625934952516,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.054,
+          "hard_week_share": 0.07843424717783316,
+          "off_week_share": 0.014953819088110248,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.3585,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        }
+      }
+    },
+    "fixed45/base": {
+      "variant": {
+        "name": "fixed45/base",
+        "rule": {
+          "grows": false,
+          "start": 45,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -10.51089819192669,
+          "sleep_vs_bed_weeks_5_8": -10.105198803285454,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.147,
+          "hard_week_share": 0.21793294370962782,
+          "off_week_share": 0.04429406336511842,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.689,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        },
+        "same": {
+          "sleep_vs_bed": -4.162056082612711,
+          "sleep_vs_bed_weeks_5_8": -3.972812841415245,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.146,
+          "hard_week_share": 0.2078754578754579,
+          "off_week_share": 0.042582417582417584,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.672875,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        }
+      }
+    },
+    "fixed60/base": {
+      "variant": {
+        "name": "fixed60/base",
+        "rule": {
+          "grows": false,
+          "start": 60,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -12.675787723781797,
+          "sleep_vs_bed_weeks_5_8": -11.362326924991185,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.269,
+          "hard_week_share": 0.42822146006859385,
+          "off_week_share": 0.08492569002123142,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 1.1165,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -5.193014860213248,
+          "sleep_vs_bed_weeks_5_8": -4.740650474829818,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.263,
+          "hard_week_share": 0.39760981912144705,
+          "off_week_share": 0.08284883720930232,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 1.07025,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "grow/base": {
+      "variant": {
+        "name": "grow/base",
+        "rule": {
+          "grows": true,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -9.512024494791492,
+          "sleep_vs_bed_weeks_5_8": -10.611608445150036,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.13,
+          "hard_week_share": 0.16913635683280945,
+          "off_week_share": 0.03622212243676096,
+          "mean_gap_on_lock_nights": 40.3125833407414,
+          "gap_end_mean_still_on": 48.13793103448276,
+          "reached_60": 0.793,
+          "at_60_end_still_on": 0.5287356321839081,
+          "gap_end_histogram": {
+            "0": 0.016091954022988506,
+            "15": 0.05057471264367816,
+            "30": 0.17011494252873563,
+            "45": 0.23448275862068965,
+            "60": 0.5287356321839081
+          },
+          "pause_nights_per_week": 0.615,
+          "lock_changes_per_week": 0.525625,
+          "lock_changes_per_week_last_2": 0.366,
+          "mean_abs_lock_change": 1.401791270335141,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -3.8746117034673833,
+          "sleep_vs_bed_weeks_5_8": -4.399907555256744,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.123,
+          "hard_week_share": 0.1618151962979549,
+          "off_week_share": 0.03284072249589491,
+          "mean_gap_on_lock_nights": 40.945325496284795,
+          "gap_end_mean_still_on": 48.77993158494869,
+          "reached_60": 0.822,
+          "at_60_end_still_on": 0.5313568985176739,
+          "gap_end_histogram": {
+            "0": 0.010262257696693273,
+            "15": 0.043329532497149374,
+            "30": 0.1619156214367161,
+            "45": 0.2531356898517674,
+            "60": 0.5313568985176739
+          },
+          "pause_nights_per_week": 0.58075,
+          "lock_changes_per_week": 0.523,
+          "lock_changes_per_week_last_2": 0.3555,
+          "mean_abs_lock_change": 1.3920372629477653,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "fixed0/comfort30": {
+      "variant": {
+        "name": "fixed0/comfort30",
+        "rule": {
+          "grows": false,
+          "start": 0,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 30.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": 0.0,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        },
+        "same": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        }
+      }
+    },
+    "fixed15/comfort30": {
+      "variant": {
+        "name": "fixed15/comfort30",
+        "rule": {
+          "grows": false,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 30.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -3.690157938542049,
+          "sleep_vs_bed_weeks_5_8": -3.6724713953123955,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.064,
+          "hard_week_share": 0.08356669123065585,
+          "off_week_share": 0.01694915254237288,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.369,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        },
+        "same": {
+          "sleep_vs_bed": -1.461558643270926,
+          "sleep_vs_bed_weeks_5_8": -1.440940415160938,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.047,
+          "hard_week_share": 0.07274320771253287,
+          "off_week_share": 0.013438504236050247,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.34975,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        }
+      }
+    },
+    "fixed30/comfort30": {
+      "variant": {
+        "name": "fixed30/comfort30",
+        "rule": {
+          "grows": false,
+          "start": 30,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 30.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -7.018989618911053,
+          "sleep_vs_bed_weeks_5_8": -6.7602082372437176,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.146,
+          "hard_week_share": 0.21598770176787088,
+          "off_week_share": 0.04411990776325903,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.682375,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        },
+        "same": {
+          "sleep_vs_bed": -2.7769708672655526,
+          "sleep_vs_bed_weeks_5_8": -2.651567358601563,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.145,
+          "hard_week_share": 0.20725941741650145,
+          "off_week_share": 0.04239743785267653,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.67075,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        }
+      }
+    },
+    "fixed45/comfort30": {
+      "variant": {
+        "name": "fixed45/comfort30",
+        "rule": {
+          "grows": false,
+          "start": 45,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 30.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -9.535920231655819,
+          "sleep_vs_bed_weeks_5_8": -8.561941582844444,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.268,
+          "hard_week_share": 0.4278720626631854,
+          "off_week_share": 0.08469321148825065,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 1.116125,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        },
+        "same": {
+          "sleep_vs_bed": -3.894761145159936,
+          "sleep_vs_bed_weeks_5_8": -3.555487856122363,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.263,
+          "hard_week_share": 0.39680232558139533,
+          "off_week_share": 0.08252583979328165,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 1.069,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        }
+      }
+    },
+    "fixed60/comfort30": {
+      "variant": {
+        "name": "fixed60/comfort30",
+        "rule": {
+          "grows": false,
+          "start": 60,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 30.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -11.9535891803098,
+          "sleep_vs_bed_weeks_5_8": -10.292863079558073,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.353,
+          "hard_week_share": 0.6291923340177961,
+          "off_week_share": 0.11978097193702943,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 1.482125,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -4.820879858953909,
+          "sleep_vs_bed_weeks_5_8": -4.17614925624002,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.372,
+          "hard_week_share": 0.6005167958656331,
+          "off_week_share": 0.12385874246339362,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 1.426125,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "grow/comfort30": {
+      "variant": {
+        "name": "grow/comfort30",
+        "rule": {
+          "grows": true,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 30.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -7.885960301686259,
+          "sleep_vs_bed_weeks_5_8": -8.486771122034591,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.167,
+          "hard_week_share": 0.2467948717948718,
+          "off_week_share": 0.04990842490842491,
+          "mean_gap_on_lock_nights": 33.50151167284217,
+          "gap_end_mean_still_on": 39.25570228091237,
+          "reached_60": 0.558,
+          "at_60_end_still_on": 0.2929171668667467,
+          "gap_end_histogram": {
+            "0": 0.060024009603841535,
+            "15": 0.11764705882352941,
+            "30": 0.2605042016806723,
+            "45": 0.2689075630252101,
+            "60": 0.2929171668667467
+          },
+          "pause_nights_per_week": 0.7845,
+          "lock_changes_per_week": 0.566375,
+          "lock_changes_per_week_last_2": 0.485,
+          "mean_abs_lock_change": 1.5449751085449297,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -3.1704516833179412,
+          "sleep_vs_bed_weeks_5_8": -3.429111690057988,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.165,
+          "hard_week_share": 0.24354299604983287,
+          "off_week_share": 0.047857793983591614,
+          "mean_gap_on_lock_nights": 34.19190547331251,
+          "gap_end_mean_still_on": 39.449101796407184,
+          "reached_60": 0.594,
+          "at_60_end_still_on": 0.3029940119760479,
+          "gap_end_histogram": {
+            "0": 0.0658682634730539,
+            "15": 0.1029940119760479,
+            "30": 0.2694610778443114,
+            "45": 0.25868263473053893,
+            "60": 0.3029940119760479
+          },
+          "pause_nights_per_week": 0.777625,
+          "lock_changes_per_week": 0.567625,
+          "lock_changes_per_week_last_2": 0.4775,
+          "mean_abs_lock_change": 1.5418307754991172,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "fixed0/comfort60": {
+      "variant": {
+        "name": "fixed0/comfort60",
+        "rule": {
+          "grows": false,
+          "start": 0,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 60.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": 0.0,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        },
+        "same": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        }
+      }
+    },
+    "fixed15/comfort60": {
+      "variant": {
+        "name": "fixed15/comfort60",
+        "rule": {
+          "grows": false,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 60.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -3.7793164168102034,
+          "sleep_vs_bed_weeks_5_8": -3.78849979653235,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.011,
+          "hard_week_share": 0.01294777729823047,
+          "off_week_share": 0.003308876420658898,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.177875,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        },
+        "same": {
+          "sleep_vs_bed": -1.4920346738309127,
+          "sleep_vs_bed_weeks_5_8": -1.4889066308093117,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.007,
+          "hard_week_share": 0.012345679012345678,
+          "off_week_share": 0.002583979328165375,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.177375,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        }
+      }
+    },
+    "fixed30/comfort60": {
+      "variant": {
+        "name": "fixed30/comfort60",
+        "rule": {
+          "grows": false,
+          "start": 30,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 60.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -7.512992502585659,
+          "sleep_vs_bed_weeks_5_8": -7.510479145259162,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.021,
+          "hard_week_share": 0.030478116423515816,
+          "off_week_share": 0.006644518272425249,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.227375,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        },
+        "same": {
+          "sleep_vs_bed": -2.9806061623709175,
+          "sleep_vs_bed_weeks_5_8": -2.9725186990503403,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.009,
+          "hard_week_share": 0.023854002011783303,
+          "off_week_share": 0.0041672654116970825,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.213875,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        }
+      }
+    },
+    "fixed45/comfort60": {
+      "variant": {
+        "name": "fixed45/comfort60",
+        "rule": {
+          "grows": false,
+          "start": 45,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 60.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -11.045980314874514,
+          "sleep_vs_bed_weeks_5_8": -10.977367647914873,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.068,
+          "hard_week_share": 0.09350073855243722,
+          "off_week_share": 0.018316100443131464,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.3875,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        },
+        "same": {
+          "sleep_vs_bed": -4.366069179749811,
+          "sleep_vs_bed_weeks_5_8": -4.2972938902428774,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.054,
+          "hard_week_share": 0.07872745931681571,
+          "off_week_share": 0.014953819088110248,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.359125,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        }
+      }
+    },
+    "fixed60/comfort60": {
+      "variant": {
+        "name": "fixed60/comfort60",
+        "rule": {
+          "grows": false,
+          "start": 60,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 60.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -14.01453092256892,
+          "sleep_vs_bed_weeks_5_8": -13.473598404380605,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.147,
+          "hard_week_share": 0.2180867425407567,
+          "off_week_share": 0.04429406336511842,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 0.689375,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -5.5494081101502815,
+          "sleep_vs_bed_weeks_5_8": -5.29708378855366,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.146,
+          "hard_week_share": 0.2078754578754579,
+          "off_week_share": 0.042582417582417584,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 0.672875,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "grow/comfort60": {
+      "variant": {
+        "name": "grow/comfort60",
+        "rule": {
+          "grows": true,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 60.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -11.14455656849142,
+          "sleep_vs_bed_weeks_5_8": -13.21257653271707,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.071,
+          "hard_week_share": 0.09313223019475765,
+          "off_week_share": 0.018743593498316006,
+          "mean_gap_on_lock_nights": 44.73612463485881,
+          "gap_end_mean_still_on": 54.84930032292788,
+          "reached_60": 0.922,
+          "at_60_end_still_on": 0.751345532831001,
+          "gap_end_histogram": {
+            "0": 0.001076426264800861,
+            "15": 0.015069967707212056,
+            "30": 0.061356297093649086,
+            "45": 0.17115177610333693,
+            "60": 0.751345532831001
+          },
+          "pause_nights_per_week": 0.415125,
+          "lock_changes_per_week": 0.47075,
+          "lock_changes_per_week_last_2": 0.229,
+          "mean_abs_lock_change": 1.2223304122038299,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -4.370728738141214,
+          "sleep_vs_bed_weeks_5_8": -5.1874107067820825,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.064,
+          "hard_week_share": 0.08844133099824869,
+          "off_week_share": 0.0173671920607122,
+          "mean_gap_on_lock_nights": 44.909098751320926,
+          "gap_end_mean_still_on": 55.04807692307692,
+          "reached_60": 0.935,
+          "at_60_end_still_on": 0.7628205128205128,
+          "gap_end_histogram": {
+            "0": 0.002136752136752137,
+            "15": 0.008547008547008548,
+            "30": 0.06944444444444445,
+            "45": 0.15705128205128205,
+            "60": 0.7628205128205128
+          },
+          "pause_nights_per_week": 0.399875,
+          "lock_changes_per_week": 0.468,
+          "lock_changes_per_week_last_2": 0.2215,
+          "mean_abs_lock_change": 1.211154003752507,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "fixed0/off10": {
+      "variant": {
+        "name": "fixed0/off10",
+        "rule": {
+          "grows": false,
+          "start": 0,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.1,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": 0.0,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        },
+        "same": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        }
+      }
+    },
+    "fixed15/off10": {
+      "variant": {
+        "name": "fixed15/off10",
+        "rule": {
+          "grows": false,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.1,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -3.785070548950278,
+          "sleep_vs_bed_weeks_5_8": -3.7976973580597764,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.011,
+          "hard_week_share": 0.030142098464188315,
+          "off_week_share": 0.003157743648629252,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.23,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        },
+        "same": {
+          "sleep_vs_bed": -1.4943329695239695,
+          "sleep_vs_bed_weeks_5_8": -1.4920581561475754,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.005,
+          "hard_week_share": 0.023365825688073393,
+          "off_week_share": 0.0022935779816513763,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.213875,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        }
+      }
+    },
+    "fixed30/off10": {
+      "variant": {
+        "name": "fixed30/off10",
+        "rule": {
+          "grows": false,
+          "start": 30,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.1,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -7.472433279364545,
+          "sleep_vs_bed_weeks_5_8": -7.477290090984924,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.034,
+          "hard_week_share": 0.09876543209876543,
+          "off_week_share": 0.009731299927378359,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.410125,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        },
+        "same": {
+          "sleep_vs_bed": -2.9587566115355552,
+          "sleep_vs_bed_weeks_5_8": -2.9362131271535423,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.028,
+          "hard_week_share": 0.08279150411790204,
+          "off_week_share": 0.008091316283774021,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.377875,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        }
+      }
+    },
+    "fixed45/off10": {
+      "variant": {
+        "name": "fixed45/off10",
+        "rule": {
+          "grows": false,
+          "start": 45,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.1,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -10.867531508371652,
+          "sleep_vs_bed_weeks_5_8": -10.672688235820644,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.078,
+          "hard_week_share": 0.22780669144981414,
+          "off_week_share": 0.02379182156133829,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.743625,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        },
+        "same": {
+          "sleep_vs_bed": -4.339623037528336,
+          "sleep_vs_bed_weeks_5_8": -4.237540969829397,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.079,
+          "hard_week_share": 0.22065313327449249,
+          "off_week_share": 0.022800823771697558,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.7395,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        }
+      }
+    },
+    "fixed60/off10": {
+      "variant": {
+        "name": "fixed60/off10",
+        "rule": {
+          "grows": false,
+          "start": 60,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.1,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -13.911248436365868,
+          "sleep_vs_bed_weeks_5_8": -13.279541997894297,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.147,
+          "hard_week_share": 0.43913642627468996,
+          "off_week_share": 0.04639412034910427,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 1.236625,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -5.595751826043154,
+          "sleep_vs_bed_weeks_5_8": -5.355576098831834,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.136,
+          "hard_week_share": 0.41405421777979706,
+          "off_week_share": 0.04134484325306679,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 1.196375,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "grow/off10": {
+      "variant": {
+        "name": "grow/off10",
+        "rule": {
+          "grows": true,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.1,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -9.957997162394145,
+          "sleep_vs_bed_weeks_5_8": -11.437443410556709,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.061,
+          "hard_week_share": 0.17024070021881837,
+          "off_week_share": 0.018964259664478483,
+          "mean_gap_on_lock_nights": 40.21554230098405,
+          "gap_end_mean_still_on": 47.66773162939297,
+          "reached_60": 0.804,
+          "at_60_end_still_on": 0.5069222577209798,
+          "gap_end_histogram": {
+            "0": 0.019169329073482427,
+            "15": 0.04898828541001065,
+            "30": 0.17358892438764642,
+            "45": 0.25133120340788073,
+            "60": 0.5069222577209798
+          },
+          "pause_nights_per_week": 0.6425,
+          "lock_changes_per_week": 0.548625,
+          "lock_changes_per_week_last_2": 0.412,
+          "mean_abs_lock_change": 1.4176051333950603,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -3.9710141885651917,
+          "sleep_vs_bed_weeks_5_8": -4.578725102949828,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.07,
+          "hard_week_share": 0.16282126168224298,
+          "off_week_share": 0.018399532710280372,
+          "mean_gap_on_lock_nights": 40.86814706009418,
+          "gap_end_mean_still_on": 48.564516129032256,
+          "reached_60": 0.83,
+          "at_60_end_still_on": 0.5172043010752688,
+          "gap_end_histogram": {
+            "0": 0.00967741935483871,
+            "15": 0.041935483870967745,
+            "30": 0.16666666666666666,
+            "45": 0.2645161290322581,
+            "60": 0.5172043010752688
+          },
+          "pause_nights_per_week": 0.601375,
+          "lock_changes_per_week": 0.5425,
+          "lock_changes_per_week_last_2": 0.392,
+          "mean_abs_lock_change": 1.4062297489955502,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "fixed0/off40": {
+      "variant": {
+        "name": "fixed0/off40",
+        "rule": {
+          "grows": false,
+          "start": 0,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.4,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": 0.0,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        },
+        "same": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        }
+      }
+    },
+    "fixed15/off40": {
+      "variant": {
+        "name": "fixed15/off40",
+        "rule": {
+          "grows": false,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.4,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -3.7520120636338503,
+          "sleep_vs_bed_weeks_5_8": -3.740350789577797,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.039,
+          "hard_week_share": 0.027133479212253828,
+          "off_week_share": 0.011816192560175055,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.216625,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        },
+        "same": {
+          "sleep_vs_bed": -1.4759780874821593,
+          "sleep_vs_bed_weeks_5_8": -1.464639885704681,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.027,
+          "hard_week_share": 0.022019411849920324,
+          "off_week_share": 0.007532956685499058,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.205,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        }
+      }
+    },
+    "fixed30/off40": {
+      "variant": {
+        "name": "fixed30/off40",
+        "rule": {
+          "grows": false,
+          "start": 30,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.4,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -7.162613747977582,
+          "sleep_vs_bed_weeks_5_8": -6.993833120878072,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.118,
+          "hard_week_share": 0.08237082066869301,
+          "off_week_share": 0.03434650455927052,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.345125,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        },
+        "same": {
+          "sleep_vs_bed": -2.8394341365124673,
+          "sleep_vs_bed_weeks_5_8": -2.7596016471972433,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.093,
+          "hard_week_share": 0.06865537400689552,
+          "off_week_share": 0.025633338330085444,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.3235,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        }
+      }
+    },
+    "fixed45/off40": {
+      "variant": {
+        "name": "fixed45/off40",
+        "rule": {
+          "grows": false,
+          "start": 45,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.4,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -9.969471210121748,
+          "sleep_vs_bed_weeks_5_8": -9.32279989733393,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.237,
+          "hard_week_share": 0.19951259138911454,
+          "off_week_share": 0.0768480909829407,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.598625,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        },
+        "same": {
+          "sleep_vs_bed": -3.889377466207707,
+          "sleep_vs_bed_weeks_5_8": -3.580447936801412,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.237,
+          "hard_week_share": 0.18448807398993997,
+          "off_week_share": 0.07188057764075938,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.57075,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        }
+      }
+    },
+    "fixed60/off40": {
+      "variant": {
+        "name": "fixed60/off40",
+        "rule": {
+          "grows": false,
+          "start": 60,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.4,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -11.059191089070083,
+          "sleep_vs_bed_weeks_5_8": -9.086845899986413,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.435,
+          "hard_week_share": 0.4003666361136572,
+          "off_week_share": 0.15930339138405133,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 0.92075,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -4.569767441860465,
+          "sleep_vs_bed_weeks_5_8": -3.850155475250021,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.418,
+          "hard_week_share": 0.36195652173913045,
+          "off_week_share": 0.14619565217391303,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 0.864,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "grow/off40": {
+      "variant": {
+        "name": "grow/off40",
+        "rule": {
+          "grows": true,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.4,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "linear",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -9.043875728892337,
+          "sleep_vs_bed_weeks_5_8": -9.728495379707454,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.226,
+          "hard_week_share": 0.16458072590738423,
+          "off_week_share": 0.06758448060075094,
+          "mean_gap_on_lock_nights": 40.595814900639,
+          "gap_end_mean_still_on": 49.36046511627907,
+          "reached_60": 0.785,
+          "at_60_end_still_on": 0.5736434108527132,
+          "gap_end_histogram": {
+            "0": 0.016795865633074936,
+            "15": 0.03617571059431524,
+            "30": 0.16020671834625322,
+            "45": 0.2131782945736434,
+            "60": 0.5736434108527132
+          },
+          "pause_nights_per_week": 0.570875,
+          "lock_changes_per_week": 0.489625,
+          "lock_changes_per_week_last_2": 0.2995,
+          "mean_abs_lock_change": 1.375254546731269,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -3.704789690202334,
+          "sleep_vs_bed_weeks_5_8": -4.0772543911253045,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.224,
+          "hard_week_share": 0.15708514605344934,
+          "off_week_share": 0.06277190801740211,
+          "mean_gap_on_lock_nights": 41.14187819033634,
+          "gap_end_mean_still_on": 50.006443298969074,
+          "reached_60": 0.814,
+          "at_60_end_still_on": 0.5811855670103093,
+          "gap_end_histogram": {
+            "0": 0.007731958762886598,
+            "15": 0.04252577319587629,
+            "30": 0.13917525773195877,
+            "45": 0.22938144329896906,
+            "60": 0.5811855670103093
+          },
+          "pause_nights_per_week": 0.53925,
+          "lock_changes_per_week": 0.48775,
+          "lock_changes_per_week_last_2": 0.283,
+          "mean_abs_lock_change": 1.364240262918677,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "fixed0/saturating": {
+      "variant": {
+        "name": "fixed0/saturating",
+        "rule": {
+          "grows": false,
+          "start": 0,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "saturating",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": 0.0,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        },
+        "same": {
+          "sleep_vs_bed": 0.0,
+          "sleep_vs_bed_weeks_5_8": 0.0,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.0,
+          "hard_week_share": 0.0,
+          "off_week_share": 0.0,
+          "mean_gap_on_lock_nights": 0.0,
+          "gap_end_mean_still_on": 0.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 1.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.0,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 0.0,
+          "max_lead": -0.0
+        }
+      }
+    },
+    "fixed15/saturating": {
+      "variant": {
+        "name": "fixed15/saturating",
+        "rule": {
+          "grows": false,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "saturating",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -3.75622040585877,
+          "sleep_vs_bed_weeks_5_8": -3.755239572629581,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.021,
+          "hard_week_share": 0.029173887926054305,
+          "off_week_share": 0.006354708261120739,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.2255,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        },
+        "same": {
+          "sleep_vs_bed": -1.4903030811854587,
+          "sleep_vs_bed_weeks_5_8": -1.4862593495251701,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.009,
+          "hard_week_share": 0.023422905589883605,
+          "off_week_share": 0.0040235666043971835,
+          "mean_gap_on_lock_nights": 15.0,
+          "gap_end_mean_still_on": 15.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 1.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.212375,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 15.0,
+          "max_lead": 15.0
+        }
+      }
+    },
+    "fixed30/saturating": {
+      "variant": {
+        "name": "fixed30/saturating",
+        "rule": {
+          "grows": false,
+          "start": 30,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "saturating",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -7.36398687658301,
+          "sleep_vs_bed_weeks_5_8": -7.318245098609917,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.068,
+          "hard_week_share": 0.09335302806499261,
+          "off_week_share": 0.018316100443131464,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.38675,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        },
+        "same": {
+          "sleep_vs_bed": -2.910712786499874,
+          "sleep_vs_bed_weeks_5_8": -2.8648625934952516,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.054,
+          "hard_week_share": 0.07843424717783316,
+          "off_week_share": 0.014953819088110248,
+          "mean_gap_on_lock_nights": 30.0,
+          "gap_end_mean_still_on": 30.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 1.0,
+            "45": 0.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.3585,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 30.0,
+          "max_lead": 30.0
+        }
+      }
+    },
+    "fixed45/saturating": {
+      "variant": {
+        "name": "fixed45/saturating",
+        "rule": {
+          "grows": false,
+          "start": 45,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "saturating",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -8.759081826605575,
+          "sleep_vs_bed_weeks_5_8": -8.420999002737878,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.147,
+          "hard_week_share": 0.21793294370962782,
+          "off_week_share": 0.04429406336511842,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.689,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        },
+        "same": {
+          "sleep_vs_bed": -3.468380068843926,
+          "sleep_vs_bed_weeks_5_8": -3.3106773678460373,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.146,
+          "hard_week_share": 0.2078754578754579,
+          "off_week_share": 0.042582417582417584,
+          "mean_gap_on_lock_nights": 45.0,
+          "gap_end_mean_still_on": 45.0,
+          "reached_60": 0.0,
+          "at_60_end_still_on": 0.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 1.0,
+            "60": 0.0
+          },
+          "pause_nights_per_week": 0.672875,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 45.0,
+          "max_lead": 45.0
+        }
+      }
+    },
+    "fixed60/saturating": {
+      "variant": {
+        "name": "fixed60/saturating",
+        "rule": {
+          "grows": false,
+          "start": 60,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "saturating",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -9.506840792836346,
+          "sleep_vs_bed_weeks_5_8": -8.52174519374339,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.269,
+          "hard_week_share": 0.42822146006859385,
+          "off_week_share": 0.08492569002123142,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 1.1165,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -3.894761145159936,
+          "sleep_vs_bed_weeks_5_8": -3.555487856122363,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.263,
+          "hard_week_share": 0.39760981912144705,
+          "off_week_share": 0.08284883720930232,
+          "mean_gap_on_lock_nights": 60.0,
+          "gap_end_mean_still_on": 60.0,
+          "reached_60": 1.0,
+          "at_60_end_still_on": 1.0,
+          "gap_end_histogram": {
+            "0": 0.0,
+            "15": 0.0,
+            "30": 0.0,
+            "45": 0.0,
+            "60": 1.0
+          },
+          "pause_nights_per_week": 1.07025,
+          "lock_changes_per_week": 0.0,
+          "lock_changes_per_week_last_2": 0.0,
+          "mean_abs_lock_change": 0.0,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    },
+    "grow/saturating": {
+      "variant": {
+        "name": "grow/saturating",
+        "rule": {
+          "grows": true,
+          "start": 15,
+          "step": 15,
+          "cap": 60,
+          "smooth_min_nights": 4,
+          "hard_pauses": 2,
+          "off_freeze_weeks": 2
+        },
+        "timing": "none",
+        "feature": "plan",
+        "tolerance": {
+          "comfort_mean": 45.0,
+          "comfort_sd": 20.0,
+          "base_rate": 0.03,
+          "max_rate": 0.5,
+          "scale": 20.0,
+          "off_per_hard_week": 0.2,
+          "quit_share": 0.5,
+          "pauses_per_week": 3
+        },
+        "couple": true,
+        "dose": "saturating",
+        "loosen_sd": null
+      },
+      "scenarios": {
+        "differ": {
+          "sleep_vs_bed": -7.899210502891343,
+          "sleep_vs_bed_weeks_5_8": -8.457620673168764,
+          "made_later_share": 0.299,
+          "hurt_made_later_share": 1.0,
+          "dropout": 0.13,
+          "hard_week_share": 0.16913635683280945,
+          "off_week_share": 0.03622212243676096,
+          "mean_gap_on_lock_nights": 40.3125833407414,
+          "gap_end_mean_still_on": 48.13793103448276,
+          "reached_60": 0.793,
+          "at_60_end_still_on": 0.5287356321839081,
+          "gap_end_histogram": {
+            "0": 0.016091954022988506,
+            "15": 0.05057471264367816,
+            "30": 0.17011494252873563,
+            "45": 0.23448275862068965,
+            "60": 0.5287356321839081
+          },
+          "pause_nights_per_week": 0.615,
+          "lock_changes_per_week": 0.525625,
+          "lock_changes_per_week_last_2": 0.366,
+          "mean_abs_lock_change": 1.401791270335141,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        },
+        "same": {
+          "sleep_vs_bed": -3.213347955671228,
+          "sleep_vs_bed_weeks_5_8": -3.5117446844272626,
+          "made_later_share": 0.0,
+          "hurt_made_later_share": null,
+          "dropout": 0.123,
+          "hard_week_share": 0.1618151962979549,
+          "off_week_share": 0.03284072249589491,
+          "mean_gap_on_lock_nights": 40.945325496284795,
+          "gap_end_mean_still_on": 48.77993158494869,
+          "reached_60": 0.822,
+          "at_60_end_still_on": 0.5313568985176739,
+          "gap_end_histogram": {
+            "0": 0.010262257696693273,
+            "15": 0.043329532497149374,
+            "30": 0.1619156214367161,
+            "45": 0.2531356898517674,
+            "60": 0.5313568985176739
+          },
+          "pause_nights_per_week": 0.58075,
+          "lock_changes_per_week": 0.523,
+          "lock_changes_per_week_last_2": 0.3555,
+          "mean_abs_lock_change": 1.3920372629477653,
+          "max_gap": 60.0,
+          "max_lead": 60.0
+        }
+      }
+    }
+  }
+}
