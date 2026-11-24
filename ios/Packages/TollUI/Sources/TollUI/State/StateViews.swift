@@ -2,7 +2,7 @@ import SwiftUI
 import TollCore
 
 /// A state's glyph before its eyebrow, in the same place on every screen that has a state (#72,
-/// rule 2): blocked, later, away, paused, off. The glyph is hidden from VoiceOver; the words say it.
+/// rule 2): blocked, later, away, off. The glyph is hidden from VoiceOver; the words say it.
 public struct StateLine: View {
   let symbol: TollSymbol
   let text: String

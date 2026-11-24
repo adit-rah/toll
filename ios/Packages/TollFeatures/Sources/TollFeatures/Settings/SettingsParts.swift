@@ -97,7 +97,7 @@ struct AppearancePicker: View {
   }
 }
 
-/// How blocking works, as a sheet.
+/// How it works, as a sheet.
 struct HowItWorks: View {
   var body: some View {
     SheetPage(height: 420) {

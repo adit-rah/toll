@@ -109,7 +109,7 @@ struct SettingsView: View {
 
   @ViewBuilder private var freeNights: some View {
     if model.state.trial.purchased {
-      SettingsRow(Copy.Settings.freeNights, detail: Copy.Settings.purchased)
+      SettingsRow(Copy.Settings.purchased, detail: Copy.Settings.purchasedDetail)
     } else {
       SettingsRow(
         Copy.Settings.freeNights,
@@ -156,8 +156,7 @@ struct SettingsView: View {
 
   private var blocksSummary: String {
     Copy.Settings.blocksSummary(
-      blocks: model.state.blocks.count, items: model.state.blocks.map(\.appCount).reduce(0, +),
-      max: model.config.blocks.maxApps)
+      items: model.state.blocks.map(\.appCount).reduce(0, +), max: model.config.blocks.maxApps)
   }
 
   private func restore() async {

@@ -52,7 +52,7 @@ enum Migration {
         radiusMeters: $0.radiusMeters)
     }
     let sleep = Block(
-      id: sleepID, name: "Sleep", kind: .sleep, place: home?.id,
+      id: sleepID, name: Copy.Setup.nightName, kind: .sleep, place: home?.id,
       schedule: .everyDay(window), apps: old.settings.blocked)
     state.blocks = [sleep]
     state.places = home.map { [$0] } ?? []

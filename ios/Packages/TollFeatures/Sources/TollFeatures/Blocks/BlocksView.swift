@@ -115,7 +115,7 @@ struct BlockState: View {
     switch state {
     case .on: .blocked
     case .later, .unscheduled: .later
-    case .paused, .off: .paused
+    case .off: .off
     case .waiting: .waiting
     }
   }

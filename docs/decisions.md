@@ -258,3 +258,12 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - The location card shows only when the night has a place and talks only about the night. A day block at a place shows "Anywhere" on Blocks and in its editor. This amends D71 and follows D68's "Tonight never mentions other blocks".
 - **Wordless:** the kind's tile (the moon for the night) says which block; a lock against a clock says whether it's on; the bar and segments say how full the limits are; a dashed tile marks the row Save waits for.
 
+**D74. Plain words on every screen** (2026-11-24; the pass D65 and D68 called for; every change, with its reason, is in `docs/copy-pass.md`).
+- **The rule:** everyday words ("blocked", "open", "night", "pause") are fine. Dusk-only terms that need learning are not, and a test enforces it: `CopyTermsTests` fails on "door", "unlock", "sleep window", "sleep hours", "time window", "bedtime", "streak", "missed", "!", praise words and "most adults".
+- **One word, one concept:** the free week ending is **Off**, with a power symbol, not "Paused". "Pause" is only the escape (D67, D70). "Block" is never used for a street size.
+- **About the person:** "phone-free" and "you put it down", never "it stopped you". The week-against-week bars are gone because they compared whether or not it was better. The purchase sheet says "N nights phone-free", not "5 of 7".
+- **The night:** "runs on its hours" is now "starts and ends at its set times". The night's block is stored as "Night", and the block screen says "This app is blocked for the night".
+- **No norms:** "Most adults need 7 to 9 hours" is gone.
+- **Welcome:** "Your nights, phone-free." replaces "Buy back your sleep.", an idiom that reads as paying for sleep and doesn't translate. The App Store subtitle is the founders' call (`docs/app-store.md`).
+- **Limits:** "Time windows" are now "Sets of hours".
+

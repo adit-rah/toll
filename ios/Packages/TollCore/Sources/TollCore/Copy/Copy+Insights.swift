@@ -4,14 +4,14 @@ extension Copy {
   /// Insights (the design canvas): everything from the log on this phone (D24).
   public enum Insights {
     public static let title = "Your nights"
-    public static let week = "Week"
-    public static let month = "Month"
-    public static let all = "All"
-    public static let hoursLabel = "blocked at night"
+    /// The ranges say their length, so "Week" isn't read as Your sleep's Monday-to-Sunday week.
+    public static let week = "7 days"
+    public static let month = "30 days"
+    public static let all = "All time"
+    /// About the person, not the app's work (D65): the hours the apps stayed closed.
+    public static let hoursLabel = "phone-free"
     public static func hours(_ hours: Int) -> String { "\(hours) h" }
-    public static let stopped = "Times it stopped you"
-    public static func weekLabel(_ n: Int) -> String { "Week \(n)" }
-    public static let when = "When it stopped you"
+    public static let when = "When you put it down"
     public static func mostAt(_ hour: String) -> String { "Most at \(hour)" }
     /// "midnight" for 0 on 12-hour phones, as the canvas writes it; otherwise the short time.
     public static func hourName(_ hour: Int, in calendar: Calendar = .current) -> String {

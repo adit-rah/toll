@@ -103,7 +103,7 @@ final class SetupModel {
   /// (D68, the engine's D37 path). Built here, sent once at the end.
   var sleepBlock: Block {
     Block(
-      name: Copy.Setup.sleepName, kind: .sleep, place: nil, schedule: schedule,
+      name: Copy.Setup.nightName, kind: .sleep, place: nil, schedule: schedule,
       apps: Blocklist.encode(selection))
   }
 

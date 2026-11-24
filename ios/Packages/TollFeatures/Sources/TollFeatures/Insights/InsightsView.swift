@@ -35,13 +35,12 @@ struct InsightsView: View {
           Footnote(Copy.Insights.empty).padding(.top, 20)
         } else {
           // The nights are counted once, at the top; this is the range's one number.
-          Stat(value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel)
-            .padding(.top, 20)
-          VStack(spacing: 12) {
-            WeeksCard(insights: insights)
-            HoursCard(insights: insights)
-          }
+          Stat(
+            value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel,
+            symbol: .phoneDown
+          )
           .padding(.top, 20)
+          HoursCard(insights: insights).padding(.top, 20)
         }
       }
       .tollGutter()
@@ -70,42 +69,7 @@ private struct InsightCard<Content: View>: View {
   }
 }
 
-/// Times it stopped you, one bar per week (at most 56 pt), the latest in amber. No change against
-/// week 1: a comparison is shown only when it's better (D65), and more or fewer taps is neither.
-private struct WeeksCard: View {
-  let insights: InsightsSnapshot
-
-  var body: some View {
-    InsightCard(title: Copy.Insights.stopped) {
-      let top = max(1, insights.weeks.max() ?? 1)
-      HStack(alignment: .bottom, spacing: 8) {
-        ForEach(Array(insights.weeks.enumerated()), id: \.offset) { index, count in
-          let latest = index == insights.weeks.count - 1
-          VStack(spacing: 0) {
-            Text("\(count)").tollType(.microNumber, TollColor.label2).padding(.bottom, 4)
-            RoundedRectangle(cornerRadius: TollRadius.chartBar, style: .continuous)
-              .fill(latest ? TollColor.accent : TollColor.bar)
-              .frame(height: max(3, 56 * CGFloat(count) / CGFloat(top)))
-            Text(Copy.Insights.weekLabel(index + 1))
-              .tollType(.micro, latest ? TollColor.label : TollColor.label2)
-              .padding(.top, 8)
-          }
-          .frame(maxWidth: .infinity)
-          .accessibilityElement(children: .ignore)
-          .accessibilityLabel("\(Copy.Insights.weekLabel(index + 1)), \(count)")
-        }
-        // Four slots, as the board: a first week's bar keeps a quarter of the width.
-        ForEach(0..<max(0, 4 - insights.weeks.count), id: \.self) { _ in
-          Color.clear.frame(maxWidth: .infinity, maxHeight: 1).accessibilityHidden(true)
-        }
-      }
-      .frame(height: 96, alignment: .bottom)
-      .tollChartTypeLimit()
-    }
-  }
-}
-
-/// When it stopped you, by hour from 10 pm to 6 am (48 pt at most), the busiest hour in amber.
+/// When you put it down, by hour from 10 pm to 6 am (48 pt at most), the busiest hour in amber.
 private struct HoursCard: View {
   let insights: InsightsSnapshot
 
