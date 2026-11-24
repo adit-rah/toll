@@ -89,6 +89,7 @@ struct LiveHome: View {
             switch card {
             case .home: settingHome = true
             case .headsUp: Task { await model.turnOnHeadsUp() }
+            case .gapWeek, .gapOffer: model.openGapCard(card)
             }
           },
           dismissCard: { model.dismiss($0) },

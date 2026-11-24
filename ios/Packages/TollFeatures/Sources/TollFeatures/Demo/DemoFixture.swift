@@ -16,8 +16,8 @@
       // hours: the latest weekday.
       let weekday = calendar.component(.weekday, from: today)
       let back: Int
-      if scenario == .sleepMonday || scenario == .sleepBest {
-        back = (weekday - (scenario == .sleepMonday ? 2 : 1) + 7) % 7
+      if scenario == .sleepMonday || scenario == .sleepBest || scenario == .homeGapWeek {
+        back = (weekday - (scenario == .sleepBest ? 1 : 2) + 7) % 7
       } else {
         back = scenario.isDay ? [1: 2, 7: 1][weekday] ?? 0 : 0
       }
@@ -34,6 +34,8 @@
       [.homeMorning, .homeMorningGap, .homeMorningAway, .sleepMonday, .sleepBest].contains(self)
         || skyNights != nil
     }
+
+    var isGap: Bool { self == .homeGapWeek || self == .homeGapOffer }
 
     /// Nights the lock has run in Your sky's scenarios (D79), the last of them last night.
     var skyNights: Int? {
@@ -123,7 +125,15 @@
         ? now.addingTimeInterval(-3600)
         : calendar.date(byAdding: .day, value: -setupAgo, to: now)
       state.trial.start = state.setupFinishedAt
-      state.trial.purchased = later || morning
+      state.trial.purchased = later || morning || scenario.isGap
+      // A new install locks 15 minutes before bed (D76); the offer is for one from before it.
+      state.gap = scenario == .homeGapOffer ? .existing : .newInstall()
+      if scenario == .homeGapWeek {
+        state.gap.minutes = 30
+        state.gap.change = Gap.Change(
+          week: UnlockSupply.week(containing: now, calendar: calendar, config: .defaults),
+          from: 15, to: 30)
+      }
       if scenario == .homePaused {
         state.trial.start = calendar.date(byAdding: .day, value: -8, to: now)
         state.trial.entitled = false

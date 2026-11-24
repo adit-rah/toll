@@ -155,7 +155,12 @@ struct GapScreensTests {
     #expect(BeforeBed(state: state).detail == "Fixed · 45 min")
     #expect(apply(.gap(.fixed(0)), &state, date(2026, 11, 17, 12)) == nil)
     #expect(BeforeBed(state: state).detail == "None · apps lock at bed")
-    #expect(BeforeBed.choices() == [0, 15, 30, 45, 60, 75, 90])
+    var sheet = BeforeBed(state: state)
+    #expect(sheet.choice(grows: true, fixed: 0) == .grows(15))
+    #expect(sheet.choice(grows: true, fixed: 90) == .grows(60))
+    #expect(sheet.choice(grows: false, fixed: 75) == .fixed(75))
+    sheet.setting = .grows(45)
+    #expect(sheet.choice(grows: true, fixed: 0) == .grows(45))
   }
 
   @Test func aChangeHeldThroughTonightSaysSo() {

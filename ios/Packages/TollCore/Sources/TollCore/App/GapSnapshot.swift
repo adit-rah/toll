@@ -9,9 +9,12 @@ public struct BeforeBed: Equatable, Sendable {
   public var detail: String
   /// A change waits for tonight's night to end.
   public var held: Bool
+  /// The night's block is on: a change now applies from tomorrow night (B-3).
+  public var nightOn: Bool
 
   public init(state: DuskState, config: TollConfig = .defaults) {
     held = state.gap.pending != nil
+    nightOn = state.sleepBlock.map { state.runtime.active[$0.id] != nil } ?? false
     setting = state.gap.pending ?? state.gap.setting
     switch setting {
     case .grows(let minutes):
@@ -25,10 +28,24 @@ public struct BeforeBed: Equatable, Sendable {
     if held { detail += Copy.middleDot + Copy.Gap.fromTomorrow }
   }
 
-  /// The fixed gaps Settings offers, 0 to the manual most.
-  public static func choices(_ config: TollConfig = .defaults) -> [Int] {
-    Array(stride(from: 0, through: config.gap.manualMax, by: max(1, config.gap.manualStep)))
+  /// The sheet's answer: a fixed gap as chosen, or growing from where it is now. A gap that starts
+  /// growing begins at least at a new install's.
+  public func choice(grows: Bool, fixed minutes: Int, config: TollConfig = .defaults)
+    -> Gap.Setting
+  {
+    guard grows else { return .fixed(minutes) }
+    if case .grows(let now) = setting { return .grows(now) }
+    return Gap.clamped(.grows(max(minutes, config.gap.start)), config)
   }
+
+  /// The minutes the sheet's fixed gap opens on.
+  public var minutes: Int {
+    switch setting {
+    case .grows(let minutes), .fixed(let minutes): minutes
+    }
+  }
+
+  public var grows: Bool { if case .grows = setting { true } else { false } }
 }
 
 /// The words on Tonight's gap cards (D76): Monday's, and the one offer to an install from before it.

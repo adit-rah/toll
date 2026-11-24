@@ -53,6 +53,7 @@ struct SettingsView: View {
               ) { Chevron() }
             }
             .buttonStyle(.plain)
+            BeforeBedRow(model: model)
             HeadsUpRow(model: model)
             SettingsRow(Copy.Settings.lastNight, detail: lastNight)
           }

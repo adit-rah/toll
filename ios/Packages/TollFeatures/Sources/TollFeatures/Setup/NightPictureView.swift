@@ -35,7 +35,8 @@ struct NightPictureView: View {
 }
 
 /// The night on the boards' 6 pm → 10 am strip (or one fitted to it, #82): an 8 pt track, the night
-/// solid while on, outlined before, dashed when nothing will block.
+/// solid while on, outlined before, dashed when nothing will block. Ready draws the gap before bed
+/// (D76) as a thinner step before the night, split from it by a notch.
 struct NightStrip: View {
   let strip: NightPicture.Strip
 
@@ -45,6 +46,11 @@ struct NightStrip: View {
         let width = proxy.size.width
         ZStack(alignment: .topLeading) {
           RoundedRectangle(cornerRadius: 4).fill(TollColor.surfaceRaised).frame(height: 8)
+          if let lock = strip.lock, lock < strip.start {
+            gap
+              .frame(width: max(2, width * (strip.start - lock) - 2), height: 4)
+              .offset(x: width * lock, y: 2)
+          }
           night
             .frame(width: max(8, width * (strip.end - strip.start)), height: 8)
             .offset(x: width * strip.start)
@@ -55,6 +61,10 @@ struct NightStrip: View {
       EvenHourLabels(hours: strip.hours)
     }
     .tollChartTypeLimit()
+  }
+
+  private var gap: some View {
+    RoundedRectangle(cornerRadius: 2).fill(TollColor.accent)
   }
 
   @ViewBuilder private var night: some View {

@@ -53,12 +53,10 @@ extension Copy {
       "Up \(step) min after a week with few pauses, to \(cap). Down \(step) after a week with more."
     }
     public static let fixedOption = "The same every night"
-    public static func minutesBefore(_ minutes: Int) -> String { "\(minutes) min before bed" }
     public static let tonightStays = "Tonight stays as it is. This applies from tomorrow night."
     public static let done = "Done"
 
-    /// Ready: the gap a new night starts with.
-    public static func readyRow(_ minutes: Int) -> String { beforeBed(minutes) }
+    /// Ready: the gap a new night starts with, under "15 min before bed".
     public static func readyDetail(cap: Int) -> String { "Grows with you, up to \(cap) min" }
   }
 }
