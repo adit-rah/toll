@@ -69,7 +69,7 @@ public final class AppModel {
       await Purchase.watch { [weak self] purchased in await self?.setPurchased(purchased) }
     }
     Task { if let price = await Purchase.displayPrice() { self.price = price } }
-    send(.launch, TrialClock().start.map { [.trialStart($0)] } ?? [])
+    send(.launch, TrialClock().settle().map { [.trialStart($0)] } ?? [])
     countApps()
     Task.detached(priority: .background) { TransitionLog().trim() }
   }
@@ -82,7 +82,8 @@ public final class AppModel {
     // Opening the app always hands iOS a fresh plan (#104).
     scheduledHeadsUps = nil
     readPermissions()
-    send(.foreground)
+    // iCloud Keychain may have brought an earlier start from another phone since (D78).
+    send(.foreground, TrialClock().settle().map { [.trialStart($0)] } ?? [])
     recordNights()
     Task {
       setPurchased(await Purchase.isPurchased())

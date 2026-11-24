@@ -12,7 +12,7 @@ struct ConfigTests {
     #expect(config.door.regretSeconds == 120)
     #expect(config.unlocks.max == 3)
     #expect(config.unlocks.refillWeekday == 2)
-    #expect(config.trial.nights == 7)
+    #expect(config.trial.nights == 14)
     #expect(config.blocks.maxApps == 40)
     #expect(config.headsUp.leadMinutes == 20)
     #expect(config.headsUp.nightsAhead == 7)

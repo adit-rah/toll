@@ -12,12 +12,36 @@ struct TrialTests {
     Trial.night(since: start, now: now, sleep: sleep, calendar: london, config: config)
   }
 
-  @Test func sevenNightsFromSetup() {
+  @Test func fourteenNightsFromSetup() {
     let start = date(2026, 11, 17, 15)
     #expect(night(start, start) == 1)
     #expect(night(start, date(2026, 11, 21, 23)) == 5)
-    #expect(night(start, date(2026, 11, 23, 23)) == 7)
-    #expect(night(start, date(2026, 11, 24, 7)) == nil)
+    #expect(night(start, date(2026, 11, 24, 7)) == 8)
+    #expect(night(start, date(2026, 11, 30, 23)) == 14)
+    #expect(night(start, date(2026, 12, 1, 7)) == nil)
+  }
+
+  /// D78: entitled through the 14th night, not the morning after it.
+  @Test func fourteenNightsAreEntitled() {
+    var s = setUp()
+    s.trial.start = date(2026, 11, 17, 15)
+    run(&s, date(2026, 11, 24, 23))
+    #expect(s.trial.entitled)
+    #expect(s.isBlocking)
+    run(&s, date(2026, 11, 30, 23))
+    #expect(s.trial.entitled)
+    #expect(s.isBlocking)
+    run(&s, date(2026, 12, 1, 7, 30))
+    #expect(!s.trial.entitled)
+  }
+
+  /// A Sleep block on one night a week still reaches its fourteenth night.
+  @Test func oneNightAWeekStillEnds() {
+    let mondays = WeeklySchedule(rules: [.init(days: [.monday], window: usual)])
+    #expect(
+      Trial.lastEnd(
+        since: date(2026, 11, 17, 15), sleep: mondays, calendar: london, config: config)
+        == date(2027, 2, 23, 7))
   }
 
   @Test func setupInsideTheWindowCountsThatNightAsTheFirst() {
@@ -31,10 +55,10 @@ struct TrialTests {
     s.trial.start = date(2026, 11, 17, 15)
     s.places.append(libraryPlace)
     s.blocks.append(studyBlock())
-    arrive(&s, libraryPlace, date(2026, 11, 24, 9))
-    run(&s, date(2026, 11, 23, 23))
+    arrive(&s, libraryPlace, date(2026, 12, 1, 9))
+    run(&s, date(2026, 11, 30, 23))
     #expect(s.isBlocking)
-    run(&s, date(2026, 11, 24, 10))
+    run(&s, date(2026, 12, 1, 10))
     #expect(!s.trial.entitled)
     #expect(!s.isBlocking)
   }
@@ -49,18 +73,18 @@ struct TrialTests {
 
   @Test func aReinstallKeepsTheFirstStart() {
     var s = DuskState()
-    _ = apply(.trialStart(date(2026, 11, 17, 15)), &s, date(2026, 11, 26, 20))
+    _ = apply(.trialStart(date(2026, 11, 17, 15)), &s, date(2026, 12, 3, 20))
     _ = apply(
-      .finishSetup(sleep: sleepBlock(), home: homePlace, trialStart: date(2026, 11, 26, 20)), &s,
-      date(2026, 11, 26, 20))
+      .finishSetup(sleep: sleepBlock(), home: homePlace, trialStart: date(2026, 12, 3, 20)), &s,
+      date(2026, 12, 3, 20))
     #expect(s.trial.start == date(2026, 11, 17, 15))
-    arrive(&s, homePlace, date(2026, 11, 26, 20))
-    run(&s, date(2026, 11, 26, 23))
+    arrive(&s, homePlace, date(2026, 12, 3, 20))
+    run(&s, date(2026, 12, 3, 23))
     #expect(!s.trial.entitled)
   }
 
-  /// The free week's facts stand still after it: day 20 says what day 8 said (#48).
-  @Test func theFreeWeekIsItsSevenNightsAndStaysPut() {
+  /// The free nights' facts stand still after them: day 27 says what day 15 said (#48).
+  @Test func theFreeNightsAreFourteenAndStayPut() {
     var s = setUp()
     s.setupFinishedAt = date(2026, 11, 1, 15)
     s.trial.start = date(2026, 11, 1, 15)
@@ -70,7 +94,7 @@ struct TrialTests {
         entitled: true, door: door, active: [BlockID("sleep")])
     }
     var log: [Transition] = []
-    for day in 1...7 where day != 4 {
+    for day in 1...14 where day != 4 {
       log.append(line(date(2026, 11, day, 22, 30), .windowStart))
     }
     log.append(line(date(2026, 11, 2, 23), .blockScreen))
@@ -81,15 +105,15 @@ struct TrialTests {
     log.append(line(date(2026, 11, 5, 23, 2), .doorStart, door: .open))
     log.append(line(date(2026, 11, 5, 23, 3), .doorLocked))
     // After the trial, nothing counts.
-    log.append(line(date(2026, 11, 9, 23), .blockScreen))
-    let day8 = FreeWeek(state: s, log: log, now: date(2026, 11, 8, 15), calendar: london)
-    let day20 = FreeWeek(state: s, log: log, now: date(2026, 11, 20, 15), calendar: london)
-    #expect(day8 == day20)
-    #expect(day8?.bars.count == 7)
-    #expect(day8?.nightsBlocked == 6)
-    #expect(day8?.nightsCounted == 7)
-    #expect(day8?.timesStopped == 2)
-    #expect(day8?.unlocksUsed == 1)
+    log.append(line(date(2026, 11, 16, 23), .blockScreen))
+    let day15 = FreeWeek(state: s, log: log, now: date(2026, 11, 15, 15), calendar: london)
+    let day27 = FreeWeek(state: s, log: log, now: date(2026, 11, 27, 15), calendar: london)
+    #expect(day15 == day27)
+    #expect(day15?.bars.count == 14)
+    #expect(day15?.nightsBlocked == 13)
+    #expect(day15?.nightsCounted == 14)
+    #expect(day15?.timesStopped == 2)
+    #expect(day15?.unlocksUsed == 1)
   }
 
   /// A reinstall after the free week isn't promised another (#46, P-4).
@@ -101,9 +125,53 @@ struct TrialTests {
         start: start, purchased: purchased, now: now, sleep: sleep, calendar: london,
         config: .defaults)
     }
-    #expect(offer(nil) == .fresh(endsAt: date(2026, 11, 27, 7)))
-    #expect(offer(date(2026, 11, 18, 15)) == .running(endsAt: date(2026, 11, 25, 7)))
-    #expect(offer(date(2026, 11, 5, 15)) == .used(endedAt: date(2026, 11, 12, 7)))
+    #expect(offer(nil) == .fresh(endsAt: date(2026, 12, 4, 7)))
+    #expect(offer(date(2026, 11, 18, 15)) == .running(endsAt: date(2026, 12, 2, 7)))
+    #expect(offer(date(2026, 11, 5, 15)) == .used(endedAt: date(2026, 11, 19, 7)))
     #expect(offer(date(2026, 11, 5, 15), purchased: true) == .purchased)
+  }
+
+  // MARK: The start in two places (D78)
+
+  /// A new phone on the same Apple ID: its own copy is later, or missing; the iCloud one wins.
+  @Test func theEarliestStartWins() {
+    let first = date(2026, 11, 3, 21)
+    let later = date(2026, 11, 20, 21)
+    let both = TrialStart(thisPhone: later, appleID: first)
+    #expect(both.start == first)
+    #expect(both.settled == TrialStart(thisPhone: first, appleID: first))
+    #expect(TrialStart(thisPhone: first, appleID: later).start == first)
+    #expect(
+      TrialStart(thisPhone: nil, appleID: first).begun(now: later)
+        == TrialStart(thisPhone: first, appleID: first))
+  }
+
+  /// iCloud Keychain off, or a phone that began before D78: this phone's start stands, as before.
+  @Test func aStartOnThisPhoneOnly() {
+    let start = date(2026, 11, 17, 15)
+    let local = TrialStart(thisPhone: start, appleID: nil)
+    #expect(local.start == start)
+    #expect(local.settled == TrialStart(thisPhone: start, appleID: start))
+    #expect(local.begun(now: date(2026, 11, 26, 20)).start == start)
+    let none = TrialStart(thisPhone: nil, appleID: nil)
+    #expect(none.start == nil)
+    #expect(none.settled == none)
+    #expect(none.begun(now: start) == TrialStart(thisPhone: start, appleID: start))
+  }
+
+  /// The iCloud copy can arrive after setup on a new phone: the state takes the earlier start, and
+  /// the free nights end when they would have on the first phone.
+  @Test func anEarlierStartArrivingLaterEndsTheFreeNights() {
+    var s = DuskState()
+    _ = apply(
+      .finishSetup(sleep: sleepBlock(), home: homePlace, trialStart: date(2026, 12, 3, 20)), &s,
+      date(2026, 12, 3, 20))
+    arrive(&s, homePlace, date(2026, 12, 3, 20))
+    run(&s, date(2026, 12, 3, 23))
+    #expect(s.trial.entitled)
+    _ = apply(.trialStart(date(2026, 11, 17, 15)), &s, date(2026, 12, 4, 20))
+    run(&s, date(2026, 12, 4, 23))
+    #expect(s.trial.start == date(2026, 11, 17, 15))
+    #expect(!s.trial.entitled)
   }
 }

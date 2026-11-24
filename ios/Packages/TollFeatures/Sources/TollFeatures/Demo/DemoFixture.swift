@@ -108,7 +108,7 @@
         : firstWeek || scenario == .homeCard || scenario == .homeHeadsUp
           ? 1
           : scenario == .homeLastNight
-            ? 6
+            ? 13
             : later
               ? 20
               : paused
@@ -125,7 +125,7 @@
       state.trial.start = state.setupFinishedAt
       state.trial.purchased = later || morning
       if scenario == .homePaused {
-        state.trial.start = calendar.date(byAdding: .day, value: -8, to: now)
+        state.trial.start = calendar.date(byAdding: .day, value: -15, to: now)
         state.trial.entitled = false
       }
       if scenario == .homeLocation { state.location = .scheduleOnly }

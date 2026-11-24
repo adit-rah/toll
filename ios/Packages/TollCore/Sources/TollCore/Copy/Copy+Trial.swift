@@ -1,9 +1,9 @@
 import Foundation
 
 extension Copy {
-  /// The purchase sheet (the design canvas): the week's facts, what it keeps, the price.
+  /// The purchase sheet (the design canvas): the free nights' facts, what it keeps, the price.
   public enum Purchase {
-    public static let eyebrow = "Your free week"
+    public static let eyebrow = "Your free nights"
     public static let title = "Keep your nights."
     public static let benefits = [
       "Every night, for good", "No subscription, ever", "No account",

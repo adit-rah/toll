@@ -8,6 +8,13 @@ public struct Keychain: Sendable {
     case trialStart
   }
 
+  /// Where an item lives. `appleID` is an iCloud Keychain item (`kSecAttrSynchronizable`): Apple's
+  /// end-to-end-encrypted store for the Apple ID, never a Dusk server (D78). With iCloud Keychain
+  /// off it stays on this phone.
+  public enum Scope: Sendable {
+    case thisPhone, appleID
+  }
+
   let service: String
   private let memory: Memory?
 
@@ -27,9 +34,9 @@ public struct Keychain: Sendable {
     self.memory = memory
   }
 
-  public func string(_ key: Key) -> String? {
-    if let memory { return memory.values.withLock { $0[key] } }
-    var query = base(key)
+  public func string(_ key: Key, in scope: Scope = .thisPhone) -> String? {
+    if let memory { return memory.values.withLock { $0[Memory.Slot(key: key, scope: scope)] } }
+    var query = base(key, scope)
     query[kSecReturnData as String] = true
     query[kSecMatchLimit as String] = kSecMatchLimitOne
     var item: CFTypeRef?
@@ -41,16 +48,19 @@ public struct Keychain: Sendable {
     return String(data: data, encoding: .utf8)
   }
 
-  public func set(_ value: String?, for key: Key) {
+  public func set(_ value: String?, for key: Key, in scope: Scope = .thisPhone) {
     if let memory {
-      memory.values.withLock { $0[key] = value }
+      memory.values.withLock { $0[Memory.Slot(key: key, scope: scope)] = value }
       return
     }
-    SecItemDelete(base(key) as CFDictionary)
+    SecItemDelete(base(key, scope) as CFDictionary)
     guard let value else { return }
-    var query = base(key)
+    var query = base(key, scope)
     query[kSecValueData as String] = Data(value.utf8)
-    query[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+    // A synced item can't be tied to this device.
+    query[kSecAttrAccessible as String] =
+      scope == .appleID
+      ? kSecAttrAccessibleAfterFirstUnlock : kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
     SecItemAdd(query as CFDictionary, nil)
   }
 
@@ -68,15 +78,23 @@ public struct Keychain: Sendable {
     }
   }
 
-  private func base(_ key: Key) -> [String: Any] {
-    [
+  /// Without `kSecAttrSynchronizable` a query matches only this phone's items, so the two scopes
+  /// never read or delete each other's.
+  private func base(_ key: Key, _ scope: Scope) -> [String: Any] {
+    var query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
       kSecAttrAccount as String: key.rawValue,
     ]
+    if scope == .appleID { query[kSecAttrSynchronizable as String] = kCFBooleanTrue }
+    return query
   }
 }
 
 private final class Memory: Sendable {
-  let values = Mutex<[Keychain.Key: String]>([:])
+  struct Slot: Hashable {
+    let key: Keychain.Key
+    let scope: Keychain.Scope
+  }
+  let values = Mutex<[Slot: String]>([:])
 }
