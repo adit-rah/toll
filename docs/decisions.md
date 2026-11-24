@@ -268,6 +268,14 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Limits:** "Time windows" are now "Sets of hours".
 
 
+**D75. Tonight says what its times mean; the strip is the whole day** (2026-11-24, founder, in chat; with the UX audit's Tonight findings, #120; amends D33, D60, D69's evening line and D74's "phone-free").
+- **Eyebrows say what the big time is:** "Apps lock at" (a later day is named: "Apps lock Monday at"), "Apps locked until", "Paused until" with "Then locked until 7:00 am", "Night ends at" with "Apps lock when you're home" while away, "Dusk is off", "Screen Time is off", "Your night". Never "Tonight" alone.
+- **Quantities say what they count:** "8 h 30 m phone-free tonight" is gone. "N nights with apps locked" on the purchase sheet; "N nights locked" and "N h locked at night" on Your sleep, and the hours count only the night's block. "Never mind" taps are "You chose sleep" (founder).
+- **Only what's tappable looks tappable:** the free-week pill opens the purchase sheet, with a chevron, a pressed state and a hint. There's no pill while away, while locked or with no night. Off's glyph has no tile.
+- **The strip is the whole day,** wake to wake. The night is the tall amber bar with its moon; other blocks are shorter grey bars with their glyph. Solid while on, outlined before, faint once over, dashed when nothing will block. Every segment is a button of at least 44 pt (close ones share one); a tap opens a system popover with name, state, hours, apps, place and "Edit ›". Under the morning card the strip says "Tonight 10:30 pm". Setup and Blocks keep the night-only picture. The day starts at wake, so D76's gap will fit before the moon.
+- **The pause stays on Tonight:** the pause sheet can be swiped away; the hero shows the paused state with "Lock again", and Pause reopens the sheet. The dots say "2 of 3 left this week".
+- **No dead end:** "Nothing scheduled" offers "Set your night". At accessibility sizes the state comes before any card.
+
 **D76. Apps lock before bed, and the gap grows with you** (2026-11-24, founder, in chat; amends spec §7 Setup, D66 and D68).
 - **Terms:**
   - **Bed** is the night's start as set today (wake minus 8 h 30 m, editable).

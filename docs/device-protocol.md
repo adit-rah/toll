@@ -48,9 +48,9 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 30 | A night away, then a blocked night, with an unlock spent before (#61) | The refill's "N more blocked nights" drops by one only after the blocked night | | |
 | 31 | Block screen of an app on a Study block, then on Sleep, with 2 unlocks left (#75) | The picture is a book over ●●○ for Study, a moon over ●●○ for Sleep | | |
 | 32 | After two nights, Settings › Transition log › Share night records (#51) | A file with one line per ended night; tonight's isn't there until it ends; opening the app again adds no duplicates | | |
-| 33 | After a blocked night with two "Never mind" taps, open the app at 8 am (#103) | Tonight shows Last night: a moon → sun bar with the real on and off times, "You put it down 2 times", last night's dot filled | | |
+| 33 | After a blocked night with two "Never mind" taps, open the app at 8 am (#103) | Tonight shows "Apps locked last night": a moon → sun bar with the real on and off times, "You chose sleep 2 times", last night's dot filled | | |
 | 34 | Pause for 10 minutes during the night, open the app the next morning (#103) | The bar has a gap at the pause; VoiceOver reads "open from … to …" | | |
-| 35 | Open the app at 12:01 pm after a blocked night (#103) | The morning card is gone; the hero shows tonight's start and "8 h 30 m phone-free tonight" | | |
+| 35 | Open the app at 12:01 pm after a blocked night (#103) | The morning card is gone; the hero shows "Apps lock at" and tonight's start | | |
 | 36 | Monday morning after a week of nights, then again after Monday's night starts (#103) | Your sleep reads "A new week · N nights last week" over seven empty dots, then "This week" with Monday filled | | |
 | 37 | Let the transition log trim (more than 10 nights), then compare Your sleep's count before and after (#103) | The count never drops | | |
 | 38 | During a pause (#99, D67), open apps from every active block | Every blocked app, site and category opens, across all blocks at once | | |
@@ -74,7 +74,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 56 | Type a 30-character name; then clear it to spaces | Typing stops at 24 characters; with only spaces Save is off | | |
 | 57 | With 8 time windows used, change a block's hours to new times inline | The "Up to 8 time windows" note appears and Save stays off until the hours are put back | | |
 | 58 | During Study's hours (night not on), open Tonight | The hero shows tonight's start or the morning card; one grey line "Study on until 5:00 pm" with lock and book, and Pause beside it; Pause lifts every block | | |
-| 59 | During the night with Study also on | The hero is "Blocked until"; the Study line has no Pause capsule | | |
+| 59 | During the night with Study also on | The hero is "Apps locked until"; the Study line has no Pause capsule | | |
 | 60 | Location While Using, home not set, Study at a place | Tonight shows no location card; Blocks shows Study's row with "Anywhere" | | |
 | 61 | Open the Blocks tab, then any block editor | The night card leads (moon – sun); the editor hides the tab bar and Save is fully visible | | |
 | 62 | The morning after the 7th night the lock ran (#118) | Tonight's card shows the Big Dipper tile, "7 nights. The Big Dipper is in your sky." and share. Your sleep's sky shows 7 stars with the last in amber, fading in once; reopening doesn't fade again | | |
@@ -83,6 +83,16 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 65 | VoiceOver on Your sleep | "Your sky. N nights locked. M constellations."; "Share" only on landmark days | | |
 | 66 | Reduce Motion on, the morning after a night | The newest star still crossfades 200 ms; nothing else moves | | |
 | 67 | AX5 on a landmark morning | The sky stays full width; the landmark shape stacks above its line; nothing is truncated | | |
+| 68 | Evening before the night, home set | "Apps lock at", 10:30 pm, "At home · starts in …"; nothing says "phone-free" | | |
+| 69 | Weekday-only night, Saturday afternoon | "Apps lock Monday at" | | |
+| 70 | During the night, Pause, wait out the 60 s, swipe the sheet down | Hero "Paused until hh:mm · Then locked until 7:00 am" with Lock again; the sheet closes freely; Lock again locks; after 10 min "Apps locked until" returns with the app closed | | |
+| 71 | Leave home during the night | "Night ends at 7:00 am · Apps lock when you're home"; no pill | | |
+| 72 | In the free week, tap the pill | Purchase sheet; the pill dims on press; VoiceOver reads its hint | | |
+| 73 | On a weekday, tap the night, Study and Gym on the strip; tap Edit | Each snippet is right; Edit opens that block's editor and Back reads "Tonight" | | |
+| 74 | VoiceOver across the strip | "Now, …", then one element per segment with its snippet and an "Edit …" action | | |
+| 75 | AX5: tap the night | The snippet opens as a sheet and scrolls; the state is above any card | | |
+| 76 | Morning after a locked night | "Apps locked last night", "You chose sleep N times", "Tonight 10:30 pm" over the strip | | |
+| 77 | Your sleep with Study used that week | "N h locked at night" excludes Study's hours; "N nights locked" | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
