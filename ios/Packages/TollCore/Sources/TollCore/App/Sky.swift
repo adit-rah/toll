@@ -44,6 +44,8 @@ public struct Sky: Equatable, Sendable {
     public var line: String
     /// The constellation last night's star completed, alone; the whole sky when it completed none.
     public var shape: Drawing
+    /// The whole sky, for the shared picture.
+    public var sky: Drawing
     /// "30 nights", under the sky in the shared picture.
     public var number: String
   }
@@ -83,7 +85,7 @@ public struct Sky: Equatable, Sendable {
     landmark = Landmark(
       nights: nights,
       line: Copy.Sky.landmark(nights, completed: figure?.constellation),
-      shape: figure.map { Self.shape($0, stars: stars, newest: newest) } ?? drawing,
+      shape: figure.map { Self.shape($0, stars: stars, newest: newest) } ?? drawing, sky: drawing,
       number: Copy.Sky.number(nights))
   }
 
