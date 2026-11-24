@@ -23,6 +23,12 @@ public struct Gap: Codable, Hashable, Sendable {
     /// The card was answered: kept or put away.
     public var seen = false
 
+    public init(week: Date, from: Int, to: Int) {
+      self.week = week
+      self.from = from
+      self.to = to
+    }
+
     public var grew: Bool { to > from }
   }
 
