@@ -98,7 +98,7 @@ public struct HomeSnapshot: Equatable, Sendable {
   public init(
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
     config: TollConfig = .defaults, screenTime: Bool = true,
-    notifications: NotificationPermission = .allowed
+    notifications: NotificationPermission = .allowed, history: [PastNight] = []
   ) {
     let sleep = state.sleepBlock
     screenTimeOff = state.setupFinishedAt != nil && !screenTime
@@ -137,6 +137,13 @@ public struct HomeSnapshot: Equatable, Sendable {
     bars = week.bars
     if case .tonight(let start, _) = hero {
       morning = Morning(state: state, log: log, now: now, calendar: calendar, config: config)
+      if morning?.outcome == .ran {
+        // Only a night that ran can be a landmark; the count reads the night log too (D79).
+        let ran = NightsRan.keys(
+          state: state, log: log, history: history, now: now, calendar: calendar)
+        morning?.landmark =
+          NightsRan.sky(ran, sleep: sleep, now: now, calendar: calendar, config: config).landmark
+      }
       phoneFree =
         morning == nil ? Self.phoneFree(sleep, start: start, now: now, calendar: calendar) : nil
     }
