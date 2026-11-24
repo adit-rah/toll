@@ -91,3 +91,23 @@ _Filled in once every screen is reviewed._
 | `InsightsView` labels its picker "Your nights" (`Copy.Insights.title`), the night editor's title, on the tab "Your sleep". | Inconsistent | P3 | Label it by what it picks: "Range". |
 | The tab is named Your sleep and shows no sleep: everything here is about the lock. Until Health lands (#86) the name promises more than it gives. | Misleading | P3 | Note for product; no change before #86 (D63, D65). |
 | "A new week" shows seven empty dashed dots on Monday morning. | Polish | P3 | Fine (D69); the line "N nights last week" carries it. When last week had no nights, the card is only dashed rings: add nothing, but check it with the renders. |
+
+## Blocks (`blocks`, `blocks-day`)
+
+| Issue | Type | Sev | Fix |
+|---|---|---|---|
+| The night card and the rows count a whole category as one app: "12 apps" when the list is 2 categories and 10 apps (`Copy.Blocks.appCount(block.appCount + block.categoryCount)`). Ready and the block screen's limits say "2 categories · 10 apps". | Misleading | P2 | Use `Copy.Blocks.summary(categories:apps:sites:)` on the card and rows, as Ready does. |
+| The footnote "A pause opens every block at once." with a pause glyph sits under the limits card, out of context, and "opens every block" isn't how a person thinks of it. | Vague | P3 | Move it into Settings' How it works, or say it on the pause sheet ("Every blocked app opens…", which it already does). |
+| "Sets of hours 3 of 8" is a limit people can't predict: blocks with the same hours share one, so adding a block may cost 0 or 1. | Vague | P3 | Keep the segments; in the "Up to 8 sets of hours" refusal, say what to do ("Give it the same hours as another block"), which `Copy.Blocks.refused` already does; use that same line in the New block row when it's off. |
+| The limits card sits at the bottom with the "spare room above" (D64). With three blocks it's a gap of empty screen between "New block" and the limits; at AX5 the limits push below the fold. | Polish | P3 | Accept (D64, founder's call). Note only. |
+
+## Block editor (`block-new`, `block-new-gym`, `block-edit`, `block-edit-on`, `block-night`)
+
+| Issue | Type | Sev | Fix |
+|---|---|---|---|
+| The night's editor has a Place row that opens the generic place search (Building / Street / Campus), while Tonight's card and Settings set home with the map flow and "This is home". Two ways to set home, drawn differently, and only one can unset it. | Inconsistent | P2 | Route the night's Place row to `SetHomeFlow`, with "Use anywhere" in it. |
+| For the night, the day chips mean "nights starting on". With weeknights Sunday to Thursday, the Monday-first row lights M T W T … S: it reads as Monday to Thursday plus Saturday or Sunday, and "S" is ambiguous on its own. | Vague | P2 | For the night, label the row "Nights starting" and use the short day names ("Sun Mon Tue…") at default sizes; or show the night's span ("Sun night → Mon morning") under the chips. |
+| Onboarding sets the night by the wake time ("When do you need to be up?", 8 h 30 m before), but the editor shows From / Until with no wake time. Changing Until silently changes how long the night is. | Inconsistent | P3 | Show the length under the fields ("8 h 30 m"), as the wake screen does. Becomes bigger with D76's bed and lock times. |
+| Save just pops back. Nothing says it saved, and a held save ("Save for after 7:00 am") leaves only the row's small "Changes apply at 7:00 am". | Feedback | P3 | Fine for an immediate save (the row changes). For a held save, keep the editor's note on the Blocks row in `accent` with the `clock` glyph so it's noticed. |
+| "Your nights can be changed but not deleted." answers a question nobody asked on the night's editor. | Wordy | P3 | Drop it; the night has no Delete button, which says the same. |
+| New block, before a kind: four tiles and "Pick one, then choose its apps." Picking a tile opens Apple's picker at once; cancelling the picker leaves the kind picked with an empty apps row and no hint why Save is off. | Feedback | P3 | The empty-apps dashed tile (#78) is there; add the detail "Choose apps to save" to that row while empty. |
