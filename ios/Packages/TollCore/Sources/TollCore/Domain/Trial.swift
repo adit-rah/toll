@@ -17,17 +17,17 @@ public enum Trial {
     return ended < config.trial.nights ? ended + 1 : nil
   }
 
-  /// The morning the free week ends: the seventh night end after the start (P-2).
+  /// The morning the free nights end: the `trial.nights`th night end after the start (P-2, D78).
   public static func lastEnd(
     since start: Date, sleep: WeeklySchedule, calendar: Calendar, config: TollConfig
   ) -> Date? {
-    guard let horizon = calendar.date(byAdding: .day, value: 30, to: start) else { return nil }
+    guard let horizon = horizon(from: start, config: config, calendar: calendar) else { return nil }
     let ends = sleep.ends(after: start, through: horizon, calendar: calendar)
     return ends.count >= config.trial.nights ? ends[config.trial.nights - 1] : nil
   }
 
-  /// What setup can promise (#46). The trial's start survives a reinstall in the Keychain (P-4), so
-  /// a phone that used its free week isn't offered another.
+  /// What setup can promise (#46). The trial's start survives a reinstall in the Keychain and follows
+  /// the Apple ID (P-4, D78), so a phone that used its free nights isn't offered more.
   public enum Offer: Equatable, Sendable {
     /// No trial yet: it starts when setup ends.
     case fresh(endsAt: Date?)
@@ -57,13 +57,18 @@ public enum Trial {
   static func nightKeys(
     since start: Date, sleep: WeeklySchedule?, calendar: Calendar, config: TollConfig
   ) -> [Date] {
-    guard let sleep, let horizon = calendar.date(byAdding: .day, value: 30, to: start) else {
+    guard let sleep, let horizon = horizon(from: start, config: config, calendar: calendar) else {
       return []
     }
     return sleep.ends(after: start, through: horizon, calendar: calendar)
       .prefix(config.trial.nights)
       .compactMap { sleep.occurrence(containing: $0.addingTimeInterval(-1), calendar: calendar) }
       .map { calendar.startOfDay(for: $0.start.addingTimeInterval(-12 * 3600)) }
+  }
+
+  /// Far enough ahead to hold every free night of a Sleep block that runs one night a week.
+  private static func horizon(from start: Date, config: TollConfig, calendar: Calendar) -> Date? {
+    calendar.date(byAdding: .day, value: 7 * (config.trial.nights + 1), to: start)
   }
 
   public static func isEntitled(

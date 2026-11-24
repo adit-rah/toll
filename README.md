@@ -1,6 +1,6 @@
 # Toll (sleep pivot; product name not chosen)
 
-Buy back your sleep: when you are at home inside your sleep window, the few apps you lose time to are blocked. One scarce door lets one app through for a few minutes. Seven nights free, then one purchase. Everything stays on the device.
+Buy back your sleep: when you are at home inside your sleep window, the few apps you lose time to are blocked. One scarce door lets one app through for a few minutes. 14 nights free, then one purchase. Everything stays on the device.
 
 - What gets built: [`docs/sleep-pivot-mvp.md`](docs/sleep-pivot-mvp.md)
 - Decisions and findings: [`docs/decisions.md`](docs/decisions.md)

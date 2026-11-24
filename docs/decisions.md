@@ -346,3 +346,8 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Landmarks** at 7, 30, 100 and 365 *(config)*. The morning card shows the completed shape, "30 nights. Orion is in your sky." and share. The shared image (`ImageRenderer`, `ShareLink`) is the sky, the moon and "N nights locked", and nothing else.
 - **VoiceOver:** "Your sky. 23 nights locked. 3 constellations."
 
+**D82. The 14 free nights, as built** (2026-11-24, #115; details of D78).
+- **Two rows of seven:** the free nights are drawn as segments, one row per week, on Welcome, Ready, the pill and the purchase sheet. Tonight's segment is an accent outline, so the drawing matches "Night 5 of 14" without words, and the purchase sheet's segments tell VoiceOver the same. After the trial, Your sleep shows the frozen free nights as two rows of seven dots.
+- **"Free nights", not "free week":** "14 nights free", "Start my free nights", "Free nights used", "Your free nights ended …", "Your free nights", Settings' "Free nights". The trial counts nights, and a night that skips days takes longer than two weeks. Code names (`FreeWeek`) are unchanged for now.
+- **The trial start is kept twice:** in the phone's Keychain and as an iCloud Keychain item (`kSecAttrSynchronizable`, after first unlock). At setup, launch and foreground the earliest wins and is copied to whichever is missing or later, so a phone that started before this change gets its iCloud copy, and a new phone that finished setup before the copy arrived takes the earlier date. With iCloud Keychain off, nothing changes. The privacy label stays "Data Not Collected".
+- The free nights are looked for `7 × (nights + 1)` days ahead, so a night that runs once a week still reaches its 14th.

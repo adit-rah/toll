@@ -5,7 +5,7 @@ Dusk stands for the product name, not chosen yet (spec header). Copy rules from 
 ## Listing
 
 - **Subtitle (30):** Buy back your sleep
-- **Promotional text:** Seven nights free. Then $9.99 once, or it switches off. No subscription.
+- **Promotional text:** 14 nights free. Then $9.99 once, or it switches off. No subscription.
 - **Description:**
 
   > Buy back your sleep. When you are home in your sleep window, the apps you lose time to are blocked.
@@ -17,15 +17,15 @@ Dusk stands for the product name, not chosen yet (spec header). Copy rules from 
   >
   > There is no way to end the block for the night.
   >
-  > Seven nights free. Then $9.99 once, or it switches off. No subscription.
+  > 14 nights free. Then $9.99 once, or it switches off. No subscription.
   >
   > No account, no servers. We never see your data.
 
 - **Keywords (100):** sleep,bedtime,night,screen time,app blocker,focus,phone,limit,block apps,home,wind down
 - **Category:** Health & Fitness (secondary: Productivity)
 - **Age rating:** 4+
-- **Privacy label:** Data Not Collected
-- **In-app purchase:** `com.advan.toll.full`, non-consumable, $9.99. Display name "Keep it". Description: "Keeps the nightly block running after the free week."
+- **Privacy label:** Data Not Collected. The trial start date in iCloud Keychain (decisions D78) doesn't change it: Apple holds it end-to-end encrypted on the person's behalf, and the developer never receives it.
+- **In-app purchase:** `com.advan.toll.full`, non-consumable, $9.99. Display name "Keep it". Description: "Keeps the nightly block running after the free nights."
 
 ## Review notes
 
@@ -33,7 +33,7 @@ Dusk stands for the product name, not chosen yet (spec header). Copy rules from 
 >
 > **What the purchase sells (4.10).** The one-time purchase pays for the app's own function: tying a Screen Time block to the user's sleep window and to being at home, with a limited "door" to open one app. It does not sell access to Screen Time or to blocking as such.
 >
-> **Trial (3.1.1).** The first screen states the terms before anything else: "Seven nights free. Then $9.99 once, or it switches off. No subscription." The seven nights start when setup ends. After them, without the purchase, the app stops blocking and says so. There is no subscription, and nothing is charged automatically.
+> **Trial (3.1.1).** The first screen states the terms before anything else: "14 nights free. Then $9.99 once, or it switches off. No subscription." The 14 nights start when setup ends. Their start date is kept in the Keychain and in the user's iCloud Keychain, so deleting the app or moving to a new iPhone continues the same free nights; it is only a date, and there is no server. After them, without the purchase, the app stops blocking and says so. There is no subscription, and nothing is charged automatically.
 >
 > **Location (5.1.1, 5.1.5, 2.5.4).** Location is used for one thing: whether the user is inside one circle around the home they confirmed, so the block can start and stop with the app closed. That is why the app asks for Always. It keeps a single yes or no, never a history, and stores no coordinates but the home point. Location is optional, and the paid function does not depend on it: without it, the block runs every night in the sleep window wherever the user is.
 >
@@ -43,4 +43,4 @@ Dusk stands for the product name, not chosen yet (spec header). Copy rules from 
 > 3. Once the night starts, any other app shows the block screen. "Open Dusk" leads to the door: choose one app, wait 90 seconds, and it opens for 5 minutes. "Lock again" within 2 minutes returns the unlock.
 > 4. Settings → Sleep window changes the night; changes made during a block apply when it ends.
 >
-> The block lifts at the end of the sleep window, when the user leaves home, or after the free week without the purchase.
+> The block lifts at the end of the sleep window, when the user leaves home, or after the free nights without the purchase.
