@@ -93,6 +93,11 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 75 | AX5: tap the night | The snippet opens as a sheet and scrolls; the state is above any card | | |
 | 76 | Morning after a locked night | "Apps locked last night", "You chose sleep N times", "Tonight 10:30 pm" over the strip | | |
 | 77 | Your sleep with Study used that week | "N h locked at night" excludes Study's hours; "N nights locked" | | |
+| 78 | During the free nights, note "Night N of 14", delete Dusk, reinstall, open it (#115) | Welcome shows the trial still running; after setup the pill shows the same "Night N of 14 free"; Settings shows "Free nights · Night N of 14" | | |
+| 79 | On a second iPhone on the same Apple ID with iCloud Keychain on, install Dusk and wait for Keychain to sync | Welcome and Ready continue from the first phone's start ("Free until the morning of …" matches), or "Free nights used" if they ended; the pill matches | | |
+| 80 | On the second phone, finish setup before the Keychain item arrives, then reopen later | The night count jumps to match the first phone; the free nights end on the same morning | | |
+| 81 | With iCloud Keychain off, set up, then delete and reinstall | Same night count as before; nothing else changes | | |
+| 82 | Last free night: look at the pill | "Last free night tonight", 13 segments filled and the 14th outlined, on the amber tint | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
