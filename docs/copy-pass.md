@@ -72,3 +72,27 @@ These had no caller. They were deleted so the scan and the next pass read only w
 - **"N nights last week"** on a new week: a fact about your own past, not set against this week.
 - **"Your most in a week"**: shown only when this week beats every earlier week (D69). It's a fact, not praise.
 - **"Every night is yours"** (after buying): the founders' words (D59).
+
+## Tonight says what its times mean (D75)
+
+The founder's review of Tonight (24 Nov 2026): an eyebrow must say what the big time is, and a quantity must say what it counts.
+
+| Where | Before | After | Why |
+|---|---|---|---|
+| Tonight, evening eyebrow (`Home.locksAt`, `locksTomorrowAt`, `locksOn`) | Tonight | Apps lock at · Apps lock tomorrow at · Apps lock Monday at | "Tonight" didn't say what the time was. A start that isn't tonight names its day. |
+| Tonight, evening (`Home.phoneFree`) | 8 h 30 m phone-free tonight | (removed) | Read as time off the phone today, not the night's length. |
+| Tonight, blocked eyebrow (`Home.blockedUntil`) | Blocked until | Apps locked until | Pairs with "Apps lock at". |
+| Tonight, blocked line away from a home (`Home.blockedDetail`) | On now · 3 pauses left | 3 pauses left | "On now" repeated the eyebrow. |
+| Tonight, pause open (`Home.pausedUntil`, `thenLockedUntil`) | Blocked until 7:00 am | Paused until 11:52 pm · Then locked until 7:00 am | The apps were open; the hero said they were blocked. |
+| Tonight, away (`Home.nightEndsAt`, `locksWhenHome`) | Tonight · 10:30 pm · Starts when you're home | Night ends at · 7:00 am · Apps lock when you're home | The time shown had already passed. |
+| Tonight, without location (`Home.anywhereStartsIn`) | Starts at 10:30 pm, wherever you are | Anywhere · starts in 2 h 35 m | The start is already the big time. Same words as home not set. |
+| Tonight, a start days away (`Home.duration`) | Starts in 55 h 30 m | Starts in 2 d 7 h | Readable at a glance. |
+| Tonight, off eyebrow (`Home.isOff`) | Off | Dusk is off | Says what's off. |
+| Tonight, Screen Time eyebrow (`Home.screenTimeOffEyebrow`) | Screen Time off | Screen Time is off | A sentence, like the others. |
+| Tonight, nothing scheduled eyebrow (`Home.yourNight`) | (empty) | Your night | Every eyebrow says what the line under it is about. |
+| Morning card eyebrow (`Morning.lockedLastNight`) | Last night | Apps locked last night (when it ran) | Says what the bar and its times are. Away or Screen Time off keeps "Last night". |
+| Purchase sheet, nights (`Home.nightsLabel`) | 5 · nights phone-free | 5 · nights with apps locked | Counts nights the apps were locked, not time off the phone. |
+| Your sleep, hours (`Insights.hoursLabel`) | 161 h phone-free | 161 h with apps locked | The same. It counts every block's hours, so not "at night". |
+| Back button from Tonight (`Home.backTitle`) | Home | Tonight | "Home" is also the place. |
+| The pill, VoiceOver hint (`Home.pillHint`) | (none) | Shows your free week and the price | The pill now opens the purchase sheet. |
+| The strip and its snippet (`Copy.Strip`) | Tonight, 10:30 pm to 7:00 am | Your night, 10:30 pm – 7:00 am, 4 apps, Home, Tonight · Edit | Each segment is a button with its snippet. |

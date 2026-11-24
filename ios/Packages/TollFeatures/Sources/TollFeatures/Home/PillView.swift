@@ -4,7 +4,7 @@ import TollUI
 
 /// The pill under the bar. A free night is grey on `surface`, the last one amber on its tint (D33);
 /// both open the purchase sheet (D75), so both carry a chevron, dim while pressed and say what a tap
-/// does. "Away from home" is a label: no chevron, no tap.
+/// does. "Away from home" is a label: no capsule, no chevron, no tap.
 struct PillView: View {
   let pill: HomeSnapshot.Pill
   let open: () -> Void
@@ -55,9 +55,9 @@ struct PillView: View {
       }
       .tollType(TollType(size: 13, lineHeight: 18, weight: .medium, style: .footnote))
       .foregroundStyle(TollColor.label2)
+      // No capsule: on Tonight a capsule is something to tap (the free-week pill, Pause), D75.
       .padding(.horizontal, 14)
       .frame(minHeight: 30)
-      .background(TollColor.surface, in: Capsule())
       .accessibilityElement(children: .combine)
     }
   }

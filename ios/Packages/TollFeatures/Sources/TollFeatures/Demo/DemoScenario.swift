@@ -38,6 +38,9 @@
     /// The strip's snippet open (D75): on the night in the evening, and on Study at 11 am.
     case homeStripNight = "home-strip-night"
     case homeStripDay = "home-strip-day"
+    /// The free-week pill's purchase sheet over Tonight (D75), and the hero while a pause is open.
+    case homePillPurchase = "home-pill-purchase"
+    case homePauseOpen = "home-pause-open"
     case sleepMonday = "sleep-monday"
     case sleepBest = "sleep-best"
     /// Home not set (D68): the first evening, then the card the morning after the first night.
@@ -194,7 +197,13 @@
     let app: AppModel
     let scenario: DemoScenario
     /// The purchase sheet from the pill, so a scripted tap on it opens what the app's does (D75).
-    @State private var buying = false
+    @State private var buying: Bool
+
+    init(app: AppModel, scenario: DemoScenario) {
+      self.app = app
+      self.scenario = scenario
+      _buying = State(initialValue: scenario == .homePillPurchase)
+    }
 
     var body: some View {
       let now = DemoClock.now(for: scenario)
