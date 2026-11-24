@@ -5,7 +5,7 @@ from dusk_model import artifact
 from dusk_model.artifact import Params
 from dusk_model.insights import normal_quantile, shown
 from dusk_model.model import cholesky, mean, predict, prior_state, update
-from dusk_model.night import Context, bed_of, features, gap_of
+from dusk_model.night import Context, bed_of, features, gap_of, helper_of
 from dusk_model.person import PersonModel, SeededRNG
 from dusk_model.policy import choose
 from dusk_model.rng import SplitMix64, SplitMix64Batch
@@ -180,6 +180,16 @@ def test_records_with_a_gap_measure_sleep_from_bed():
     new = record(bed="2026-11-20T23:00:00-05:00", gap_min=30)
     assert gap_of(new) == 30
     assert features(new, PARAMS).y == features(old, PARAMS).y == 20.0
+
+
+def test_records_name_the_helper_used_and_older_ones_read_as_none():
+    old = record()
+    assert "helper" not in old and helper_of(old) is None
+    assert helper_of(record(helper="breathe")) == "breathe"
+    assert helper_of(record(helper=None)) is None
+    assert helper_of(record(helper="something new")) is None
+    # Private to the pilot: it never changes what the model learns from a night.
+    assert features(record(helper="list"), PARAMS) == features(old, PARAMS)
 
 
 def test_person_model_round_trip():

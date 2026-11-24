@@ -14,6 +14,9 @@ public enum TonightCard: String, Codable, Hashable, Sendable, CaseIterable {
   case gapWeek
   /// "Lock apps 15 min before bed?": once, for an install from before D76.
   case gapOffer
+  /// "Something for the next 15 minutes?": once, in the gap before bed, introducing the "Before
+  /// bed" capsule (D80). After warnings, home and the heads-up.
+  case beforeBed
 }
 
 extension DuskState {
@@ -32,14 +35,17 @@ extension DuskState {
 
 extension HomeSnapshot {
   /// Offers are quiet: none while anything is blocked, none once the free week is over, none while a
-  /// warning holds the slot.
+  /// warning holds the slot. The one card that belongs to a locked evening is Before bed's, in the
+  /// gap (D80); it comes after the others, which can't show while the lock is on.
   static func card(
     _ state: DuskState, now: Date, calendar: Calendar, warning: Bool,
-    notifications: NotificationPermission
+    notifications: NotificationPermission, untilBed: Int? = nil
   ) -> TonightCard? {
-    guard !warning, !state.isBlocking, state.trial.entitled,
-      let finished = state.setupFinishedAt, let sleep = state.sleepBlock
-    else { return nil }
+    guard !warning, state.trial.entitled else { return nil }
+    if state.isBlocking {
+      return untilBed != nil && !state.dismissed(.beforeBed) ? .beforeBed : nil
+    }
+    guard let finished = state.setupFinishedAt, let sleep = state.sleepBlock else { return nil }
     // A night has ended since setup: the user has had one, and the offer has a reason.
     let nightEnded = sleep.schedule.lastEnd(atOrBefore: now, calendar: calendar).map {
       $0 > finished

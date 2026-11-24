@@ -11,6 +11,8 @@ public enum ReconcileCause: String, Codable, Sendable, CaseIterable {
   /// The block screen's "Unlock in Dusk" (D32); older logs wrote these as `blockScreen` too.
   case doorAsked
   case doorChosen, doorCancelled, doorLocked, doorStart, doorEnd
+  /// A helper before bed was opened (D80): the night record's private `helper` reads these.
+  case helperList, helperBreathe, helperWords
 }
 
 /// One line of the transition log (B-6): when, why, and the state that resulted.

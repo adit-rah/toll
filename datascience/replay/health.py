@@ -78,6 +78,7 @@ def records(
                 "planned_bedtime": planned.isoformat(),
                 "bed": planned.isoformat(),
                 "gap_min": 0,
+                "helper": None,
                 "planned_wake": wake.isoformat(),
                 "block_start": planned.isoformat(),
                 "block_end": wake.isoformat(),

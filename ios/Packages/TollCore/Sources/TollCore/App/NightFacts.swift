@@ -31,6 +31,8 @@ public struct NightFacts: Equatable, Sendable {
   public var unlocksUsed: Int
   public var unlocksReturned: Int
   public var weekend: Bool
+  /// The last helper opened before bed that night (D80): private, for the pilot, never shown.
+  public var helper: Helper?
 
   public var ran: Bool { blockStart != nil }
 
@@ -84,6 +86,7 @@ public struct NightFacts: Equatable, Sendable {
         } else if let last = lastSleeping, facts.blockEnd.map({ $0 < last }) ?? true {
           facts.blockEnd = line.at
         }
+        if let helper = line.cause.helper { facts.helper = helper }
         if line.cause == .arrived, line.home == true, line.at < occurrence.end {
           facts.homeArrival = line.at
         }

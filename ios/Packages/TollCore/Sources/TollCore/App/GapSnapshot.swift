@@ -75,7 +75,7 @@ public struct GapCard: Equatable, Sendable {
         lock: Copy.time(start, in: calendar), wake: Copy.time(night.end, in: calendar))
       action = Copy.Gap.turnOn
       dismiss = Copy.Home.notNow
-    case .home, .headsUp:
+    case .home, .headsUp, .beforeBed:
       return nil
     }
   }

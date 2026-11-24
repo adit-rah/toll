@@ -30,4 +30,14 @@ struct NightRecordTests {
     #expect(night.features(.builtIn).skip == nil)
     #expect(night.features(.builtIn).onset == 20)
   }
+
+  /// D80: the helper used before bed rides along, private; older records have none, and it never
+  /// changes what the model takes from a night.
+  @Test func theHelperIsReadAndChangesNothing() throws {
+    #expect(try record().helper == nil)
+    #expect(try record(#","helper":null"#).helper == nil)
+    let night = try record(#","helper":"breathe""#)
+    #expect(night.helper == "breathe")
+    #expect(night.features(.builtIn) == (try record()).features(.builtIn))
+  }
 }

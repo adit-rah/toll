@@ -32,6 +32,8 @@ public struct DuskState: Codable, Hashable, Sendable {
   public var headsUp = true
   /// The gap before bed (D76). A file from before it keeps its night as it was (`Gap.existing`).
   public var gap = Gap()
+  /// Before bed's helpers in the gap (D80): on unless switched off, and the breath's length.
+  public var helpers = Helpers()
   public var runtime = RuntimeState()
 
   public init() {}

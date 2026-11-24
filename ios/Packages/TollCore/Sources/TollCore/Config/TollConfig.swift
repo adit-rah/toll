@@ -109,6 +109,30 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var landmarks = [7, 30, 100, 365]
   }
 
+  /// Before bed's three helpers in the gap (D80). The breath is about 6 a minute: the tone rises
+  /// while breathing in and falls while breathing out.
+  public struct Helpers: Codable, Sendable, Equatable {
+    public init() {}
+    /// How long the tone plays; Settings › Before bed moves it within `breathRange`.
+    public var breathMinutes = 3
+    public var breathMinMinutes = 1
+    public var breathMaxMinutes = 10
+    public var inhaleSeconds = 4.5
+    public var exhaleSeconds = 5.5
+    /// The tone comes in over this many seconds, and fades over the last `fadeOutSeconds`.
+    public var fadeInSeconds = 3.0
+    public var fadeOutSeconds = 15.0
+    /// A low sine from `lowHz` at the bottom of the breath to `highHz` at the top: soft, not shrill.
+    public var lowHz = 196.0
+    public var highHz = 262.0
+    /// Its loudness at the top of a breath, 0 to 1 of the phone's volume; quieter at the bottom.
+    public var loudness = 0.3
+    /// How much quieter the bottom of a breath is than the top, 0 to 1.
+    public var swell = 0.35
+
+    public var breathRange: ClosedRange<Int> { breathMinMinutes...breathMaxMinutes }
+  }
+
   public var window = Window()
   public var home = Home()
   public var door = Door()
@@ -118,6 +142,7 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public var headsUp = HeadsUp()
   public var gap = Gap()
   public var sky = Sky()
+  public var helpers = Helpers()
 
   public init() {}
 

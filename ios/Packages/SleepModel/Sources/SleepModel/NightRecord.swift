@@ -3,7 +3,8 @@ import Foundation
 /// One night as the app logs it (model spec, contract 1). Times are local ISO 8601 with the offset,
 /// kept as written; the model reads them through `LocalTime`. Since the lock starts a gap before bed
 /// (decisions D76), `plannedBedtime` is bed and the record says the gap; a record from before has
-/// neither, and its gap was 0.
+/// neither, and its gap was 0. Since the helpers before bed (D80) it can name the one used; that is
+/// private to the pilot, and the model never reads it.
 public struct NightRecord: Codable, Sendable, Equatable {
   public var night: String
   public var plannedBedtime: String
@@ -30,9 +31,12 @@ public struct NightRecord: Codable, Sendable, Equatable {
   public var asleepMin: Int?
   public var awakeMin: Int?
   public var sleepSource: String?
+  /// The helper last opened before bed that night ("list", "breathe", "words"); nil when none was,
+  /// and in older records.
+  public var helper: String?
 
   enum CodingKeys: String, CodingKey {
-    case night, policy, weekend, wake, bed
+    case night, policy, weekend, wake, bed, helper
     case gapMin = "gap_min"
     case plannedBedtime = "planned_bedtime"
     case plannedWake = "planned_wake"

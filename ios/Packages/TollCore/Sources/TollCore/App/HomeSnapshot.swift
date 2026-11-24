@@ -81,6 +81,9 @@ public struct HomeSnapshot: Equatable, Sendable {
   /// Under "Apps lock at 10:15 pm": "15 min before bed" (D76). Nil with no gap, or when the hero
   /// isn't the lock to come.
   public var beforeBed: String?
+  /// In the gap before bed, with the helpers on: whole minutes until bed. Tonight's quiet "Before
+  /// bed" capsule and its one card (D80); nil at any other time.
+  public var untilBed: Int?
 
   public init(
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
@@ -105,9 +108,10 @@ public struct HomeSnapshot: Equatable, Sendable {
     // Another block at a place says so on Blocks, since Tonight doesn't mention other blocks.
     locationBanner =
       state.setupFinishedAt != nil && state.location == .scheduleOnly && sleep?.place != nil
+    untilBed = Self.untilBed(state, hero: hero, now: now, calendar: calendar)
     card = Self.card(
       state, now: now, calendar: calendar, warning: screenTimeOff || locationBanner,
-      notifications: notifications)
+      notifications: notifications, untilBed: untilBed)
     if card == .headsUp {
       headsUp =
         HeadsUp.nights(
@@ -189,6 +193,16 @@ public struct HomeSnapshot: Equatable, Sendable {
     return .tonight(
       start: start,
       detail: Copy.Home.startsIn(Copy.Home.duration(start.timeIntervalSince(now)), atHome: atHome))
+  }
+
+  /// Between the lock and bed (D76), while the night is locked and not paused: the minutes left
+  /// until bed, rounded up. Nil once bed has come, during a pause, or with the helpers off (D80).
+  static func untilBed(_ state: DuskState, hero: Hero, now: Date, calendar: Calendar) -> Int? {
+    guard state.helpers.on, case .blocked = hero, let sleep = state.sleepBlock,
+      let end = state.runtime.active[sleep.id],
+      let bed = sleep.schedule.nextStart(after: now, calendar: calendar), bed < end
+    else { return nil }
+    return max(1, Int((bed.timeIntervalSince(now) / 60).rounded(.up)))
   }
 
   /// The other blocks on now, as one line: the one that ends last names the time.
