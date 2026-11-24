@@ -38,6 +38,11 @@ struct NightsCard: View {
     }
     .background(TollColor.surface)
     .clipShape(RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
+    // In dark mode the night matches the page; a hairline keeps the card whole.
+    .overlay(
+      RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
+        .strokeBorder(TollColor.separator, lineWidth: 1)
+    )
     .onAppear {
       SkySeen.count = sky.nights
       guard !newestShown else { return }
