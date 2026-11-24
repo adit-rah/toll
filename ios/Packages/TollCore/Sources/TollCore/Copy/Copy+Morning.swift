@@ -26,7 +26,10 @@ extension Copy {
 
   /// Your sleep (D63, D65, #103): one number per card, compared only with the person's own past.
   public enum YourSleep {
-    public static func nights(_ n: Int) -> String { n == 1 ? "1 night" : "\(n) nights" }
+    /// "23 nights locked" (founder, 24 Nov): the count says what it counts.
+    public static func nights(_ n: Int) -> String {
+      n == 1 ? "1 night locked" : "\(n) nights locked"
+    }
     public static let newWeek = "A new week"
     public static func lastWeek(_ n: Int) -> String {
       n == 1 ? "1 night last week" : "\(n) nights last week"

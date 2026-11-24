@@ -44,8 +44,8 @@ struct YourSleepTests {
   @Test func theCountOnlyGoesUp() {
     let history = past([2, 3, 4, 5, 6]) + past([7], ran: false) + past([18])
     let now = date(2026, 11, 20, 15)
-    #expect(sleep(now, log: nights([17, 18, 19]), history: history).nights == "8 nights")
-    #expect(sleep(now, log: [], history: history).nights == "6 nights")
+    #expect(sleep(now, log: nights([17, 18, 19]), history: history).nights == "8 nights locked")
+    #expect(sleep(now, log: [], history: history).nights == "6 nights locked")
     #expect(sleep(now, log: [], history: []).nights == nil)
   }
 

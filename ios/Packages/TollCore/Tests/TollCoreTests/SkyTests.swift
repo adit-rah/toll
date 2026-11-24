@@ -57,7 +57,7 @@ struct SkyTests {
   @Test func landmarksCompleteAShape() throws {
     let seven = try #require(Sky(nights: 7, newestIsNew: true).landmark)
     #expect(seven.line == "7 nights. The Big Dipper is in your sky.")
-    #expect(seven.number == "7 nights")
+    #expect(seven.number == "7 nights locked")
     #expect(seven.shape.stars.count == 7)
     #expect(seven.shape.lines.count == 7)
     #expect(seven.shape.newest == 6)
@@ -90,9 +90,11 @@ struct SkyTests {
   }
 
   @Test func spoken() {
-    #expect(Sky(nights: 23, newestIsNew: false).spoken == "Your sky. 23 nights. 3 constellations.")
-    #expect(Sky(nights: 7, newestIsNew: false).spoken == "Your sky. 7 nights. 1 constellation.")
-    #expect(Sky(nights: 1, newestIsNew: false).spoken == "Your sky. 1 night.")
+    #expect(
+      Sky(nights: 23, newestIsNew: false).spoken == "Your sky. 23 nights locked. 3 constellations.")
+    #expect(
+      Sky(nights: 7, newestIsNew: false).spoken == "Your sky. 7 nights locked. 1 constellation.")
+    #expect(Sky(nights: 1, newestIsNew: false).spoken == "Your sky. 1 night locked.")
   }
 
   /// The table: contiguous figures, lines that only reach back, every star inside the sky.

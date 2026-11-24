@@ -4,23 +4,25 @@ extension Copy {
   public enum Sky {
     public static let title = "Your sky"
 
-    /// "Your sky. 23 nights. 3 constellations." Before the first shape, just the nights.
+    /// "Your sky. 23 nights locked. 3 constellations." Before the first shape, just the nights,
+    /// counted as Your sleep counts them.
     public static func spoken(nights: Int, constellations: Int) -> String {
       let shapes =
         constellations == 0
         ? "" : constellations == 1 ? " 1 constellation." : " \(constellations) constellations."
-      return "\(title). \(number(nights)).\(shapes)"
+      return "\(title). \(Copy.YourSleep.nights(nights)).\(shapes)"
     }
 
-    /// The number in the shared picture: "30 nights".
-    public static func number(_ nights: Int) -> String {
-      nights == 1 ? "1 night" : "\(nights) nights"
-    }
+    /// The number in the shared picture, as the card says it: "30 nights locked".
+    public static func number(_ nights: Int) -> String { Copy.YourSleep.nights(nights) }
+
+    /// The landmark line's count: "30 nights".
+    static func count(_ nights: Int) -> String { nights == 1 ? "1 night" : "\(nights) nights" }
 
     /// The morning card's landmark line: "30 nights. Orion is in your sky."
     public static func landmark(_ nights: Int, completed: Constellation?) -> String {
-      guard let completed else { return "\(number(nights)) in your sky." }
-      return "\(number(nights)). \(name(completed)) is in your sky."
+      guard let completed else { return "\(count(nights)) in your sky." }
+      return "\(count(nights)). \(name(completed)) is in your sky."
     }
 
     public static let share = "Share"
