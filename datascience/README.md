@@ -4,7 +4,7 @@ Dusk's sleep model, built, fitted and tested in Python, following the founders' 
 
 ```
 dusk_model/   reference implementation: rng, artifact, night records, model, policy, insights
-sim/          synthetic people, six scenarios, the pass criteria, tuning, dampened start policies, figures
+sim/          synthetic people, six scenarios, the pass criteria, tuning, dampened start policies, the growing gap, figures
 replay/       real nights in (Health export or Dusk's night records), prediction error out
 export/       writes the artifact and the parity fixtures; compares the Swift package (parity.py)
 artifacts/    every exported version, kept; fixtures.jsonl
@@ -32,6 +32,7 @@ For each night the outcome is when the person fell asleep, in minutes from plann
 | Pass criteria (about 8 min) | `uv run python -m sim.criteria --people 2000 --safety-people 10000` |
 | Tuning sweep (about 20 min) | `uv run python -m sim.tune` |
 | Dampened start policies (about 5 min; `reports/dampening.md`) | `uv run python -m sim.dampen_sweep` |
+| The growing gap with personal timing (about 3 min; `reports/gap.md`) | `uv run python -m sim.gap_sweep marks --out reports/gap-sweep.json` |
 | Export the artifact and fixtures | `uv run python -m export`, then `../ios/scripts/sync-model.sh` |
 | Swift against Python | `uv run python -m export.parity` (needs Swift) |
 | Figures | `uv run python -m sim.figures` |

@@ -294,3 +294,34 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - New installs start at 15 minutes.
   - People already using Dusk keep their night as it is (gap 0), and see one card: "Lock apps 15 min before bed?".
 - **Data:** night records gain the gap and the bed time; `planned_bedtime` means bed. This is a contract change (D62), so both readers update.
+
+**D77. The gap and personal timing share the start; learning counts people still using Dusk** (2026-11-24, founder, in chat; follows D76, #114).
+- The simulator (`datascience/reports/gap.md`) found:
+  - With the growing gap as the plan and personal timing testing around it, coverage, false insights and safety hold. The learning mark sits on its line: 50% of people with effects of 15 minutes or more get an insight by night 56, and 52.6% among people still using Screen Time.
+  - D76's fallback, personal timing waiting for the gap to settle, is worse on every mark.
+- **D76's plan stands.** The learning mark counts people still using Dusk, since leaving is the gap's cost and isn't a failure to learn.
+- Coverage falls below 85% only when nearly everyone grows the gap to 60 smoothly; the pilot watches for that.
+- **Follow-up:** run past 8 weeks, D66's policy alone shows false insights above 5% by week 12. Its own ticket.
+
+**D78. The free trial is 14 nights, and its start follows the Apple ID** (2026-11-24, founder, in chat; amends D7, P-1, P-4).
+- Fourteen nights free, then $9.99 once.
+- The trial start stays in the Keychain, which survives deleting the app. It's also written as an iCloud Keychain item, so a new or erased phone on the same Apple ID continues the same trial; the earliest start wins.
+- Nothing but the date, no Dusk server. If iCloud Keychain is off, it's unchanged.
+- Built in #115.
+
+**D79. Your sky, and landmarks** (2026-11-24, founder, in chat; amends spec §2 "share cards").
+- On Your sleep, each night the lock ran lights one star, in a fixed order that completes real constellations (the Big Dipper first). Only lit stars and the lines between them are drawn. It only adds: away, off and unbought nights leave it as it was, and every night is one equal star.
+- The newest star appears with a single 200 ms crossfade, a new design §2.5 row. Nothing twinkles or loops.
+- Quiet landmark mornings at 7, 30, 100 and 365 nights.
+- At a landmark, and only then, the sky and the number can be shared as an image made on the phone through the system share sheet. No data leaves except what the person sends.
+- Delight, not a lever: no counts of what's left, no "next landmark" hint.
+
+**D80. Before bed: three small helpers in the gap** (2026-11-24, founder, in chat; follows D76).
+- During the gap before bed, and only then, Tonight has a quiet "Before bed" capsule, introduced once by a card in Tonight's slot (after warnings, home and the heads-up). It offers:
+  - **write tomorrow's list, on paper:** one sheet, no typing field;
+  - **breathe for 3 minutes with a soft tone, screen off:** made in the app, keeps playing when locked, then fades;
+  - **a word game to play in bed with your eyes closed:** one text sheet.
+- Each ends with "Put the phone down".
+- Never notified, never counted, never a task, and nothing on the morning card or the sky. Settings can switch it off.
+- A private flag in the night record notes that a helper was used. It's never shown to the person; it's there for the pilot (a D62 contract change).
+- No meditation library and no sleep sounds.

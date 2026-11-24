@@ -45,12 +45,12 @@ class World:
         return self.late & ~self.people.while_using[:, None]
 
 
-def world(scenario: str, count: int, seed: int, fade: bool = False) -> World:
+def world(scenario: str, count: int, seed: int, fade: bool = False, nights: int = NIGHTS) -> World:
     rng = np.random.default_rng(seed)
     people = draw(scenario, count, rng, fade)
-    shape = (count, NIGHTS)
+    shape = (count, nights)
     # Night 0 is a Monday; Friday and Saturday nights are the weekend.
-    weekend = np.broadcast_to(np.isin(np.arange(NIGHTS) % 7, [4, 5]), shape).copy()
+    weekend = np.broadcast_to(np.isin(np.arange(nights) % 7, [4, 5]), shape).copy()
     late_rate = np.where(weekend, 0.25, 0.15)
     outlier = rng.random(shape) < 0.03
     return World(
