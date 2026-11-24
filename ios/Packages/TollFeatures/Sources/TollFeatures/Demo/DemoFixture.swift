@@ -12,6 +12,10 @@
       let night =
         scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario == .homeAway
         || scenario.isDoor || scenario == .homePauseOpen
+      // In the gap before bed: the lock came on at 10 pm, half an hour before bed (D80).
+      if scenario.inGap {
+        return calendar.date(bySettingHour: 22, minute: 15, second: 0, of: today) ?? today
+      }
       // 1 is Sunday, 2 Monday: the latest such day, today included. Day scenarios need Study's
       // hours: the latest weekday.
       let weekday = calendar.component(.weekday, from: today)
@@ -36,6 +40,18 @@
     }
 
     var isGap: Bool { self == .homeGapWeek || self == .homeGapOffer }
+
+    /// Before bed's scenarios (D80): Tonight in the gap, with the helpers' sheet over it for some.
+    var inGap: Bool { [.homeBeforeBed, .homeBeforeBedCard].contains(self) || helperSheet }
+    var helperSheet: Bool { rawValue.hasPrefix("before-bed") }
+    var helperPage: Helper? {
+      switch self {
+      case .beforeBedList: .list
+      case .beforeBedBreathe: .breathe
+      case .beforeBedWords: .words
+      default: nil
+      }
+    }
 
     /// Nights the lock has run in Your sky's scenarios (D79), the last of them last night.
     var skyNights: Int? {
@@ -68,6 +84,7 @@
       let pauseOpen = scenario == .doorOpen || scenario == .homePauseOpen
       let blocked =
         scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario.isDoor || pauseOpen
+        || scenario.inGap
       let night = TimeWindow(start: ClockTime(hour: 22, minute: 30), end: ClockTime(hour: 7))
       state.places = scenario.homeNotSet ? [library] : [home, library]
       // "Nothing scheduled" is a night with no hours: the one block Dusk always has (D73).
@@ -134,6 +151,13 @@
           week: UnlockSupply.week(containing: now, calendar: calendar, config: .defaults),
           from: 15, to: 30)
       }
+      if scenario.inGap {
+        state.gap.minutes = 30
+        // The card shows once; every other scenario has answered it.
+        if scenario != .homeBeforeBedCard {
+          state.dismissedCards.insert(TonightCard.beforeBed.rawValue)
+        }
+      }
       if scenario == .homePaused {
         state.trial.start = calendar.date(byAdding: .day, value: -15, to: now)
         state.trial.entitled = false
@@ -164,7 +188,8 @@
       if blocked {
         log.append(
           Transition(
-            at: now.addingTimeInterval(-3600), cause: .windowStart, blockOn: true, changed: true,
+            at: now.addingTimeInterval(scenario.inGap ? -900 : -3600), cause: .windowStart,
+            blockOn: true, changed: true,
             home: true, inWindow: true, entitled: true))
       }
       if scenario == .sleepBest {

@@ -61,6 +61,16 @@
     /// install from before it.
     case homeGapWeek = "home-gap-week"
     case homeGapOffer = "home-gap-offer"
+    /// Before bed's helpers (D80), at 10:15 pm in a 30-minute gap: Tonight's capsule, its one card,
+    /// the sheet's choices and each page (the tone shown playing, silently), and Settings › Before
+    /// bed with their switch.
+    case homeBeforeBed = "home-before-bed"
+    case homeBeforeBedCard = "home-before-bed-card"
+    case beforeBed = "before-bed"
+    case beforeBedList = "before-bed-list"
+    case beforeBedBreathe = "before-bed-breathe"
+    case beforeBedWords = "before-bed-words"
+    case settingsBeforeBed = "settings-before-bed"
     case purchase, settings, insights
     case settingsAnywhere = "settings-anywhere"
     /// Settings with notifications denied: the heads-up row leaves for iOS Settings (#104).
@@ -172,7 +182,7 @@
     /// Screens pushed on the tab's stack, with the screens under them.
     var routes: [HomeRoute] {
       switch self {
-      case .settings, .settingsAnywhere, .settingsHeadsUpDenied: [.settings]
+      case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsBeforeBed: [.settings]
       case .blockNew, .blockNewGym: [.block(nil)]
       case .blockEdit, .blockEditOn: [.block(BlockID("study"))]
       case .blockNight: [.block(BlockID("sleep"))]
@@ -180,11 +190,13 @@
       }
     }
     /// The door and the purchase are sheets over Tonight.
-    var presentsSheet: Bool { isDoor || rawValue.hasPrefix("purchase") || setHomePath != nil }
+    var presentsSheet: Bool {
+      isDoor || rawValue.hasPrefix("purchase") || setHomePath != nil || helperSheet
+    }
     var isHome: Bool {
       rawValue.hasPrefix("home-") || rawValue.hasPrefix("sleep-") || rawValue.hasPrefix("block")
         || isDoor || rawValue.hasPrefix("purchase") || rawValue.hasPrefix("settings")
-        || setHomePath != nil || self == .insights
+        || setHomePath != nil || self == .insights || helperSheet
     }
   }
 
@@ -258,49 +270,16 @@
         case .purchaseDone: PurchaseSheet(model: app, home: home, outcome: .purchased)
         case _ where scenario.setHomePath != nil:
           DemoSetHome(app: app, path: scenario.setHomePath ?? [])
+        case _ where scenario.helperSheet:
+          HelpersSheet(
+            model: app, page: scenario.helperPage,
+            demoUntil: scenario == .beforeBedBreathe ? now.addingTimeInterval(150) : nil
+          ) {}
         default:
           TimelineView(.periodic(from: .now, by: 1)) { tick in DoorSheet(model: app, now: tick.date)
           }
         }
       }
-    }
-  }
-
-  private struct DemoSetup: View {
-    @State private var model: SetupModel
-
-    init(app: AppModel, path: [SetupModel.Step]) {
-      _model = State(initialValue: SetupModel(app: app, path: path))
-    }
-
-    var body: some View {
-      SetupFlowContent(model: model)
-        .task {
-          let scenario = DemoScenario.current
-          ScreenTimeAuthorization.simulated = scenario?.screenTime
-          LocationAccess.simulated = scenario?.location
-          model.weekendsDiffer = scenario == .wakeWeekends
-          model.app.readPermissions()
-        }
-    }
-  }
-
-  /// The set-home sheet with home placed in London: the simulator has no one to answer the prompt.
-  private struct DemoSetHome: View {
-    @State private var model: SetHomeModel
-
-    init(app: AppModel, path: [SetHomeModel.Step]) {
-      let model = SetHomeModel(app: app, path: path)
-      model.placesHome = false
-      if !model.mapBlocked {
-        model.home = Place(
-          name: Copy.Setup.homeName, latitude: 51.5246, longitude: -0.0786, radiusMeters: 150)
-      }
-      _model = State(initialValue: model)
-    }
-
-    var body: some View {
-      SetHomeFlowContent(model: model)
     }
   }
 #endif

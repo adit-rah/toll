@@ -18,7 +18,7 @@ extension AppModel {
     switch card {
     case .gapWeek: keepGap()
     case .gapOffer: setGap(.grows(config.gap.start))
-    case .home, .headsUp: break
+    case .home, .headsUp, .beforeBed: break
     }
   }
 }

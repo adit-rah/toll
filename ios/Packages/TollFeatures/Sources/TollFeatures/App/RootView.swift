@@ -63,6 +63,8 @@ struct LiveHome: View {
   @State private var doorUp = false
   /// "Only when I'm home", from Tonight's card (D68).
   @State private var settingHome = false
+  /// Before bed's helpers, from the capsule or its card (D80).
+  @State private var helpersUp = false
 
   var body: some View {
     DuskTabs(
@@ -90,13 +92,23 @@ struct LiveHome: View {
             case .home: settingHome = true
             case .headsUp: Task { await model.turnOnHeadsUp() }
             case .gapWeek, .gapOffer: model.openGapCard(card)
+            // Shown once: opening it answers it.
+            case .beforeBed:
+              model.dismiss(.beforeBed)
+              helpersUp = true
             }
           },
           dismissCard: { model.dismiss($0) },
+          // Opening them answers their card too.
+          openHelpers: {
+            if !model.state.dismissed(.beforeBed) { model.dismiss(.beforeBed) }
+            helpersUp = true
+          },
           // Pushed on Tonight, so Back returns to the strip it came from (D75).
           openBlock: { path.append(.block($0)) }
         )
         .sheet(isPresented: $settingHome) { SetHomeFlow(app: model) { settingHome = false } }
+        .sheet(isPresented: $helpersUp) { HelpersSheet(model: model) { helpersUp = false } }
       }
     }
     .sheet(isPresented: $buying) { PurchaseSheet(model: model, home: snapshot(Date())) }

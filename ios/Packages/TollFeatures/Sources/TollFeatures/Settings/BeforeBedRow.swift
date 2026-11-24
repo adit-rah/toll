@@ -2,11 +2,20 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Settings › Before bed (D76): how long before bed apps lock, growing with the person or fixed.
-/// The row says now and next; a tap opens the sheet.
+/// Settings › Before bed (D76): how long before bed apps lock, growing with the person or fixed,
+/// and the helpers Tonight offers in that time (D80). The row says now and next; a tap opens the
+/// sheet. One row for both: they're the same minutes.
 struct BeforeBedRow: View {
   let model: AppModel
   @State private var editing = false
+
+  init(model: AppModel) {
+    self.model = model
+    #if DEBUG
+      // The sheet's own render (docs/renders.md).
+      _editing = State(initialValue: DemoScenario.current == .settingsBeforeBed)
+    #endif
+  }
 
   var body: some View {
     Button {
@@ -25,13 +34,16 @@ struct BeforeBedRow: View {
 }
 
 /// Two choices, each with what it does, and the fixed gap's minutes in steps. A change while the
-/// night is on applies from tomorrow night (B-3), and the sheet says so.
+/// night is on applies from tomorrow night (B-3), and the sheet says so. Under them, the helpers'
+/// switch and the breathing tone's length (D80), which apply at once.
 struct BeforeBedSheet: View {
   let model: AppModel
   let close: () -> Void
   private let now: BeforeBed
   @State private var grows: Bool
   @State private var minutes: Int
+  @State private var helpers: Bool
+  @State private var breath: Int
 
   init(model: AppModel, close: @escaping () -> Void) {
     self.model = model
@@ -39,11 +51,13 @@ struct BeforeBedSheet: View {
     now = BeforeBed(state: model.state, config: model.config)
     _grows = State(initialValue: now.grows)
     _minutes = State(initialValue: now.minutes)
+    _helpers = State(initialValue: model.state.helpers.on)
+    _breath = State(initialValue: model.breathMinutes)
   }
 
   var body: some View {
     let gap = model.config.gap
-    SheetPage(height: 520) {
+    SheetPage(height: 700) {
       SheetTitle(Copy.Gap.sheetTitle)
       SheetBody(Copy.Gap.sheetBody)
       // Rows on the sheet itself: a card would vanish into the sheet's own surface.
@@ -67,9 +81,34 @@ struct BeforeBedSheet: View {
       if now.nightOn {
         Footnote(Copy.Gap.tonightStays).padding(.top, 12)
       }
+      VStack(spacing: 0) {
+        Toggle(isOn: $helpers) {
+          RowText(title: Copy.Helpers.setting, detail: Copy.Helpers.settingDetail)
+        }
+        .tint(TollColor.accent)
+        .padding(.vertical, 8)
+        .frame(minHeight: 54)
+        if helpers {
+          Hairline()
+          Stepper(value: $breath, in: model.config.helpers.breathRange) {
+            HStack(spacing: 8) {
+              Image(symbol: .breathe).unredacted()
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(TollColor.label2)
+                .accessibilityHidden(true)
+              Text(Copy.Helpers.breathLength(breath)).tollType(.rowTitle, TollColor.label)
+            }
+          }
+          .padding(.vertical, 8)
+          .frame(minHeight: 54)
+        }
+      }
+      .padding(.top, 24)
     } actions: {
       PrimaryButton(Copy.Gap.done) {
-        model.setGap(now.choice(grows: grows, fixed: minutes, config: model.config))
+        model.setBeforeBed(
+          now.choice(grows: grows, fixed: minutes, config: model.config),
+          helpers: Helpers(on: helpers, breathMinutes: breath))
         close()
       }
     }

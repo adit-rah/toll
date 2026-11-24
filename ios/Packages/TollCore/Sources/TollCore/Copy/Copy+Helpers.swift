@@ -33,8 +33,7 @@ extension Copy {
       "Five minutes. Everything you need to do in the next few days, as specific as you can. Then put the phone down."
     public static let breatheBody =
       "Lock your phone and put it down. Breathe in as the tone rises, out as it falls."
-    public static func toneUntil(_ time: String) -> String { "The tone fades out at \(time)" }
-    public static let toneEnded = "The tone has ended."
+    public static func toneUntil(_ time: String) -> String { "The tone ends at \(time)" }
     public static let stopTone = "Stop the tone"
     public static let wordsBody =
       "Pick a word, like “candle”. Take its first letter and picture things that start with it: a cat, a cup, a canoe. When they run out, move to the next letter."
