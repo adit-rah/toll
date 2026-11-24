@@ -121,6 +121,11 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 103 | A phone call, or unplug headphones, while the tone plays | The tone stops and doesn't come back; the sheet shows "Done" | | |
 | 104 | Set the tone to 1 min in Settings, then breathe | It stops after 1 min | | |
 | 105 | Open a helper, then foreground the next morning | That night's record has `"helper"`; the morning card, Your sleep and the sky are unchanged; no notification about helpers ever arrives | | |
+| 106 | Tonight in the gap with Before bed's card, tap "Not now" | The card fades out over 200 ms in place; the time, dots, Pause, Before bed and the strip don't move | | |
+| 107 | Text size xxxLarge (not an accessibility size), a card showing | The card is above the strip, under the bar, or after the state with the screen scrolling; it never covers the state, Pause, Before bed or the strip, and the state sits where it does without the card | | |
+| 108 | iPhone SE or another 375-pt-wide phone, free nights with a card | The pill fits in the bar beside the gear (its segments may drop at large text); the card overlaps nothing | | |
+| 109 | VoiceOver on Tonight with a card, swipe from the top | Settings, the pill, the state, the card, the strip | | |
+| 110 | Reduce Motion on, dismiss a card | The same 200 ms fade | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

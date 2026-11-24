@@ -35,7 +35,8 @@
   extension DemoScenario {
     /// Scenarios set the morning after a night: Tonight's morning card and Your sleep's weeks.
     var isMorning: Bool {
-      [.homeMorning, .homeMorningGap, .homeMorningAway, .sleepMonday, .sleepBest].contains(self)
+      [.homeMorning, .homeMorningGap, .homeMorningAway, .homeMorningCard, .sleepMonday, .sleepBest]
+        .contains(self)
         || skyNights != nil
     }
 
@@ -124,7 +125,7 @@
       let nightsAgo =
         scenario == .homeAnywhere || scenario.setHomePath != nil
         ? 0
-        : firstWeek || scenario == .homeCard || scenario == .homeHeadsUp
+        : firstWeek || [.homeCard, .homeMorningCard, .homeHeadsUp].contains(scenario)
           ? 1
           : scenario == .homeLastNight
             ? 13
