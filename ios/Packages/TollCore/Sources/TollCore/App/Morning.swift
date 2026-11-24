@@ -27,7 +27,7 @@ public struct Morning: Equatable, Sendable {
   /// Where the block was on; the room between two of them is a gap (a pause, or a time away).
   public var ran: [Span]
   public var gaps: [Span]
-  /// "You put it down 3 times": the "Never mind" taps while the night's block was on (D46). Nil at
+  /// "You chose sleep 3 times": the "Never mind" taps while the night's block was on (D46). Nil at
   /// zero, since nothing new means nothing shown.
   public var putDown: String?
   /// The bar and its times in words, for VoiceOver.

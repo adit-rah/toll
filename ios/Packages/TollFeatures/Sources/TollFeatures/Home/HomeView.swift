@@ -12,6 +12,8 @@ struct HomeView: View {
   var locationFact = Copy.Setup.whileUsingFact
   let openSettings: () -> Void
   let openDoor: () -> Void
+  /// While a pause is open, from the hero (the pause sheet can be swiped away).
+  var lockAgain: () -> Void = {}
   let openPurchase: () -> Void
   let fixLocation: () -> Void
   var turnOnScreenTime: () -> Void = {}
@@ -22,16 +24,18 @@ struct HomeView: View {
   var openBlock: (BlockID) -> Void = { _ in }
   /// Demo renders open the strip on this block's snippet (docs/renders.md).
   var snippet: BlockID?
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   /// A composition, not a list (D64): what needs attention at the top, the state just above the
   /// middle where the eye lands, and the day's strip at the bottom like a horizon (D75). At
-  /// accessibility sizes the spacers collapse and the screen scrolls.
+  /// accessibility sizes the spacers collapse, the screen scrolls, and the state comes before any
+  /// card, so a card can't push it off the screen (the audit).
   var body: some View {
     GeometryReader { proxy in
       ScrollView {
         VStack(alignment: .leading, spacing: 0) {
           topBar
-          status
+          if !typeSize.isAccessibilitySize { status }
           Spacer(minLength: 20)
           VStack(spacing: 0) {
             // From the end of the night until noon, last night takes the hero's place (#103).
@@ -40,7 +44,8 @@ struct HomeView: View {
             } else {
               HomeHero(
                 hero: home.hero, eyebrow: home.eyebrow, place: home.heroPlace, supply: home.supply,
-                openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil
+                openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil, lockAgain: lockAgain,
+                setNight: home.setNight.map { night -> () -> Void in { openBlock(night) } }
               )
             }
             if case .off = home.hero {
@@ -49,6 +54,7 @@ struct HomeView: View {
             if let other = home.otherBlock {
               OtherBlockLine(line: other, openDoor: openDoor).padding(.top, 14)
             }
+            if typeSize.isAccessibilitySize { status.padding(.top, 20) }
           }
           // Twice the room below as above: the state sits a little above centre.
           Spacer(minLength: 28)

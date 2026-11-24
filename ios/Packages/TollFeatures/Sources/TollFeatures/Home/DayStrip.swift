@@ -40,6 +40,15 @@ struct DayStrip: View {
               .accessibilityHidden(true)
           }
           now(width)
+          if let label = timeline.label {
+            // Over the strip's end, where the night is: in the mornings now sits at the start.
+            Text(label)
+              .tollType(TollType(size: 11, lineHeight: 14, weight: .semibold, style: .caption2))
+              .foregroundStyle(TollColor.accent)
+              .fixedSize()
+              .frame(width: width, alignment: .trailing)
+              .offset(y: -24)
+          }
           ForEach(targets.indices, id: \.self) { index in
             target(targets[index], index: index, width: width)
           }

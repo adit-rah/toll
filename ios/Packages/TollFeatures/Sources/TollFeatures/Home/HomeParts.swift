@@ -3,7 +3,8 @@ import TollCore
 import TollData
 import TollUI
 
-/// "Turn it back on · $9.99 once · every night after": the one card after the trial (D33).
+/// "Turn Dusk back on · $9.99 once, for good": the one card after the trial (D33), with Off's glyph,
+/// and the one thing to tap there (the audit).
 struct OffCard: View {
   let price: String
   let open: () -> Void
@@ -15,7 +16,7 @@ struct OffCard: View {
           Copy.Home.turnBackOn, detail: Copy.Home.onceEveryNight(price),
           size: RowSize(minHeight: 68, tile: .large)
         ) {
-          IconTile(.sleep, size: .large)
+          IconTile(.off, size: .large)
         } trailing: {
           Chevron()
         }

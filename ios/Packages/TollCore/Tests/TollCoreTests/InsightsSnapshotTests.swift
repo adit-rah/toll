@@ -35,6 +35,26 @@ struct InsightsSnapshotTests {
     #expect(insights.peakHour == 23)
   }
 
+  /// Study's hours aren't the night's: they count in neither the nights nor the hours.
+  @Test func onlyTheNightCounts() {
+    let sleep = BlockID("sleep")
+    let study = BlockID("study")
+    func at(_ date: Date, _ active: [BlockID]) -> Transition {
+      var entry = self.line(date, .windowStart, on: !active.isEmpty, changed: true)
+      entry.active = active
+      return entry
+    }
+    let log = [
+      at(date(2026, 11, 16, 9), [study]), at(date(2026, 11, 16, 17), []),
+      at(date(2026, 11, 16, 22, 30), [sleep]), at(date(2026, 11, 17, 7), []),
+      at(date(2026, 11, 17, 9), [study]), at(date(2026, 11, 17, 11), []),
+    ]
+    let insights = InsightsSnapshot(
+      log: log, now: date(2026, 11, 17, 12), calendar: london, range: .all, sleep: sleep)
+    #expect(insights.hoursBlocked == 8)
+    #expect(insights.nights == 1)
+  }
+
   @Test func aWeek() {
     let insights = InsightsSnapshot(
       log: log, now: date(2026, 11, 16, 12), calendar: london, range: .week)

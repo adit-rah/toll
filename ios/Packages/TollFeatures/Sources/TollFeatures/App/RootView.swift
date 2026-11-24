@@ -76,7 +76,13 @@ struct LiveHome: View {
         HomeView(
           home: snapshot(context.date), price: model.price,
           locationFact: locationFact(model.location),
-          openSettings: { path.append(.settings) }, openDoor: { model.askDoor() },
+          openSettings: { path.append(.settings) },
+          // The sheet can be swiped away during a pause, so Tonight's capsule brings it back.
+          openDoor: {
+            model.askDoor()
+            doorUp = true
+          },
+          lockAgain: { model.lockDoor() },
           openPurchase: { buying = true }, fixLocation: openSystemSettings,
           turnOnScreenTime: { Task { await model.turnOnScreenTime() } },
           openCard: { card in
@@ -103,7 +109,6 @@ struct LiveHome: View {
       TimelineView(.periodic(from: .now, by: 1)) { tick in
         DoorSheet(model: model, now: tick.date)
       }
-      .interactiveDismissDisabled(model.state.door != nil)
     }
     .task {
       while !Task.isCancelled {

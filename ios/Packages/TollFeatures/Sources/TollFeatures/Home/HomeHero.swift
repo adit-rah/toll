@@ -4,13 +4,17 @@ import TollUI
 
 /// The state, centred (#72, rule 2): its glyph and an eyebrow that says what the big time means
 /// ("Apps lock at", "Apps locked until", D75), the big time (or the state's glyph when nothing will
-/// block), one line, the week's pauses as dots while locked, and "Pause" as a button.
+/// block), one line, the week's pauses as dots while locked, and "Pause" or "Lock again" as buttons.
 struct HomeHero: View {
   let hero: HomeSnapshot.Hero
   let eyebrow: String
   var place: HomeSnapshot.HeroPlace?
   var supply: HomeSnapshot.Supply?
   let openDoor: (() -> Void)?
+  /// While a pause is open: lock now, as the pause sheet's button does.
+  var lockAgain: (() -> Void)?
+  /// With no night: its editor ("Set your night").
+  var setNight: (() -> Void)?
   @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
@@ -20,14 +24,12 @@ struct HomeHero: View {
         if let time {
           HeroTime(time)
         } else if let off = offSymbol {
-          // Nothing will block: the biggest shape on screen says so, not two words (#72).
+          // Nothing will block: the biggest shape on screen says so, not two words (#72). No tile
+          // behind it: a filled square reads as a button, and this isn't one (the audit).
           Image(symbol: off).unredacted()
-            .font(.system(size: 30, weight: .medium))
+            .font(.system(size: 44, weight: .light))
             .foregroundStyle(TollColor.label2)
             .frame(width: 64, height: 64)
-            .background(
-              TollColor.surfaceRaised, in: RoundedRectangle(cornerRadius: 18, style: .continuous)
-            )
             .padding(.vertical, 6)
             .accessibilityLabel(Copy.Home.notBlocking)
         } else {
@@ -53,40 +55,60 @@ struct HomeHero: View {
       if showsPauses, let supply {
         pauses(supply)
       }
+      if case .noBlocks = hero, let setNight {
+        PrimaryButton(Copy.Home.setNight, action: setNight).padding(.top, 18)
+      }
     }
     .frame(maxWidth: .infinity)
   }
 
-  /// The pause is the escape hatch: findable, not inviting (D61, D67). A small grey capsule beside
-  /// the week's pauses, not an amber button across the screen; none while one is already open.
+  /// The pause is the escape hatch: findable, not inviting (D61, D67). The week's pauses as dots with
+  /// their count and week beside them, and a small grey capsule, not an amber button across the
+  /// screen: "Pause" while locked, "Lock again" while a pause is open.
   private func pauses(_ supply: HomeSnapshot.Supply) -> some View {
-    // Side by side; stacked at accessibility sizes so the capsule never squeezes.
+    // Side by side; stacked at larger sizes so the capsule never squeezes.
     let layout =
-      typeSize.isAccessibilitySize
+      typeSize > .large
       ? AnyLayout(VStackLayout(spacing: 10)) : AnyLayout(HStackLayout(spacing: 14))
     return layout {
-      Pips(
-        filled: supply.left, total: supply.max,
-        spoken: Copy.Door.pausesLeft(supply.left, of: supply.max))
+      HStack(spacing: 8) {
+        Pips(
+          filled: supply.left, total: supply.max,
+          spoken: Copy.Door.pausesLeft(supply.left, of: supply.max))
+        // The dots already say it to VoiceOver.
+        Text(Copy.Door.pausesOf(supply.left, supply.max))
+          .tollType(.detail, TollColor.label2)
+          .accessibilityHidden(true)
+      }
       if case .blocked = hero, let openDoor {
-        Button(action: openDoor) {
-          HStack(spacing: 6) {
-            Image(symbol: .unlock).unredacted()
-              .font(.system(size: 13, weight: .semibold))
-              .accessibilityHidden(true)
-            Text(Copy.Home.pause)
-          }
-          .tollType(.smallQuiet, TollColor.label2)
-          .padding(.horizontal, 12)
-          .frame(minHeight: 32)
-          .background(TollColor.surfaceRaised, in: Capsule())
-          .frame(minHeight: TollSpacing.minTapTarget)
-          .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
+        capsule(Copy.Home.pause, symbol: .unlock, action: openDoor)
+          .accessibilityLabel(Copy.Home.pauseSpoken)
+      }
+      if case .paused = hero, let lockAgain {
+        capsule(Copy.Home.lockAgain, symbol: .blocked, action: lockAgain)
       }
     }
     .padding(.top, 2)
+  }
+
+  private func capsule(_ title: String, symbol: TollSymbol, action: @escaping () -> Void)
+    -> some View
+  {
+    Button(action: action) {
+      HStack(spacing: 6) {
+        Image(symbol: symbol).unredacted()
+          .font(.system(size: 13, weight: .semibold))
+          .accessibilityHidden(true)
+        Text(title)
+      }
+      .tollType(.smallQuiet, TollColor.label2)
+      .padding(.horizontal, 12)
+      .frame(minHeight: 32)
+      .background(TollColor.surfaceRaised, in: Capsule())
+      .frame(minHeight: TollSpacing.minTapTarget)
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(.tollPressable)
   }
 
   private var showsPauses: Bool {
@@ -117,7 +139,7 @@ struct HomeHero: View {
   }
 
   /// Where the night runs, before the line: home or anywhere before it starts; while locked, only
-  /// home, since the line then says "You're home". Away is already said by the pill and the glyph.
+  /// home, since the line then says "You're home". Away is already said by the glyph.
   private var placeSymbol: TollSymbol? {
     switch hero {
     case .tonight: place.map { $0 == .home ? .home : .anywhere }

@@ -18,20 +18,18 @@ public struct HomeSnapshot: Equatable, Sendable {
     case noBlocks
   }
 
-  /// The quiet label under the bar (the canvas): the free night, the last one, or "Away from home".
-  /// Every free night opens the purchase sheet (D75); the last one is amber (D33).
+  /// The quiet pill under the bar (the canvas): the free night, or the last one in amber (D33). It
+  /// opens the purchase sheet (D75). Away from home is the hero's to say, so there's no label for it.
   public struct Pill: Equatable, Sendable {
     public enum Kind: Equatable, Sendable {
-      case trial, lastNight, away
+      case trial, lastNight
     }
 
     public var text: String
     public var kind: Kind
-    /// The free night it is (from 1), drawn as segments beside the words (#77); nil for away.
-    public var night: Int?
+    /// The free night it is (from 1), drawn as segments beside the words (#77).
+    public var night: Int
     public var nights = 7
-
-    public var opensPurchase: Bool { kind != .away }
   }
 
   /// A block other than the night that's on now (D68, #89): Tonight's one quiet line about other
@@ -73,6 +71,8 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var morning: Morning?
   /// Over the big time, what it means: "Apps lock at", "Apps locked until" (D75).
   public var eyebrow: String
+  /// With no night to show, the night's editor is the way forward (the audit's dead end).
+  public var setNight: BlockID?
   /// The free nights' facts, for the purchase sheet.
   public var freeWeek: FreeWeek?
   public var otherBlock: OtherBlock?
@@ -89,7 +89,12 @@ public struct HomeSnapshot: Equatable, Sendable {
     pill = Self.pill(state, now: now, calendar: calendar, config: config)
     supply = Supply(state: state, now: now, calendar: calendar, config: config)
     unlocksLeft = state.isBlocking && !screenTimeOff ? supply.left : nil
-    if case .away = hero { pill = Pill(text: Copy.Home.awayLabel, kind: .away) }
+    // No selling at night (D33), away included; with no night there's nothing to sell yet.
+    switch hero {
+    case .away, .noBlocks: pill = nil
+    default: break
+    }
+    if hero == .noBlocks { setNight = sleep?.id }
     // Only a night at home loses anything without Always; with home not set, nothing does (D68).
     // Another block at a place says so on Blocks, since Tonight doesn't mention other blocks.
     locationBanner =
@@ -106,15 +111,17 @@ public struct HomeSnapshot: Equatable, Sendable {
     heroPlace =
       sleep == nil
       ? nil : state.location == .scheduleOnly ? .anywhere : sleep?.place != nil ? .home : .anywhere
-    let day = DayTimeline(state: state, now: now, calendar: calendar, blocking: !screenTimeOff)
-    timeline = day.segments.isEmpty ? nil : day
+    var day = DayTimeline(state: state, now: now, calendar: calendar, blocking: !screenTimeOff)
     eyebrow = Self.eyebrow(hero, now: now, calendar: calendar)
     let week = Week(
       log: log, now: now, calendar: calendar, since: state.setupFinishedAt, sleep: sleep)
     bars = week.bars
-    if case .tonight = hero {
+    if case .tonight(let start, _) = hero {
       morning = Morning(state: state, log: log, now: now, calendar: calendar, config: config)
+      // The morning card is last night, so the strip under it names tonight (the audit).
+      if morning != nil { day.label = Copy.Strip.tonightAt(Copy.time(start, in: calendar)) }
     }
+    timeline = day.segments.isEmpty ? nil : day
     freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)
     if case .off = hero { supply.refillDay = nil }
     if !screenTimeOff {
@@ -138,9 +145,7 @@ public struct HomeSnapshot: Equatable, Sendable {
       }
       return .blocked(
         until: end,
-        detail: Copy.Home.blockedDetail(
-          atHome: sleep.place != nil && state.location == .places,
-          unlocksLeft: state.unlocks.left(config, now: now, calendar: calendar)))
+        detail: sleep.place != nil && state.location == .places ? Copy.Home.youreHome : "")
     }
     guard let sleep, let start = sleep.schedule.nextStart(after: now, calendar: calendar) else {
       return .noBlocks

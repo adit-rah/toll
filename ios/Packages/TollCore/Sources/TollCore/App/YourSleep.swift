@@ -51,7 +51,7 @@ public struct YourSleep: Equatable, Sendable {
     public var detail: String
   }
 
-  /// "23 nights": every night the block ran, from the night log and the transition log together,
+  /// "23 nights locked": every night the block ran, from the night log and the transition log together,
   /// so trimming the log never takes one away. Nil before the first.
   public var nights: String?
   /// "This week", "A new week" on Monday, or after the trial "Your free week" (#48).
@@ -60,12 +60,15 @@ public struct YourSleep: Equatable, Sendable {
   /// On a new week, last week in one line over seven empty dots; nil when it had no nights.
   public var lastWeek: String?
   public var best: Best?
+  /// The night's block, so the hours below count only its own (InsightsSnapshot).
+  public var sleepID: BlockID?
 
   public init(
     state: DuskState, log: [Transition], history: [PastNight], now: Date, calendar: Calendar,
     config: TollConfig = .defaults
   ) {
     let sleep = state.sleepBlock
+    sleepID = sleep?.id
     let lines = log.sorted { $0.at < $1.at }
     var ran: [Date: Bool] = [:]
     for night in history { ran[night.night] = ran[night.night] == true || night.ran }

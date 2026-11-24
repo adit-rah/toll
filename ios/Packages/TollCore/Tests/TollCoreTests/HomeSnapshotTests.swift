@@ -34,7 +34,7 @@ struct HomeSnapshotTests {
     let home = snapshot(s, date(2026, 11, 17, 23))
     #expect(
       home.hero
-        == .blocked(until: date(2026, 11, 18, 7), detail: "You're home · 3 pauses left"))
+        == .blocked(until: date(2026, 11, 18, 7), detail: "You're home"))
     #expect(home.eyebrow == "Apps locked until")
     #expect(home.timeline?.segments.map(\.state) == [.on])
     #expect(home.unlocksLeft == 3)
@@ -44,8 +44,25 @@ struct HomeSnapshotTests {
     let home = snapshot(setUp(home: false), date(2026, 11, 17, 23))
     #expect(home.hero == .away(end: date(2026, 11, 18, 7)))
     #expect(home.eyebrow == "Night ends at")
-    #expect(home.pill == .init(text: "Away from home", kind: .away))
+    // The hero says away; the pill neither repeats it nor sells at night (D33).
+    #expect(home.pill == nil)
+    #expect(home.timeline?.label == nil)
     #expect(home.timeline?.segments.first?.stateText == "Apps lock when you're home")
+  }
+
+  /// With no night, the way forward is its editor, and there's nothing to sell yet (the audit).
+  @Test func noNightOffersToSetIt() {
+    var s = setUp()
+    s.trial.start = date(2026, 11, 13, 15)
+    if let index = s.blocks.firstIndex(where: \.isSleep) {
+      s.blocks[index].schedule = WeeklySchedule(rules: [])
+    }
+    let home = snapshot(s, date(2026, 11, 17, 15))
+    #expect(home.hero == .noBlocks)
+    #expect(home.eyebrow == "Your night")
+    #expect(home.setNight == s.sleepBlock?.id)
+    #expect(home.pill == nil)
+    #expect(snapshot(setUp(), date(2026, 11, 17, 15)).setNight == nil)
   }
 
   @Test func offAfterTheTrial() {
@@ -74,12 +91,7 @@ struct HomeSnapshotTests {
     #expect(snapshot(s, date(2026, 11, 17, 23)).pill == nil)
     var last = setUp()
     last.trial.start = date(2026, 11, 11, 15)
-    #expect(snapshot(last, date(2026, 11, 17, 15)).pill?.opensPurchase == true)
-    // Every free night opens the purchase sheet, not only the last (D75); away opens nothing.
-    var fifth = setUp()
-    fifth.trial.start = date(2026, 11, 13, 15)
-    #expect(snapshot(fifth, date(2026, 11, 17, 15)).pill?.opensPurchase == true)
-    #expect(HomeSnapshot.Pill(text: "Away from home", kind: .away).opensPurchase == false)
+    #expect(snapshot(last, date(2026, 11, 17, 15)).pill?.kind == .lastNight)
   }
 
   @Test func theFirstWeekShowsNightsSinceSetupThenWhatIsAhead() {

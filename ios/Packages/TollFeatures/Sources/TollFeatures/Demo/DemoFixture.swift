@@ -56,22 +56,21 @@
         scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario.isDoor || pauseOpen
       let night = TimeWindow(start: ClockTime(hour: 22, minute: 30), end: ClockTime(hour: 7))
       state.places = scenario.homeNotSet ? [library] : [home, library]
-      state.blocks =
-        scenario == .homeNoBlocks
-        ? []
-        : [
-          Block(
-            id: BlockID("sleep"), name: Copy.Setup.nightName, kind: .sleep,
-            place: scenario.homeNotSet ? nil : home.id,
-            schedule: .everyDay(night), apps: nil, appCount: 4),
-          Block(
-            id: BlockID("study"), name: "Study", kind: .study, place: library.id,
-            schedule: WeeklySchedule(rules: [
-              .init(
-                days: Weekday.weekdays,
-                window: TimeWindow(start: ClockTime(hour: 9), end: ClockTime(hour: 17)))
-            ]), apps: nil, appCount: 3),
-        ]
+      // "Nothing scheduled" is a night with no hours: the one block Dusk always has (D73).
+      state.blocks = [
+        Block(
+          id: BlockID("sleep"), name: Copy.Setup.nightName, kind: .sleep,
+          place: scenario.homeNotSet ? nil : home.id,
+          schedule: scenario == .homeNoBlocks ? WeeklySchedule(rules: []) : .everyDay(night),
+          apps: nil, appCount: 4),
+        Block(
+          id: BlockID("study"), name: "Study", kind: .study, place: library.id,
+          schedule: WeeklySchedule(rules: [
+            .init(
+              days: Weekday.weekdays,
+              window: TimeWindow(start: ClockTime(hour: 9), end: ClockTime(hour: 17)))
+          ]), apps: nil, appCount: 3),
+      ]
       // The Blocks tab shows more than one other block, and a weekday strip shows Gym after Study.
       if scenario.tab == .blocks || scenario.isDay {
         var gym = BlockDraft.new(.gym)

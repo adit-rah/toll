@@ -78,6 +78,8 @@ public struct DayTimeline: Equatable, Sendable {
   public var nowLabel: String
   /// Every six hours on the clock (12 am, 6 am, 12 pm, 6 pm), none hard against an edge.
   public var hours: [Hour]
+  /// Over the strip's end, where the night is: "Tonight 10:30 pm" under the morning card (HomeSnapshot).
+  public var label: String?
 
   /// `blocking` is false when nothing can block: the free week over, or Screen Time off (#45).
   public init(state: DuskState, now: Date, calendar: Calendar, blocking: Bool = true) {

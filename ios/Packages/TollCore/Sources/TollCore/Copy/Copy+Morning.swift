@@ -7,8 +7,9 @@ extension Copy {
     public static let lastNight = "Last night"
     /// Over the bar when the night ran: what the bar and its times are (D75).
     public static let lockedLastNight = "Apps locked last night"
+    /// The "Never mind" taps on the block screen (the founder's words, 24 Nov 2026).
     public static func putDown(_ n: Int) -> String {
-      n == 1 ? "You put it down once" : "You put it down \(n) times"
+      n == 1 ? "You chose sleep once" : "You chose sleep \(n) times"
     }
     public static let away = "Away from home"
     public static let noScreenTime = "Screen Time was off"
@@ -28,7 +29,10 @@ extension Copy {
 
   /// Your sleep (D63, D65, #103): one number per card, compared only with the person's own past.
   public enum YourSleep {
-    public static func nights(_ n: Int) -> String { n == 1 ? "1 night" : "\(n) nights" }
+    /// Says what was counted (the founder's words): nights the apps were locked.
+    public static func nights(_ n: Int) -> String {
+      n == 1 ? "1 night locked" : "\(n) nights locked"
+    }
     public static let newWeek = "A new week"
     public static func lastWeek(_ n: Int) -> String {
       n == 1 ? "1 night last week" : "\(n) nights last week"

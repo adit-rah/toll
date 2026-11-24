@@ -24,22 +24,31 @@ public struct InsightsSnapshot: Equatable, Sendable {
   public var byHour: [Int]
   public var peakHour: Int?
 
-  public init(log: [Transition], now: Date, calendar: Calendar, range: Range) {
+  /// `sleep` is the night's block: nights and hours count only it, not Study or Gym (the audit). Lines
+  /// written before blocks (D29) don't say which was on, so they count as the night's.
+  public init(
+    log: [Transition], now: Date, calendar: Calendar, range: Range, sleep: BlockID? = nil
+  ) {
     let from = range.days.flatMap { calendar.date(byAdding: .day, value: -$0, to: now) }
     let lines = log.filter { line in from.map { line.at >= $0 } ?? true }.sorted { $0.at < $1.at }
     func night(_ date: Date) -> Date {
       calendar.startOfDay(for: date.addingTimeInterval(-12 * 3600))
     }
+    func nightOn(_ line: Transition) -> Bool {
+      if line.screenTime == false { return false }
+      guard let sleep, let active = line.active else { return line.blockOn }
+      return active.contains(sleep)
+    }
 
-    let onNights = Set(lines.filter { $0.blockOn && $0.changed }.map { night($0.at) })
+    let onNights = Set(lines.filter { nightOn($0) && $0.changed }.map { night($0.at) })
     nights = onNights.count
     since = onNights.min()
 
     var seconds: TimeInterval = 0
     var onSince: Date?
-    for line in lines where line.changed {
-      if line.blockOn, onSince == nil { onSince = line.at }
-      if !line.blockOn, let start = onSince {
+    for line in lines {
+      if nightOn(line), onSince == nil { onSince = line.at }
+      if !nightOn(line), let start = onSince {
         seconds += line.at.timeIntervalSince(start)
         onSince = nil
       }
