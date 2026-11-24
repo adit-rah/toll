@@ -81,7 +81,8 @@ final class BlockEditorModel {
 
   /// "2 categories · 2 apps", counted, since iOS never gives the app the names (D41).
   var appsSummary: String {
-    Copy.Blocks.summary(
+    guard hasApps else { return Copy.Blocks.chooseAppsToSave }
+    return Copy.Blocks.summary(
       categories: selection.categoryTokens.count, apps: Blocklist.items(selection))
   }
 

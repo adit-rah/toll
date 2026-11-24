@@ -188,6 +188,7 @@ public struct DestructiveQuiet: View {
     Button(role: .destructive, action: action) {
       HStack(spacing: 8) {
         Image(symbol: .delete).unredacted().font(.system(size: 15, weight: .semibold))
+          .accessibilityHidden(true)
         Text(title)
       }
     }

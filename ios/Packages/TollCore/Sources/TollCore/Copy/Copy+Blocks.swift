@@ -15,7 +15,8 @@ extension Copy {
     /// The schedules iOS lets the app keep (D40), in plain words: blocks with the same hours share one.
     public static let timeWindows = "Sets of hours"
     public static func used(_ used: Int, of max: Int) -> String { "\(used) of \(max)" }
-    public static let unlocksShared = "A pause opens every block at once."
+    /// One sentence for the pause everywhere it's explained (the audit).
+    public static let unlocksShared = "A pause opens blocked apps for 10 minutes."
     public static func blocksFull(_ max: Int) -> String { "Up to \(max) blocks." }
     public static func windowsFull(_ max: Int) -> String {
       "Up to \(max) sets of hours across all blocks."
@@ -77,16 +78,19 @@ extension Copy {
     public static func placeIgnored(_ block: String, span: String) -> String {
       "Location is set to While Using, so \(block) runs \(span) wherever you are."
     }
+    /// Save says when changes apply ("Save for after 5:00 pm"); the note doesn't repeat it.
     public static func activeNote(_ block: String, until time: String) -> String {
-      "\(block) is on until \(time). Changes apply when this block ends."
+      "\(block) is on until \(time)."
     }
     public static func nightActiveNote(until time: String) -> String {
-      "Your night is on until \(time). Changes apply when it ends."
+      "Your night is on until \(time)."
     }
     public static func nightPlaceIgnored(span: String) -> String {
       "Location is set to While Using, so your night runs \(span) wherever you are."
     }
     public static let sleepStays = "Your nights can be changed but not deleted."
+    /// The apps row while it's empty: why Save is off (the audit).
+    public static let chooseAppsToSave = "Choose apps to save"
     public static let delete = "Delete block"
     public static func deleteTitle(_ block: String) -> String { "Delete \(block)?" }
     public static func deleteLine(_ items: String, place: String?) -> String {

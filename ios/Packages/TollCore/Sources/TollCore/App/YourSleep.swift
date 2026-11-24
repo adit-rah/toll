@@ -108,7 +108,8 @@ public struct YourSleep: Equatable, Sendable {
     // Most nights in a week, against the person's own past weeks only, and only when it's more.
     let top = perWeek.filter { $0.key < monday }.values.max() ?? 0
     if top > 0, week.blocked > top {
-      best = Best(title: Copy.YourSleep.best(week.blocked), detail: Copy.YourSleep.bestDetail)
+      // Titled by what the dots above don't show (the audit).
+      best = Best(title: Copy.YourSleep.bestDetail, detail: Copy.YourSleep.best(week.blocked))
     }
   }
 

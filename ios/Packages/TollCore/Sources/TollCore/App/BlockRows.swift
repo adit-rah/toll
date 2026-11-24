@@ -36,11 +36,13 @@ extension BlocksSnapshot {
         block.isSleep
         && calendar.isDate(next, inSameDayAs: now.addingTimeInterval(86_400))
         && calendar.component(.hour, from: next) < 6
-      stateText =
+      let day =
         today || afterMidnight
         ? (block.isSleep ? Copy.Home.tonight : Copy.Home.today)
-        : next.formatted(
-          Date.FormatStyle(calendar: calendar, timeZone: calendar.timeZone).weekday(.abbreviated))
+        : Copy.shortWeekday(next, in: calendar)
+      // Another block says when it starts too: "Wed" alone didn't say when (the audit). The night
+      // keeps "Tonight"; its picture has the time.
+      stateText = block.isSleep ? day : "\(day) \(Copy.time(next, in: calendar, short: true))"
       rowState = .later
     } else {
       (stateText, rowState) = ("", .unscheduled)

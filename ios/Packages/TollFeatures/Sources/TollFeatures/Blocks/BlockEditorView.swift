@@ -134,9 +134,7 @@ struct BlockEditorView: View {
       }
       .padding(.top, 12)
     }
-    if model.isSleep {
-      Footnote(Copy.Blocks.sleepStays).padding(.top, 12)
-    } else if model.isNew {
+    if !model.isSleep, model.isNew {
       Footnote(Copy.Blocks.explainer).padding(.top, 12)
     }
     if let refusal = model.refusal {

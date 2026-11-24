@@ -232,13 +232,13 @@ struct BlocksSnapshotTests {
     // Saturday noon: Study is Monday's.
     let saturday = BlocksSnapshot(state: s, now: date(2026, 11, 21, 12), calendar: london)
     #expect(saturday.night?.stateText == "Tonight")
-    #expect(saturday.others[0].stateText == "Mon")
+    #expect(saturday.others[0].stateText.hasPrefix("Mon 9"))
     #expect(saturday.others[0].state == .later)
     // Thursday evening: Study is tomorrow, not today.
     let thursday = BlocksSnapshot(state: s, now: date(2026, 11, 19, 18), calendar: london)
-    #expect(thursday.others[0].stateText == "Fri")
+    #expect(thursday.others[0].stateText.hasPrefix("Fri 9"))
     let friday = BlocksSnapshot(state: s, now: date(2026, 11, 20, 7), calendar: london)
-    #expect(friday.others[0].stateText == "Today")
+    #expect(friday.others[0].stateText.hasPrefix("Today 9"))
   }
 
   @Test func theNightSaysWhenWeekendsDiffer() {

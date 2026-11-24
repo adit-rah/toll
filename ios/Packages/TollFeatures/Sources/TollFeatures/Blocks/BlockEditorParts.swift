@@ -37,9 +37,12 @@ struct KindChips: View {
           if model.pick(kind) { openPicker(true) }
         } label: {
           VStack(spacing: 6) {
+            // One glyph height, so every label sits on the same line (the audit).
             Image(symbol: .block(kind)).unredacted()
               .font(.system(size: 20, weight: .medium))
               .foregroundStyle(selected ? TollColor.accent : TollColor.label2)
+              .frame(height: 24)
+              .accessibilityHidden(true)
             Text(Copy.Blocks.kindName(kind))
               .tollType(TollType(size: 13, lineHeight: 18, weight: .semibold, style: .footnote))
               .foregroundStyle(TollColor.label)

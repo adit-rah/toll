@@ -28,6 +28,14 @@ struct ShieldTextTests {
     #expect(text.unlocksLeft == 3 && text.unlocksMax == 3)
   }
 
+  @Test func aWebsiteIsASite() {
+    var s = setUp()
+    run(&s, date(2026, 11, 17, 23))
+    let text = ShieldText(
+      state: s, block: s.sleepBlock, now: date(2026, 11, 17, 23), calendar: london, site: true)
+    #expect(text.subtitle.hasPrefix("This site is blocked for the night."))
+  }
+
   @Test func withoutLocationNoPlaceIsClaimed() {
     var s = setUp(home: false)
     s.location = .scheduleOnly

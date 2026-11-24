@@ -6,8 +6,12 @@ extension Copy {
     public static func title(until end: String) -> String { "Blocked until \(end)" }
     public static let title = "Blocked"
     public static let subtitle = "This app is blocked for the night."
+    public static let siteSubtitle = "This site is blocked for the night."
     /// Every block's title is "Blocked until …"; the subtitle names the block (the audit).
     public static func blockOn(_ block: String) -> String { "This app is blocked during \(block)." }
+    public static func siteBlockOn(_ block: String) -> String {
+      "This site is blocked during \(block)."
+    }
     /// D32, after Opal: the easy way out is the first button.
     public static let neverMind = "Never mind"
     /// Opens the app at the pause sheet (D67): the block screen can't start a wait itself, and

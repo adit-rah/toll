@@ -13,9 +13,10 @@ public struct ShieldText: Equatable, Sendable {
   public var unlocksLeft: Int
   public var unlocksMax: Int
 
+  /// `site`: the shield is over a website, which isn't "this app" (the audit).
   public init(
     state: DuskState, block: Block?, now: Date, calendar: Calendar = .current,
-    config: TollConfig = .defaults
+    config: TollConfig = .defaults, site: Bool = false
   ) {
     let end = block.flatMap { state.runtime.active[$0.id] }
     let time = end.map { Copy.time($0, in: calendar) }
@@ -31,9 +32,10 @@ public struct ShieldText: Equatable, Sendable {
       : Copy.Shield.noneLeft(back: Copy.Door.refillDay(refill, now: now, in: calendar))
     title = time.map(Copy.Shield.title(until:)) ?? Copy.Shield.title
     guard let block, !block.isSleep else {
-      subtitle = "\(Copy.Shield.subtitle) \(supply)"
+      subtitle = "\(site ? Copy.Shield.siteSubtitle : Copy.Shield.subtitle) \(supply)"
       return
     }
-    subtitle = "\(Copy.Shield.blockOn(block.name)) \(supply)"
+    let why = site ? Copy.Shield.siteBlockOn(block.name) : Copy.Shield.blockOn(block.name)
+    subtitle = "\(why) \(supply)"
   }
 }
