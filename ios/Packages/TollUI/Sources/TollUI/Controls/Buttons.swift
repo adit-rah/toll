@@ -219,3 +219,17 @@ public struct SettingsLink: View {
     .frame(minHeight: 28)
   }
 }
+
+/// A tappable shape drawn by its own view (the free-week pill, the strip's segments): it dims while
+/// pressed, like a quiet button, so a tap visibly lands (D75). No motion: the change is immediate.
+public struct PressableStyle: ButtonStyle {
+  public init() {}
+
+  public func makeBody(configuration: Configuration) -> some View {
+    configuration.label.opacity(configuration.isPressed ? 0.55 : 1)
+  }
+}
+
+extension ButtonStyle where Self == PressableStyle {
+  public static var tollPressable: PressableStyle { PressableStyle() }
+}

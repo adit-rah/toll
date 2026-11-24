@@ -37,7 +37,7 @@ struct InsightsView: View {
           // The nights are counted once, at the top; this is the range's one number.
           Stat(
             value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel,
-            symbol: .phoneDown
+            symbol: .blocked
           )
           .padding(.top, 20)
           HoursCard(insights: insights).padding(.top, 20)

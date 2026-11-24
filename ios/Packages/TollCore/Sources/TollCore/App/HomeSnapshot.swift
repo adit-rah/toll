@@ -2,10 +2,15 @@ import Foundation
 
 /// Everything Home shows, decided here and tested; the view only lays it out (docs/architecture.md).
 public struct HomeSnapshot: Equatable, Sendable {
+  /// What the big time means is the eyebrow's to say (D75): "Apps lock at", "Apps locked until",
+  /// "Paused until", "Night ends at".
   public enum Hero: Equatable, Sendable {
     case tonight(start: Date, detail: String)
-    case blocked(label: String, until: Date, detail: String)
-    case away(start: Date)
+    case blocked(until: Date, detail: String)
+    /// A pause is open (D67): the apps are open until it ends, then locked again until `nightEnd`.
+    case paused(until: Date, nightEnd: Date)
+    /// In the night's hours, away from home: the apps lock when you're back, until its end.
+    case away(end: Date)
     /// After the trial ("Off", D70); `endedToday` reads "this morning".
     case off(endedToday: Bool)
     /// Screen Time is off for Dusk after setup: nothing can be blocked, so nothing claims it is (#45).
@@ -13,8 +18,8 @@ public struct HomeSnapshot: Equatable, Sendable {
     case noBlocks
   }
 
-  /// The quiet label under the bar (the canvas): the free night, the last one (which opens the
-  /// purchase sheet, D33), or "Away from home".
+  /// The quiet label under the bar (the canvas): the free night, the last one, or "Away from home".
+  /// Every free night opens the purchase sheet (D75); the last one is amber (D33).
   public struct Pill: Equatable, Sendable {
     public enum Kind: Equatable, Sendable {
       case trial, lastNight, away
@@ -26,31 +31,7 @@ public struct HomeSnapshot: Equatable, Sendable {
     public var night: Int?
     public var nights = 7
 
-    public var opensPurchase: Bool { kind == .lastNight }
-  }
-
-  /// Fractions of the day strip: the boards' 6 pm → 10 am when tonight and now fit in it, otherwise
-  /// a span fitted to both, so any block's hours show (#82).
-  public struct Timeline: Equatable, Sendable {
-    public enum Phase: Equatable, Sendable {
-      /// Drawn as an outline: tonight's block, still to come.
-      case upcoming
-      /// Solid: on now.
-      case on
-      /// Dashed: the trial is over and nothing will block.
-      case off
-    }
-
-    public var start: Double
-    public var end: Double
-    /// Where now is; 0 in the afternoon before the strip begins (the canvas draws the line at its
-    /// left edge then, without the word).
-    public var now: Double?
-    public var nowInside: Bool
-    public var phase: Phase
-    public var label: String
-    /// Five hour labels, evenly spaced from the strip's start to its end ("6 pm" … "10 am").
-    public var hours: [String] = []
+    public var opensPurchase: Bool { kind != .away }
   }
 
   /// A block other than the night that's on now (D68, #89): Tonight's one quiet line about other
@@ -84,13 +65,14 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var card: TonightCard?
   /// The first heads-up the night would get, for the card that offers it (#104).
   public var headsUp: HeadsUp?
-  public var timeline: Timeline?
+  /// The whole day as a strip, every block on it (D75).
+  public var timeline: DayTimeline?
   /// The last seven nights, as the morning card's dots draw them (#103).
   public var bars: [Bar]
   /// From the end of the night until noon, last night in place of the "starts at" hero (#103).
   public var morning: Morning?
-  /// Under tonight's start: "8 h 30 m phone-free tonight" (#103).
-  public var phoneFree: String?
+  /// Over the big time, what it means: "Apps lock at", "Apps locked until" (D75).
+  public var eyebrow: String
   /// The free nights' facts, for the purchase sheet.
   public var freeWeek: FreeWeek?
   public var otherBlock: OtherBlock?
@@ -124,21 +106,14 @@ public struct HomeSnapshot: Equatable, Sendable {
     heroPlace =
       sleep == nil
       ? nil : state.location == .scheduleOnly ? .anywhere : sleep?.place != nil ? .home : .anywhere
-    let phase: Timeline.Phase =
-      !state.trial.entitled || screenTimeOff
-      ? .off
-      : (sleep.map { state.runtime.active[$0.id] != nil } == true
-        ? .on : .upcoming)
-    timeline = sleep.flatMap {
-      Self.timeline($0.schedule, phase: phase, now: now, calendar: calendar)
-    }
+    let day = DayTimeline(state: state, now: now, calendar: calendar, blocking: !screenTimeOff)
+    timeline = day.segments.isEmpty ? nil : day
+    eyebrow = Self.eyebrow(hero, now: now, calendar: calendar)
     let week = Week(
       log: log, now: now, calendar: calendar, since: state.setupFinishedAt, sleep: sleep)
     bars = week.bars
-    if case .tonight(let start, _) = hero {
+    if case .tonight = hero {
       morning = Morning(state: state, log: log, now: now, calendar: calendar, config: config)
-      phoneFree =
-        morning == nil ? Self.phoneFree(sleep, start: start, now: now, calendar: calendar) : nil
     }
     freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)
     if case .off = hero { supply.refillDay = nil }
@@ -158,8 +133,11 @@ public struct HomeSnapshot: Equatable, Sendable {
     }
     // Only the night takes the hero; another block that's on is one quiet line under it (D68).
     if let sleep, let end = state.runtime.active[sleep.id] {
+      if let door = state.door, door.phase == .open, let until = door.expiresAt {
+        return .paused(until: min(until, end), nightEnd: end)
+      }
       return .blocked(
-        label: Copy.Home.blockedUntil, until: end,
+        until: end,
         detail: Copy.Home.blockedDetail(
           atHome: sleep.place != nil && state.location == .places,
           unlocksLeft: state.unlocks.left(config, now: now, calendar: calendar)))
@@ -171,7 +149,7 @@ public struct HomeSnapshot: Equatable, Sendable {
     let atHome = usesHome && sleep.place.flatMap { state.presence[$0]?.isInside } == true
     if usesHome, !atHome, let night = sleep.schedule.occurrence(containing: now, calendar: calendar)
     {
-      return .away(start: night.start)
+      return .away(end: night.end)
     }
     // Home not set (D68): the night runs on its hours wherever the phone is, and says so plainly.
     if sleep.place == nil {
@@ -179,9 +157,12 @@ public struct HomeSnapshot: Equatable, Sendable {
         start: start,
         detail: Copy.Home.anywhereStartsIn(Copy.Home.duration(start.timeIntervalSince(now))))
     }
+    // Without location it runs wherever the phone is (D37): the same words as home not set, since
+    // the start is already the big time.
     if state.location == .scheduleOnly {
       return .tonight(
-        start: start, detail: Copy.Home.startsAtAnywhere(Copy.time(start, in: calendar)))
+        start: start,
+        detail: Copy.Home.anywhereStartsIn(Copy.Home.duration(start.timeIntervalSince(now))))
     }
     return .tonight(
       start: start,
@@ -204,7 +185,8 @@ public struct HomeSnapshot: Equatable, Sendable {
       text: on.count == 1
         ? Copy.Home.otherBlockOn(last.name, until: time)
         : Copy.Home.otherBlocksOn(on.count, until: time),
-      offersPause: !heroOffersPause && (unlocksLeft ?? 0) > 0)
+      // Not while a pause is already asked for or open: one at a time (D-7).
+      offersPause: !heroOffersPause && state.door == nil && (unlocksLeft ?? 0) > 0)
   }
 
   /// The free week's last night ended this morning (the canvas's "ended this morning").
@@ -236,59 +218,29 @@ public struct HomeSnapshot: Equatable, Sendable {
       nights: config.trial.nights)
   }
 
-  static func timeline(
-    _ schedule: WeeklySchedule, phase: Timeline.Phase, now: Date, calendar: Calendar
-  ) -> Timeline? {
-    // The night on now, or the next one: the strip shows where now is and when it happens.
-    guard
-      let night = schedule.occurrence(containing: now, calendar: calendar)
-        ?? schedule.nextStart(after: now, calendar: calendar).flatMap({
-          schedule.occurrence(containing: $0, calendar: calendar)
-        })
-    else { return nil }
-    let (spanStart, step) = Self.span(night: night, now: now, calendar: calendar)
-    let span = TimeInterval(step * 4 * 3600)
-    func fraction(_ date: Date) -> Double {
-      min(1, max(0, date.timeIntervalSince(spanStart) / span))
-    }
-    let elapsed = now.timeIntervalSince(spanStart)
-    let inside = (0...span).contains(elapsed)
-    let hours = (0...4).map {
-      Copy.time(
-        spanStart.addingTimeInterval(TimeInterval($0 * step * 3600)), in: calendar, short: true)
-    }
-    return Timeline(
-      start: fraction(night.start), end: fraction(night.end),
-      now: inside || elapsed < 0 ? fraction(now) : nil, nowInside: inside,
-      phase: phase,
-      label: Copy.Home.timelineLabel(
-        start: Copy.time(night.start, in: calendar), end: Copy.time(night.end, in: calendar)),
-      hours: hours)
-  }
-
-  /// The strip's start and its label step in hours (the strip is four steps long). The boards'
-  /// 6 pm → 10 am (4 h steps) when the night fits in it and now is in it or the afternoon before;
-  /// otherwise whole hours from an hour before the earlier of now and the start to an hour after the
-  /// end, widened to four equal steps (#82).
-  static func span(night: TimeWindow.Night, now: Date, calendar: Calendar) -> (Date, Int) {
-    let evening = calendar.startOfDay(for: night.start.addingTimeInterval(-12 * 3600))
-    if let six = calendar.date(bySettingHour: 18, minute: 0, second: 0, of: evening) {
-      let end = six.addingTimeInterval(16 * 3600)
-      if night.start >= six, night.end <= end, now <= end,
-        now >= six.addingTimeInterval(-6 * 3600)
+  /// Over the big time (D75). Tonight's start is "Apps lock at"; a start that isn't tonight names its
+  /// day, so a weekday night seen on a Friday doesn't read as tonight. A night starting after
+  /// midnight still counts as tonight.
+  static func eyebrow(_ hero: Hero, now: Date, calendar: Calendar) -> String {
+    switch hero {
+    case .tonight(let start, _):
+      let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) ?? now
+      if calendar.isDate(start, inSameDayAs: now)
+        || (calendar.isDate(start, inSameDayAs: tomorrow)
+          && calendar.component(.hour, from: start) < 6)
       {
-        return (six, 4)
+        return Copy.Home.locksAt
       }
+      if calendar.isDate(start, inSameDayAs: tomorrow) { return Copy.Home.locksTomorrowAt }
+      return Copy.Home.locksOn(
+        start.formatted(
+          Date.FormatStyle(calendar: calendar, timeZone: calendar.timeZone).weekday(.wide)))
+    case .blocked: return Copy.Home.blockedUntil
+    case .paused: return Copy.Home.pausedUntil
+    case .away: return Copy.Home.nightEndsAt
+    case .off: return Copy.Home.isOff
+    case .screenTimeOff: return Copy.Home.screenTimeOffEyebrow
+    case .noBlocks: return Copy.Home.yourNight
     }
-    func hourFloor(_ date: Date) -> Date {
-      calendar.dateInterval(of: .hour, for: date)?.start ?? date
-    }
-    let start = hourFloor(min(now, night.start)).addingTimeInterval(-3600)
-    let end = night.end.addingTimeInterval(3600)
-    let hours = Int((end.timeIntervalSince(start) / 3600).rounded(.up))
-    // Never wider than a day: past that, now sits at the left edge.
-    let step = min(6, max(2, Int((Double(hours) / 4).rounded(.up))))
-    return (max(start, end.addingTimeInterval(-TimeInterval(step * 4 * 3600))), step)
   }
-
 }

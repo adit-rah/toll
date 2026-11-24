@@ -8,8 +8,9 @@ extension Copy {
     public static let week = "7 days"
     public static let month = "30 days"
     public static let all = "All time"
-    /// About the person, not the app's work (D65): the hours the apps stayed closed.
-    public static let hoursLabel = "phone-free"
+    /// The hours any block kept its apps locked (D75): "phone-free" read as all time off the phone,
+    /// and "at night" isn't true of a day block's hours.
+    public static let hoursLabel = "with apps locked"
     public static func hours(_ hours: Int) -> String { "\(hours) h" }
     public static let when = "When you put it down"
     public static func mostAt(_ hour: String) -> String { "Most at \(hour)" }

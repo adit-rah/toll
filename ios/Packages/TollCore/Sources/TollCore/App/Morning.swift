@@ -32,6 +32,9 @@ public struct Morning: Equatable, Sendable {
   public var putDown: String?
   /// The bar and its times in words, for VoiceOver.
   public var spoken: String
+  /// What the bar and its times are (D75): "Apps locked last night" when it ran; "Last night"
+  /// when it didn't, since the card's line says why.
+  public var eyebrow: String
 
   /// Nil outside the morning, before setup, after the trial (the off hero speaks then), and
   /// when last night was due and simply didn't run.
@@ -76,6 +79,7 @@ public struct Morning: Equatable, Sendable {
     from = Copy.time(first, in: calendar)
     to = Copy.time(last, in: calendar)
     putDown = outcome == .ran && night.stops > 0 ? Copy.Morning.putDown(night.stops) : nil
+    eyebrow = outcome == .ran ? Copy.Morning.lockedLastNight : Copy.Morning.lastNight
     switch outcome {
     case .ran:
       spoken = Copy.Morning.spokenRan(
@@ -104,18 +108,6 @@ public struct Morning: Equatable, Sendable {
     }
     if let start = since { stretches.append((start, max(start, end))) }
     return stretches
-  }
-}
-
-extension HomeSnapshot {
-  /// Under tonight's start, the night's length: "8 h 30 m phone-free tonight" (#103). Only for a
-  /// night starting within a day, so a weekday schedule on a Friday doesn't call Monday "tonight".
-  static func phoneFree(_ sleep: Block?, start: Date, now: Date, calendar: Calendar) -> String? {
-    guard start.timeIntervalSince(now) < 24 * 3600,
-      let night = sleep?.schedule.occurrence(containing: start, calendar: calendar)
-    else { return nil }
-    return Copy.Home.phoneFree(
-      Copy.length(minutes: Int(night.end.timeIntervalSince(night.start) / 60)))
   }
 }
 

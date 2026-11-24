@@ -3,8 +3,8 @@ import Testing
 
 @testable import TollCore
 
-/// The morning card and the evening's length (D65, #103): exact facts about last night, shown
-/// from the end of the night until noon, and nothing when there's nothing new.
+/// The morning card (D65, #103): exact facts about last night, shown from the end of the night until
+/// noon, and nothing when there's nothing new.
 struct MorningTests {
   let sleep = BlockID("sleep")
 
@@ -48,11 +48,12 @@ struct MorningTests {
     #expect(morning.from.hasPrefix("10:30") || morning.from.hasPrefix("22:30"))
     #expect(morning.to.hasPrefix("7:00") || morning.to.hasPrefix("07:00"))
     #expect(morning.putDown == "You put it down 3 times")
+    #expect(morning.eyebrow == "Apps locked last night")
     // Still the night, and from noon: Tonight looks ahead.
     #expect(home(date(2026, 11, 17, 6, 30), log).morning == nil)
     let noon = home(date(2026, 11, 17, 12), log)
     #expect(noon.morning == nil)
-    #expect(noon.phoneFree == "8 h 30 m phone-free tonight")
+    #expect(noon.eyebrow == "Apps lock at")
   }
 
   /// Nothing new means nothing shown: no taps, no line.
@@ -95,6 +96,8 @@ struct MorningTests {
     #expect(morning.ran.isEmpty)
     #expect(morning.putDown == nil)
     #expect(morning.spoken.contains("Away from home"))
+    // Nothing was locked, so the eyebrow doesn't say it was; the line says why.
+    #expect(morning.eyebrow == "Last night")
   }
 
   @Test func screenTimeOffIsNamed() {
@@ -112,7 +115,7 @@ struct MorningTests {
   @Test func aNightThatDidntRunShowsNothing() {
     let morning = home(date(2026, 11, 17, 9), [])
     #expect(morning.morning == nil)
-    #expect(morning.phoneFree == "8 h 30 m phone-free tonight")
+    #expect(morning.eyebrow == "Apps lock at")
   }
 
   @Test func afterTheTrialTheMorningIsTheTrialsToSay() {
@@ -121,12 +124,18 @@ struct MorningTests {
     #expect(home(date(2026, 11, 17, 9), night(taps: 2), state: s).morning == nil)
   }
 
-  /// A weekday night on a Friday afternoon starts on Monday: that isn't "tonight".
-  @Test func phoneFreeOnlyForTonight() {
+  /// A weekday night seen on a Saturday afternoon starts on Monday: the eyebrow says so, and the
+  /// line counts days rather than 55 hours (D75).
+  @Test func aStartThatIsntTonightNamesItsDay() {
     var s = state
     s.blocks[0].schedule = WeeklySchedule(rules: [.init(days: Weekday.weekdays, window: usual)])
-    #expect(home(date(2026, 11, 20, 15), [], state: s).phoneFree == "8 h 30 m phone-free tonight")
-    #expect(home(date(2026, 11, 21, 15), [], state: s).phoneFree == nil)
+    #expect(home(date(2026, 11, 20, 15), [], state: s).eyebrow == "Apps lock at")
+    let saturday = home(date(2026, 11, 21, 15), [], state: s)
+    #expect(saturday.eyebrow == "Apps lock Monday at")
+    #expect(
+      saturday.hero
+        == .tonight(start: date(2026, 11, 23, 22, 30), detail: "At home · starts in 2 d 7 h"))
+    #expect(home(date(2026, 11, 22, 15), [], state: s).eyebrow == "Apps lock tomorrow at")
   }
 
   /// Filled when it ran; hollow when it didn't, with a mark for why; never a dash (D65).
@@ -156,7 +165,7 @@ struct MorningTests {
         Copy.Morning.spokenRan(from: "10:30 pm", to: "7:00 am", gaps: [("1:00 am", "1:10 am")]),
         Copy.Morning.spokenAway(from: "10:30 pm", to: "7:00 am"),
         Copy.Morning.spokenNoScreenTime(from: "10:30 pm", to: "7:00 am"),
-        Copy.YourSleep.newWeek, Copy.YourSleep.bestDetail, Copy.Home.phoneFree("8 h 30 m"),
+        Copy.YourSleep.newWeek, Copy.YourSleep.bestDetail, Copy.Morning.lockedLastNight,
       ]
     let banned = [
       "great", "well done", "nice", "good", "bad", "streak", "missed", "fail", "!", "sleep", "%",

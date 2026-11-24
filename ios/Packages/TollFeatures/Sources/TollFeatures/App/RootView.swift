@@ -85,7 +85,9 @@ struct LiveHome: View {
             case .headsUp: Task { await model.turnOnHeadsUp() }
             }
           },
-          dismissCard: { model.dismiss($0) }
+          dismissCard: { model.dismiss($0) },
+          // Pushed on Tonight, so Back returns to the strip it came from (D75).
+          openBlock: { path.append(.block($0)) }
         )
         .sheet(isPresented: $settingHome) { SetHomeFlow(app: model) { settingHome = false } }
       }
@@ -145,10 +147,12 @@ struct HomeDestination: View {
   }
 }
 
-/// Screens pushed from Home, with Apple's back button reading "Home" (the canvas).
+/// Screens pushed from Tonight, with Apple's back button reading "Tonight" (D75: "Home" is also the
+/// place).
 enum HomeRoute: Hashable {
   case settings, blocks, log
-  /// A block to edit, or nil for a new one; pushed over Blocks so the back button reads "Blocks".
+  /// A block to edit, or nil for a new one; pushed over Blocks, or over Tonight from the strip's
+  /// snippet (D75), so Back returns where it came from.
   case block(BlockID?)
 }
 

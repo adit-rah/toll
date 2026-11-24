@@ -11,7 +11,7 @@ struct MorningCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      StateLine(Copy.Morning.lastNight, symbol: .sleep)
+      StateLine(morning.eyebrow, symbol: .sleep)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
       NightBar(morning: morning).padding(.top, 16)

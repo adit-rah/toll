@@ -23,9 +23,9 @@ struct HomeSnapshotTests {
     #expect(
       home.hero
         == .tonight(start: date(2026, 11, 17, 22, 30), detail: "At home · starts in 3 h 12 m"))
+    #expect(home.eyebrow == "Apps lock at")
     #expect(home.unlocksLeft == nil)
-    #expect(home.timeline?.start == 4.5 / 16)
-    #expect(home.timeline?.end == 13.0 / 16)
+    #expect(home.timeline?.segments.map(\.state) == [.later])
   }
 
   @Test func blockedShowsUntilAndUnlocks() {
@@ -34,17 +34,18 @@ struct HomeSnapshotTests {
     let home = snapshot(s, date(2026, 11, 17, 23))
     #expect(
       home.hero
-        == .blocked(
-          label: "Blocked until", until: date(2026, 11, 18, 7),
-          detail: "You're home · 3 pauses left"))
-    #expect(home.timeline?.phase == .on)
+        == .blocked(until: date(2026, 11, 18, 7), detail: "You're home · 3 pauses left"))
+    #expect(home.eyebrow == "Apps locked until")
+    #expect(home.timeline?.segments.map(\.state) == [.on])
     #expect(home.unlocksLeft == 3)
   }
 
   @Test func awayInsideTheNight() {
     let home = snapshot(setUp(home: false), date(2026, 11, 17, 23))
-    #expect(home.hero == .away(start: date(2026, 11, 17, 22, 30)))
+    #expect(home.hero == .away(end: date(2026, 11, 18, 7)))
+    #expect(home.eyebrow == "Night ends at")
     #expect(home.pill == .init(text: "Away from home", kind: .away))
+    #expect(home.timeline?.segments.first?.stateText == "Apps lock when you're home")
   }
 
   @Test func offAfterTheTrial() {
@@ -53,10 +54,11 @@ struct HomeSnapshotTests {
     run(&s, date(2026, 11, 17, 15))
     let home = snapshot(s, date(2026, 11, 17, 15))
     #expect(home.hero == .off(endedToday: false))
+    #expect(home.eyebrow == "Dusk is off")
     #expect(
       YourSleep(state: s, log: [], history: [], now: date(2026, 11, 17, 15), calendar: london)
         .weekTitle == "Your free week")
-    #expect(home.timeline?.phase == .off)
+    #expect(home.timeline?.segments.map(\.phase) == [.off])
     #expect(
       BlocksSnapshot(state: s, now: date(2026, 11, 17, 15), calendar: london).night?.stateText
         == Copy.Home.off)
@@ -73,6 +75,11 @@ struct HomeSnapshotTests {
     var last = setUp()
     last.trial.start = date(2026, 11, 11, 15)
     #expect(snapshot(last, date(2026, 11, 17, 15)).pill?.opensPurchase == true)
+    // Every free night opens the purchase sheet, not only the last (D75); away opens nothing.
+    var fifth = setUp()
+    fifth.trial.start = date(2026, 11, 13, 15)
+    #expect(snapshot(fifth, date(2026, 11, 17, 15)).pill?.opensPurchase == true)
+    #expect(HomeSnapshot.Pill(text: "Away from home", kind: .away).opensPurchase == false)
   }
 
   @Test func theFirstWeekShowsNightsSinceSetupThenWhatIsAhead() {
@@ -126,8 +133,9 @@ struct HomeSnapshotTests {
       state: s, log: [], now: date(2026, 11, 17, 23), calendar: london, screenTime: false)
     #expect(home.screenTimeOff)
     #expect(home.hero == .screenTimeOff)
+    #expect(home.eyebrow == "Screen Time is off")
     #expect(home.unlocksLeft == nil)
-    #expect(home.timeline?.phase == .off)
+    #expect(home.timeline?.segments.map(\.phase) == [.off])
     #expect(
       BlocksSnapshot(
         state: s, now: date(2026, 11, 17, 23), calendar: london, screenTime: false
@@ -135,38 +143,14 @@ struct HomeSnapshotTests {
     #expect(!snapshot(s, date(2026, 11, 17, 23)).screenTimeOff)
   }
 
-  /// A block outside 6 pm – 10 am still gets its strip, fitted to it and to now (#82): the founder's
-  /// test schedule of 1:19 pm – 7:49 am, seen at 9:44 am, had none.
-  @Test func theStripFitsAnyHours() {
-    var s = setUp()
-    s.blocks[0].schedule = .everyDay(TimeWindow(start: time(13, 19), end: time(7, 49)))
-    let morning = snapshot(s, date(2026, 11, 21, 9, 44))
-    let strip = try? #require(morning.timeline)
-    #expect(strip != nil)
-    #expect(strip?.nowInside == true)
-    #expect((strip?.now ?? 1) < (strip?.start ?? 0))
-    #expect((strip?.end ?? 0) <= 1)
-    #expect(strip?.hours.count == 5)
-    // The boards' night keeps the boards' strip.
-    let evening = snapshot(setUp(), date(2026, 11, 17, 19, 18))
-    #expect(evening.timeline?.hours.first?.hasPrefix("6") == true)
-  }
-
   @Test func withoutLocationTheHeroSaysWhereverYouAre() {
     var s = setUp()
     s.location = .scheduleOnly
     let home = snapshot(s, date(2026, 11, 17, 19, 18))
+    // The start is the big time, so the line doesn't repeat it (D75).
     #expect(
       home.hero
-        == .tonight(
-          start: date(2026, 11, 17, 22, 30), detail: "Starts at 10:30\u{202F}pm, wherever you are")
-        || home.hero
-          == .tonight(
-            start: date(2026, 11, 17, 22, 30), detail: "Starts at 10:30 pm, wherever you are")
-        || home.hero
-          == .tonight(
-            start: date(2026, 11, 17, 22, 30), detail: "Starts at 22:30, wherever you are")
-    )
+        == .tonight(start: date(2026, 11, 17, 22, 30), detail: "Anywhere · starts in 3 h 12 m"))
   }
 
   @Test func theBannerOnlyWithoutLocation() {

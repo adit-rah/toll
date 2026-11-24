@@ -5,6 +5,8 @@ extension Copy {
   /// hours are the night (D68), and the block isn't called "Sleep".
   public enum Morning {
     public static let lastNight = "Last night"
+    /// Over the bar when the night ran: what the bar and its times are (D75).
+    public static let lockedLastNight = "Apps locked last night"
     public static func putDown(_ n: Int) -> String {
       n == 1 ? "You put it down once" : "You put it down \(n) times"
     }

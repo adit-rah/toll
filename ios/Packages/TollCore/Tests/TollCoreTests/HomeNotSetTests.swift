@@ -197,14 +197,13 @@ struct HomeNotSetTests {
 
   // MARK: Setup's picture of the night
 
-  @Test func theNightIsDrawnOnTonightsStripWithoutNow() {
+  @Test func theNightIsDrawnOnItsOwnStrip() {
     let picture = NightPicture(.everyDay(usual), now: date(2026, 11, 17, 15), calendar: london)
     #expect(plain(picture?.start) == "10:30 pm")
     #expect(plain(picture?.end) == "7:00 am")
     #expect(picture?.length == "8 h 30 m")
     #expect(picture?.timeline.start == 4.5 / 16)
     #expect(picture?.timeline.end == 13.0 / 16)
-    #expect(picture?.timeline.now == nil)
     #expect(
       picture?.timeline.hours.map { plain($0) } == ["6 pm", "10 pm", "2 am", "6 am", "10 am"])
     #expect(plain(picture?.timeline.label) == "Night, 10:30 pm to 7:00 am")

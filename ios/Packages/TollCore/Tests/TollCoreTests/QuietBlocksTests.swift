@@ -116,7 +116,9 @@ struct TonightOtherBlocksTests {
     #expect(home.otherBlock?.text.hasPrefix("Study on until 5") == true)
     #expect(home.otherBlock?.kind == .study)
     #expect(home.otherBlock?.offersPause == true)
-    #expect(home.timeline?.phase == .upcoming)
+    // The strip has both: Study on now, the night later and drawn as the night (D75).
+    #expect(home.timeline?.segments.map(\.kind) == [.study, .sleep])
+    #expect(home.timeline?.segments.map(\.state) == [.on, .later])
   }
 
   @Test func nothingWhileNoOtherBlockIsOn() {

@@ -70,8 +70,8 @@
                 window: TimeWindow(start: ClockTime(hour: 9), end: ClockTime(hour: 17)))
             ]), apps: nil, appCount: 3),
         ]
-      // The Blocks tab shows more than one other block.
-      if scenario.tab == .blocks {
+      // The Blocks tab shows more than one other block, and a weekday strip shows Gym after Study.
+      if scenario.tab == .blocks || scenario.isDay {
         var gym = BlockDraft.new(.gym)
         gym.id = BlockID("gym")
         gym.appCount = 2
