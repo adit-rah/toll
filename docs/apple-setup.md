@@ -18,7 +18,7 @@ If a name must change, change `ios/Config/Base.xcconfig`; nothing else hard-code
 
 ## 2. App Store Connect
 
-- In-app purchase: one non-consumable, product id `com.advan.toll.full`, $9.99 (price tier of the founders' choosing; the app shows the App Store's localized price). Its display name and description: "Keeps the nightly block running after the free week." The trial needs no product (decisions D7); if review asks for one, add a $0 non-consumable named "7-day Trial".
+- In-app purchase: one non-consumable, product id `com.advan.toll.full`, $9.99 (price tier of the founders' choosing; the app shows the App Store's localized price). Its display name and description: "Keeps the nightly block running after the free nights." The trial needs no product (decisions D7); if review asks for one, add a $0 non-consumable named "14-day Trial".
 - Privacy label: Data Not Collected (MVP spec §9).
 - Before review: set `TOLL_PRIVACY_URL` (where `docs/privacy.md` is published) and `TOLL_SUPPORT_EMAIL` in `ios/Config/Base.xcconfig`; Settings hides those rows while they are empty.
 - Review notes: written in §12 step 10.

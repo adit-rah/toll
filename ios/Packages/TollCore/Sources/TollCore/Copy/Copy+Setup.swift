@@ -37,14 +37,14 @@ extension Copy {
     public static let welcomeTitle = "Your nights, phone-free."
     public static let welcomeLine =
       "At night, the apps that keep you up stop opening. Everything else works."
-    public static let offerTitle = "7 nights free"
+    public static let offerTitle = "14 nights free"
     public static func offerDetail(price: String) -> String {
       "Then \(price) once. No subscription. No account."
     }
-    public static let start = "Start my free week"
-    /// When this phone's free week is used or bought (#46).
+    public static let start = "Start my free nights"
+    /// When this phone's or Apple ID's free nights are used, or bought (#46, D78).
     public static let setUp = "Set up \(name)"
-    public static let offerUsedTitle = "Free week used"
+    public static let offerUsedTitle = "Free nights used"
     public static func offerUsedDetail(_ day: String, price: String) -> String {
       "It ended \(day) on this phone. \(price) once, no subscription."
     }
@@ -139,7 +139,8 @@ extension Copy {
     }
 
     public static let readyEyebrow = "You're set"
-    public static func readyLine(_ start: String) -> String { "Tonight at \(start)." }
+    /// The lock, which starts the gap before bed (D76); bed is on the night's picture.
+    public static func readyLine(_ lock: String) -> String { "Apps lock at \(lock) tonight." }
     public static func readyNow(_ end: String) -> String { "From now until \(end)." }
     public static let anywhere = "Anywhere"
     public static let anywhereDetail = "At its set times, wherever you are"
@@ -163,8 +164,8 @@ extension Copy {
     public static func unlocksDetail(minutes: Int) -> String {
       "Every app opens for \(minutes) minutes"
     }
-    public static func freeWeekEnded(_ day: String, price: String) -> String {
-      "The free week ended \(day). Nothing is blocked until the \(price) purchase."
+    public static func freeNightsEnded(_ day: String, price: String) -> String {
+      "Your free nights ended \(day). Nothing is blocked until the \(price) purchase."
     }
     public static func freeUntil(_ day: String, price: String) -> String {
       "Free until the morning of \(day). Then \(price) once, or it switches off."

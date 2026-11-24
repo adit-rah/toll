@@ -79,14 +79,15 @@ struct YourSleepTests {
     #expect(sleep(sunday, log: nights([16, 17, 18, 19, 20, 21])).best == nil)
   }
 
-  /// The free week stands still after the trial (#48).
-  @Test func afterTheTrialTheFreeWeek() {
+  /// The free nights stand still after the trial (#48), two rows of a week (D78).
+  @Test func afterTheTrialTheFreeNights() {
     var s = state
     s.trial.start = date(2026, 10, 30, 12)
     s.trial.entitled = false
     let week = YourSleep(
       state: s, log: [], history: [], now: date(2026, 11, 20, 15), calendar: london)
-    #expect(week.weekTitle == "Your free week")
+    #expect(week.weekTitle == "Your free nights")
+    #expect(week.dots.count == 14)
     #expect(week.best == nil && week.lastWeek == nil)
   }
 

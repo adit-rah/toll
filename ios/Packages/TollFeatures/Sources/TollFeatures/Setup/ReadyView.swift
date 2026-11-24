@@ -5,9 +5,10 @@ import TollCore
 import TollScreenTime
 import TollUI
 
-/// Ready (D68, #76): tonight as pictures. A tick before the eyebrow, tonight's night as moon – sun on
-/// Tonight's strip, then where it runs (anywhere until home is set), the apps with their count and
-/// icons, and the unlocks as dots. No back button: onboarding is done.
+/// Ready (D68, #76): tonight as pictures. A tick before the eyebrow, when apps lock, tonight's night
+/// as moon bed – wake sun with the gap before the moon (D76), how long before bed, then where it runs
+/// (anywhere until home is set), the apps with their count and icons, and the unlocks as dots. No
+/// back button: onboarding is done.
 struct ReadyView: View {
   let model: SetupModel
 
@@ -15,10 +16,16 @@ struct ReadyView: View {
     SetupPage(
       step: nil, title: line, eyebrow: Copy.Setup.readyEyebrow, eyebrowSymbol: .done
     ) {
-      if let night = NightPicture(model.schedule, now: Date(), calendar: .current) {
+      if let night = NightPicture(model.schedule, gap: model.gap, now: Date(), calendar: .current) {
         NightPictureView(picture: night).padding(.top, 24)
       }
       Card {
+        CardRow(
+          Copy.Gap.beforeBed(model.gap),
+          detail: Copy.Gap.readyDetail(cap: model.app.config.gap.cap)
+        ) {
+          IconTile(.beforeBed, accent: false)
+        }
         CardRow(Copy.Setup.anywhere, detail: Copy.Setup.anywhereUntilHome) {
           IconTile(.anywhere, accent: false)
         }
@@ -44,13 +51,11 @@ struct ReadyView: View {
       .padding(.top, 24)
     } actions: {
       if let footnote {
-        // The free week as its seven segments, none used yet (#77), over the words.
+        // The free nights as segments, none used yet (#77), over the words.
         if model.offer(now: Date()).isFree {
-          Pips(
-            filled: 0, total: model.app.config.trial.nights, style: .segments, spoken: footnote
-          )
-          .accessibilityHidden(true)
-          .padding(.bottom, 8)
+          FreeNights(used: 0, total: model.app.config.trial.nights, spoken: footnote)
+            .accessibilityHidden(true)
+            .padding(.bottom, 8)
         }
         Footnote(footnote, alignment: .center)
           .padding(.horizontal, 12)
@@ -63,23 +68,24 @@ struct ReadyView: View {
 
   private var unlocks: Int { model.app.config.unlocks.max }
 
-  /// From the stored trial start, so a reinstall isn't promised a new week (#46).
+  /// From the stored trial start, so a reinstall or a new phone isn't promised more (#46, D78).
   private var footnote: String? {
     let day = { (date: Date) in date.formatted(.dateTime.month(.abbreviated).day()) }
     switch model.offer(now: Date()) {
     case .fresh(let end?), .running(let end):
       return Copy.Setup.freeUntil(day(end), price: model.app.price)
-    case .used(let ended): return Copy.Setup.freeWeekEnded(day(ended), price: model.app.price)
+    case .used(let ended): return Copy.Setup.freeNightsEnded(day(ended), price: model.app.price)
     case .fresh(nil), .purchased: return nil
     }
   }
 
   private var line: String {
     let now = Date()
-    if let night = model.schedule.occurrence(containing: now, calendar: .current) {
+    let lock = model.lockSchedule
+    if let night = lock.occurrence(containing: now, calendar: .current) {
       return Copy.Setup.readyNow(Copy.time(night.end))
     }
-    let start = model.schedule.nextStart(after: now, calendar: .current) ?? now
+    let start = lock.nextStart(after: now, calendar: .current) ?? now
     return Copy.Setup.readyLine(Copy.time(start))
   }
 }

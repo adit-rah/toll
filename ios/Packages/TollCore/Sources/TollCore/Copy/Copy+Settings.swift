@@ -28,7 +28,7 @@ extension Copy {
     public static let notYet = "Not yet"
 
     public static let yourWeek = "Your week"
-    public static let freeNights = "Free week"
+    public static let freeNights = "Free nights"
     /// The pill's words: tonight's night hasn't ended, so it isn't "used" yet (spec §3, #48).
     public static func night(_ night: Int, of nights: Int) -> String {
       "Night \(night) of \(nights)"

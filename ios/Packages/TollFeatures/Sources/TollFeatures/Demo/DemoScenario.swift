@@ -59,6 +59,10 @@
     case homeCard = "home-card"
     /// The heads-up card (#104): home set, the evening after the first night, iOS not asked yet.
     case homeHeadsUp = "home-heads-up"
+    /// The gap before bed (D76): Monday evening after it grew from 15 to 30, and the one offer to an
+    /// install from before it.
+    case homeGapWeek = "home-gap-week"
+    case homeGapOffer = "home-gap-offer"
     case purchase, settings, insights
     case settingsAnywhere = "settings-anywhere"
     /// Settings with notifications denied: the heads-up row leaves for iOS Settings (#104).

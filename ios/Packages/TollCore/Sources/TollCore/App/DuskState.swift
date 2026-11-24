@@ -30,6 +30,8 @@ public struct DuskState: Codable, Hashable, Sendable {
   /// The heads-up before each night, as the user last set it in Settings (D68); iOS's permission
   /// decides separately whether it can arrive.
   public var headsUp = true
+  /// The gap before bed (D76). A file from before it keeps its night as it was (`Gap.existing`).
+  public var gap = Gap()
   public var runtime = RuntimeState()
 
   public init() {}
@@ -40,6 +42,18 @@ public struct DuskState: Codable, Hashable, Sendable {
   }
 
   public var sleepBlock: Block? { blocks.first(where: \.isSleep) }
+  /// The night's block as it runs: locking the gap before bed (D76). Its stored hours are bed to
+  /// wake; every rule about when it's on reads these.
+  public var lockSleep: Block? { sleepBlock.map(locking) }
+  /// Every block as it runs: the night's locks the gap before bed.
+  public var lockBlocks: [Block] { blocks.map(locking) }
+
+  public func locking(_ block: Block) -> Block {
+    guard block.isSleep, gap.minutes > 0 else { return block }
+    var lock = block
+    lock.schedule = block.schedule.locking(gap.minutes)
+    return lock
+  }
   public func block(_ id: BlockID) -> Block? { blocks.first { $0.id == id } }
   public func place(_ id: PlaceID?) -> Place? { id.flatMap { id in places.first { $0.id == id } } }
 

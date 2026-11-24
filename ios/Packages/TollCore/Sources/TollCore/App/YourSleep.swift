@@ -44,7 +44,7 @@ public struct YourSleep: Equatable, Sendable {
   public var nights: String?
   /// One star for each of those nights, over the number (D79).
   public var sky: Sky
-  /// "This week", "A new week" on Monday, or after the trial "Your free week" (#48).
+  /// "This week", "A new week" on Monday, or after the trial "Your free nights" (#48).
   public var weekTitle: String
   public var dots: [HomeSnapshot.Bar]
   /// On a new week, last week in one line over seven empty dots; nil when it had no nights.

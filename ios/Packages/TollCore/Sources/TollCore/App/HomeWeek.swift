@@ -175,7 +175,7 @@ struct Week {
   }
 }
 
-/// The free week's facts (spec §7, P-2): its seven nights, counted as This week counts (#44), and
+/// The free nights' facts (spec §7, P-2, D78): all of them, counted as This week counts (#44), and
 /// frozen once they've ended, so the purchase sheet on day 20 says what it said on day 8 (#48).
 public struct FreeWeek: Equatable, Sendable {
   public var bars: [HomeSnapshot.Bar]

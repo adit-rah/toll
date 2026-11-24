@@ -46,7 +46,8 @@ struct CoordinatorTests {
       [.finishSetup(sleep: sleepBlock(), home: homePlace, trialStart: date(2026, 11, 17, 15))],
       clock: FixedClock(now: date(2026, 11, 17, 15)))
     #expect(setup.error == nil)
-    #expect(fakes.windows == [[usual]])
+    // A new install locks 15 minutes before bed (D76): the schedule starts at 10:15 pm.
+    #expect(fakes.windows == [[TimeWindow(start: time(22, 15), end: time(7))]])
     #expect(setup.effects.places == [homePlace])
     coordinator.run(
       .arrived, [.presence(homePlace.id, Presence(isInside: true, at: date(2026, 11, 17, 23)))],
@@ -76,7 +77,7 @@ struct CoordinatorTests {
     #expect(store.load().runtime.scheduledWindows == nil)
     fakes.failWindows = false
     coordinator.run(.launch, clock: FixedClock(now: date(2026, 11, 17, 16)))
-    #expect(fakes.windows == [[usual]])
+    #expect(fakes.windows == [[TimeWindow(start: time(22, 15), end: time(7))]])
   }
 
   @Test func theDoorScheduleStartsAndStops() {

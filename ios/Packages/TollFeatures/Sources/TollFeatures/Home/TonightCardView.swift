@@ -8,6 +8,8 @@ struct TonightCardView: View {
   let card: TonightCard
   /// The heads-up the card offers, for its time (#104).
   var headsUp: HeadsUp?
+  /// A gap card's words (D76): Monday's, or the offer.
+  var gap: GapCard?
   let open: () -> Void
   let dismiss: () -> Void
   @Environment(\.dynamicTypeSize) private var typeSize
@@ -24,17 +26,19 @@ struct TonightCardView: View {
           ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0))
           : AnyLayout(HStackLayout(spacing: 20))
         actions {
-          Button(action: open) {
-            HStack(spacing: 4) {
-              Text(content.action)
-              Image(symbol: .forward).unredacted()
-                .font(.system(size: 12, weight: .bold))
-                .accessibilityHidden(true)
+          if let action = content.action {
+            Button(action: open) {
+              HStack(spacing: 4) {
+                Text(action)
+                Image(symbol: .forward).unredacted()
+                  .font(.system(size: 12, weight: .bold))
+                  .accessibilityHidden(true)
+              }
             }
+            .tollType(.action, TollColor.accent)
+            .frame(minHeight: TollSpacing.minTapTarget)
           }
-          .tollType(.action, TollColor.accent)
-          .frame(minHeight: TollSpacing.minTapTarget)
-          Button(Copy.Home.notNow, action: dismiss)
+          Button(content.dismiss, action: dismiss)
             .tollType(.action, TollColor.label2)
             .frame(minHeight: TollSpacing.minTapTarget)
         }
@@ -49,10 +53,14 @@ struct TonightCardView: View {
       TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
   }
 
-  /// Each kind's words and symbol; a new kind adds its case here (#104).
-  private var content: (symbol: TollSymbol, title: String, detail: String, action: String) {
+  /// Each kind's words and symbol; a new kind adds its case here (#104). No action: the card only
+  /// says something, and its one button puts it away.
+  private var content:
+    (symbol: TollSymbol, title: String, detail: String?, action: String?, dismiss: String)
+  {
     switch card {
-    case .home: (.home, Copy.Home.homeCard, Copy.Home.homeCardDetail, Copy.Home.setHome)
+    case .home:
+      (.home, Copy.Home.homeCard, Copy.Home.homeCardDetail, Copy.Home.setHome, Copy.Home.notNow)
     // A bell and a time, so it reads without the words (design §5).
     case .headsUp:
       (
@@ -60,7 +68,13 @@ struct TonightCardView: View {
         Copy.HeadsUp.cardDetail(
           time: headsUp.map { Copy.time($0.at) },
           minutes: TollConfig.defaults.headsUp.leadMinutes),
-        Copy.HeadsUp.turnOn
+        Copy.HeadsUp.turnOn, Copy.Home.notNow
+      )
+    // The gap's own glyph, before the moon (D76).
+    case .gapWeek, .gapOffer:
+      (
+        .beforeBed, gap?.title ?? "", gap?.detail, gap?.action,
+        gap?.dismiss ?? Copy.Home.notNow
       )
     }
   }

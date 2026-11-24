@@ -68,11 +68,11 @@ struct PurchaseSheet: View {
   private var offer: some View {
     SheetPage(height: 674, overhang: 14) {
       Text(Copy.Purchase.eyebrow).tollType(.eyebrow, TollColor.label2)
-      // How much of the free week is gone, as the pill draws it (#77).
+      // How much of the free nights is gone, as the pill draws it and says it (#77, the audit).
       if let free = home.freeWeek {
-        Pips(
-          filled: free.bars.filter { $0.night != .ahead }.count, total: free.bars.count,
-          style: .segments, spoken: Copy.Purchase.eyebrow
+        FreeNights(
+          used: free.bars.filter { $0.night != .ahead }.count, total: free.bars.count,
+          tonight: home.pill.map { $0.night - 1 }, spoken: home.pill?.text ?? Copy.Purchase.eyebrow
         )
         .padding(.top, 8)
       }
@@ -193,7 +193,7 @@ private struct OutcomeSheet<Actions: View>: View {
   let tint: Color
   let title: String
   var line: String?
-  /// After buying: the free week's segments, all filled.
+  /// After buying: the free nights' segments, all filled.
   var nights: Int?
   var overhang: CGFloat = 0
   @ViewBuilder let actions: Actions
@@ -212,7 +212,7 @@ private struct OutcomeSheet<Actions: View>: View {
       SheetTitle(title).padding(.top, 18)
       if let line { SheetBody(line) }
       if let nights {
-        Pips(filled: nights, total: nights, style: .segments, spoken: title).padding(.top, 14)
+        FreeNights(used: nights, total: nights, spoken: title).padding(.top, 14)
       }
     } actions: {
       actions

@@ -8,6 +8,8 @@ import TollUI
 struct HomeHero: View {
   let hero: HomeSnapshot.Hero
   let eyebrow: String
+  /// "15 min before bed", under the lock's time (D76).
+  var beforeBed: String?
   var place: HomeSnapshot.HeroPlace?
   var supply: HomeSnapshot.Supply?
   let openDoor: (() -> Void)?
@@ -23,6 +25,16 @@ struct HomeHero: View {
         StateLine(eyebrow, symbol: state.symbol, tone: state.tone)
         if let time {
           HeroTime(time)
+          if let beforeBed {
+            // The moon says before what, without the words (D76).
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+              Image(symbol: .sleep).unredacted()
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(TollColor.accent)
+                .accessibilityHidden(true)
+              Text(beforeBed).tollType(.heroLine, TollColor.label)
+            }
+          }
         } else if let off = offSymbol {
           // Nothing will block: the biggest shape on screen says so, not two words (#72). No tile
           // behind it: a filled square reads as a button, and this isn't one (the audit).

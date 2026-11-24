@@ -59,6 +59,12 @@ final class SetupModel {
 
   func setWeekendWake(_ time: ClockTime) { weekendWake = time }
 
+  /// A new install's gap before bed (D76): the first night locks this long before it.
+  var gap: Int { app.config.gap.start }
+
+  /// The lock's hours, which Ready names: bed minus the gap to wake.
+  var lockSchedule: WeeklySchedule { schedule.locking(gap) }
+
   /// The trial's start from the Keychain: a reinstall keeps it (P-4).
   let trialStart = TrialClock().start
 

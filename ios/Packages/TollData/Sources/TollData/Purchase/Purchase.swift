@@ -1,5 +1,6 @@
 import Foundation
 import StoreKit
+import TollCore
 
 /// The one non-consumable (P-4). StoreKit is the only network the app uses (spec §2).
 public enum Purchase {
@@ -61,8 +62,9 @@ public enum Purchase {
   }
 }
 
-/// When the trial started, kept in the Keychain so deleting and reinstalling the app does not start
-/// another (P-4, decisions D7).
+/// When the trial started: in this phone's Keychain, so deleting and reinstalling the app does not
+/// start another (P-4, decisions D7), and in iCloud Keychain, so a new phone on the same Apple ID
+/// continues it (D78). `TrialStart` decides which date wins.
 public struct TrialClock: Sendable {
   let keychain: Keychain
 
@@ -70,15 +72,40 @@ public struct TrialClock: Sendable {
     self.keychain = keychain
   }
 
-  public var start: Date? {
-    keychain.string(.trialStart).flatMap(Double.init).map(
+  public var start: Date? { stored.start }
+
+  /// The earliest start, written to whichever place lacks it or holds a later one.
+  @discardableResult
+  public func settle() -> Date? {
+    let stored = stored
+    write(stored.settled, over: stored)
+    return stored.start
+  }
+
+  /// The first start ever recorded for this phone or Apple ID, recording `now` if there is none.
+  public func begin(now: Date) -> Date {
+    let stored = stored
+    let begun = stored.begun(now: now)
+    write(begun, over: stored)
+    return begun.start ?? now
+  }
+
+  private var stored: TrialStart {
+    TrialStart(thisPhone: read(.thisPhone), appleID: read(.appleID))
+  }
+
+  private func read(_ scope: Keychain.Scope) -> Date? {
+    keychain.string(.trialStart, in: scope).flatMap(Double.init).map(
       Date.init(timeIntervalSinceReferenceDate:))
   }
 
-  /// The first start ever recorded on this phone, recording `now` if there is none.
-  public func begin(now: Date) -> Date {
-    if let start { return start }
-    keychain.set(String(now.timeIntervalSinceReferenceDate), for: .trialStart)
-    return now
+  private func write(_ new: TrialStart, over old: TrialStart) {
+    if new.thisPhone != old.thisPhone { save(new.thisPhone, in: .thisPhone) }
+    if new.appleID != old.appleID { save(new.appleID, in: .appleID) }
+  }
+
+  private func save(_ date: Date?, in scope: Keychain.Scope) {
+    keychain.set(
+      date.map { String($0.timeIntervalSinceReferenceDate) }, for: .trialStart, in: scope)
   }
 }

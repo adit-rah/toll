@@ -24,6 +24,8 @@ public enum Engine {
       state.blocks.removeAll(where: \.isSleep)
       state.blocks.insert(sleep, at: 0)
       state.trial.start = state.trial.start ?? trialStart
+      // A new install locks a gap before bed from its first night (D76).
+      if state.setupFinishedAt == nil { state.gap = .newInstall(config) }
       state.setupFinishedAt = now
     case .saveBlock(let block):
       if let error = validate(block, in: state, config: config) { return error }
@@ -53,7 +55,16 @@ public enum Engine {
     case .useAnywhere:
       return useAnywhere(in: &state, now: now, calendar: calendar, config: config)
     case .dismissCard(let card):
-      state.dismissedCards.insert(card.rawValue)
+      switch card {
+      // Monday's card is this week's; next week's change shows again.
+      case .gapWeek: state.gap.change?.seen = true
+      case .gapOffer: state.gap.offered = false
+      default: state.dismissedCards.insert(card.rawValue)
+      }
+    case .gap(let setting):
+      GapRules.set(setting, &state, now: now, calendar: calendar, config: config)
+    case .keepGap:
+      GapRules.keep(&state, now: now, calendar: calendar, config: config)
     case .headsUp(let on):
       state.headsUp = on
     case .presence(let id, let presence):
@@ -62,6 +73,7 @@ public enum Engine {
       state.location = mode
     case .screenTime(let allowed):
       state.screenTimeAllowed = allowed
+      if !allowed, state.setupFinishedAt != nil { state.gap.tally.screenTimeOff = true }
     case .trialStart(let start):
       state.trial.start = state.trial.start.map { min($0, start) } ?? start
     case .purchased(let purchased):
@@ -93,12 +105,16 @@ public enum Engine {
     let now = trustedNow(&state, wall: wall, monotonic: monotonic)
     state.trial.entitled = Trial.isEntitled(state, now: now, calendar: calendar, config: config)
     noteEnds(&state, now: now, calendar: calendar)
+    GapRules.advance(&state, now: now, calendar: calendar, config: config)
     var active = activeOccurrences(state, now: now, calendar: calendar)
-    if applyPending(&state, active: active) {
+    let edited = applyPending(&state, active: active)
+    let gapChanged = GapRules.applyHeld(&state, active: active, now: now, calendar: calendar)
+    if edited || gapChanged {
       noteEnds(&state, now: now, calendar: calendar)
       active = activeOccurrences(state, now: now, calendar: calendar)
     }
     state.runtime.active = active
+    GapRules.tally(&state, now: now, calendar: calendar)
     DoorRules.advance(&state, now: now, calendar: calendar, config: config)
     return effects(
       before: before, after: &state, wall: wall, now: now, calendar: calendar, cause: cause)
@@ -108,13 +124,13 @@ public enum Engine {
 
   /// B-1, generalised (D29): a block is on when entitled, switched on, inside one of its occurrences,
   /// at its place (or it has none, or location is off, D37), and that occurrence began after the
-  /// block's last end seen (B-4).
+  /// block's last end seen (B-4). The night's occurrences start the gap before bed (D76).
   static func activeOccurrences(_ state: DuskState, now: Date, calendar: Calendar)
     -> [BlockID: Date]
   {
     guard state.trial.entitled else { return [:] }
     var active: [BlockID: Date] = [:]
-    for block in state.blocks where block.isOn && isAtPlace(block, state) {
+    for block in state.lockBlocks where block.isOn && isAtPlace(block, state) {
       guard let occurrence = block.schedule.occurrence(containing: now, calendar: calendar) else {
         continue
       }
@@ -151,7 +167,7 @@ public enum Engine {
   /// Only ever moves forward: a clock set back must not make an ended occurrence look unfinished.
   static func noteEnds(_ state: inout DuskState, now: Date, calendar: Calendar) {
     var ends: [BlockID: Date] = [:]
-    for block in state.blocks {
+    for block in state.lockBlocks {
       let latest = block.schedule.lastEnd(atOrBefore: now, calendar: calendar)
       ends[block.id] = [state.runtime.lastEnd[block.id], latest].compactMap { $0 }.max()
     }
@@ -190,7 +206,7 @@ public enum Engine {
     var effects = Effects(
       shield: active.isEmpty || paused ? .off : ShieldPlan(selections: active.compactMap(\.apps)),
       places: state.location == .places ? state.places : [])
-    let windows = scheduledWindows(state.blocks)
+    let windows = scheduledWindows(state.lockBlocks)
     if state.runtime.scheduledWindows != windows {
       state.runtime.scheduledWindows = windows
       effects.windows = windows
@@ -212,7 +228,7 @@ public enum Engine {
       effects.log = Transition(
         at: wall, cause: cause, blockOn: state.isBlocking, changed: changed,
         home: sleepPlace.flatMap { state.presence[$0]?.isInside },
-        inWindow: state.sleepBlock?.schedule.occurrence(containing: now, calendar: calendar) != nil,
+        inWindow: state.lockSleep?.schedule.occurrence(containing: now, calendar: calendar) != nil,
         entitled: state.trial.entitled, door: state.door?.phase,
         active: state.runtime.active.keys.sorted(), screenTime: state.screenTimeAllowed)
     }
@@ -238,7 +254,7 @@ public enum Engine {
     if others.map(\.appCount).reduce(block.appCount, +) > config.blocks.maxApps {
       return .tooManyApps
     }
-    if scheduledWindows(others + [block]).count > config.blocks.maxWindows {
+    if scheduledWindows((others + [block]).map(state.locking)).count > config.blocks.maxWindows {
       return .tooManyWindows
     }
     if let place = block.place, state.place(place) == nil, state.pendingPlaces[place] == nil {

@@ -44,9 +44,9 @@ struct HeadsUpTests {
     #expect(ups.last?.at == date(2026, 11, 23, 22, 10))
   }
 
-  @Test func itSaysNightAndTheNightsHours() {
+  @Test func itSaysAppsLockAndTheNightsHours() {
     let first = schedule(state(), date(2026, 11, 17, 15)).first
-    #expect(first?.title == "Night starts in 20 min")
+    #expect(first?.title == "Apps lock in 20 min")
     #expect(plain(first?.body) == "10:30 pm – 7:00 am")
   }
 
@@ -104,14 +104,15 @@ struct HeadsUpTests {
 
   // MARK: Only before a night that will block
 
-  @Test func theFreeWeeksNightsOnly() {
-    let ups = schedule(state(purchased: false), date(2026, 11, 17, 15))
-    // Night 1 ended this morning; nights 2 to 7 are left.
+  @Test func theFreeNightsOnly() {
+    let ups = schedule(
+      state(purchased: false, finished: date(2026, 11, 9, 21)), date(2026, 11, 17, 15))
+    // Night 8 ended this morning; nights 9 to 14 are left.
     #expect(ups.count == 6)
     #expect(ups.last?.start == date(2026, 11, 22, 22, 30))
   }
 
-  @Test func noneOnceTheFreeWeekHasEnded() {
+  @Test func noneOnceTheFreeNightsHaveEnded() {
     var s = state(purchased: false, finished: date(2026, 11, 1, 21))
     run(&s, date(2026, 11, 17, 15))
     #expect(!s.trial.entitled)

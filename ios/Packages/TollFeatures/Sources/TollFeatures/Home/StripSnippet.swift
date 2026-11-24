@@ -48,6 +48,8 @@ struct StripSnippet: View {
       .accessibilityAddTraits(.isHeader)
       .padding(.bottom, 4)
       fact(.hours, segment.hours)
+      // The hours start at the lock; bed is the moon (D76).
+      if let bed = segment.bedText { fact(.sleep, bed) }
       fact(.apps, segment.apps)
       fact(placeSymbol(segment.placeKind), segment.place)
       Button {

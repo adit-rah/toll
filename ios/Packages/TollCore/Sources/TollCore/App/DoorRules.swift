@@ -51,6 +51,9 @@ public enum DoorRules {
       door.expiresAt = door.waitEndsAt.addingTimeInterval(TimeInterval(config.door.minutes * 60))
       state.unlocks.spent += 1
       state.unlocks.used += 1
+      GapRules.pauseOpened(
+        &state, askedAt: door.waitEndsAt.addingTimeInterval(-TimeInterval(config.door.waitSeconds)),
+        calendar: calendar)
     }
     state.door = (door.expiresAt.map { now >= $0 } ?? false) ? nil : door
   }

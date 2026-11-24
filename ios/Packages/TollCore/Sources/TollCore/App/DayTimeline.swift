@@ -44,6 +44,11 @@ public struct DayTimeline: Equatable, Sendable {
     public var placeKind: Place
     /// "On now", "Tonight", "Later today", "Tomorrow", "Ended"…
     public var stateText: String
+    /// The night's bed, as a fraction of the day: the lock starts the gap before it (D76). Nil with
+    /// no gap, and for other blocks.
+    public var bed: Double?
+    /// "Bed at 10:30 pm", for the snippet.
+    public var bedText: String?
 
     public var isNight: Bool { kind == .sleep }
 
@@ -59,7 +64,8 @@ public struct DayTimeline: Equatable, Sendable {
     /// The snippet in one line, for VoiceOver: "Your night, 10:30 pm – 7:00 am, 4 apps, Home,
     /// Tonight".
     public var spoken: String {
-      [title, hours, apps, place, stateText].joined(separator: ", ")
+      ([title, hours] + [bedText].compactMap { $0 } + [apps, place, stateText])
+        .joined(separator: ", ")
     }
   }
 
@@ -83,7 +89,8 @@ public struct DayTimeline: Equatable, Sendable {
 
   /// `blocking` is false when nothing can block: the free week over, or Screen Time off (#45).
   public init(state: DuskState, now: Date, calendar: Calendar, blocking: Bool = true) {
-    let (start, end) = Self.axis(state.sleepBlock, now: now, calendar: calendar)
+    // The night as it runs, from the lock (D76).
+    let (start, end) = Self.axis(state.lockSleep, now: now, calendar: calendar)
     self.start = start
     self.end = end
     let length = max(1, end.timeIntervalSince(start))
@@ -91,7 +98,7 @@ public struct DayTimeline: Equatable, Sendable {
     self.now = fraction(now)
     nowLabel = Copy.Strip.now(Copy.time(now, in: calendar))
     var segments: [Segment] = []
-    for block in state.blocks where block.isSleep || block.isOn {
+    for block in state.lockBlocks where block.isSleep || block.isOn {
       let occurrences = block.schedule.occurrences(
         around: start, offsets: -1...2, calendar: calendar
       )
@@ -153,6 +160,9 @@ public struct DayTimeline: Equatable, Sendable {
         hour: calendar.component(.hour, from: date), minute: calendar.component(.minute, from: date)
       )
     }
+    let bed =
+      block.isSleep && state.gap.minutes > 0
+      ? occurrence.start.addingTimeInterval(TimeInterval(state.gap.minutes * 60)) : nil
     return Segment(
       id: "\(block.id.raw)@\(Int(occurrence.start.timeIntervalSinceReferenceDate))",
       block: block.id, kind: block.kind, start: fraction(occurrence.start),
@@ -163,7 +173,9 @@ public struct DayTimeline: Equatable, Sendable {
         short: true),
       apps: Copy.Blocks.summary(categories: block.categoryCount, apps: block.appCount),
       place: placeText ?? Copy.Blocks.anywhere, placeKind: placeKind,
-      stateText: Self.text(segmentState, block, occurrence, placeKind, now: now, calendar: calendar)
+      stateText: Self.text(
+        segmentState, block, occurrence, placeKind, now: now, calendar: calendar),
+      bed: bed.map(fraction), bedText: bed.map { Copy.Gap.bedAt(Copy.time($0, in: calendar)) }
     )
   }
 

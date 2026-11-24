@@ -76,6 +76,7 @@ enum Migration {
     state.door = old.door
     state.unlocks = old.unlocks ?? UnlockSupply()
     state.doorAskedAt = old.doorAskedAt
+    state.gap = .existing
     return state
   }
 }
@@ -87,6 +88,7 @@ extension DuskState {
   enum CodingKeys: String, CodingKey {
     case schema, blocks, places, presence, location, pending, pendingPlaces, door, doorAskedAt
     case unlocks, trial, setupFinishedAt, runtime, screenTimeAllowed, dismissedCards, headsUp
+    case gap
   }
 
   public init(from decoder: Decoder) throws {
@@ -108,6 +110,7 @@ extension DuskState {
     screenTimeAllowed = try c.decodeIfPresent(Bool.self, forKey: .screenTimeAllowed)
     dismissedCards = try c.decodeIfPresent(Set<String>.self, forKey: .dismissedCards) ?? []
     headsUp = try c.decodeIfPresent(Bool.self, forKey: .headsUp) ?? true
+    gap = try c.decodeIfPresent(Gap.self, forKey: .gap) ?? .existing
   }
 }
 
@@ -172,5 +175,38 @@ extension Block {
       categoryCount: try c.decodeIfPresent(Int.self, forKey: .categoryCount) ?? 0,
       isOn: try c.decodeIfPresent(Bool.self, forKey: .isOn) ?? true,
       onlyAtPlace: try c.decodeIfPresent(Bool.self, forKey: .onlyAtPlace) ?? false)
+  }
+}
+
+extension Gap {
+  enum CodingKeys: String, CodingKey {
+    case minutes, mode, pending, streak, eased, frozenThrough, tally, change, offered, history
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    self.init()
+    minutes = try c.decodeIfPresent(Int.self, forKey: .minutes) ?? 0
+    mode = try c.decodeIfPresent(Mode.self, forKey: .mode) ?? .fixed
+    pending = try? c.decodeIfPresent(Setting.self, forKey: .pending)
+    streak = try c.decodeIfPresent(Int.self, forKey: .streak) ?? 0
+    eased = try c.decodeIfPresent(Bool.self, forKey: .eased) ?? false
+    frozenThrough = try c.decodeIfPresent(Date.self, forKey: .frozenThrough)
+    tally = (try? c.decodeIfPresent(Tally.self, forKey: .tally)) ?? Tally()
+    change = try? c.decodeIfPresent(Change.self, forKey: .change)
+    offered = try c.decodeIfPresent(Bool.self, forKey: .offered) ?? false
+    history = (try? c.decodeIfPresent([Entry].self, forKey: .history)) ?? []
+  }
+}
+
+extension Gap.Tally {
+  enum CodingKeys: String, CodingKey { case week, nights, pausesInGap, screenTimeOff }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    self.init(week: try c.decodeIfPresent(Date.self, forKey: .week))
+    nights = try c.decodeIfPresent(Set<Date>.self, forKey: .nights) ?? []
+    pausesInGap = try c.decodeIfPresent(Int.self, forKey: .pausesInGap) ?? 0
+    screenTimeOff = try c.decodeIfPresent(Bool.self, forKey: .screenTimeOff) ?? false
   }
 }

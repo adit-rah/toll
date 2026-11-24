@@ -36,6 +36,7 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `home-strip-night` · `home-strip-day` | The strip's snippet open (D75): on the night in the evening, and on Study at 11 am. A tap reaches the same: `home-evening: tap --id strip.sleep --wait-timeout 5` |
 | `home-pill-purchase` · `home-pause-open` | The purchase sheet the free-week pill opens, over Tonight in the first week (D75; a tap reaches it too: `home-first-week: tap --id tonight.pill --wait-timeout 5`), and Tonight's hero while a pause is open ("Paused until") |
 | `home-heads-up` | Home set, the evening after the first night: the card asking for the heads-up (#104) |
+| `home-gap-week` · `home-gap-offer` | The gap before bed (D76): Monday evening after the gap grew from 15 to 30 minutes ("Keep 15"), and the one card offering the gap to an install from before it |
 | `purchase` · `settings` · `settings-anywhere` · `settings-heads-up-denied` · `settings-while-using` · `insights` | The purchase sheet, Settings (with home set, and not set; with notifications denied, the heads-up row offers iOS Settings; with location While Using, the Location row does) and Your sleep |
 | `blocks` · `blocks-day` | The Blocks tab (the night, Study and Gym), in the evening and on a weekday at 11 am with Study on |
 | `block-new` · `block-new-gym` | New block: the kinds, then Gym picked with its default hours and no apps yet (the simulator has no app tokens) |
