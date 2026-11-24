@@ -1,134 +1,184 @@
 # UX audit, November 2026
 
-QA and design review of every screen on `main` at `3728c45`, as a first-time user would meet it. Sources: the `light` and `ax5` renders of every demo scenario (`render.yml` on `claude/dusk-audit`), their `ui.json` trees, and the views and `Copy` for states the renders can't show (the block screen, the pause sheet's states, the purchase outcomes, errors, empty states, and Off).
+QA and design review of every screen on `main` at `3728c45`, as a first-time user would meet it. Sources: the `light` and `ax5` renders of all 53 demo scenarios (`render.yml` on `claude/dusk-audit`, published to `renders/claude/dusk-audit`), their `ui.json` trees, and the views and `Copy` for what the renders can't show (the block screen, the pause sheet's other states, the purchase outcomes, errors, empty states, and Off).
 
 Not re-reported: the three Tonight items another branch is fixing (the "8 h 30 m phone-free tonight" line, the bare "TONIGHT" eyebrow, and the inert pill and timeline).
 
-Decided but not built yet, so not audited as missing: D76's lock-before-bed gap, D78's 14-night trial (every "free week" and "7" below becomes 14 nights when #115 lands), D79's sky and D80's Before bed. Where a finding touches one of them, it says so.
+Decided but not built yet, so not reported as missing: D76's lock before bed, D78's 14-night trial (every "free week" and "7" below becomes 14 nights with #115), D79's sky and D80's Before bed. Where a finding touches one of them, it says so.
 
 **Severity:** P1, a user would misunderstand or get stuck. P2, friction. P3, polish.
-**Type:** Vague · Misleading · Dead end · Feedback · Wordy · Inconsistent · Rules · Polish.
+**Type:** Vague · Misleading · Dead end · Feedback · Wordy · Inconsistent · Rules (D65/D74, wordless test, AX5) · Polish.
 
 ## Top 10
 
-_Filled in once every screen is reviewed._
+1. **P1 · Your sleep's "phone-free" hours count every block.** "214 h phone-free" adds Study and Gym hours to the night's, on the tab called Your sleep. ([Your sleep](#your-sleep))
+2. **P1 · Your sleep's "30 days" and "All time" read a log that keeps about ten nights.** `sleep-best` shows "20 nights" at the top and "51 h phone-free" over 30 days below it. ([Your sleep](#your-sleep))
+3. **P1 · Away from home, Tonight's biggest element is a time that has passed.** At 11:40 pm it shows "10:30 pm" over "Starts when you're home". ([Tonight](#tonight))
+4. **P1 · "23 nights" on Your sleep has no noun.** Nights of what: sleep, tracking, use? ([Your sleep](#your-sleep))
+5. **P2 · At AX5 every sheet's main action scrolls off screen.** "Lock again" sits below the fold during its 2-minute window, "Pause for 10 min" too, and the purchase sheet's price and "Keep it" are three pages down. Design §2.1 says the main button stays pinned. ([All screens](#all-screens))
+6. **P2 · The pause sheet holds the app for 11 minutes.** While waiting and paused it can't be dismissed and has no close button, but still shows a grabber. Your sleep, Blocks and Settings are out of reach. ([Pause sheet](#pause-sheet))
+7. **P2 · During a pause, Tonight still says "Blocked until 7:00 am"** with the lock, behind the sheet that says "Paused". ([Tonight](#tonight))
+8. **P2 · Mornings show two nights with no labels.** The card is last night. The strip under it is tonight, from "8 am" to "8 am". The dots are sometimes the last seven nights and sometimes include nights to come. "Mon" can mean Monday night or Monday morning. ([Tonight](#tonight))
+9. **P2 · "You put it down" counts "Never mind" taps.** The phrase is on Tonight, the purchase sheet and Your sleep's chart. Closing a blocked app isn't putting the phone down, and "it" has no referent. ([Tonight](#tonight))
+10. **P2 · Home can be set from two places, with two different pickers, and neither turns it off.** "Only when I'm home · On" in Settings reopens the map. The night editor's Place row uses the generic Building / Street / Campus picker. ([Settings](#settings))
+
+**Count:** 4 P1 · 32 P2 · 50 P3 (86 issues).
+
+## All screens
+
+| Issue | Type | Sev | Fix |
+|---|---|---|---|
+| At AX5 `SheetPage` scrolls its actions with the content instead of pinning them. ax5 `door-open`: "Lock again" at y 879 on an 874 pt screen. `door-choosing`: "Pause for 10 min" at 900. `door-none`: "OK" at 904. `purchase`: "Keep it" at 1414, three pages down. | Rules (AX5) | P2 | Pin `actions` under the `ScrollView` in `SheetPage`, as `tollBottomBar` does on screens. |
+| Glyphs are fixed point sizes (`.font(.system(size: 13))`) beside text that scales to AX5. At AX5 the house, lock, clock, moon and sun are specks beside 40 pt words. ax5 `home-blocked`, `blocks` and `ready` show it. | Rules (AX5) | P3 | Scale glyphs with their line, using `@ScaledMetric` or a text-style font with `imageScale`. |
+| Seven segments mean three things: the free week (Welcome, Ready, the pill, purchase), the week so far (pause, none left) and "Sets of hours" (Blocks). | Inconsistent | P2 | Keep segments for the free nights only. Draw the week as `NightDots`, and the sets of hours as a `CapacityBar` like apps. |
+| Image names leak to VoiceOver inside some combined elements, including `iphone.slash`, `arrow.up.forward.app` and `scope`, as raw strings in `ui.json`. | Rules (AX) | P3 | `accessibilityHidden(true)` on every decorative `Image(symbol:)`. Several already have it. |
 
 ## Tonight
 
 | Issue | Type | Sev | Fix |
 |---|---|---|---|
-| Away from home at 11:40 pm, the hero shows the night's start, "10:30 pm", in 64 pt under a walking figure, with "Starts when you're home" under it. The biggest thing on screen is a time that has already passed and isn't when anything will happen. | Misleading | P1 | When away inside the night, replace the time with the away glyph tile (as Off does), or show the night's end ("until 7:00 am") with the line "Starts when you're home". |
-| While a pause is open, Tonight's hero still reads "Blocked until 7:00 am" with the lock, though every app is open. The pause sheet covers most of it, but the top of Tonight shows behind the sheet. | Misleading | P2 | Give the hero a paused state while `door.phase == .open`: the pause glyph, "Paused until 11:52 pm", no Pause capsule. |
-| "You're home · 2 pauses left" repeats what the dots beside it say, and leaves out the period ("left" this week? tonight?). The dots' VoiceOver label says "this week"; the text doesn't. | Vague | P2 | Drop the count from the line ("You're home") and let the dots carry it with "2 of 3 this week" beside them, as the pause sheet does (`Copy.Door.pausesOf`). |
-| The morning card's dots are "the last seven nights", labelled by weekday letters ("Mon"), while Your sleep draws the same dots for "this week, Monday to Sunday". Same drawing, two periods; and "Mon" doesn't say whether it is Monday night or Monday morning. | Inconsistent | P2 | Either show this week (Monday-first) on both, or label the morning card's row "Last 7 nights" as an eyebrow. Key each dot by the night's start day and say so once ("nights starting"). |
-| "You put it down 3 times" counts "Never mind" taps on the block screen. Someone who tapped "Never mind" and then opened another app still "put it down". "It" has no referent on a screen with no phone drawn. | Misleading | P2 | "You closed a blocked app 3 times", or keep the phrase but draw it with the block screen's own symbol. Same fix on the purchase sheet's stat. |
-| The Off state shows the power tile, "Your free week ended.", and then a card "Turn it back on · $9.99 once · every night after". "Every night after" reads as a recurring charge to a quick eye, and "it" isn't named. | Vague | P2 | "Turn Dusk back on" / "$9.99 once, for good". |
-| The Off card leads with the moon tile; the state above it uses the power glyph. Two symbols for one thing on one screen. | Inconsistent | P3 | Use `checkmark.seal` (purchased) or the power glyph on the card, not the moon. |
-| A tapped Tonight card ("Set home ›", "Turn on") and its "Not now" have no motion row in design §2.5, so the card vanishes in one frame and the hero jumps up. | Polish | P3 | Add a §2.5 row: a dismissed card fades 200 ms and the content below follows with the spring. |
-| The tab is "Tonight", but every morning until noon its content is "Last night". | Inconsistent | P3 | Accept, or let the eyebrow carry it: "Last night" in the morning is already right; no tab rename. Note only. |
-| Screens pushed from Tonight (Settings) have a back button that reads "Home" (`Copy.Home.backTitle`), the tab's old name; "Home" is also the user's home place. | Inconsistent | P2 | Set the back title to "Tonight" (`Copy.Tabs.tonight`). |
+| Away inside the night (`home-away`, 11:40 pm), the hero shows the night's start, "10:30 pm", at 64 pt with "Starts when you're home" under it. The biggest thing on screen has already passed and isn't when anything will happen. The walking figure is drawn twice: in the pill and before the eyebrow. | Misleading | P1 | When away inside the night, show the away glyph in the 64 pt tile, as Off does, with "Starts when you're home". Drop the pill's copy of it. |
+| While a pause is open, the hero still reads "Blocked until 7:00 am" with the lock, though every app is open. It shows above the "Paused" sheet (`door-open`). | Misleading | P2 | Give the hero a paused state while `door.phase == .open`: the pause glyph, "Paused until 11:52 pm", and no capsule. |
+| Mornings (`home-morning`, `home-day`): the card is last night, and the strip under it is tonight, with no label and hour marks "8 am · 2 pm · 8 pm · 2 am · 8 am" that start and end on the same words. Tonight's start isn't written anywhere until noon. | Vague | P2 | Put "Tonight 10:30 pm" over the strip in the mornings, or hide the strip while the morning card shows. |
+| The card's seven dots change period. At 8:10 am they are the last seven nights (Tue to Mon). At 11 am (`home-day`) they run Thu to Wed, with Tue and Wed "still to come". Your sleep draws the same dots for Monday to Sunday. Each dot is labelled with the day the night starts, so on Tuesday morning last night reads "Mon". | Inconsistent | P2 | Always show the last seven ended nights here, with a small "Last 7 nights" eyebrow. Keep Monday to Sunday for Your sleep. |
+| "You put it down 3 times" counts "Never mind" taps on the block screen. Someone who closes one blocked app and opens another has still "put it down". "It" has no referent. | Misleading | P2 | "You closed a blocked app 3 times". Same wording on the purchase sheet and Your sleep's chart. |
+| Off (`home-paused`): the 64 pt power tile looks like a power button, and tapping it does nothing. The card under it reads "Turn it back on · $9.99 once · every night after". "Every night after" can read as a recurring charge, and "it" isn't named. The card's tile is a moon, while the state is the power glyph. | Misleading | P2 | Make the card the only action: "Turn Dusk back on · $9.99 once, for good", with the power glyph. Give the tile no button shape, or make it open the sheet as well. |
+| Screen Time off (`home-screen-time-off`) says it twice: a warning card with "Turn on", then a warning tile shaped like a button with "Turn it on to block tonight." | Wordy | P3 | Keep the card. Under the tile, say only what's true tonight: "Nothing blocks tonight". |
+| No night (`home-no-blocks`): "Nothing scheduled", 40 pt, with nothing to do. There's no link to set the night, and the pill still counts "Night 1 of 7 free". | Dead end | P2 | Add a main button, "Set your night", that opens the night editor. Hide the pill while there's no night. |
+| At AX5 a Tonight card (`home-card`) fills the screen. The state, the one thing Tonight answers, is pushed under the tab bar. | Rules (AX5) | P2 | At accessibility sizes, put the hero first and the card after it. |
+| "You're home · 2 pauses left" repeats the dots beside it, and doesn't say over what period. The dots' VoiceOver label says "this week"; the text doesn't. | Vague | P2 | "You're home" alone, with "2 of 3 this week" beside the dots as on the pause sheet (`Copy.Door.pausesOf`). |
+| Screens pushed from Tonight have a back button that reads "Home" (`ui.json`: `Button 'Home'`), the tab's old name. "Home" is also the user's place. | Inconsistent | P2 | Set the back title to "Tonight" (`Copy.Tabs.tonight`). |
+| Without Always (`home-location`), the hero line "Starts at 10:30 pm, wherever you are" repeats the big time above it. | Wordy | P3 | "Wherever you are", with the globe. |
+| The pill's segments fill for nights that have ended, so "Night 5 of 7" shows four filled. Read quickly, the count and the drawing disagree. | Vague | P3 | Draw tonight's segment as an accent outline. |
+| The gap in last night's bar (`home-morning-gap`) has no mark. A first-time user may read it as a glitch. | Vague | P3 | A small pause glyph over the gap, with the same `.micro` size as the times. |
+| The "Pause" capsule's VoiceOver label is "Pause", with no object. | Rules (AX) | P3 | Label it "Pause blocking". Keep "Pause" as the visible word. |
+| Tapping "Not now" or an action on a Tonight card removes it in one frame, and the hero jumps up. Design §2.5 has no row for it. | Polish | P3 | Add a §2.5 row: the card fades over 200 ms and the content below follows with the spring. |
+| After "Turn on" on the heads-up card, iOS asks, then the card vanishes. Nothing says it's on. | Feedback | P3 | Change the card to "Heads-up on · 10:10 pm" for the rest of the evening. |
 
-## Block screen (system shield, `ShieldText`; from the code, the simulator can't show it)
+## Block screen
 
-| Issue | Type | Sev | Fix |
-|---|---|---|---|
-| "Pause in Dusk" doesn't say what happens: it opens Dusk, where a 60-second wait starts only after a second tap. Read quickly it can mean "pause, inside Dusk" or "Dusk is paused". | Vague | P2 | "Open Dusk to pause" (or "Pause… in Dusk", with the ellipsis meaning "more to choose"). |
-| The night's title is "Blocked until 7:00 am"; another block's is "Study · until 5:00 pm". Two patterns for the same fact on the same screen. | Inconsistent | P3 | One pattern: "Blocked until 5:00 pm" for both, with the block's name in the subtitle ("This app is blocked during Study."). |
-| A website gets "This app is blocked for the night." | Misleading | P3 | Pass whether the shield is for a web domain into `ShieldText` and say "This site is blocked for the night." |
-| With none left the subtitle runs "This app is blocked for the night. No pauses left · back Monday": a middle dot and no full stop inside prose. | Polish | P3 | "No pauses left. They come back Monday." |
-| "Never mind" closes the app, but the label doesn't say so, and it's counted as "you put it down" elsewhere. | Vague | P3 | Keep "Never mind" (D32), but the Tonight and purchase stats should describe it as closing the app (see Tonight). |
-
-## Pause sheet (`DoorSheet`; `door-*` renders and the code)
-
-| Issue | Type | Sev | Fix |
-|---|---|---|---|
-| While waiting or paused the sheet can't be dismissed (`interactiveDismissDisabled`) and has no close button. For 11 minutes, Your sleep, Blocks and Settings are unreachable inside Dusk; "You can leave this screen" only means leaving the app. | Dead end | P2 | Allow a swipe down while waiting and while open (the wait and the pause run on the monitor anyway), and keep a small status on Tonight that reopens the sheet. Or a "Hide" quiet button. |
-| Waiting stacks three lines of reassurance: "Every app opens for 10 minutes when the wait ends.", "You can leave this screen. The wait keeps going.", and "Cancelling costs nothing." under Cancel. The choosing state already said cancelling costs nothing. | Wordy | P3 | Keep the countdown, the bar and one line ("Opens for 10 minutes when this ends."); drop "Cancelling costs nothing." under Cancel. |
-| "Every app opens" reads as "every app on the phone launches". Only blocked apps were closed. | Vague | P3 | "Blocked apps open for 10 minutes." |
-| After the 2-minute regret window, "Lock again" looks the same but now spends the pause. Nothing says so once the regret line fades. | Feedback | P2 | Once the regret window ends, show a quiet line over the button: "The pause is used. Locking ends it early." |
-| After "Lock again" the sheet closes with no word; whether the pause came back shows only as a dot refilling on Tonight under the closing sheet. | Feedback | P3 | Keep the sheet up 1 s with the dot refilling (the §2.5 pip crossfade), or a `.success`-free `.light` haptic as the dot fills. Needs a §2.5 row if motion. |
-| None left draws seven segments for "the week so far". The same segments mean the free week on Welcome, Ready, the pill and the purchase sheet, and the limits on Blocks. Three meanings, one drawing. | Inconsistent | P2 | Draw the week as the night dots (`NightDots`, the week's own drawing), or drop it: "back Monday" already says when. |
-| None left is mostly unreachable: Tonight hides the Pause capsule at 0 and the block screen drops "Pause in Dusk" at 0 (D70). | Polish | P3 | Fine as a guard; no change, but don't spend more design on it. |
-| The Pause capsule on Tonight and the "Pause for 10 min" button use `pause`; the Open state uses `pause` before "Paused"; good. But the choosing title asks "Pause blocking for 10 minutes?", and Blocks' footnote says "A pause opens every block at once." Three phrasings of one rule. | Inconsistent | P3 | One sentence everywhere: "A pause opens every blocked app for 10 minutes." |
-
-## Purchase sheet (`purchase` render and the code for its outcomes)
+Read from the code (`ShieldText`, `ShieldConfigurationExtension`): the simulator can't show the system shield.
 
 | Issue | Type | Sev | Fix |
 |---|---|---|---|
-| Early in the week the stats read "0 nights phone-free", "0 times you put it down", "0 pauses used". A row of zeros is a shortfall in all but name (D65), and it's the selling moment. | Rules | P2 | Hide a stat at 0, and hide the card until a night has ended; the segments already say how far in the week is. |
-| "Pauses used" on a sheet that asks for money reads as a tally of slips. | Rules | P3 | Drop it; nights and the times put down are the two facts about the person. |
-| "Times you put it down" (see Tonight) counts "Never mind" taps. | Misleading | P2 | As on Tonight. |
-| Between "Keep it" and Apple's payment sheet the button only greys out; nothing says work is under way. Same for "Restore purchase". | Feedback | P3 | A `ProgressView` inside the disabled button while `working`. |
-| "The purchase didn't go through": "Check your payment details in Settings › Apple Account" with no way there. | Dead end | P3 | Fine to leave (App Store review prefers no deep link); at most a "Not now" that keeps the sheet. Note only. |
-| The done state, "Every night is yours", is a title, the seven full segments and "Done", and nothing about what changes now. | Vague | P3 | One line under it: "Dusk keeps blocking every night. Nothing else to do." |
-| The segments' VoiceOver label is "Your free week" with no count. | Rules (AX) | P3 | "Night 3 of 7 free" (`Copy.Home.nightPill`). |
-| D78 makes the trial 14 nights: the eyebrow "Your free week", the pill, Welcome's "7 nights free" and "Start my free week", Ready's footnote and seven segments all change. Fourteen segments won't fit Welcome's card at AX5 as drawn. | Polish | P3 | Plan with #115: "Free nights" instead of "free week", two rows of seven segments. |
+| "Pause in Dusk" opens Dusk, where the person still has to tap to start a 60-second wait. Read quickly, it can mean "pause, inside Dusk" or "Dusk is paused". | Vague | P2 | "Open Dusk to pause". |
+| The night's title is "Blocked until 7:00 am"; another block's is "Study · until 5:00 pm". Two patterns for one fact. | Inconsistent | P3 | "Blocked until 5:00 pm" for both, with the block named in the subtitle ("This app is blocked during Study."). |
+| A website gets "This app is blocked for the night." | Misleading | P3 | Pass whether the shield is for a web domain into `ShieldText` and say "This site…". |
+| With none left: "This app is blocked for the night. No pauses left · back Monday". A middle dot and a missing full stop inside prose. | Polish | P3 | "No pauses left. They come back Monday." |
 
-## Settings (`settings`, `settings-anywhere`, `settings-heads-up-denied`)
+## Pause sheet
+
+`door-choosing`, `door-waiting`, `door-open` and `door-none`, plus the code.
 
 | Issue | Type | Sev | Fix |
 |---|---|---|---|
-| "Only when I'm home · On" opens the map again; nothing in Settings turns it off. The only way back to "anywhere" is Blocks › Your nights › Place › Use anywhere, a different flow with a different picker. | Dead end | P2 | Make the row a switch-like row: on opens the map; when on, its sheet offers "Use anywhere" under the map. |
-| The Location row ("While Using", "Off") is inert, though the screen's question is "Is everything working?" and While Using means home doesn't work. Screen Time's row offers "Turn on" when off; location offers nothing. | Dead end | P2 | When home is set and location isn't Always, make the row a `SettingsLink` to iOS Settings (with `arrow.up.forward.app`). |
-| "Last blocked · 10:30 pm – 7:00 am" has no day, and can be a Study block at 5 pm. | Vague | P2 | "Last night · Mon 10:30 pm – 7:00 am", from the night log only (`NightFacts`), or the day name when it isn't last night. |
-| "Restore purchase" has a chevron, which promises a screen; it's an action. On success nothing is said: the row above changes to "Purchased" and `Copy.Settings.restored` ("Purchase restored.") is never shown. It stays on screen after purchase. | Feedback | P2 | No chevron; a short-lived "Purchase restored." detail on the row; hide the row once purchased. |
-| A "Blocks" row in Settings pushes a second copy of the Blocks tab. Two ways to the same screen, with different back buttons. | Inconsistent | P3 | Remove the row; Blocks is a tab. |
-| "Privacy" has a chevron but, when `TollPrivacyURL` is empty, isn't tappable. "Contact" is a link with no chevron. | Inconsistent | P3 | Hide Privacy when there's no URL; give every outbound link `arrow.up.forward.app` (they leave the app). |
-| "How it works" is a sheet with no button: swipe-down only. At AX5 it's full height. | Dead end | P3 | A "Done" button in its actions. |
-| The version is shown only inside "Activity log", which is "removed before launch". After launch there's no version anywhere for support. | Polish | P3 | A quiet version footnote at the bottom of Settings. |
-| Settings is reachable only from Tonight's gear; from Your sleep and Blocks there's no way to it. | Polish | P3 | Accept (D63), or put the gear on all three tabs. |
+| While waiting or open the sheet can't be dismissed (`interactiveDismissDisabled`) and has no close button, but shows a grabber. For up to 11 minutes, Your sleep, Blocks and Settings can't be reached. "You can leave this screen" means only leaving the app. | Dead end | P2 | Allow swiping it down; the wait and the pause run on the monitor anyway. Tonight's paused hero (see Tonight) reopens it. |
+| After the 2-minute regret window, "Lock again" looks the same but now ends a pause that's already spent. Nothing says so once the regret note fades. | Feedback | P2 | After the window, a quiet line over the button: "This pause is used. Locking ends it early." |
+| Open shows two countdowns at once ("9:02 left" and "in the next 1:02"), plus a tick on the bar. | Wordy | P3 | Keep the big countdown and the tick. Make the note "Lock again before the tick and you keep the pause." |
+| Waiting stacks three reassurances: "Every app opens for 10 minutes when the wait ends.", "You can leave this screen. The wait keeps going." and "Cancelling costs nothing." under Cancel. The choosing state has already said cancelling costs nothing. | Wordy | P3 | Keep one line, "Apps open for 10 minutes when this ends.", and drop the footnote under Cancel. |
+| "Every app opens" can be read as every app on the phone launching. Only blocked apps were closed. | Vague | P3 | "Blocked apps open for 10 minutes." Same on Ready and in How it works. |
+| Choosing says "2 of 3 left this week" next to a drawing of one filled dot and one dashed dot, the state after this pause. The words and the picture count different moments. | Inconsistent | P3 | "This uses 1 of 2 left". |
+| After "Lock again" the sheet closes with no word. A refilled dot on Tonight is the only sign the pause came back. | Feedback | P3 | A `.light` haptic as the dot fills. Design §2.5 already has the pip crossfade. |
+| None left draws the week as seven segments, with no label and the current night filled. | Inconsistent | P3 | Drop it; "back Monday" says when. See All screens on segments. |
+| One rule, three phrasings: "Pause blocking for 10 minutes?", "A pause opens every block at once." on Blocks, and "Pause opens every app for 10 minutes after a one-minute wait." in How it works. | Inconsistent | P3 | One sentence everywhere: "A pause opens blocked apps for 10 minutes." |
 
-## Your sleep (`insights`, `sleep-monday`, `sleep-best`)
+## Purchase sheet
 
-| Issue | Type | Sev | Fix |
-|---|---|---|---|
-| The first card is "23 nights" beside a moon, with no word for what a night is: nights of sleep? nights tracked? nights since install? | Vague | P1 | "23 nights phone-free" (`Copy.Home.nightsLabel`, already in `Copy`) as the card's detail, or "23 nights with apps locked". |
-| "214 h phone-free" adds up every block's hours, Study and Gym included (`InsightsSnapshot.hoursBlocked` reads every `blockOn` line), on a tab called Your sleep, next to a chart of the night. It's also not "phone-free": everything not on the list stayed open. | Misleading | P1 | Count the night's block only, and say what it is: "61 h with apps locked at night". Same family as the founder's "phone-free tonight" flag. |
-| "30 days" and "All time" read the transition log, which keeps 2,000 lines (about ten nights by `YourSleep`'s own comment). After a few weeks "All time" shows less than the "23 nights" card above it. | Misleading | P1 | Build the range stats from the night log (`nights.jsonl`, D62), which never trims, or drop "All time" until they do. |
-| The range picker sits under the week cards but only changes the stat and the chart below it. It looks like it scopes the whole tab. | Vague | P2 | Put the picker under a section header ("Over time") or replace it with one fixed range ("Last 30 nights"). |
-| "When you put it down" is a bar chart of "Never mind" taps by hour, 10 pm to 6 am, whatever the person's night is. Its title doesn't say what's counted, and a 12:30 – 8:30 am night loses its last two hours. | Vague | P2 | Title "When you closed a blocked app"; fit the hours to the night's own span (as D60 did for the strip). |
-| The chart is hidden from VoiceOver; only "Most at 11 pm" is read. | Rules (AX) | P2 | An `accessibilityLabel` that reads the peak and the total, or an Audio Graph (`accessibilityChartDescriptor`). |
-| `InsightsView` labels its picker "Your nights" (`Copy.Insights.title`), the night editor's title, on the tab "Your sleep". | Inconsistent | P3 | Label it by what it picks: "Range". |
-| The tab is named Your sleep and shows no sleep: everything here is about the lock. Until Health lands (#86) the name promises more than it gives. | Misleading | P3 | Note for product; no change before #86 (D63, D65). |
-| "A new week" shows seven empty dashed dots on Monday morning. | Polish | P3 | Fine (D69); the line "N nights last week" carries it. When last week had no nights, the card is only dashed rings: add nothing, but check it with the renders. |
-
-## Blocks (`blocks`, `blocks-day`)
+`purchase`, `purchase-done`, `-failed`, `-pending` and `-restore-none`.
 
 | Issue | Type | Sev | Fix |
 |---|---|---|---|
-| The night card and the rows count a whole category as one app: "12 apps" when the list is 2 categories and 10 apps (`Copy.Blocks.appCount(block.appCount + block.categoryCount)`). Ready and the block screen's limits say "2 categories · 10 apps". | Misleading | P2 | Use `Copy.Blocks.summary(categories:apps:sites:)` on the card and rows, as Ready does. |
-| The footnote "A pause opens every block at once." with a pause glyph sits under the limits card, out of context, and "opens every block" isn't how a person thinks of it. | Vague | P3 | Move it into Settings' How it works, or say it on the pause sheet ("Every blocked app opens…", which it already does). |
-| "Sets of hours 3 of 8" is a limit people can't predict: blocks with the same hours share one, so adding a block may cost 0 or 1. | Vague | P3 | Keep the segments; in the "Up to 8 sets of hours" refusal, say what to do ("Give it the same hours as another block"), which `Copy.Blocks.refused` already does; use that same line in the New block row when it's off. |
-| The limits card sits at the bottom with the "spare room above" (D64). With three blocks it's a gap of empty screen between "New block" and the limits; at AX5 the limits push below the fold. | Polish | P3 | Accept (D64, founder's call). Note only. |
+| Early in the trial the stats read "0 nights phone-free", "0 times you put it down" and "0 pauses used". A row of zeros is a shortfall in all but name (D65), shown at the moment of asking for money. | Rules | P2 | Hide any stat at 0, and hide the card until a night has ended. |
+| "Times you put it down" counts "Never mind" taps. | Misleading | P2 | As on Tonight. |
+| "Pauses used" on the sheet that asks for money reads as a tally of slips. | Rules | P3 | Drop it. Nights and closed apps are the facts about the person. |
+| After "Keep it" or "Restore purchase", the button only greys out until Apple's sheet appears. | Feedback | P3 | A `ProgressView` in the button while `working`. |
+| Done is the title "Every night is yours", seven full segments and "Done", with nothing about what happens now. | Vague | P3 | One line under it: "Dusk keeps locking your apps every night." |
+| The segments' VoiceOver label is "Your free week", with no count. | Rules (AX) | P3 | "Night 5 of 7 free" (`Copy.Home.nightPill`). |
+| D78: "Your free week", "7 nights free", "Start my free week", Ready's footnote and the seven segments all change. Fourteen segments won't fit Welcome's card at AX5 as drawn. | Polish | P3 | With #115: say "free nights", and draw two rows of seven. |
 
-## Block editor (`block-new`, `block-new-gym`, `block-edit`, `block-edit-on`, `block-night`)
+## Settings
 
-| Issue | Type | Sev | Fix |
-|---|---|---|---|
-| The night's editor has a Place row that opens the generic place search (Building / Street / Campus), while Tonight's card and Settings set home with the map flow and "This is home". Two ways to set home, drawn differently, and only one can unset it. | Inconsistent | P2 | Route the night's Place row to `SetHomeFlow`, with "Use anywhere" in it. |
-| For the night, the day chips mean "nights starting on". With weeknights Sunday to Thursday, the Monday-first row lights M T W T … S: it reads as Monday to Thursday plus Saturday or Sunday, and "S" is ambiguous on its own. | Vague | P2 | For the night, label the row "Nights starting" and use the short day names ("Sun Mon Tue…") at default sizes; or show the night's span ("Sun night → Mon morning") under the chips. |
-| Onboarding sets the night by the wake time ("When do you need to be up?", 8 h 30 m before), but the editor shows From / Until with no wake time. Changing Until silently changes how long the night is. | Inconsistent | P3 | Show the length under the fields ("8 h 30 m"), as the wake screen does. Becomes bigger with D76's bed and lock times. |
-| Save just pops back. Nothing says it saved, and a held save ("Save for after 7:00 am") leaves only the row's small "Changes apply at 7:00 am". | Feedback | P3 | Fine for an immediate save (the row changes). For a held save, keep the editor's note on the Blocks row in `accent` with the `clock` glyph so it's noticed. |
-| "Your nights can be changed but not deleted." answers a question nobody asked on the night's editor. | Wordy | P3 | Drop it; the night has no Delete button, which says the same. |
-| New block, before a kind: four tiles and "Pick one, then choose its apps." Picking a tile opens Apple's picker at once; cancelling the picker leaves the kind picked with an empty apps row and no hint why Save is off. | Feedback | P3 | The empty-apps dashed tile (#78) is there; add the detail "Choose apps to save" to that row while empty. |
-
-## Onboarding (`welcome`, `wake`, `wake-weekends`, `screen-time*`, `blocklist`, `ready`)
+`settings`, `settings-anywhere` and `settings-heads-up-denied`.
 
 | Issue | Type | Sev | Fix |
 |---|---|---|---|
-| Ready's title is "Tonight at 10:30 pm.": a fragment that doesn't say what happens at 10:30. | Vague | P2 | "Apps lock tonight at 10:30 pm." (and with D76, the lock time, not bed). |
-| Ready's row "Blocked · 2 categories · 2 apps" reads as a state ("blocked now") on a screen where nothing is blocked yet. | Misleading | P3 | Title the row "Apps to lock" (`Copy.Blocks.apps` is "Apps to block"; use that). |
-| Ready is the first time pauses appear ("3 pauses a week · Every app opens for 10 minutes"), with no word on how to take one or that there's a wait. | Vague | P3 | Detail: "Each opens your apps for 10 minutes, after a 1-minute wait." |
-| Screen Time denied: "Turn it on in the next screen, or in Settings › Screen Time." There is no next screen; "Try again" re-asks Apple. | Vague | P2 | "Tap Try again and choose Continue, or turn it on in Settings › Screen Time." |
-| Wake: two controls set one night. The wheel sets the end, and "Change" on the Your nights row sets the start, while the row's detail is the length. "Change" doesn't say what it changes. | Vague | P2 | Label the link by what it sets: "Start" (weeknights) and "Wake" (weekends), or drop it and let the editor on Blocks do it later. |
+| "Only when I'm home · On" reopens the map, and nothing in Settings turns it off. The only way back to anywhere is Blocks › Your nights › Place › Use anywhere: another flow, with another picker. | Dead end | P2 | When home is set, offer "Use anywhere" in the sheet under the map. Route the night editor's Place row to the same flow (see Block editor). |
+| The Location row ("While Using", "Off") does nothing, under the heading "Is everything working?", even when location is why home doesn't work. Screen Time's row offers "Turn on"; location offers nothing. | Dead end | P2 | When home is set and location isn't Always, make the row a `SettingsLink`. |
+| "Last blocked · 10:30 pm – 7:00 am" has no day, and can be a Study block at 5 pm. | Vague | P2 | "Last night · Mon 10:30 pm – 7:00 am", from the night log. |
+| "Restore purchase" has a chevron, though it's an action. On success nothing is said: `Copy.Settings.restored` ("Purchase restored.") is never shown. The row stays after purchase. | Feedback | P2 | Drop the chevron, show "Purchase restored." as the row's detail, and hide the row once purchased. |
+| "Privacy" has a chevron but is static text in this build (`ui.json`: StaticText, not Button) because `TollPrivacyURL` is empty. "Contact" is a link with no chevron. | Inconsistent | P3 | Hide rows with no URL. Every link that leaves the app gets `arrow.up.forward.app`. |
+| A "Blocks" row pushes a second copy of the Blocks tab, with a different back button. | Inconsistent | P3 | Remove the row; Blocks is a tab. |
+| "How it works" is a sheet with no button. It closes only with a swipe, and at AX5 it's full height. | Dead end | P3 | A "Done" button in its actions. |
+| At AX5 the rows stack, and the chevron sits alone on its own line under the detail (`ax5/settings`). | Polish | P3 | Keep the chevron trailing on the title's line at accessibility sizes. |
+| The version appears only in "Activity log", which is removed before launch. | Polish | P3 | A quiet version line at the bottom of Settings. |
+| Settings is reached only from Tonight's gear. | Polish | P3 | Accept (D63), or put the gear on every tab. |
+
+## Your sleep
+
+`insights`, `sleep-monday` and `sleep-best`.
+
+| Issue | Type | Sev | Fix |
+|---|---|---|---|
+| "214 h phone-free" adds up every block's hours, Study and Gym included. `InsightsSnapshot.hoursBlocked` reads every `blockOn` line. It's also not phone-free: everything off the list stayed open. This is the same family as the founder's "phone-free tonight" flag. | Misleading | P1 | Count the night only, and say what it measures: "61 h with apps locked at night". |
+| "30 days" and "All time" read the transition log, which keeps 2,000 lines, about ten nights by `YourSleep`'s own comment. `sleep-best` shows "20 nights" in its first card and "51 h" over 30 days, about six nights' worth. | Misleading | P1 | Build the ranges from the night log (`nights.jsonl`, D62), which isn't trimmed. Or drop "All time" until then. |
+| "23 nights" beside a moon has no noun. Nights of sleep? Nights tracked? Nights since installing? | Vague | P1 | "23 nights" over "with apps locked" (`Copy.Home.nightsLabel` exists). |
+| The range picker sits under the week cards but only changes the stat and chart below it. It looks as if it scopes the whole tab. | Vague | P2 | A section header over it ("Over time"), or one fixed range ("Last 30 nights"). |
+| "When you put it down" charts "Never mind" taps by hour, always 10 pm to 6 am. The title doesn't say what's counted, and a 12:30 – 8:30 am night loses its last two hours. | Vague | P2 | "When you closed a blocked app", with hours fitted to the night, as D60 fits the strip. |
+| The chart is hidden from VoiceOver; only "Most at 11 pm" is read. | Rules (AX) | P2 | An `accessibilityChartDescriptor`, or a label with the peak and the total. |
+| The picker's VoiceOver label is "Your nights" (`Copy.Insights.title`), the night editor's title, on the tab called Your sleep. | Inconsistent | P3 | "Range". |
+| The tab is named Your sleep and shows no sleep yet; everything on it is about the lock. | Misleading | P3 | For product. No change before Health (#86) (D63, D65). |
+| "6 nights this week · Your most in a week" repeats the six filled dots directly above it. | Wordy | P3 | Keep the card (D69), but title it by the fact the dots don't show: "Your most in a week". |
+
+## Blocks
+
+`blocks` and `blocks-day`.
+
+| Issue | Type | Sev | Fix |
+|---|---|---|---|
+| The night card and rows count a whole category as one app: "4 apps" (`Copy.Blocks.appCount(appCount + categoryCount)`). Ready says "2 categories · 2 apps". | Misleading | P2 | `Copy.Blocks.summary(categories:apps:sites:)` everywhere. |
+| A block that isn't on says "Wed" or "Today" with a clock, and no time. "Wed" doesn't say "next on Wednesday", or when. | Vague | P3 | "Wed 9 am", "Today 6 pm". |
+| The footnote "A pause opens every block at once." sits under the limits, out of context. | Vague | P3 | Move it to How it works. |
+| "Sets of hours 3 of 8" is a limit people can't predict: blocks with the same hours share one. | Vague | P3 | When it's full, the New block row says what to do, as `Copy.Blocks.refused` does: "Use the same hours as another block." |
+| With three blocks there's a band of empty screen between "New block" and the limits (D64). | Polish | P3 | Accept (founder's call). |
+
+## Block editor
+
+`block-new`, `block-new-gym`, `block-edit`, `block-edit-on` and `block-night`.
+
+| Issue | Type | Sev | Fix |
+|---|---|---|---|
+| "Name · Study" is a text field that looks like a plain row: right-aligned text, no field shape, no cursor until tapped. | Dead end | P2 | Give it the field look (`surfaceRaised`, 12 pt corners, as `TimeField`), or a pencil glyph. |
+| The night's Place row opens the generic place search (Building / Street / Campus). Tonight and Settings set home with the map and "This is home". | Inconsistent | P2 | Route the night's Place row to `SetHomeFlow`. |
+| For the night, the day chips mean "nights starting on". Weeknights are Sunday to Thursday, so the Monday-first row lights M T W T and the last S. That reads as Monday to Thursday and Sunday, and a lone "S" could be either day. | Vague | P2 | Label the row "Nights starting", and show the span under the chips ("Sun night → Mon morning"). |
+| Onboarding sets the night by wake time; the editor shows From / Until, with no length. Changing Until silently changes how long the night is. | Inconsistent | P3 | Show the length under the fields ("8 h 30 m"), as the wake screen does. This matters more with D76's bed and lock times. |
+| Editing a block that's on says "Changes apply when this block ends." in a note and again on the button ("Save for after 5:00 pm"). | Wordy | P3 | Keep the button and drop the note's second sentence. |
+| The kind tiles' labels sit at three heights: Study and Work 395, Gym 398, Other 384 (`block-new`). | Polish | P3 | Fix the glyph frame height in `KindChips`. |
+| "Your nights can be changed but not deleted." answers a question nobody asked. | Wordy | P3 | Drop it; there's no Delete button. |
+| Cancelling Apple's picker after choosing a kind leaves Save disabled with no reason. | Feedback | P3 | The empty apps row's detail reads "Choose apps to save" while empty. |
+| A held save leaves only a small "Changes apply at 7:00 am" on the row. | Feedback | P3 | Show that row's state in `accent` with the clock glyph until the change applies. |
+
+## Onboarding
+
+`welcome`, `wake`, `wake-weekends`, `screen-time*`, `blocklist` and `ready`.
+
+| Issue | Type | Sev | Fix |
+|---|---|---|---|
+| Ready's title is "Tonight at 10:30 pm.", a fragment that doesn't say what happens at 10:30. The time is repeated right under it, in the night picture. | Vague | P2 | "Apps lock tonight at 10:30 pm." (with D76, at the lock time). |
+| Screen Time denied says "Turn it on in the next screen, or in Settings › Screen Time." There is no next screen: "Try again" asks Apple again. | Vague | P2 | "Tap Try again and choose Continue, or turn it on in Settings › Screen Time." |
+| On Wake, the wheel sets the end, while "Change" on the row sets the start. The row's detail is the night's length, and "Change" doesn't say what it changes. | Vague | P2 | Name the links "Start" (weeknights) and "Wake" (weekends). |
+| Ready's row "Blocked · 2 categories · 2 apps" reads as a state on a screen where nothing is blocked yet. | Misleading | P3 | "Apps to block" (`Copy.Blocks.apps`). |
+| Ready is the first mention of pauses ("3 pauses a week · Every app opens for 10 minutes"), with no word about the wait. | Vague | P3 | "Each opens your apps for 10 minutes, after a 1-minute wait." |
+| Ready's footnote: "Then $9.99 once, or it switches off." "It" is unclear. | Vague | P3 | "…or Dusk stops locking." |
+| On Wake, Weeknights shows a length ("8 h 30 m") and Fri and Sat nights a span ("12:30 am – 9:00 am"). | Inconsistent | P3 | Show both rows the same way: the span, with the length after it. |
 | "You can change this any time." doesn't say where. | Vague | P3 | "You can change this later in Blocks." |
-| Welcome's offer card draws seven empty segments under "7 nights free": the same drawing as Blocks' "Sets of hours" and the pause sheet's week. | Inconsistent | P3 | See the pause sheet: give the free nights their own drawing (night dots, empty). |
-| "Start my free week" and "7 nights free" (D78: 14 nights). | Polish | P3 | With #115: "Start 14 free nights". |
+| The wake wheel stays at its default size at AX5 (`UIDatePicker` wheels don't scale). | Rules (AX5) | P3 | Accept (system control), but check that the label beside it is read. |
 
-## Only when I'm home (`set-home*`)
+## Only when I'm home
+
+`set-home`, `set-home-off`, `set-home-location`, `set-home-always` and `set-home-location-off`.
 
 | Issue | Type | Sev | Fix |
 |---|---|---|---|
-| Location denied reads "Never" on the location step and "Off" in Settings. | Inconsistent | P3 | One word: "Off" (Settings' word). |
-| The map's row is "Your current location · This building and the street around it", and the place picker on Blocks offers "Building / Street / Campus" radii. Home's radius is fixed at 150 m, with no choice. | Inconsistent | P3 | Accept (home is one size); just make the map's circle say so visually, which it does. Note only. |
-| After "This is home" on a night that's on, the save waits for the night to end (B-3), and the sheet just closes. | Feedback | P2 | A line on Tonight's hero detail ("Home applies from tomorrow") or a held note in Settings' row: "On from 7:00 am". |
+| "Choose Always" draws iOS's location list (Never, Ask Next Time, While Using the App, Always ✓) as rows that look tappable but are static text (`ui.json`). | Dead end | P2 | Draw it as a picture: a smaller inset image of the list, with no row chrome, captioned "In Settings". |
+| After "This is home" during a night, the save waits for the night to end (B-3), and the sheet just closes. | Feedback | P2 | Settings' row reads "On from 7:00 am", and Tonight's hero line says the same. |
+| Location denied reads "Never" in this flow and "Off" in Settings. | Inconsistent | P3 | One word: "Off". |
