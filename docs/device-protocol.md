@@ -93,6 +93,18 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 75 | AX5: tap the night | The snippet opens as a sheet and scrolls; the state is above any card | | |
 | 76 | Morning after a locked night | "Apps locked last night", "You chose sleep N times", "Tonight 10:30 pm" over the strip | | |
 | 77 | Your sleep with Study used that week | "N h locked at night" excludes Study's hours; "N nights locked" | | |
+| 78 | During the free nights, note "Night N of 14", delete Dusk, reinstall, open it (#115) | Welcome shows the trial still running; after setup the pill shows the same "Night N of 14 free"; Settings shows "Free nights · Night N of 14" | | |
+| 79 | On a second iPhone on the same Apple ID with iCloud Keychain on, install Dusk and wait for Keychain to sync | Welcome and Ready continue from the first phone's start ("Free until the morning of …" matches), or "Free nights used" if they ended; the pill matches | | |
+| 80 | On the second phone, finish setup before the Keychain item arrives, then reopen later | The night count jumps to match the first phone; the free nights end on the same morning | | |
+| 81 | With iCloud Keychain off, set up, then delete and reinstall | Same night count as before; nothing else changes | | |
+| 82 | Last free night: look at the pill | "Last free night tonight", 13 segments filled and the 14th outlined, on the amber tint | | |
+| 83 | With no night on, set Settings › Before bed to Fixed 30 (#113) | Tonight's lock starts 30 min before bed; the night still ends at wake | | |
+| 84 | During a locked night, change Before bed to Fixed 45 | Tonight's lock is unchanged and the row says "From tomorrow night"; tomorrow it locks 45 min before bed | | |
+| 85 | Change the gap from 15 to 45, open Dusk, check pending notifications | The heads-up moves 30 min earlier, to 20 min before the new lock | | |
+| 86 | New install, finish setup at 3 pm | The lock starts at bed − 15 that night; the heads-up comes 35 min before bed | | |
+| 87 | After a week with ≥4 locked nights and ≤1 pause before bed, open Dusk Monday after noon | "This week, apps lock 30 min before bed · Up from 15"; "Keep 15" puts the lock back at bed − 15 that night | | |
+| 88 | Install a build from before D76, update, open the day after a night | The night is unchanged; Tonight offers "Lock apps 15 min before bed?"; "Turn on" makes it 15, growing | | |
+| 89 | Turn Screen Time off for Dusk midweek, then back on | At Monday noon the gap eases by 15 and doesn't grow for the next 2 Mondays | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

@@ -74,7 +74,7 @@ struct HomeSnapshotTests {
     #expect(home.eyebrow == "Dusk is off")
     #expect(
       YourSleep(state: s, log: [], history: [], now: date(2026, 11, 17, 15), calendar: london)
-        .weekTitle == "Your free week")
+        .weekTitle == "Your free nights")
     #expect(home.timeline?.segments.map(\.phase) == [.off])
     #expect(
       BlocksSnapshot(state: s, now: date(2026, 11, 17, 15), calendar: london).night?.stateText
@@ -86,11 +86,11 @@ struct HomeSnapshotTests {
     s.trial.start = date(2026, 11, 13, 15)
     #expect(
       snapshot(s, date(2026, 11, 17, 15)).pill
-        == .init(text: "Night 5 of 7 free", kind: .trial, night: 5, nights: 7))
+        == .init(text: "Night 5 of 14 free", kind: .trial, night: 5, nights: 14))
     run(&s, date(2026, 11, 17, 23))
     #expect(snapshot(s, date(2026, 11, 17, 23)).pill == nil)
     var last = setUp()
-    last.trial.start = date(2026, 11, 11, 15)
+    last.trial.start = date(2026, 11, 4, 15)
     #expect(snapshot(last, date(2026, 11, 17, 15)).pill?.kind == .lastNight)
   }
 

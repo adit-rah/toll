@@ -11,8 +11,8 @@ extension Copy {
       "Night \(night) of \(nights) free"
     }
     public static let lastNightPill = "Last free night tonight"
-    /// What a tap on the free-week pill does, for VoiceOver (D75).
-    public static let pillHint = "Shows your free week and the price"
+    /// What a tap on the free nights pill does, for VoiceOver (D75).
+    public static let pillHint = "Shows your free nights and the price"
 
     public static let tonight = "Tonight"
     public static let today = "Today"
@@ -59,8 +59,8 @@ extension Copy {
     public static let notNow = Setup.notNow
     public static let onNow = "On now"
     public static let notBlocking = "Not blocking"
-    public static let trialEnded = "Your free week ended."
-    public static let trialEndedToday = "Your free week ended this morning."
+    public static let trialEnded = "Your free nights ended."
+    public static let trialEndedToday = "Your free nights ended this morning."
     /// "Every night after" read as a charge each night.
     public static func onceEveryNight(_ price: String) -> String {
       "\(price) once, for good"

@@ -5,21 +5,27 @@ import TollUI
 /// Seven nights as seven dots (D65, #103): filled when the block ran; hollow when it didn't, with
 /// the reason's glyph for a night away, after the trial or with Screen Time off; a pinpoint where
 /// there was no night; a dashed ring for nights to come. The shape carries it, never the colour
-/// alone, and nothing reads as a miss. The latest night's day is in full colour.
+/// alone, and nothing reads as a miss. The latest night's day is in full colour. The free nights
+/// after the trial are two weeks, drawn a week to a row (D78).
 struct NightDots: View {
   let bars: [HomeSnapshot.Bar]
 
   var body: some View {
-    HStack(spacing: 0) {
-      ForEach(Array(bars.enumerated()), id: \.offset) { _, bar in
-        VStack(spacing: 6) {
-          NightDot(dot: bar.dot)
-          Text(bar.day)
-            .tollType(.micro, bar.isLatest ? TollColor.label : TollColor.label2)
+    VStack(spacing: 14) {
+      ForEach(Array(stride(from: 0, to: bars.count, by: 7)), id: \.self) { first in
+        HStack(spacing: 0) {
+          ForEach(first..<min(first + 7, bars.count), id: \.self) { index in
+            let bar = bars[index]
+            VStack(spacing: 6) {
+              NightDot(dot: bar.dot)
+              Text(bar.day)
+                .tollType(.micro, bar.isLatest ? TollColor.label : TollColor.label2)
+            }
+            .frame(maxWidth: .infinity)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(NightSpoken.label(bar))
+          }
         }
-        .frame(maxWidth: .infinity)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(NightSpoken.label(bar))
       }
     }
     .tollChartTypeLimit()

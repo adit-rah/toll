@@ -119,7 +119,7 @@ extension AppModel {
     TransitionLog().read().reversed()
   }
 
-  /// "Night 5 of 7 free." during the trial; nil once purchased or over (D33).
+  /// "Night 5 of 14 free." during the trial; nil once purchased or over (D33).
   func trialNight(now: Date) -> Int? {
     guard !state.trial.purchased, let start = state.trial.start else { return nil }
     return Trial.night(

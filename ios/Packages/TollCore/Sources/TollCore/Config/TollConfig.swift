@@ -66,7 +66,8 @@ public struct TollConfig: Codable, Sendable, Equatable {
 
   public struct Trial: Codable, Sendable, Equatable {
     public init() {}
-    public var nights = 7
+    /// Two weeks of the Sleep block's nights (D78).
+    public var nights = 14
   }
 
   public struct HeadsUp: Codable, Sendable, Equatable {
