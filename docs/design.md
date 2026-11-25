@@ -106,7 +106,7 @@ Motion explains where things came from and where they went. It never celebrates,
 | Door: choosing → waiting → open | Content crossfades 300 ms inside the sheet; the sheet does not move. |
 | Countdown | `contentTransition(.numericText(countsDown: true))` each second; the colon never blinks. |
 | Regret line expires | Fades out 200 ms; nothing else moves. |
-| Tonight's card arrives or leaves | Fades 200 ms in place; nothing else moves. |
+| A card or note arrives or leaves (Tonight, the block editor) | Fades 200 ms in place; nothing else moves. |
 | Your sky's newest star (D79), the first time Your sleep shows it | The star brightens from nothing over 450 ms (`firstAppearance`); then each line it adds draws from the star it joins over 450 ms, a trimmed path. Once. Reduce Motion: the star and its lines crossfade in 200 ms. Nothing twinkles, pulses or loops; a landmark line arrives with the morning card. |
 | Your sky: a star's night opens or closes | System popover (a system sheet at accessibility sizes), as Tonight's strip. |
 | Your sleep's bar as the sky scrolls under it | None: it takes the page's colour at once. |

@@ -126,6 +126,13 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 108 | iPhone SE or another 375-pt-wide phone, free nights with a card | The pill fits in the bar beside the gear (its segments may drop at large text); the card overlaps nothing | | |
 | 109 | VoiceOver on Tonight with a card, swipe from the top | Settings, the pill, the state, the card, the strip | | |
 | 110 | Reduce Motion on, dismiss a card | The same 200 ms fade | | |
+| 111 | Edit Study a minute before it starts and keep the editor open until it starts | The note "Study is on until …" fades in over 200 ms above Delete; the card, Delete and Save don't move; Save reads "Save for after …" | | |
+| 112 | The same, at text size AX5 | The note sits in the pinned bar above Delete and Save; the card doesn't move; the editor still scrolls above the bar | | |
+| 113 | Tonight › Pause, tap "Pause for 10 min", wait 60 s | The sheet keeps its height through choosing, waiting and open; Pause, Cancel and Lock again sit on one line; only the content crossfades | | |
+| 114 | Buy from the purchase sheet (sandbox), then again with Ask to Buy, then a failed purchase | The sheet keeps its height for "Every night is yours", "Waiting for approval" and "The purchase didn't go through"; the content swaps in place | | |
+| 115 | Before bed › Breathe, let the tone end with the sheet open | "Stop the tone" becomes "Done" in the same place; nothing above moves | | |
+| 116 | Set home from Tonight with a slow GPS fix | "Finding where you are" appears under the privacy line; when it goes, the map, the card and the privacy line don't move | | |
+| 117 | Welcome at text size AX5 | The title starts at the top, the promise and offer scroll, and "Start my free nights" and Restore stay pinned at the bottom | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

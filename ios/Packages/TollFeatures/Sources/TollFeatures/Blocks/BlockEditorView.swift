@@ -78,9 +78,6 @@ struct BlockEditorView: View {
   }
 
   @ViewBuilder private var details: some View {
-    if let note = model.activeNote {
-      NoteCard(note, symbol: .blocked).padding(.top, 16)
-    }
     if !model.isSleep {
       KindChips(model: model) { picking = $0 }.padding(.top, 20)
     }
@@ -113,7 +110,7 @@ struct BlockEditorView: View {
       }
       .buttonStyle(.plain)
     }
-    .padding(.top, model.isSleep && model.activeNote == nil ? TollSpacing.titleToContent : 12)
+    .padding(.top, model.isSleep ? TollSpacing.titleToContent : 12)
     notes
   }
 
@@ -142,8 +139,16 @@ struct BlockEditorView: View {
     }
   }
 
+  /// The note for a block that's on sits at the top of the pinned bar, over Save, which says when the
+  /// edit applies (B-3): when the block comes on mid-edit the bar grows upward and nothing on the page
+  /// or in the bar moves (#133, design §2.5).
   private var actions: some View {
     VStack(spacing: 0) {
+      if let note = model.activeNote {
+        NoteCard(note, symbol: .blocked)
+          .padding(.bottom, 12)
+          .transition(.opacity)
+      }
       if !model.isNew && !model.isSleep {
         DestructiveQuiet(Copy.Blocks.delete) { confirmingDelete = true }
           .padding(.bottom, 10)
@@ -157,6 +162,7 @@ struct BlockEditorView: View {
       }
       .disabled(!model.canSave)
     }
+    .animation(Motion.stateChange, value: model.activeNote)
   }
 
   private var saveTitle: String {

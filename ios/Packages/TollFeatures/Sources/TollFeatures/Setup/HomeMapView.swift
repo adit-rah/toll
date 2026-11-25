@@ -35,9 +35,10 @@ struct HomeMapView: View {
         }
         .padding(.top, 16)
       }
+      Footnote(Copy.Setup.homeLine, symbol: .privacy).padding(.top, 14)
+      // Under the privacy line, so finding a fix, or not, moves nothing above it.
       if model.locating { Footnote(Copy.Setup.finding).padding(.top, 14) }
       if model.noFix { Footnote(Copy.Setup.noFix).padding(.top, 14) }
-      Footnote(Copy.Setup.homeLine, symbol: .privacy).padding(.top, 14)
     } actions: {
       if blocked {
         // Only Settings can turn location back on; leaving keeps the night running anywhere.

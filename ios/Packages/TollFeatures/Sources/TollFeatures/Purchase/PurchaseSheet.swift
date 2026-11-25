@@ -13,6 +13,9 @@ struct PurchaseSheet: View {
   @State private var working = false
   @State private var outcome: Outcome?
   @Environment(\.dynamicTypeSize) private var typeSize
+  /// The offer's height, kept by its outcomes: buying or restoring swaps the content in place and the
+  /// sheet doesn't move.
+  static let height: CGFloat = 674
 
   init(model: AppModel, home: HomeSnapshot, outcome: Outcome? = nil) {
     self.model = model
@@ -33,7 +36,7 @@ struct PurchaseSheet: View {
       case .purchased:
         OutcomeSheet(
           symbol: .purchased, tint: TollColor.accent, title: Copy.Purchase.doneTitle,
-          nights: model.config.trial.nights
+          nights: model.config.trial.nights, height: Self.height
         ) {
           PrimaryButton(Copy.Purchase.done) { dismiss() }
         }
@@ -41,14 +44,14 @@ struct PurchaseSheet: View {
         OutcomeSheet(
           symbol: .askToBuy, tint: TollColor.accent, title: Copy.Purchase.pendingTitle,
           line: model.state.trial.entitled
-            ? Copy.Purchase.pendingTrialBody : Copy.Purchase.pendingBody
+            ? Copy.Purchase.pendingTrialBody : Copy.Purchase.pendingBody, height: Self.height
         ) {
           PrimaryButton(Copy.Purchase.ok) { dismiss() }
         }
       case .failed:
         OutcomeSheet(
           symbol: .failed, tint: TollColor.warn, title: Copy.Purchase.failedTitle,
-          line: Copy.Purchase.failedBody, overhang: 16
+          line: Copy.Purchase.failedBody, height: Self.height, overhang: 16
         ) {
           PrimaryButton(Copy.Purchase.tryAgain) { Task { await buy() } }.disabled(working)
           QuietButton(Copy.Purchase.notNow) { dismiss() }.frame(maxWidth: .infinity)
@@ -56,7 +59,7 @@ struct PurchaseSheet: View {
       case .nothingToRestore:
         OutcomeSheet(
           symbol: .notFound, tint: TollColor.label2, title: Copy.Purchase.restoreNoneTitle,
-          line: Copy.Purchase.restoreNoneBody
+          line: Copy.Purchase.restoreNoneBody, height: Self.height
         ) {
           PrimaryButton(Copy.Purchase.ok) { outcome = nil }
         }
@@ -66,7 +69,7 @@ struct PurchaseSheet: View {
   }
 
   private var offer: some View {
-    SheetPage(height: 674, overhang: 14) {
+    SheetPage(height: Self.height, overhang: 14) {
       Text(Copy.Purchase.eyebrow).tollType(.eyebrow, TollColor.label2)
       // How much of the free nights is gone, as the pill draws it and says it (#77, the audit).
       if let free = home.freeWeek {
@@ -195,11 +198,13 @@ private struct OutcomeSheet<Actions: View>: View {
   var line: String?
   /// After buying: the free nights' segments, all filled.
   var nights: Int?
+  /// The board's 374 on its own; the offer's height when it replaces the offer.
+  var height: CGFloat = 374
   var overhang: CGFloat = 0
   @ViewBuilder let actions: Actions
 
   var body: some View {
-    SheetPage(height: 374, overhang: overhang) {
+    SheetPage(height: height, overhang: overhang) {
       Image(symbol: symbol).unredacted()
         .font(.system(size: TileSize.sheet.symbol, weight: .medium))
         .foregroundStyle(tint)

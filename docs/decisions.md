@@ -389,3 +389,11 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **VoiceOver** reads the bar, the state, the card, then the strip.
 - **Replaces** D48's "the card 12 pt under the pill" below accessibility sizes. D48 still holds at accessibility sizes.
 - **Not changed:** the block editor's note for a running block still pushes the editor down when it appears (#133).
+
+**D87. Steady screens: a state change never moves what's above or beside it** (2026-11-25, founder feedback, #133). D86's rule for Tonight holds on every screen. It was checked by comparing frames in `ui.json` for each pair of states.
+- **The block editor:** the note for a block that's on ("Study is on until 5:00 pm.") sits at the top of the pinned bar, above Delete and Save. When a block comes on mid-edit, the bar grows upward while the card, Delete and Save stay put. The note fades 200 ms in place (design §2.5, "A card or note arrives or leaves").
+- **Sheets keep one height through a flow.** The pause sheet's choosing, waiting and open states share the tallest height (470); "none left" keeps 390. The purchase sheet's outcomes reached from the offer keep the offer's 674, so a short outcome sits in a tall, quiet sheet. "Nothing to restore", opened from Settings, keeps 374.
+- **A button keeps its line when a quiet link comes or goes.** The pause sheet keeps the link's room, empty, under Cancel and Lock again. On Before bed's breathe page, the tone's line under Stop is the height of a link.
+- **A passing line goes below what stays:** the map's "Finding where you are" sits under the privacy line.
+- **Welcome scrolls at accessibility sizes,** with its button pinned (design §2.1).
+- **Not changed** (#135): after buying, the outcome's button sits on the standard line, 46 pt below "Keep it"; the map's button lifts 28 pt when location is denied and "Not now" appears. Standard list rows expanding in Settings, and the system sheet's own motion, are out of scope.
