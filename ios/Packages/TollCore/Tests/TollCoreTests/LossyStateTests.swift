@@ -45,7 +45,7 @@ struct LossyStateTests {
   @Test func anUnknownBlockKindIsAPlainBlock() throws {
     let state = try read { try block(&$0, 1) { $0["kind"] = "nap" } }
     #expect(state.blocks.map(\.kind) == [.sleep, .other])
-    #expect(state.blocks[1].apps == Data([2]))
+    #expect(state.blocks.last?.apps == Data([2]))
   }
 
   @Test func anUnknownLocationModeRunsOnHoursAlone() throws {
@@ -63,7 +63,7 @@ struct LossyStateTests {
     let state = try read {
       try block(&$0, 1) { rule(&$0) { $0["days"] = [1, 2, 3, 4, 5, 8] } }
     }
-    #expect(state.blocks[1].schedule.rules[0].days == Weekday.weekdays)
+    #expect(state.blocks.last?.schedule.rules.first?.days == Weekday.weekdays)
   }
 
   @Test func anUnknownHeldEditIsDropped() throws {
@@ -80,8 +80,8 @@ struct LossyStateTests {
       places[1]["radiusMeters"] = nil
       json["places"] = places
     }
-    #expect(state.places[1].latitude == 51.52)
-    #expect(state.places[1].radiusMeters == 150)
+    #expect(state.places.last?.latitude == 51.52)
+    #expect(state.places.last?.radiusMeters == 150)
   }
 
   @Test func aPlaceWithoutACentreIsDroppedAlone() throws {

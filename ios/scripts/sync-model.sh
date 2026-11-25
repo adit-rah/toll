@@ -1,7 +1,7 @@
 #!/bin/bash
-# Copies the exported model artifact and the parity fixtures from datascience/ into the SleepModel
-# package (model spec, section 2). With --check, changes nothing and fails if the copies differ, which
-# CI runs so the app never ships numbers the reference didn't produce.
+# Copies the exported model artifact, the parity fixtures and the rebuild fixture from datascience/
+# into the SleepModel package (model spec, section 2). With --check, changes nothing and fails if the
+# copies differ, which CI runs so the app never ships numbers the reference didn't produce.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 from="$root/datascience/artifacts"
@@ -9,6 +9,7 @@ pkg="$root/ios/Packages/SleepModel"
 pairs=(
   "$from/sleep-model.v0.json:$pkg/Sources/SleepModel/Resources/sleep-model.v0.json"
   "$from/fixtures.jsonl:$pkg/Tests/SleepModelTests/Fixtures/fixtures.jsonl"
+  "$from/rebuild.json:$pkg/Tests/SleepModelTests/Fixtures/rebuild.json"
 )
 status=0
 for pair in "${pairs[@]}"; do

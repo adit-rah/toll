@@ -16,5 +16,7 @@ struct ConfigTests {
     #expect(config.blocks.maxApps == 40)
     #expect(config.headsUp.leadMinutes == 20)
     #expect(config.headsUp.nightsAhead == 7)
+    #expect(config.flows.quietBeforeLockMinutes == config.headsUp.leadMinutes)
+    #expect(config.flows.offers == 3)
   }
 }

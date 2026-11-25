@@ -26,7 +26,8 @@ public struct NightKeeper: Sendable {
   ) -> Int {
     guard let sleep = state.sleepBlock else { return 0 }
     let ended = NightFacts.ended(
-      log: transitions.read(), sleep: sleep, gap: state.gap, since: state.setupFinishedAt,
+      log: transitions.read(limit: .max), sleep: sleep, gap: state.gap,
+      since: state.setupFinishedAt,
       now: now, calendar: calendar, regret: TimeInterval(config.door.regretSeconds))
     let added = nights.record(ended, calendar: calendar, model: model, by: .app)
     transitions.trim()
