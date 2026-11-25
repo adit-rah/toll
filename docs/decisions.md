@@ -532,3 +532,12 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - The app asks for the reading white point (`UIWhitePointAdaptivityStyleReading`).
   - The shield and the system accent follow the palette.
 - **The warm palette is a choice of look,** with no claim about sleep.
+
+**D96. Motion is critically damped springs, scoped to what changes** (2026-11-25, founder: "smooth, premium-grade" motion).
+- **Curves.** Every animation is a no-bounce spring (`.smooth`) at design §2.5's durations (200, 300, 450 ms). It starts at once and never overshoots, and a tap mid-way retargets it instead of restarting it.
+- **Scoping.** Each animation is scoped with `value:` (or `animation(_:body:)`) to the view whose value changes. Tonight's state never animates with the band (D86).
+- **Last night's card is one surface** whose height animates, with its content clipped to it. The header rides the top edge. What differs between the row and the open card only fades: in after the first 100 ms, out at once. Nothing lands before its container and nothing reflows. A card above it fades in place and never moves.
+- **Amends D93/D94:** the chevron is one glyph turned half a turn on the card's curve, not a swap from `chevron.up` to `chevron.down`. With Reduce Motion it crossfades.
+- **Sheet pages** (the door's states, Before bed, Purchase's outcome) swap in place inside a container that stays: the old out at once, the new in after 100 ms, 300 ms in all (`Motion.pageSwap`). A `Group` hands its transition to each new page, and that page can't animate its own arrival, so pages popped.
+- **Renders can film an interaction** (`motion` lines, `motion.mp4`, `ios/scripts/motion-strip.sh`; `docs/renders.md`). The simulator shows continuity, not frame rate, haptics or a tap mid-animation; those are device rows 177–186.
+- **Left open:** Setup's progress bar slides with each push (for the onboarding rewrite, #144); the pause bar steps once a second; below AX sizes, an open card that doesn't fit above the strip moves the band under the state (row 179).
