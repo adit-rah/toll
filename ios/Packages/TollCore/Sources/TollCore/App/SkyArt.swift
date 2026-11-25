@@ -98,7 +98,7 @@ public enum StarColour {
   }
 
   /// The colour drawn: `amount` of the star's own colour over the near-white of the page's text.
-  public static func tint(bv: Double, amount: Double = 0.55) -> (
+  public static func tint(bv: Double, amount: Double = 0.38) -> (
     red: Double, green: Double, blue: Double
   ) {
     // The dark `label` token, #EEECE6, so an untinted star is the colour every star was before.

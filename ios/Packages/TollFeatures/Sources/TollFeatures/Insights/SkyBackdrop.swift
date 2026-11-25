@@ -54,8 +54,8 @@ struct SkyBackdrop: View {
     let across = band.width * min(size.width, size.height)
     context.drawLayer { layer in
       layer.addFilter(.blur(radius: across * 0.45))
-      layer.stroke(path, with: .color(SkyColor.dust.opacity(0.06)), lineWidth: across)
-      layer.stroke(path, with: .color(SkyColor.dust.opacity(0.05)), lineWidth: across * 0.35)
+      layer.stroke(path, with: .color(SkyColor.dust.opacity(0.075)), lineWidth: across)
+      layer.stroke(path, with: .color(SkyColor.dust.opacity(0.07)), lineWidth: across * 0.35)
     }
   }
 }
@@ -125,7 +125,12 @@ struct SkyMoon: View {
       let disc = CGRect(
         x: centre.x - radius, y: centre.y - radius, width: radius * 2, height: radius * 2)
       context.fill(Path(ellipseIn: disc), with: .color(SkyColor.moon.opacity(0.1)))
-      context.fill(lit(centre), with: .color(SkyColor.moon))
+      // A little darker toward the limb, as the real moon is.
+      context.fill(
+        lit(centre),
+        with: .radialGradient(
+          Gradient(colors: [SkyColor.moon, SkyColor.moon.opacity(0.82)]), center: centre,
+          startRadius: 0, endRadius: radius))
     }
     .frame(width: radius * 7, height: radius * 7)
     .accessibilityHidden(true)

@@ -22,7 +22,7 @@ public enum SkyColor {
           .init(color: hex(0x1F1D47), location: 0.74), .init(color: hex(0x3A2B4E), location: 1),
         ],
         // The accent amber, low: the dusk the app is named for.
-        glow: hex(0xE9B96E).opacity(0.42), glowReach: 0.55)
+        glow: hex(0xE9B96E).opacity(0.42), glowReach: 0.7)
     case .night:
       Palette(
         stops: [

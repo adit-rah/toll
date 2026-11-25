@@ -1,6 +1,7 @@
 import SwiftUI
 import TollCore
 import TollUI
+import UIKit
 
 /// Your sleep opens onto the sky (D79): edge to edge and under the status bar, "Your sleep" set on
 /// it in the night's light text, last night's moon in the corner, the land along the bottom in the
@@ -10,15 +11,13 @@ struct SkyHeader: View {
   let sleep: YourSleep
   /// The sky's height, a fixed share of the screen at every text size.
   let height: CGFloat
-  /// The top of the content area: under the status bar and the navigation bar.
-  let top: CGFloat
   /// Demo renders open on this star's popover (docs/renders.md).
   var initialStar: Int?
   @State private var newestStar: CGFloat
   @State private var newestLines: CGFloat
   @State private var newestLinesShown: CGFloat
   @State private var selected: Int?
-  @State private var anchor = CGRect.zero
+  @State private var anchor = CGRect(x: 0, y: 0, width: 12, height: 12)
   @State private var titleHeight: CGFloat = 43
   @State private var width: CGFloat = 393
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -26,10 +25,9 @@ struct SkyHeader: View {
 
   static let horizon: CGFloat = 56
 
-  init(sleep: YourSleep, height: CGFloat, top: CGFloat, initialStar: Int? = nil) {
+  init(sleep: YourSleep, height: CGFloat, initialStar: Int? = nil) {
     self.sleep = sleep
     self.height = height
-    self.top = top
     self.initialStar = initialStar
     let shown: CGFloat = sleep.sky.fadesIn(seen: SkySeen.count) ? 0 : 1
     _newestStar = State(initialValue: shown)
@@ -37,10 +35,19 @@ struct SkyHeader: View {
     _newestLinesShown = State(initialValue: shown)
   }
 
-  /// The stars keep clear of the title above and the land below.
+  /// The status bar's height. The title sits just under it, in the bar's empty space: the bar is
+  /// see-through over the sky and Your sleep is a tab, with nothing to go back to.
+  private var status: CGFloat {
+    let windows = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .flatMap(\.windows)
+    return (windows.first(where: \.isKeyWindow) ?? windows.first)?.safeAreaInsets.top ?? 54
+  }
+
+  /// The stars keep clear of the title above and the land's crest below.
   private var field: EdgeInsets {
     EdgeInsets(
-      top: top + titleHeight + 18, leading: 28, bottom: Self.horizon + 10, trailing: 28)
+      top: status + titleHeight + 16, leading: 28, bottom: Self.horizon * 0.55, trailing: 28)
   }
 
   var body: some View {
@@ -49,7 +56,7 @@ struct SkyHeader: View {
       ZStack(alignment: .topLeading) {
         SkyScene(
           drawing: sky.drawing, light: sky.light, moon: sky.moon,
-          moonInset: CGSize(width: 40, height: top + 8 + titleHeight / 2),
+          moonInset: CGSize(width: 42, height: status + 4 + titleHeight / 2),
           field: field, horizon: Self.horizon, newestStar: newestStar, newestLines: newestLines,
           newestLinesShown: newestLinesShown
         ) { index, rect in
@@ -59,17 +66,22 @@ struct SkyHeader: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(sky.spoken)
         .accessibilityAddTraits(.isImage)
-        .popover(
-          isPresented: Binding(get: { selected != nil }, set: { if !$0 { selected = nil } }),
-          attachmentAnchor: .rect(.rect(anchor))
-        ) {
-          if let selected, let night = sleep.starNight(selected) {
-            StarNightView(night: night)
-              .presentationCompactAdaptation(typeSize.isAccessibilitySize ? .sheet : .popover)
-              .presentationDetents([.medium])
-              .presentationBackground(TollColor.surface)
+        // A point at the star, so the popover's arrow finds it.
+        Color.clear
+          .frame(width: anchor.width, height: anchor.height)
+          .popover(
+            isPresented: Binding(get: { selected != nil }, set: { if !$0 { selected = nil } })
+          ) {
+            if let selected, let night = sleep.starNight(selected) {
+              StarNightView(night: night)
+                .presentationCompactAdaptation(typeSize.isAccessibilitySize ? .sheet : .popover)
+                .presentationDetents([.medium])
+                .presentationBackground(TollColor.surface)
+            }
           }
-        }
+          .position(x: anchor.midX, y: anchor.midY)
+          .allowsHitTesting(false)
+          .accessibilityHidden(true)
         ScreenTitle(Copy.Tabs.sleep, kind: .pushed)
           .environment(\.colorScheme, .dark)
           .dynamicTypeSize(...DynamicTypeSize.accessibility1)
@@ -78,7 +90,7 @@ struct SkyHeader: View {
           } action: {
             titleHeight = $0
           }
-          .padding(.top, top)
+          .padding(.top, status - 4)
           .padding(.horizontal, 24)
           .padding(.trailing, 48)
       }

@@ -40,7 +40,7 @@ struct SkyStarsLayer: View {
     _ name: Sky.Name, style: SkyStarStyle, in context: inout GraphicsContext, size: CGSize
   ) {
     let text = Text(name.text.uppercased())
-      .font(.system(size: 8.5, weight: .medium))
+      .font(.system(size: 9, weight: .medium))
       .tracking(1.4)
       .foregroundStyle(SkyColor.line)
     let resolved = context.resolve(text)

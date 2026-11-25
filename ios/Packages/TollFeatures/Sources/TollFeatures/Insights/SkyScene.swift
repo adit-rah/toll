@@ -12,7 +12,7 @@ struct SkyScene: View {
   var moon: Moon?
   /// Where the moon sits, from the scene's top right corner to its centre.
   var moonInset = CGSize(width: 35, height: 40)
-  var moonRadius: CGFloat = 11
+  var moonRadius: CGFloat = 12
   /// The stars' field inside the scene.
   var field = EdgeInsets(top: 24, leading: 24, bottom: 24, trailing: 24)
   /// The land's height at the bottom; none on a tile.

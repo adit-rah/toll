@@ -16,7 +16,7 @@ struct SkyPoster: View {
       SkyScene(
         drawing: landmark.sky, light: .evening, moon: landmark.moon,
         moonInset: CGSize(width: 48, height: 64), moonRadius: 12,
-        field: EdgeInsets(top: 104, leading: 26, bottom: 96, trailing: 26), horizon: 72
+        field: EdgeInsets(top: 96, leading: 24, bottom: 70, trailing: 24), horizon: 72
       )
       .frame(height: 470)
       VStack(alignment: .leading, spacing: 6) {

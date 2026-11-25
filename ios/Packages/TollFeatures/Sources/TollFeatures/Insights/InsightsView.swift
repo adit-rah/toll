@@ -21,7 +21,7 @@ struct InsightsView: View {
       let sky = ((proxy.size.height + top + proxy.safeAreaInsets.bottom) * 0.45).rounded()
       ScrollView {
         VStack(alignment: .leading, spacing: 0) {
-          SkyHeader(sleep: sleep, height: sky, top: top, initialStar: initialStar)
+          SkyHeader(sleep: sleep, height: sky, initialStar: initialStar)
           VStack(alignment: .leading, spacing: 0) {
             SectionHeader(sleep.weekTitle).padding(.top, 28)
             WeekDotsCard(sleep: sleep).padding(.top, TollSpacing.headerToCard)
@@ -39,6 +39,8 @@ struct InsightsView: View {
       } action: { _, gone in
         skyGone = gone
       }
+      // No edge effect over the night; the bar's own colour takes over once the sky has gone.
+      .scrollEdgeEffectHidden(!skyGone, for: .top)
       .ignoresSafeArea(.container, edges: .top)
     }
     .background(TollColor.bg)
