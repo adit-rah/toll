@@ -101,7 +101,7 @@ public enum StarColour {
   public static func tint(bv: Double, amount: Double = 0.38) -> (
     red: Double, green: Double, blue: Double
   ) {
-    // `SkyColor.star`, #EEECE6, so an untinted star is the colour every star was before.
+    // The dark `label` token, #EEECE6, so an untinted star is the colour every star was before.
     let base = (0.933, 0.925, 0.902)
     let colour = rgb(bv: bv)
     return (

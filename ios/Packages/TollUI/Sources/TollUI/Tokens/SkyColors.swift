@@ -40,22 +40,21 @@ public enum SkyColor {
     }
   }
 
-  /// Lit stars, before their B–V tint: the sky's own off-white. It stays brighter than the page's
-  /// dark `label`, which was made softer for the eyes, so names keep 4.5:1 on every light (D89).
+  /// Lit stars, before their B–V tint: the dark `label`.
   public static let star = hex(0xEEECE6)
-  /// Figure lines and constellation names: faint, so the sky reads as a sky.
+  /// Figure lines and constellation names: a faint cool grey, so the sky reads as a sky.
   public static let line = hex(0x646B76)
-  /// Lines a tap brings forward (`SkyFocus`): one step up.
+  /// Lines a tap brings forward (`SkyFocus`): one step up, a cool grey.
   public static let lineBright = hex(0xA2A8B2)
   /// Names a tap brings forward: the sky's text, legible on every light.
   public static let nameBright = hex(0xEEECE6)
-  /// The newest star and its glow: the evening's amber.
+  /// The newest star and its glow: the dark accent.
   public static let newest = hex(0xE9B96E)
   /// The dust and the Milky Way: starlight at low opacity.
   public static let dust = hex(0xDDE3F0)
   /// The moon's lit face, and its earthshine at low opacity.
   public static let moon = hex(0xF1EEE4)
-  /// Text set on the sky: the stars' off-white.
+  /// Text set on the sky: the dark `label`.
   public static let text = hex(0xEEECE6)
 
   /// A star's colour from its B–V index (`StarColour`), subtly.

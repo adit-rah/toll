@@ -74,9 +74,7 @@ private struct NightCard: View {
     }
     .padding(.vertical, TollSpacing.statsCardVertical)
     .padding(.horizontal, TollSpacing.cardPadding)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
-    )
+    .tollSurface()
     .contentShape(Rectangle())
     .accessibilityElement(children: .combine)
   }
@@ -138,7 +136,7 @@ private struct NewBlockRow: View {
           Text(Copy.Blocks.new)
             .tollType(
               TollType(size: 16, lineHeight: 21, weight: .semibold, style: .callout),
-              limits.canAddBlock ? TollColor.accent : TollColor.label3)
+              limits.canAddBlock ? TollColor.accent : TollColor.label2)
           if !limits.canAddBlock {
             // Whichever limit is the one that's reached (#49).
             Text(

@@ -25,8 +25,7 @@ struct WeekDotsCard: View {
     .padding(.vertical, TollSpacing.statsCardVertical)
     .padding(.horizontal, TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
+    .tollSurface()
   }
 }
 
@@ -42,9 +41,7 @@ struct BestCard: View {
       Spacer(minLength: 0)
     }
     .padding(TollSpacing.cardPadding)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
-    )
+    .tollSurface()
     .accessibilityElement(children: .combine)
   }
 }
