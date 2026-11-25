@@ -154,6 +154,13 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 136 | Don't open Dusk for several nights while nights run, then open it | Every one of those nights appears in Your sleep and the sky | | |
 | 137 | Revoke Screen Time in iOS Settings while the night is locked, then open Dusk | Note whether the shield lifts and whether the schedules survive; Tonight says Screen Time is off | | |
 | 138 | Approve an Ask to Buy on the parent's phone while Dusk stays closed after the free nights | Note whether that night locks before Dusk is opened (#141) | | |
+| 139 | Wake after a locked night and open Tonight before noon | The hero says "Apps lock at …"; last night's card fades in above the strip; the hero doesn't move when it comes or goes | | |
+| 140 | Tap "OK" on the card, then relaunch | It fades out in 200 ms and doesn't come back that morning; the strip's start still opens it | | |
+| 141 | At 3 pm, tap last night at the strip's left edge | A popover with the same card and no Edit; at AX5 a sheet that scrolls | | |
+| 142 | Open Tonight after tonight's lock starts | No last-night stub on the strip and no card | | |
+| 143 | The next morning | A new card for the new night, though yesterday's was put away | | |
+| 144 | With Study on at 9 am | The card floats; the Study line stays under the state; offers wait | | |
+| 145 | VoiceOver on the card, then on the stub | "Last night", "Apps locked from … to …" with any open stretch, the taps, then "Last 7 nights" and each night; the stub reads "Last night, Apps locked from …" | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
