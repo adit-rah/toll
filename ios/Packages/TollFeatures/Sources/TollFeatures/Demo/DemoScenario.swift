@@ -57,10 +57,11 @@
     case sleepSky30 = "sleep-sky-30"
     case sleepSky100 = "sleep-sky-100"
     /// The empty sky; 30 nights in each light (evening, night, morning); the second pass at 180
-    /// nights; and Betelgeuse's night open in its popover.
+    /// nights; Betelgeuse's night open in its popover; and every name shown, as a tap shows them.
     case sleepSky0 = "sleep-sky-0"
     case sleepSky180 = "sleep-sky-180"
     case sleepSkyStar = "sleep-sky-star"
+    case sleepSkyNames = "sleep-sky-names"
     case sleepSkyEvening = "sleep-sky-evening"
     case sleepSkyNight = "sleep-sky-night"
     case sleepSkyMorning = "sleep-sky-morning"
@@ -280,7 +281,7 @@
         )
         .sheet(isPresented: $buying) { PurchaseSheet(model: app, home: home) }
       }
-      .environment(\.skyDemoStar, scenario.skyStar)
+      .environment(\.skyDemoFocus, scenario.skyFocus)
       .sheet(isPresented: .constant(scenario.presentsSheet)) {
         switch scenario {
         case .purchase: PurchaseSheet(model: app, home: home)

@@ -57,8 +57,14 @@
         || (skyNights != nil && ![.sleepSkyEvening, .sleepSkyNight].contains(self))
     }
 
-    /// The star whose night the sky opens on: Betelgeuse, Orion's shoulder.
-    var skyStar: Int? { self == .sleepSkyStar ? 19 : nil }
+    /// What the sky opens with: every name shown, or Betelgeuse's night (Orion's shoulder) open.
+    var skyFocus: SkyFocus? {
+      switch self {
+      case .sleepSkyNames: SkyFocus(everything: true)
+      case .sleepSkyStar: SkyFocus(star: 19)
+      default: nil
+      }
+    }
 
     var isGap: Bool { self == .homeGapWeek || self == .homeGapOffer }
 
@@ -80,8 +86,8 @@
       case .sleepSky5: 5
       case .sleepSky7: 7
       case .sleepSky0: 0
-      case .sleepSky30, .homeMorningLandmark, .sleepSkyStar, .sleepSkyEvening, .sleepSkyNight,
-        .sleepSkyMorning:
+      case .sleepSky30, .homeMorningLandmark, .sleepSkyStar, .sleepSkyNames, .sleepSkyEvening,
+        .sleepSkyNight, .sleepSkyMorning:
         30
       case .sleepSky100: 100
       case .sleepSky180: 180

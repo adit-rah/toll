@@ -6,8 +6,8 @@ import TollUI
 /// personal best when there is one (#103), then everything from the log on this phone.
 struct InsightsView: View {
   let sleep: YourSleep
-  /// Demo renders open on this star's night (docs/renders.md).
-  @Environment(\.skyDemoStar) private var initialStar
+  /// Demo renders open with the names shown or on a star's night (docs/renders.md).
+  @Environment(\.skyDemoFocus) private var initialFocus
   @State private var range = InsightsSnapshot.Range.month
   /// Whether the sky has scrolled up under the bar; the bar takes the page's colour then.
   @State private var skyGone = false
@@ -21,7 +21,7 @@ struct InsightsView: View {
       let sky = ((proxy.size.height + top + proxy.safeAreaInsets.bottom) * 0.45).rounded()
       ScrollView {
         VStack(alignment: .leading, spacing: 0) {
-          SkyHeader(sleep: sleep, height: sky, initialStar: initialStar)
+          SkyHeader(sleep: sleep, height: sky, initialFocus: initialFocus)
           VStack(alignment: .leading, spacing: 0) {
             SectionHeader(sleep.weekTitle).padding(.top, 28)
             WeekDotsCard(sleep: sleep).padding(.top, TollSpacing.headerToCard)

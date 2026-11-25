@@ -413,3 +413,23 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - Your sleep;
   - the landmark tile;
   - the 1080 × 1920 share poster: evening sky over dark land, moon, named figures, "N nights locked", the date and a small wordmark. It is still shared only on landmarks.
+
+**D89. Your sky's names, faint until asked** (2026-11-25, founder, in chat; #137 item 1; details of D88).
+- **Faint by default.** Names and figure lines stay faint (`line`, the dark `label3`), so the sky reads as a sky. Faint names are decorative chart labels and are the one exception to the 4.5:1 text rule. VoiceOver says every name, and a tap shows them legibly.
+- **A tap on the open sky** (not within 22 pt of a lit star) brightens every name to `nameBright` and every line to `lineBright`; another tap fades them. The change is a 200 ms crossfade (design §2.5).
+  - `nameBright` is the dark `label`, at least 4.5:1 in every light. The worst measured is 5.2:1 at a placed name, and 4.5:1 just above the land in the morning.
+  - `lineBright` is the dark `label2`.
+- **Tapping a star:** while that star's night is open, its figure's lines and name brighten the same way and the rest stay as they are. An incomplete figure has no name, so only its lit lines brighten. A line belongs to the figure that draws it.
+- **Nothing is kept.** The sky is faint again whenever Your sleep disappears or the app goes to the background. No timer, pulse or glow dims anything on its own.
+- **The empty sky** has nothing to brighten, so a tap does nothing.
+- **VoiceOver:** the sky stays one element. Its hint is "Double-tap to show the names." ("Double-tap to fade the names." once they're shown); double-tap does what a tap on the open sky does.
+- **Names never sit on the land.**
+- **The rule** is `SkyFocus` in TollCore, tested.
+
+**D90. Every flow is charted in `docs/flows/`** (2026-11-25, founder, in chat).
+- **One Mermaid chart per flow, as built.** Each screen names its render scenario, each state check appears in the code's order, and iOS's own UI is drawn apart, so a UX audit can pair a chart with its renders.
+- **`docs/flows/data.md`** lists every store Dusk keeps on the phone, with its format, version, writers and readers, and what a format change does to it.
+- **A PR that changes a flow updates its chart.** The README's table says which source folders each chart covers. There is no CI check.
+- **Found while charting:**
+  - An unreadable state file resets the person to Welcome, and the next wake overwrites it (`data.md`, risk 1). This and the other storage risks are fixed in #140, before any new stored field or enum case.
+  - Flow doubts are in #141.
