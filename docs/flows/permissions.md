@@ -31,7 +31,7 @@ The extensions can't read Screen Time's authorization or StoreKit; they log what
 flowchart TD
   stOff(["Screen Time off for Dusk, after setup"]) --> tonight["Tonight: Screen Time is off (the state) and the note:<br/>Screen Time is off for Dusk. Nothing can be blocked. Turn on<br/>render: home-screen-time-off"]
   stOff --> settingsRow["Settings: Screen Time · Off, Turn on<br/>render: none"]
-  stOff --> quiet(["No heads-up; no offers in the card slot;<br/>night records say screen_time_off; the morning card says so if it's back on by morning"])
+  stOff --> quiet(["No heads-up; no offers in the card slot;<br/>night records say screen_time_off; last night's card says so if it's back on by morning"])
   tonight -->|"Turn on"| request{{"iOS: Family Controls prompt"}}
   settingsRow -->|"Turn on"| request
   request -.->|"allowed"| back[("state.json: screenTimeAllowed; the next wake shields again")]

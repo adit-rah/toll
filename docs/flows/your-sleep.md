@@ -39,7 +39,7 @@ flowchart TD
   merge --> ranges["Over time: 7 days, 30 days, All time; hours locked;<br/>when you chose sleep, by hour, if any taps<br/>render: insights"]
   ranges -->|"segmented control"| ranges
 
-  tonightMorning["Tonight's morning card on a landmark: the completed shape,<br/>30 nights. Orion is in your sky., Share<br/>render: home-morning-landmark"]
+  tonightMorning["Last night's card on Tonight on a landmark: the completed shape,<br/>30 nights. Orion is in your sky., Share<br/>render: home-morning-landmark"]
   tonightMorning -->|"Share"| shareSheet
 
   classDef system stroke-dasharray: 5 3
@@ -52,5 +52,5 @@ Nothing about the sky is stored. It is worked out each time from the nights the 
 ## Doubts
 - **Nights reach the records only on foreground.** Until Dusk is opened, the log's nights fill in; if Dusk isn't opened for long enough that the log is trimmed past a night before it's recorded, that night's star never comes. See `data.md`, risk 3.
 - **Changing the catalogue's order, or the rule for a night that ran, redraws every person's sky** and moves which star belongs to which night (`YourSleep.starNight` is positional). Nothing records the order a person's stars were lit in.
-- **A landmark's Share lasts longer on Your sleep than on Tonight:** on Your sleep it stays while the newest star is new, until the next night starts (`Sky.isNew`); on Tonight it goes with the morning card at noon. Neither D79 nor D81 says which is meant.
+- **A landmark's Share on Tonight and on Your sleep both last until the next night starts:** Your sleep while the newest star is new (`Sky.isNew`), Tonight in last night's card, which floats until noon and then opens from the strip's start.
 - **The free nights' frozen dots** have no render.

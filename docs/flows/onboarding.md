@@ -54,7 +54,7 @@ flowchart TD
   inLock -->|"no"| evening["Tonight: Apps lock at, Anywhere · starts in …<br/>render: home-anywhere"]
   inLock -->|"yes"| locked["Tonight: Apps locked until<br/>render: none (home-blocked has home set)"]
   evening -.->|"lock time: the monitor wakes"| locked
-  locked -.->|"the night ends"| morningAfter["Tonight: the morning card, with the home card<br/>render: home-morning-card"]
+  locked -.->|"the night ends"| morningAfter["Tonight: last night's card; the home card once it is put away<br/>render: home-morning-card"]
   morningAfter --> later(["Offers after the first night: set-home.md, heads-up.md"])
 
   classDef system stroke-dasharray: 5 3
