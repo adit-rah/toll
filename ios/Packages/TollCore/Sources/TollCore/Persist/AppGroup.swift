@@ -47,7 +47,7 @@ public enum FileContents: Sendable, Equatable {
     self = .data(data)
   }
 
-  var data: Data? {
+  public var data: Data? {
     if case .data(let data) = self { data } else { nil }
   }
 }
