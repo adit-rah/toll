@@ -10,19 +10,12 @@ import TollUI
 /// whose last step it is.
 struct AroundStep: View {
   @Bindable var draft: FitDraft
-  let step: Int?
-  var steps = SetupModel.Step.questions
   var action = Copy.Setup.continue
   let next: () -> Void
   @State private var editing: Gap.Side?
 
-  init(
-    draft: FitDraft, step: Int?, steps: Int = SetupModel.Step.questions,
-    action: String = Copy.Setup.continue, next: @escaping () -> Void
-  ) {
+  init(draft: FitDraft, action: String = Copy.Setup.continue, next: @escaping () -> Void) {
     self.draft = draft
-    self.step = step
-    self.steps = steps
     self.action = action
     self.next = next
     #if DEBUG
@@ -32,9 +25,7 @@ struct AroundStep: View {
   }
 
   var body: some View {
-    SetupPage(
-      step: step, of: steps, title: Copy.Fit.aroundTitle, subtitle: Copy.Fit.aroundLine
-    ) {
+    SetupPage(title: Copy.Fit.aroundTitle, subtitle: Copy.Fit.aroundLine) {
       if let picture = NightPicture(
         .everyDay(draft.window), gap: draft.before.start, after: draft.after.start,
         now: Date(), calendar: .current)

@@ -12,7 +12,7 @@ struct HomeMapView: View {
 
   var body: some View {
     SetupPage(
-      step: SetHomeModel.mapStep, of: SetHomeModel.questions, title: Copy.Setup.homeTitle,
+      title: Copy.Setup.homeTitle,
       endsWithLink: blocked || model.offersAnywhere
     ) {
       map.padding(.top, 24)

@@ -10,7 +10,7 @@ struct ScreenTimeView: View {
 
   var body: some View {
     SetupPage(
-      step: SetupModel.Step.screenTime.number, title: Copy.Setup.screenTimeTitle,
+      title: Copy.Setup.screenTimeTitle,
       subtitle: Copy.Setup.screenTimeLine
     ) {
       ScreenTimePicture(state: model.app.screenTime)

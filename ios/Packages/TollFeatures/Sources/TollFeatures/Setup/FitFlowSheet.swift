@@ -28,7 +28,7 @@ struct FitFlowSheet: View {
   var body: some View {
     NavigationStack(path: $path) {
       FitChoice(
-        draft: draft, step: 1, steps: 3,
+        draft: draft,
         useHealth: {
           Task {
             draft.reading = true
@@ -52,15 +52,17 @@ struct FitFlowSheet: View {
       .navigationDestination(for: Step.self) { step in
         switch step {
         case .sleep:
-          SleepTimesStep(draft: draft, step: 2, steps: 3) { path.append(.around) }
+          SleepTimesStep(draft: draft) { path.append(.around) }
         case .around:
-          AroundStep(draft: draft, step: 3, steps: 3, action: Copy.Fit.save) {
+          AroundStep(draft: draft, action: Copy.Fit.save) {
             app.flow(Flows.fitSleep.id, .answered, fit: draft.fit)
             close()
           }
         }
       }
     }
+    // Cancel is wider than a back button: the bar keeps clear of it.
+    .setupProgress(step: path.count + 1, of: 3, inset: 72)
     .tint(TollColor.accent)
   }
 }

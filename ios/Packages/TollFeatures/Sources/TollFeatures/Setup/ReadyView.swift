@@ -13,7 +13,7 @@ struct ReadyView: View {
 
   var body: some View {
     SetupPage(
-      step: nil, title: line, eyebrow: Copy.Setup.readyEyebrow, eyebrowSymbol: .done
+      title: line, eyebrow: Copy.Setup.readyEyebrow, eyebrowSymbol: .done
     ) {
       let draft = model.draft
       if let night = NightPicture(

@@ -2,12 +2,11 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Every setup screen's frame (the canvas): the 44 pt bar with Apple's back button and the progress
-/// segments between it and the right edge, the title 28 pt under the bar, the content, and the
-/// actions pinned at the bottom. Screens set their own gaps; the boards differ by screen.
+/// Every setup screen's frame (the canvas): the 44 pt bar with Apple's back button, the title 28 pt
+/// under the bar, the content, and the actions pinned at the bottom. Screens set their own gaps;
+/// the boards differ by screen. The progress segments aren't the page's: the flow fixes them over
+/// its bar (`setupProgress`), so they stay still while pages slide.
 struct SetupPage<Content: View, Actions: View>: View {
-  let step: Int?
-  let steps: Int
   let title: String
   let eyebrow: String?
   let eyebrowSymbol: TollSymbol?
@@ -15,15 +14,12 @@ struct SetupPage<Content: View, Actions: View>: View {
   let endsWithLink: Bool
   let content: Content
   let actions: Actions
-  @State private var width: CGFloat = 390
 
   init(
-    step: Int?, of steps: Int = SetupModel.Step.questions, title: String, eyebrow: String? = nil,
+    title: String, eyebrow: String? = nil,
     eyebrowSymbol: TollSymbol? = nil, subtitle: String? = nil, endsWithLink: Bool = false,
     @ViewBuilder content: () -> Content, @ViewBuilder actions: () -> Actions
   ) {
-    self.step = step
-    self.steps = steps
     self.title = title
     self.eyebrow = eyebrow
     self.eyebrowSymbol = eyebrowSymbol
@@ -65,36 +61,12 @@ struct SetupPage<Content: View, Actions: View>: View {
     }
     .scrollBounceBehavior(.basedOnSize)
     .background(TollColor.bg)
-    .onGeometryChange(for: CGFloat.self) {
-      $0.size.width
-    } action: {
-      width = $0
-    }
     .tollBottomBar(endsWithLink: endsWithLink) {
       VStack(spacing: 0) { actions }
     }
     .navigationBarTitleDisplayMode(.inline)
     // Kept even when empty (Ready), so the title sits at one position on every screen.
     .toolbar(.visible, for: .navigationBar)
-    .toolbar {
-      if let step {
-        ToolbarItem(placement: .principal) {
-          ProgressSegments(
-            count: steps, current: step - 1,
-            accessibilityLabel: Copy.Setup.step(step, of: steps)
-          )
-          .frame(width: progressWidth)
-        }
-        .sharedBackgroundVisibility(.hidden)
-      }
-    }
-  }
-
-  /// The board's bar: 28 pt for the back button and 14 pt either side of the segments, mirrored on
-  /// the right so the segments sit centred.
-  private var progressWidth: CGFloat {
-    let gutter = TollSpacing.horizontalGutter(forWidth: width)
-    return max(120, width - 2 * (gutter + 28 + 14))
   }
 }
 

@@ -27,15 +27,16 @@ struct SetupFlowContent: View {
           switch step {
           case .fit: FitView(model: model)
           case .sleep:
-            SleepTimesStep(draft: model.draft, step: step.number) { model.go(.around) }
+            SleepTimesStep(draft: model.draft) { model.go(.around) }
           case .around:
-            AroundStep(draft: model.draft, step: step.number) { model.go(.screenTime) }
+            AroundStep(draft: model.draft) { model.go(.screenTime) }
           case .screenTime: ScreenTimeView(model: model)
           case .blocklist: BlocklistView(model: model)
           case .ready: ReadyView(model: model)
           }
         }
     }
+    .setupProgress(step: model.path.last?.number, of: SetupModel.Step.questions)
     .tint(TollColor.accent)
   }
 }

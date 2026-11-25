@@ -10,7 +10,7 @@ struct FitView: View {
 
   var body: some View {
     FitChoice(
-      draft: model.draft, step: SetupModel.Step.fit.number,
+      draft: model.draft,
       useHealth: { Task { await model.useHealth() } }, setMyself: model.setMyself)
   }
 }
@@ -18,14 +18,12 @@ struct FitView: View {
 /// The step itself, shared with the one-time flow's sheet.
 struct FitChoice: View {
   let draft: FitDraft
-  let step: Int?
-  var steps = SetupModel.Step.questions
   let useHealth: () -> Void
   let setMyself: () -> Void
 
   var body: some View {
     SetupPage(
-      step: step, of: steps, title: Copy.Fit.title, subtitle: Copy.Fit.line, endsWithLink: true
+      title: Copy.Fit.title, subtitle: Copy.Fit.line, endsWithLink: true
     ) {
       HealthPicture()
         .frame(maxWidth: .infinity)

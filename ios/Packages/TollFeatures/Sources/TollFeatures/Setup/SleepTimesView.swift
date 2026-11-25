@@ -7,12 +7,10 @@ import TollUI
 /// Fri and Sat nights get their own when they differ. Shared by onboarding and the one-time flow.
 struct SleepTimesStep: View {
   @Bindable var draft: FitDraft
-  let step: Int?
-  var steps = SetupModel.Step.questions
   let next: () -> Void
 
   var body: some View {
-    SetupPage(step: step, of: steps, title: title) {
+    SetupPage(title: title) {
       if let picture = NightPicture(.everyDay(draft.window), now: Date(), calendar: .current) {
         NightPictureView(picture: picture).padding(.top, 24)
       }
