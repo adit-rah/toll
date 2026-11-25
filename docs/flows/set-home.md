@@ -67,7 +67,7 @@ flowchart TD
 The night's editor reads the saved place back when the sheet closes (`BlockEditorModel.homeChanged`), so its own Save doesn't undo the sheet's change. Settings' row reads "On from 7:00 am" or "Off from 7:00 am" while a change is held (`DuskState.homeChangeAt`).
 
 ## When the card shows
-The home card is one of Tonight's offers ([tonight.md](tonight.md), the card slot): no warning showing, the free nights not over, nothing blocking, a night ended since setup, no gap card due this week, home not set and the card not put away.
+The home card is one of Tonight's offers ([tonight.md](tonight.md), Tonight's band): no problem showing, the free nights not over, nothing blocking, not in the hour before the lock, a night ended since setup, no gap card or flow due, home not set and the card not put away. Last night's row may sit under it in the morning.
 
 ## Doubts
 - **"Open Settings" on Choose Always saves home at once** and closes the sheet while the person is still in iOS Settings. That is the code (`AlwaysView` calls `openSystemSettings()` then `finish()`), and it means the result of the Settings visit is only seen as Tonight's location note or its absence.

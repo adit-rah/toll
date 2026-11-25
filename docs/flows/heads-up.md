@@ -8,7 +8,7 @@
 
 ```mermaid
 flowchart TD
-  firstNight(["A night has ended since setup"]) --> cardCheck{"No warning, free nights not over, nothing blocking,<br/>no gap card or home card first,<br/>iOS not asked, card not put away?"}
+  firstNight(["A night has ended since setup"]) --> cardCheck{"Tonight's band: no problem, free nights not over, nothing blocking,<br/>more than an hour before the lock, no gap card, flow or home card first,<br/>iOS not asked, card not put away?"}
   cardCheck -->|"yes"| card["Tonight: A heads-up before your night? with a bell and the time it would come<br/>render: home-heads-up"]
   cardCheck -->|"no"| noCard(["No card; Settings still has the switch"])
   card -->|"Not now"| putAway[("state.json: dismissedCards gets headsUp")]
@@ -42,4 +42,4 @@ flowchart TD
 ## Doubts
 - **A heads-up already handed to iOS still arrives** if Screen Time is switched off, the night's block is switched off by another route, or a refund lands while Dusk stays closed: the extensions can't schedule (D72's open point).
 - **A gap judged on Monday while Dusk stays closed** leaves that night's heads-up at last week's lock time (#127, D83's open point).
-- **The card's time** comes from `HeadsUp.nights(...).first`, which skips a night whose heads-up time has passed, so in the 20 minutes before a lock the card names tomorrow's.
+- **The card's time** comes from `HeadsUp.nights(...).first`, which skips a night whose heads-up time has passed. The card never shows in the hour before the lock (Tonight's band), so it names tonight's whenever it shows on a day with a night.
