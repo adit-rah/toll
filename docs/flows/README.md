@@ -6,14 +6,15 @@ Every user flow in Dusk, as built on `main`, drawn as a Mermaid flowchart. A UX 
 
 | Chart | What it covers | Decisions |
 |---|---|---|
-| [onboarding.md](onboarding.md) | First launch to the first locked night: Welcome, wake time, Screen Time, the apps, Ready | D68, D71, D76, D78, D82 |
+| [onboarding.md](onboarding.md) | First launch to the first locked night: Welcome, Fit Dusk to your sleep (Apple Health), your sleep, the time around it, Screen Time, the apps, Ready | D68, D71, D76, D78, D82, #144 |
+| [once-fit-sleep.md](once-fit-sleep.md) | One-time flow #1 for people set up before #144: Tonight's card and its sheet of sleep and both buffers | D86, D91, D92, #144 |
 | [set-home.md](set-home.md) | "Only when I'm home": the map, the location prompts, Always, and "Use anywhere" | D68, D71, D84 |
 | [heads-up.md](heads-up.md) | The heads-up before the night: Tonight's offer, iOS's prompt, Settings' switch | D68, D72 |
 | [before-bed.md](before-bed.md) | The gap before bed (Monday's card, the offer to older installs, Settings) and the helpers in the gap | D76, D80, D83, D85 |
 | [tonight.md](tonight.md) | Tonight through a day: what the state shows and when, the card slot's order, the strip | D69, D73, D75, D86 |
 | [pause.md](pause.md) | The pause: from Tonight or the block screen, the wait, the open pause, Lock again | D67, D70, D84 |
 | [purchase.md](purchase.md) | The free nights, their end, buying, Ask to Buy, restore, refunds | D33, D78, D82, D84 |
-| [settings.md](settings.md) | Settings and every sheet or screen it opens | D72, D83, D84, D85 |
+| [settings.md](settings.md) | Settings and every sheet or screen it opens, Settings › Sleep included | D72, D83, D84, D85, #144 |
 | [permissions.md](permissions.md) | Losing and getting back Screen Time, location and notifications | D8, D10, D37, D48, D72 |
 | [your-sleep.md](your-sleep.md) | Your sleep: the sky, a star's night, the week, the ranges, landmarks and sharing | D69, D79, D81, D84, D88 |
 | [blocks.md](blocks.md) | The Blocks tab and the block editor: new, edit, delete, the night's editor | D29, D45, D73, D84, D87 |
@@ -52,7 +53,8 @@ There is no CI check. A pull request that changes a flow updates its chart, and 
 
 | Source folder | Charts |
 |---|---|
-| `ios/Packages/TollFeatures/Sources/TollFeatures/Setup/` (`SetupFlow`, `SetupModel`, `WakeTimeView`, `ScreenTimeView`, `BlocklistView`, `ReadyView`, `NightPictureView`) | onboarding |
+| `ios/Packages/TollFeatures/Sources/TollFeatures/Setup/` (`SetupFlow`, `SetupModel`, `FitView`, `SleepTimesView`, `AroundView`, `ScreenTimeView`, `BlocklistView`, `ReadyView`, `NightPictureView`) | onboarding |
+| `…/TollFeatures/Setup/` (`FitDraft`, `FitFlowSheet`, `FitView`, `SleepTimesView`, `AroundView`) | onboarding, once-fit-sleep, settings |
 | `…/TollFeatures/Setup/` (`SetHomeFlow`, `SetHomeModel`, `HomeMapView`, `PermissionsView`) | set-home, permissions |
 | `…/TollFeatures/Home/` | tonight, pause, heads-up, before-bed, set-home |
 | `…/TollFeatures/BeforeBed/` | before-bed |
@@ -66,16 +68,17 @@ There is no CI check. A pull request that changes a flow updates its chart, and 
 | `ios/Packages/TollCore/Sources/TollCore/App/` (`HomeSnapshot`, `TonightCard`, `Morning`, `HeadsUp`, `GapRules`, `GapSnapshot`, `DoorRules`, `Engine*`) | tonight, pause, heads-up, before-bed, set-home, purchase |
 | `…/TollCore/App/` (`YourSleep`, `InsightsSnapshot`, `Sky*`, `PastNight`, `NightFacts`) | your-sleep, data |
 | `…/TollCore/Domain/` (`Trial`, `TrialStart`, `Door`, `Gap`) | purchase, pause, before-bed |
+| `…/TollCore/Domain/` (`SleepNights`, `SleepEstimate`), `…/TollCore/App/Fit.swift` | onboarding, once-fit-sleep |
 | `…/TollCore/Persist/`, `…/TollCore/App/DuskState.swift`, `…/TollCore/App/Flows.swift`, `…/TollCore/Domain/` (any `Codable` type) | data, and each `once-*` chart |
 | `ios/Packages/TollCore/Sources/TollScreenTime/`, `ios/Monitor/`, `ios/ShieldAction/`, `ios/ShieldConfig/` | pause, permissions, data |
-| `ios/Packages/TollData/` | purchase, set-home, heads-up, permissions, data |
+| `ios/Packages/TollData/` | purchase, set-home, heads-up, permissions, data; `Health/` onboarding, once-fit-sleep |
 | `ios/Packages/SleepModel/`, `datascience/export/` | data |
 
 When a flow is added, add its chart, a row in the first table and its folders in this one.
 
 ## One-time flows
 
-Some changes need the person: a build starts keeping something people already using Dusk have never been asked for (the onboarding redesign's sleep interval and buffers, say), and there's no server to fill it in for them. A one-time flow asks them once, in the app, at a calm moment. The registry is `Flows` in `TollCore/App/Flows.swift`; it has no flows yet (#140).
+Some changes need the person: a build starts keeping something people already using Dusk have never been asked for (the onboarding redesign's sleep interval and buffers, say), and there's no server to fill it in for them. A one-time flow asks them once, in the app, at a calm moment. The registry is `Flows` in `TollCore/App/Flows.swift`. It holds one flow: #1, `fit-sleep`, "Fit Dusk to your sleep" (#144, [once-fit-sleep.md](once-fit-sleep.md)).
 
 **Add a flow only when a person must decide.** If a safe value can be worked out from what's stored, a migration step does it (`docs/architecture.md`, "Data and its evolution") and nobody is asked.
 

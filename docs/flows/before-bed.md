@@ -1,8 +1,8 @@
-# Before bed: the gap and its helpers
+# Before sleep: the buffers and the helpers
 
-**What it's for:** the apps lock a little before bed, and that gap grows with the person, week by week, unless they fix it. During the gap Tonight offers three small helpers for the minutes until bed. This chart covers how the gap is set (a new install, the one offer to an install from before it, Monday's card, Settings) and the helpers.
+**What it's for:** the apps lock a little before sleep and, since #144, stay locked a little after waking. Each buffer grows with the person toward its own target, week by week, unless they fix it. During the buffer before sleep Tonight offers three small helpers for the minutes until sleep. This chart covers how the buffers are set (onboarding, the one offer to an install from before D76, Monday's card, Settings › Sleep) and the helpers. People set up before #144 are offered the buffer after by [once-fit-sleep.md](once-fit-sleep.md).
 
-**Implements:** D76, D77 and D83 (the gap, its weekly rule, Monday's card, the offer to older installs), D80 and D85 (the helpers, their card and capsule, Settings' switch), B-3 (a gap changed during the night waits until it ends; the helpers' switch applies at once).
+**Implements:** D76, D77 and D83 (the gap, its weekly rule, Monday's card, the offer to older installs), #144 (the buffer after waking, each side's target, the same rule on both sides, a pause counting against the side it was asked in), D80 and D85 (the helpers, their card and capsule, Settings' switch), B-3 (a buffer changed during the night waits until it ends; targets and the helpers' switch apply at once).
 
 **Code:** `TollCore/App/GapRules.swift`, `GapSnapshot.swift`, `Domain/Gap.swift`, `TonightCard` (`gapWeek`, `gapOffer`, `beforeBed`), `HomeSnapshot.untilBed`; `TollFeatures/App/AppModel+Gap.swift`, `AppModel+Helpers.swift`, `Settings/BeforeBedRow.swift`, `BeforeBed/HelpersSheet.swift`, `TollData/Audio/BreathTone.swift`.
 
@@ -10,32 +10,32 @@
 
 ```mermaid
 flowchart TD
-  newInstall(["Onboarding's Done"]) --> grows15[("state.json: gap 15 min, grows")]
+  newInstall(["Onboarding's Done"]) --> grows15[("state.json: gap and after growing from the starts chosen<br/>(15 and 10) to the targets chosen (60 and 30 unless suggested)")]
   olderInstall(["A state file from before the gap"]) --> existing[("state.json: gap 0, fixed, offered")]
   existing --> offerCheck{"Tonight's card slot free<br/>(see tonight.md)?"}
-  offerCheck -->|"yes"| offerCard["Tonight: Lock apps 15 min before bed? with the lock and wake times<br/>render: home-gap-offer"]
+  offerCheck -->|"yes, and no one-time flow ahead of it"| offerCard["Tonight: Lock apps 15 min before sleep? with the lock and wake times<br/>render: home-gap-offer"]
   offerCard -->|"Turn on"| setGap
   offerCard -->|"Not now"| offerGone[("state.json: offered off; the card never returns")]
 
-  monday(["The first wake on or after Monday noon:<br/>the app, the monitor or the block screen"]) --> judge{"Grows, and last week's tally says?"}
-  judge -->|"smooth week: +15, up to 60"| changed[("state.json: gap.change for this week")]
-  judge -->|"hard week, or Screen Time switched off: −15"| changed
+  monday(["The first wake on or after Monday noon:<br/>the app, the monitor or the block screen"]) --> judge{"Each side: grows, and last week's tally for that side says?"}
+  judge -->|"smooth week: a step (15 before, 10 after), up to its target"| changed[("state.json: gap.change or after.change for this week")]
+  judge -->|"hard week (2 pauses asked inside that buffer), or Screen Time switched off: a step down"| changed
   judge -->|"anything else, or a fixed gap"| hold(["No change; no card"])
   changed --> weekCard{"Still Monday's night (until Tuesday noon),<br/>nothing blocking, no warning, free nights not over?"}
-  weekCard -->|"yes"| gapWeek["Tonight: This week, apps lock 30 min before bed · Up from 15<br/>render: home-gap-week"]
+  weekCard -->|"yes"| gapWeek["Tonight: This week, apps lock 30 min before sleep · Up from 15<br/>(the side before sleep first; else This week, apps stay locked 20 min after you wake)<br/>render: home-gap-week"]
   gapWeek -->|"Keep 15 (only after a rise)"| setGap
-  gapWeek -->|"OK"| seen[("state.json: change seen")]
+  gapWeek -->|"OK"| seen[("state.json: both sides' changes seen")]
 
-  settings["Settings: Before bed row<br/>render: settings"]
-  settings -->|"tap"| sheet["Before bed sheet: Grows with you, or a fixed gap 0–90 min;<br/>the helpers' switch and the breath's length<br/>render: settings-before-bed"]
-  sheet -->|"swipe down"| unchanged(["Nothing changes"])
-  sheet -->|"Done"| setGap
-  sheet -->|"Done"| helpersNow[("state.json: helpers on or off, breath minutes; at once")]
+  settings["Settings: Sleep row<br/>render: settings"]
+  settings -->|"tap"| sheet["Settings › Sleep: the hours; each side Grows with you (tonight, grows to) or Fixed 0–90 / 0–60 min;<br/>the helpers' switch and the breath's length<br/>render: settings-sleep"]
+  sheet -->|"Back"| unchanged(["Nothing changes"])
+  sheet -->|"Save"| setGap
+  sheet -->|"Save"| helpersNow[("state.json: targets, helpers on or off, breath minutes; at once")]
 
   setGap{"The night's block on now?"}
   setGap -->|"no"| applyNow[("state.json: gap in force now")]
   setGap -->|"yes"| held[("state.json: gap.pending; applied when the night ends (B-3)")]
-  applyNow --> lockMoves["Tonight: Apps lock at … · N min before bed;<br/>the strip's lower step before the moon; heads-up moves<br/>render: home-evening"]
+  applyNow --> lockMoves["Tonight: Apps lock at … · N min before sleep;<br/>the strip's lower steps either side of the moon; heads-up moves<br/>render: home-evening"]
   held -.->|"the night ends: the monitor or the app reconciles"| applyNow
 ```
 
@@ -45,13 +45,13 @@ flowchart TD
 flowchart TD
   lock(["The lock starts: bed minus the gap"]) --> inGap{"The night locked, not paused, before bed,<br/>helpers on?"}
   inGap -->|"no"| plain["Tonight: Apps locked until …<br/>render: home-blocked"]
-  inGap -->|"yes"| capsule["Tonight: a grey Before bed capsule under the pauses<br/>render: home-before-bed"]
+  inGap -->|"yes"| capsule["Tonight: a grey Before sleep capsule under the pauses<br/>render: home-before-bed"]
   capsule --> cardCheck{"No warning, and the card not answered before?"}
   cardCheck -->|"yes"| card["Tonight: Something for the next N minutes?<br/>render: home-before-bed-card"]
   card -->|"Not now"| answered[("state.json: dismissedCards gets beforeBed")]
   card -->|"Show me"| answeredOpen[("state.json: dismissedCards gets beforeBed")]
   answeredOpen --> choices
-  capsule -->|"Before bed"| choices
+  capsule -->|"Before sleep"| choices
   choices["Pick one. Each ends with the phone down.<br/>render: before-bed"]
   choices -->|"Not now"| closed(["Sheet closes"])
   choices -->|"Write tomorrow's list"| listPage["The list, on paper<br/>render: before-bed-list"]

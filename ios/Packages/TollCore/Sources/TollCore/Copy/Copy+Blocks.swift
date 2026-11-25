@@ -43,7 +43,7 @@ extension Copy {
     public static let name = "Name"
     /// The night's block is the user's nights, never a block called "Sleep" (D68).
     public static let night = "Night"
-    public static let nightTitle = Setup.yourNights
+    public static let nightTitle = "Your nights"
     /// New block, before a kind is picked: the apps picker opens on the pick (#89).
     public static let kindLine = "Pick one, then choose its apps."
     public static let place = "Place"

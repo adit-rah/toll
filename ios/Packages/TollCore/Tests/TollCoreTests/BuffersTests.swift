@@ -9,6 +9,8 @@ import Testing
 struct BuffersTests {
   let config = TollConfig.defaults
 
+  func plain(_ text: String) -> String { text.replacingOccurrences(of: "\u{202F}", with: " ") }
+
   /// Asleep 11 pm to 7 am; 15 minutes before, growing to 60; 10 after, growing to 30.
   let fit = Fit(
     sleep: nil, before: .init(start: 15, target: 60), after: .init(start: 10, target: 30),
@@ -156,6 +158,20 @@ struct BuffersTests {
     #expect(state.gap.minutes == 30)
     #expect(state.after.minutes == 20)
     #expect(!state.health)
+  }
+
+  @Test func settingsSaysTheHoursAndBothSides() {
+    var state = installed()
+    #expect(plain(BeforeBed.sleepRow(state)) == "11 pm – 7 am · 15 min before · 10 min after")
+    let after = BeforeBed(state: state, side: .after)
+    #expect(after.grows)
+    #expect(after.target == 30)
+    #expect(plain(after.detail) == "Grows with you · now 10 min · next 20")
+    run(&state, date(2026, 11, 16, 23, 30))
+    #expect(
+      apply(.buffer(.after, .fixed(20), target: nil), &state, date(2026, 11, 16, 23, 30)) == nil)
+    #expect(plain(BeforeBed.sleepRow(state)) == "11 pm – 7 am · 15 min before · 20 min after")
+    #expect(BeforeBed(state: state, side: .after).held)
   }
 
   @Test func theHeadsUpComesBeforeTheLock() {

@@ -7,12 +7,9 @@ extension Copy {
     /// Under Tonight's "Apps lock at 10:15 pm".
     public static func beforeBed(_ minutes: Int) -> String { "\(minutes) min before sleep" }
     /// The strip's snippet: sleep inside the lock.
-    public static func bedAt(_ time: String) -> String { "Sleep from \(time)" }
     public static func sleepSpan(_ asleep: String, _ wake: String) -> String {
       "Sleep \(asleep) – \(wake)"
     }
-    /// The night's picture read out, after the night: "apps lock at 10:15 pm".
-    public static func locksAt(_ time: String) -> String { "apps lock at \(time)" }
 
     /// Monday's card: this week's number, and last week's when it grew. An ease says only the new
     /// number (D65).
@@ -35,8 +32,7 @@ extension Copy {
     }
     public static let turnOn = Home.turnOn
 
-    /// Settings › Before bed.
-    public static let row = "Before sleep"
+    /// Settings › Sleep, each side.
     public static let grows = "Grows with you"
     public static let fixed = "Fixed"
     public static func now(_ minutes: Int) -> String { "now \(minutes) min" }
@@ -51,20 +47,7 @@ extension Copy {
     }
     public static let fromTomorrow = "From tomorrow night"
 
-    /// The sheet Settings opens.
-    public static let sheetTitle = "Before sleep"
-    public static let sheetBody =
-      "Apps lock a little before sleep. Your night still ends when you get up."
-    public static func growsOption(step: Int, cap: Int) -> String {
-      "Up \(step) min after a week with few pauses, to \(cap). Down \(step) after a week with more."
-    }
-    /// "Grows to 60 min" under a growing buffer's row, the target a person may move.
-    public static func growsTo(_ target: Int) -> String { "Grows to \(target) min" }
     public static let fixedOption = "The same every night"
     public static let tonightStays = "Tonight stays as it is. This applies from tomorrow night."
-    public static let done = "Done"
-
-    /// Ready: the gap a new night starts with, under "15 min before sleep".
-    public static func readyDetail(cap: Int) -> String { "Grows with you, up to \(cap) min" }
   }
 }
