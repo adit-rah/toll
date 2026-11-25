@@ -45,6 +45,7 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `sleep-monday` · `sleep-best` | Your sleep at 8:10 am on the latest Monday ("A new week") and Sunday (a personal best) (#103) |
 | `sleep-sky-5` · `sleep-sky-7` · `sleep-sky-30` · `sleep-sky-100` · `home-morning-landmark` · `sky-share` | Your sky (D79) at 8:10 am after 5, 7, 30 and 100 nights, and Tonight's morning card on the 30th, a landmark; `sky-share`: the picture a landmark shares |
 | `door-choosing` · `door-waiting` · `door-open` · `door-none` | The pause sheet (D67) over a blocked Tonight |
+| `sleep-sky-0` · `sleep-sky-180` · `sleep-sky-star` · `sleep-sky-evening` · `sleep-sky-night` · `sleep-sky-morning` | Your sky: empty (no nights yet); the second pass at 180 nights; Betelgeuse's night open in its popover (30 nights, 8:10 am); and 30 nights in each light by the demo clock: evening 7:55 pm, night 11:40 pm, morning 8:10 am |
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):
 ```

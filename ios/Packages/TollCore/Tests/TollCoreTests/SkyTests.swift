@@ -89,12 +89,33 @@ struct SkyTests {
     #expect(!old.fadesIn(seen: 0))
   }
 
+  /// One element for VoiceOver, naming the completed shapes; the empty sky says its one line.
   @Test func spoken() {
     #expect(
-      Sky(nights: 23, newestIsNew: false).spoken == "Your sky. 23 nights locked. 3 constellations.")
+      Sky(nights: 23, newestIsNew: false).spoken
+        == "Your sky. 23 nights locked. 3 constellations: the Big Dipper, Cassiopeia, the Little "
+        + "Dipper.")
     #expect(
-      Sky(nights: 7, newestIsNew: false).spoken == "Your sky. 7 nights locked. 1 constellation.")
+      Sky(nights: 7, newestIsNew: false).spoken
+        == "Your sky. 7 nights locked. 1 constellation: the Big Dipper.")
     #expect(Sky(nights: 1, newestIsNew: false).spoken == "Your sky. 1 night locked.")
+    #expect(
+      Sky(nights: 0, newestIsNew: false).spoken
+        == "Your sky. Your first star comes with your first locked night.")
+  }
+
+  /// Only a completed figure is named, beside its own stars, as a chart sets it.
+  @Test func namesOnlyCompleteFigures() throws {
+    #expect(Sky(nights: 6, newestIsNew: false).drawing.names.isEmpty)
+    let thirty = Sky(nights: 30, newestIsNew: false).drawing
+    #expect(
+      thirty.names.map(\.constellation) == [.bigDipper, .cassiopeia, .littleDipper, .orion])
+    let dipper = try #require(thirty.names.first)
+    #expect(dipper.text == "Big Dipper")
+    let stars = thirty.stars.prefix(7)
+    #expect(dipper.top == stars.map(\.y).min() && dipper.bottom == stars.map(\.y).max())
+    #expect(dipper.x > stars.map(\.x).min() ?? 0 && dipper.x < stars.map(\.x).max() ?? 1)
+    #expect(Sky(nights: 150, newestIsNew: false).drawing.names.count == 23)
   }
 
   /// The table: contiguous figures, lines that only reach back, every star inside the sky.

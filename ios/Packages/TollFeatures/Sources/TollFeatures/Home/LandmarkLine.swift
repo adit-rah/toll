@@ -15,12 +15,19 @@ struct LandmarkLine: View {
       ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
       : AnyLayout(HStackLayout(spacing: TollSpacing.rowGap))
     layout {
-      SkyCanvas(drawing: landmark.shape, keepsAspect: false)
-        .frame(
-          width: typeSize.isAccessibilitySize ? nil : min(tile, 84),
-          height: typeSize.isAccessibilitySize ? 120 : min(tile, 84)
-        )
-        .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : nil)
+      // The same renderer as Your sleep and the shared picture, in the picture's dusk light.
+      SkyScene(
+        drawing: landmark.shape, light: .evening,
+        field: EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8), names: false,
+        atmosphere: typeSize.isAccessibilitySize
+      )
+      .clipShape(RoundedRectangle(cornerRadius: TollRadius.field, style: .continuous))
+      .accessibilityHidden(true)
+      .frame(
+        width: typeSize.isAccessibilitySize ? nil : min(tile, 84),
+        height: typeSize.isAccessibilitySize ? 120 : min(tile, 84)
+      )
+      .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : nil)
       HStack(spacing: 8) {
         Text(landmark.line)
           .tollType(.rowTitle, TollColor.label)

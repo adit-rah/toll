@@ -11,7 +11,7 @@
       let calendar = Calendar.current
       let night =
         scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario == .homeAway
-        || scenario.isDoor || scenario == .homePauseOpen
+        || scenario.isDoor || scenario == .homePauseOpen || scenario == .sleepSkyNight
       // In the gap before bed: the lock came on at 10 pm, half an hour before bed (D80).
       if scenario.inGap {
         return calendar.date(bySettingHour: 22, minute: 15, second: 0, of: today) ?? today
@@ -32,13 +32,30 @@
     }
   }
 
+  extension DemoClock {
+    /// The 30th night's poster, with last night's moon and date as the phone would make it.
+    static func poster(now: Date = Date()) -> Sky.Landmark? {
+      let calendar = Calendar.current
+      var landmark = Sky(
+        nights: 30, newestIsNew: true,
+        moon: .lastNight(before: now, calendar: calendar, southern: false)
+      ).landmark
+      landmark?.date = Copy.Sky.date(
+        calendar.date(byAdding: .day, value: -1, to: now) ?? now, calendar: calendar)
+      return landmark
+    }
+  }
+
   extension DemoScenario {
     /// Scenarios set the morning after a night: Tonight's morning card and Your sleep's weeks.
     var isMorning: Bool {
       [.homeMorning, .homeMorningGap, .homeMorningAway, .homeMorningCard, .sleepMonday, .sleepBest]
         .contains(self)
-        || skyNights != nil
+        || (skyNights != nil && ![.sleepSkyEvening, .sleepSkyNight].contains(self))
     }
+
+    /// The star whose night the sky opens on: Betelgeuse, Orion's shoulder.
+    var skyStar: Int? { self == .sleepSkyStar ? 19 : nil }
 
     var isGap: Bool { self == .homeGapWeek || self == .homeGapOffer }
 
@@ -59,8 +76,12 @@
       switch self {
       case .sleepSky5: 5
       case .sleepSky7: 7
-      case .sleepSky30, .homeMorningLandmark: 30
+      case .sleepSky0: 0
+      case .sleepSky30, .homeMorningLandmark, .sleepSkyStar, .sleepSkyEvening, .sleepSkyNight,
+        .sleepSkyMorning:
+        30
       case .sleepSky100: 100
+      case .sleepSky180: 180
       default: nil
       }
     }

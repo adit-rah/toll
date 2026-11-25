@@ -397,3 +397,19 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **A passing line goes below what stays:** the map's "Finding where you are" sits under the privacy line.
 - **Welcome scrolls at accessibility sizes,** with its button pinned (design §2.1).
 - **Not changed** (#135): after buying, the outcome's button sits on the standard line, 46 pt below "Keep it"; the map's button lifts 28 pt when location is denied and "Not now" appears. Standard list rows expanding in Settings, and the system sheet's own motion, are out of scope.
+
+**D88. Your sky, seen through** (2026-11-25, founder, in chat; details of D79 and D81; replaces D81's "The card" and "The newest star").
+- **Full bleed:** Your sleep opens onto the sky, edge to edge under the status bar, filling 45% of the screen at every text size. "Your sleep" and last night's moon sit on it; "N nights locked" sits on the land just under it. The land is a fixed, abstract hill in the page's `bg`, with a fainter ridge behind. The sky is the same night in both appearances; only the land follows light or dark. Its bar is see-through over the sky and takes the page's colour once the sky has scrolled away.
+- **Light:** one of three fixed palettes, chosen by the phone's hour when the screen opens: evening from 4 pm, night from 9 pm, morning from 5 am (`TollConfig.sky`). Evening has a low amber glow behind the hills, night almost none, morning a cool blue-grey. Nothing moves between them. The colours are `SkyColor` tokens (design).
+- **Atmosphere:** a fixed, seeded dust and a soft Milky Way. They are not catalogue stars; unlit stars are still never drawn, so the sky never shows what's left.
+- **True details:**
+  - Stars are sized by magnitude and tinted subtly (38%) by their real B–V colour, from BSC5, added for all 150.
+  - Last night's moon phase comes from the mean synodic month, worked out on the phone, and is lit on the correct side for the night's place (north by default).
+  - A completed figure's name sits in small capitals beside it, and is left off where it would cover another name or a star (#137 for contrast).
+- **Every star is a night:** a tap within 22 pt of a lit star opens a system popover with that night's date and "Locked 10:15 pm – 7:00 am"; past 150 stars, it shows the latest night for that star. VoiceOver keeps the sky as one element and names the completed constellations: "Your sky. 30 nights locked. 4 constellations: the Big Dipper, Cassiopeia, the Little Dipper, Orion."
+- **Empty sky:** dust, Milky Way, moon and land, with "Your first star comes with your first locked night."
+- **The newest star** brightens over 450 ms, then its lines draw from the star they join over 450 ms, once. With Reduce Motion it is a 200 ms crossfade (design §2.5).
+- **One renderer** (`SkyScene`) draws:
+  - Your sleep;
+  - the landmark tile;
+  - the 1080 × 1920 share poster: evening sky over dark land, moon, named figures, "N nights locked", the date and a small wordmark. It is still shared only on landmarks.

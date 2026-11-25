@@ -136,7 +136,7 @@ public struct HomeSnapshot: Equatable, Sendable {
         let ran = NightsRan.keys(
           state: state, log: log, history: history, now: now, calendar: calendar)
         morning?.landmark =
-          NightsRan.sky(ran, sleep: sleep, now: now, calendar: calendar, config: config).landmark
+          NightsRan.sky(ran, state: state, now: now, calendar: calendar, config: config).landmark
       }
     }
     timeline = day.segments.isEmpty ? nil : day

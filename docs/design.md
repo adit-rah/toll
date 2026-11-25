@@ -66,7 +66,23 @@ The canvas's tokens (sticky note s4), dark first (decisions D36). Light mode is 
 | `ok` | `#86C9A9` | `#2E7D5B` | A number going the right way |
 | `warn` · `warnSoft` | `#EE9E74` · @ 12% | `#B4542C` · @ 12% | Over a limit; deleting |
 
-Your sky (D79) is a night in both appearances: drawn with the dark tokens on dark `bg`, stars in `label`, lines in `label3`, the newest star in `accent` with a faint glow of it.
+Your sky (D79) is the same night in both appearances; only the land under it follows light or dark. Your sleep opens onto it: full bleed under the status bar, about the top 45% of the screen at every text size, "Your sleep" set on it in the dark `label`, and "N nights locked" with its moon on the land just under it. Its colours are `SkyColor` (`TollUI/Tokens/SkyColors.swift`):
+
+| Token | Value | Use |
+|---|---|---|
+| `palette(.evening)` | `#05070F` → `#0C1030` → `#1F1D47` → `#3A2B4E`, glow dark `accent` @ 42% | Opened from 4 pm: dusk, the app's name |
+| `palette(.night)` | `#04060D` → `#0A0E26` → `#141A3B`, glow `#2A3366` @ 35% | Opened from 9 pm: almost no glow |
+| `palette(.morning)` | `#070A18` → `#131B3D` → `#2C3A5E` → `#4A5A7A`, glow `#B4C2D6` @ 45% | Opened from 5 am: cool, pale blue-grey |
+| `star` · `line` · `newest` · `text` | dark `label` · dark `label3` · dark `accent` · dark `label` | Lit stars before their B–V tint · figure lines and names · the newest star · words on the sky |
+| `dust` · `moon` | `#DDE3F0` at 7–35% · `#F1EEE4` | The fixed dust and the Milky Way · the moon, its earthshine at 10% |
+
+- **Light:** three fixed palettes by the hour the screen opens (`TollConfig.sky`), with nothing moving between them. A vertical gradient, near-black blue at the top through deep indigo, and a low elliptical glow from the horizon's middle.
+- **Land:** a low, gentle hill line in the page's own `bg`, with a fainter ridge (`bg` at 32%) behind it. Abstract: no houses, trees or home.
+- **Atmosphere:** a fixed, seeded dust of tiny faint points (`SkyDust`), about half of them gathered along a soft diagonal Milky Way, which is two blurred strokes. None of it is a catalogue star; unlit stars are never drawn.
+- **Stars:** lit stars only, sized by magnitude with a soft radial halo and tinted subtly by their real B–V (`StarColour`, 38% over `star`, so warm stars stay apart from the newest star's amber). Lines are thin `line`, stopping 3 pt short of each disc. A completed figure's name sits beside it in small spaced capitals in `line`, under or over the figure, wherever it covers no other name or star; where neither side is clear it is left off, as a chart declutters (VoiceOver names every one). Incomplete figures have none. A tap within 22 pt of a lit star opens its night in a system popover.
+- **Moon:** last night's real phase in the upper right, lit on the correct side for the night's place, the rest in a faint earthshine, with a halo that grows with the lit fraction.
+- **The newest star** is `newest` with a stronger halo until the next night starts.
+- **One renderer** (`SkyScene`) draws Your sleep, the landmark tile and the shared 1080 × 1920 poster (the evening light over dark land, the moon, named figures, "30 nights locked", the date small and a small wordmark).
 
 All text ≥ 4.5:1 in both; Increase Contrast pushes the accent further. Appearance: Dark (default) · Light · Match iPhone, in Settings.
 
@@ -91,13 +107,15 @@ Motion explains where things came from and where they went. It never celebrates,
 | Countdown | `contentTransition(.numericText(countsDown: true))` each second; the colon never blinks. |
 | Regret line expires | Fades out 200 ms; nothing else moves. |
 | A card or note arrives or leaves (Tonight, the block editor) | Fades 200 ms in place; nothing else moves. |
-| Your sky's newest star (D79) | Crossfades in 200 ms, with its lines, once: the first time Your sleep opens after the night that lit it. Nothing twinkles or loops; a landmark line arrives with the morning card. |
+| Your sky's newest star (D79), the first time Your sleep shows it | The star brightens from nothing over 450 ms (`firstAppearance`); then each line it adds draws from the star it joins over 450 ms, a trimmed path. Once. Reduce Motion: the star and its lines crossfade in 200 ms. Nothing twinkles, pulses or loops; a landmark line arrives with the morning card. |
+| Your sky: a star's night opens or closes | System popover (a system sheet at accessibility sizes), as Tonight's strip. |
+| Your sleep's bar as the sky scrolls under it | None: it takes the page's colour at once. |
 | Settings | System list and pushes. |
 | Block screen (system) | None of ours; Apple animates the shield. |
 
 Haptics: `.light` when the door's wait starts and when it ends; `.warning` before something that cannot be undone; `.selection` on picker changes. Nothing else.
 
-Never: confetti, pulsing, looping, parallax, rings that fill, typewriter text, shimmer, or any motion on the block screen.
+Never: confetti, pulsing, looping, twinkling, parallax, rings that fill, typewriter text, shimmer, or any motion on the block screen.
 
 ### 2.6 Iconography
 

@@ -9,6 +9,8 @@ public struct Sky: Equatable, Sendable {
     public var x: Double
     public var y: Double
     public var magnitude: Double
+    /// Its real B–V colour index, for a subtle tint (`StarColour`).
+    public var bv: Double
     /// Once every star is lit, nights light them again in the same order, each pass a little
     /// brighter, so the sky keeps adding after the table runs out.
     public var times: Int
@@ -28,12 +30,26 @@ public struct Sky: Equatable, Sendable {
     public var height: Double
   }
 
-  /// What a view draws: lit stars, the lines between lit stars, the newest star while it's new.
+  /// A completed constellation's name, set beside it as a chart sets it: centred on the figure,
+  /// under its lowest star (`bottom`) or over its highest (`top`). `above` says which side is
+  /// clearer of other lit stars; a view takes the other side when the first would cover a name.
+  public struct Name: Equatable, Sendable {
+    public var constellation: Constellation
+    public var text: String
+    public var x: Double
+    public var top: Double
+    public var bottom: Double
+    public var above: Bool
+  }
+
+  /// What a view draws: lit stars, the lines between lit stars, the newest star while it's new, and
+  /// the names of completed figures. Incomplete figures get no name.
   public struct Drawing: Equatable, Sendable {
     public var stars: [Star]
     public var lines: [Line]
     public var newest: Int?
     public var bounds: Bounds
+    public var names: [Name] = []
   }
 
   /// A landmark morning (7, 30, 100 and 365 nights): one quiet line, the newly completed shape and
@@ -46,36 +62,51 @@ public struct Sky: Equatable, Sendable {
     public var shape: Drawing
     /// The whole sky, for the shared picture.
     public var sky: Drawing
-    /// "30 nights", under the sky in the shared picture.
+    /// "30 nights locked", under the sky in the shared picture.
     public var number: String
+    /// Last night's moon, in the shared picture too.
+    public var moon: Moon?
+    /// The poster's small date: the night the landmark was reached ("24 November 2026").
+    public var date: String?
   }
 
   public var nights: Int
   public var drawing: Drawing
   public var constellations: Int
   public var landmark: Landmark?
-  /// "Your sky. 23 nights. 3 constellations."
+  /// "Your sky. 23 nights locked. 3 constellations: the Big Dipper, Cassiopeia, the Little Dipper."
   public var spoken: String
+  /// Last night's moon, as it really was; nil only where no date was given (tests).
+  public var moon: Moon?
+  /// The glow at the horizon, by the phone's hour when the screen opened.
+  public var light: SkyLight
 
   /// `newestIsNew`: last night's star is still new, until the next night starts.
-  public init(nights: Int, newestIsNew: Bool, config: TollConfig = .defaults) {
+  public init(
+    nights: Int, newestIsNew: Bool, moon: Moon? = nil, light: SkyLight = .night,
+    config: TollConfig = .defaults
+  ) {
+    self.moon = moon
+    self.light = light
     let table = SkyCatalogue.stars
     let nights = max(0, nights)
     self.nights = nights
     let lit = min(nights, table.count)
     let stars = table.prefix(lit).enumerated().map { index, star in
       Star(
-        x: star.x, y: star.y, magnitude: star.magnitude,
+        x: star.x, y: star.y, magnitude: star.magnitude, bv: star.bv,
         times: (nights - 1 - index) / table.count + 1)
     }
     let lines = SkyCatalogue.figures.flatMap(\.lines)
       .filter { $0.0 < lit && $0.1 < lit }
       .map { Line(from: $0.0, to: $0.1) }
     let newest = newestIsNew && nights > 0 ? (nights - 1) % table.count : nil
-    drawing = Drawing(stars: stars, lines: lines, newest: newest, bounds: Self.frame(stars))
     let completed = SkyCatalogue.figures.filter { $0.stars.upperBound <= lit }
+    drawing = Drawing(
+      stars: stars, lines: lines, newest: newest, bounds: Self.frame(stars),
+      names: completed.map { Self.name($0, stars: stars) })
     constellations = completed.count
-    spoken = Copy.Sky.spoken(nights: nights, constellations: constellations)
+    spoken = Copy.Sky.spoken(nights: nights, completed: completed.map(\.constellation))
 
     landmark = nil
     guard let newest, config.sky.landmarks.contains(nights) else { return }
@@ -84,7 +115,7 @@ public struct Sky: Equatable, Sendable {
       nights: nights,
       line: Copy.Sky.landmark(nights, completed: figure?.constellation),
       shape: figure.map { Self.shape($0, stars: stars, newest: newest) } ?? drawing, sky: drawing,
-      number: Copy.Sky.number(nights))
+      number: Copy.Sky.number(nights), moon: moon)
   }
 
   /// Whether the newest star fades in (design §2.5): the first time the sky is seen after the
@@ -115,6 +146,32 @@ public struct Sky: Equatable, Sendable {
     let x = min(max(0, (minX + maxX - width) / 2), 1 - width)
     let y = min(max(0, (minY + maxY - height) / 2), aspect - height)
     return Bounds(x: x, y: y, width: width, height: height)
+  }
+
+  /// A figure's name goes under it unless more of the other lit stars crowd that side; a chart's
+  /// convention, not a rule of the sky.
+  static func name(_ figure: SkyFigure, stars: [Star]) -> Name {
+    let own = Set(figure.stars).union(figure.lines.flatMap { [$0.0, $0.1] })
+    let picked = own.filter { $0 < stars.count }.map { stars[$0] }
+    let xs = picked.map(\.x)
+    let ys = picked.map(\.y)
+    let x = ((xs.min() ?? 0) + (xs.max() ?? 0)) / 2
+    let text = Copy.Sky.chartName(figure.constellation)
+    // About how much sky the name covers at the whole sky's scale: 11 pt letters on 390 pt.
+    let half = Double(text.count) * 0.0085
+    func crowd(_ y: Double, _ above: Bool) -> Int {
+      let top = above ? y - 0.05 : y
+      return stars.indices.filter { index in
+        !own.contains(index) && abs(stars[index].x - x) < half + 0.01
+          && (top...(top + 0.05)).contains(stars[index].y)
+      }.count
+    }
+    let below = ys.max() ?? 0
+    let over = ys.min() ?? 0
+    let above = crowd(over, true) < crowd(below, false)
+    return Name(
+      constellation: figure.constellation, text: text, x: x, top: over, bottom: below,
+      above: above)
   }
 
   /// One figure alone, framed around its own stars with a little room.
@@ -164,13 +221,19 @@ enum NightsRan {
     return now < next
   }
 
-  /// The sky for these nights, as of `now`.
+  /// The sky for these nights, as of `now`: last night's moon as seen from the night's place
+  /// (north unless it's south of the equator), and the glow of the hour.
   static func sky(
-    _ ran: Set<Date>, sleep: Block?, now: Date, calendar: Calendar, config: TollConfig
+    _ ran: Set<Date>, state: DuskState, now: Date, calendar: Calendar, config: TollConfig
   ) -> Sky {
-    Sky(
+    let sleep = state.sleepBlock
+    let southern = (state.place(sleep?.place)?.latitude ?? 0) < 0
+    var sky = Sky(
       nights: ran.count,
       newestIsNew: ran.max().map { isNew($0, sleep: sleep, now: now, calendar: calendar) } ?? false,
-      config: config)
+      moon: Moon.lastNight(before: now, calendar: calendar, southern: southern),
+      light: SkyLight(at: now, calendar: calendar, config: config), config: config)
+    if let night = ran.max() { sky.landmark?.date = Copy.Sky.date(night, calendar: calendar) }
+    return sky
   }
 }
