@@ -83,17 +83,24 @@ struct LastNightBand: View {
   }
 
   /// "☾ Last night  🔒 Locked 8 h 45 m" on one line when it fits, else the status under the title,
-  /// wrapping rather than truncating. Open, the status fades and keeps its room, so the header
-  /// doesn't reflow; the card's own sentence says the rest.
+  /// wrapping rather than truncating. Open, a status on the title's line fades and keeps its room,
+  /// so the header doesn't reflow; the card's own sentence says the rest.
   private var summary: some View {
     ViewThatFits(in: .horizontal) {
       HStack(alignment: .firstTextBaseline, spacing: 10) {
         title
         status.fixedSize().shown(!open, reduceMotion: reduceMotion)
       }
+      // On lines of its own the status would leave the open header with lines of empty room, so
+      // here it goes, and the header's height changes with the card's.
       VStack(alignment: .leading, spacing: 4) {
         title
-        status.shown(!open, reduceMotion: reduceMotion)
+        if !open {
+          status.transition(
+            .asymmetric(
+              insertion: .opacity.animation(reduceMotion ? Motion.stateChange : Motion.contentIn),
+              removal: .opacity.animation(Motion.contentOut)))
+        }
       }
     }
   }
