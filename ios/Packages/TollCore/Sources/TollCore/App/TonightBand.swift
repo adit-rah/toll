@@ -81,24 +81,27 @@ public struct TonightBand: Equatable, Sendable {
 
   public init(_ facts: Facts, now: Date, calendar: Calendar, config: TollConfig = .defaults) {
     let night = Self.nightOwns(facts, now: now, config: config)
-    // A calm time: no night, nothing locked, and not the hour before the lock.
-    let calm = !night && !facts.blocking && facts.entitled
-    let card: Item? =
-      if facts.screenTimeOff { .screenTimeOff } else if facts.readOnly {
-        .readOnly
-      } else if facts.recovered { .recovered } else if facts.location {
-        .location
-      } else if facts.entitled, facts.nightOn, facts.beforeBed {
-        .card(.beforeBed)
-      } else if facts.entitled, facts.gapWeek, !facts.blocking, facts.nightEnded {
-        .card(.gapWeek)
-      } else if calm, let flow = facts.flow {
-        .flow(flow)
-      } else if calm, facts.nightEnded, let setup = facts.setup { .card(setup) } else { nil }
+    let card = Self.card(facts, calm: !night && !facts.blocking && facts.entitled)
     let noon = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: now)
     let review =
       facts.lastNight && !facts.lastNightPutAway && !night && noon.map { now < $0 } == true
     items = [card, review ? .lastNight : nil].compactMap { $0 }
+  }
+
+  /// The one card, by kind. A calm time has no night, nothing locked, and isn't the hour before
+  /// the lock.
+  static func card(_ facts: Facts, calm: Bool) -> Item? {
+    if facts.screenTimeOff { return .screenTimeOff }
+    if facts.readOnly { return .readOnly }
+    if facts.recovered { return .recovered }
+    if facts.location { return .location }
+    guard facts.entitled else { return nil }
+    if facts.nightOn, facts.beforeBed { return .card(.beforeBed) }
+    if facts.gapWeek, !facts.blocking, facts.nightEnded { return .card(.gapWeek) }
+    guard calm else { return nil }
+    if let flow = facts.flow { return .flow(flow) }
+    if facts.nightEnded, let setup = facts.setup { return .card(setup) }
+    return nil
   }
 
   /// From `band.nightMinutes` before the lock until the night ends, the band belongs to the night:

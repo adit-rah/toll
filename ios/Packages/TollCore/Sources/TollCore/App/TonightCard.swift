@@ -62,12 +62,16 @@ extension HomeSnapshot {
     if let change = state.gap.change, !change.seen, change.week == nightKey(now, calendar) {
       facts.gapWeek = true
     }
-    facts.setup =
-      if !state.homeIsSet, !state.dismissed(.home) {
-        .home
-      } else if notifications == .notAsked, !state.dismissed(.headsUp) {
-        .headsUp
-      } else if state.gap.offered, state.gap.minutes == 0 { .gapOffer } else { nil }
+    facts.setup = setupOffer(state, notifications: notifications)
     return facts
+  }
+
+  /// Home, then the heads-up, then the gap offer: one offer at a time (D72).
+  static func setupOffer(_ state: DuskState, notifications: NotificationPermission) -> TonightCard?
+  {
+    if !state.homeIsSet, !state.dismissed(.home) { return .home }
+    if notifications == .notAsked, !state.dismissed(.headsUp) { return .headsUp }
+    if state.gap.offered, state.gap.minutes == 0 { return .gapOffer }
+    return nil
   }
 }
