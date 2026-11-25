@@ -32,7 +32,8 @@ struct LastNightBand: View {
     }
     .padding(.horizontal, TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(TollColor.surface, in: shape)
+    // The one surface, its hairline with it, sized by the layout's animated height.
+    .tollSurface(shape)
     .clipShape(shape)
   }
 

@@ -11,6 +11,7 @@ public struct RootView: View {
 
   public init(model: AppModel) {
     self.model = model
+    TollChrome.apply()
   }
 
   public var body: some View {
