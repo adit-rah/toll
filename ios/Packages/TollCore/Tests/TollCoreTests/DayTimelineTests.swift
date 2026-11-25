@@ -207,7 +207,8 @@ struct DayTimelineTests {
       Copy.Strip.laterToday, Copy.Strip.tomorrow, Copy.Strip.ended, Copy.Strip.whenHome,
       Copy.Strip.whenThere, Copy.Strip.edit, Copy.Strip.hint, Copy.Home.locksAt,
       Copy.Home.blockedUntil, Copy.Home.pausedUntil, Copy.Home.nightEndsAt, Copy.Home.isOff,
-      Copy.Morning.lockedLastNight, Copy.Home.nightsLabel(4), Copy.Insights.hoursLabel,
+      Copy.Morning.locked(from: "10:15 pm", to: "7:00 am"), Copy.Morning.lastNight,
+      Copy.Home.nightsLabel(4), Copy.Insights.hoursLabel,
     ]
     for line in lines {
       #expect(!line.lowercased().contains("phone-free"), "\(line)")

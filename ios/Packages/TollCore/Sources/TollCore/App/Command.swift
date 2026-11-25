@@ -18,6 +18,8 @@ public enum Command: Sendable {
   case useAnywhere
   /// A Tonight card the user put away (#102); it doesn't come back.
   case dismissCard(TonightCard)
+  /// Last night's card put away for this morning, by the night's key; the strip still opens it.
+  case putAwayLastNight(Date)
   /// Settings' heads-up switch (D68).
   case headsUp(Bool)
   /// Settings › Before bed, or the card that offers the gap (D76); held while the night is on (B-3).

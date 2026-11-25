@@ -38,6 +38,9 @@ public struct DuskState: Codable, Hashable, Sendable {
   /// Tonight cards the user dismissed (#102), by raw value: a kind a later build adds must not stop
   /// this file loading.
   public var dismissedCards: Set<String> = []
+  /// The night whose card was put away (its noon-to-noon key): it floats again the next morning,
+  /// and the strip opens it meanwhile.
+  public var lastNightSeen: Date?
   /// The heads-up before each night, as the user last set it in Settings (D68); iOS's permission
   /// decides separately whether it can arrive.
   public var headsUp = true

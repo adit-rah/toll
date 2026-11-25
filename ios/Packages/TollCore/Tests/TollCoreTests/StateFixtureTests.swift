@@ -11,6 +11,7 @@ struct StateFixtureTests {
   static let past = [
     "v1", "v2-01-blocks", "v2-02-door-app", "v2-03-screen-time", "v2-04-only-at-place",
     "v2-05-pause", "v2-06-cards", "v2-07-heads-up", "v2-08-gap", "v2-09-helpers",
+    "v2-10-last-night",
   ]
   /// The current format; a new schema adds its own and moves this one into `past`.
   static let newest = "v3"
@@ -61,6 +62,7 @@ struct StateFixtureTests {
       #expect(!state.gap.offered)
     }
     if name >= "v2-09" { #expect(state.helpers.breathMinutes == 5) }
+    if name >= "v2-10" { #expect(state.lastNightSeen == date(2026, 11, 16, 0)) }
     let again = try DuskStore.encoder.encode(state)
     #expect(DuskStore.decode(again) == state)
   }
@@ -121,6 +123,7 @@ struct StateFixtureTests {
     state.gap.tally = Gap.Tally(week: date(2026, 11, 16, 0))
     state.gap.tally.nights = [date(2026, 11, 16, 0)]
     state.helpers.breathMinutes = 5
+    state.lastNightSeen = date(2026, 11, 16, 0)
     state.flows["example"] = FlowRecord(
       version: 1, outcome: .notNow, at: date(2026, 11, 17, 10), notNow: 1)
     state.writtenBy = "0.9.0 (42)"

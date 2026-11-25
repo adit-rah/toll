@@ -9,7 +9,7 @@ extension DuskState {
   enum CodingKeys: String, CodingKey {
     case schema, minReader, writtenBy, blocks, places, presence, location, pending, pendingPlaces
     case door, doorAskedAt, unlocks, trial, setupFinishedAt, runtime, screenTimeAllowed
-    case dismissedCards, headsUp, gap, helpers, flows
+    case dismissedCards, lastNightSeen, headsUp, gap, helpers, flows
   }
 
   public init(from decoder: Decoder) throws {
@@ -32,6 +32,7 @@ extension DuskState {
     runtime = c.lossy(.runtime, or: RuntimeState())
     screenTimeAllowed = c.lossy(.screenTimeAllowed)
     dismissedCards = c.lossySet(.dismissedCards)
+    lastNightSeen = c.lossy(.lastNightSeen)
     headsUp = c.lossy(.headsUp, or: true)
     gap = c.lossy(.gap, or: Gap())
     helpers = c.lossy(.helpers, or: Helpers())

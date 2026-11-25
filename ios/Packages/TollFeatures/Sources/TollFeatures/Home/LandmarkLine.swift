@@ -2,7 +2,7 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// A landmark morning on the morning card (D79): the shape last night's star completed, one quiet
+/// A landmark night on last night's card (D79): the shape last night's star completed, one quiet
 /// line, and the share glyph. It arrives with the card and leaves with it; no motion of its own.
 struct LandmarkLine: View {
   let landmark: Sky.Landmark

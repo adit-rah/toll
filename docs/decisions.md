@@ -433,3 +433,20 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Found while charting:**
   - An unreadable state file resets the person to Welcome, and the next wake overwrites it (`data.md`, risk 1). This and the other storage risks are fixed in #140, before any new stored field or enum case.
   - Flow doubts are in #141.
+
+**D91. Last night's card is for review, not the hero** (2026-11-25, founder, in chat; amends D69, D75 and D86).
+- **Tonight's hero shows the coming night all day** ("Apps lock at …"), so Tonight keeps one look.
+- **When last night is kept:** from its end until the next lock starts, when the night ran, was away, or had Screen Time off.
+- **Each morning until noon,** last night floats as Tonight's card in D86's band:
+  - It comes after the Screen Time and location notes and before the offers.
+  - It shows even while another block is on.
+  - A quiet "OK" puts it away for that night only.
+- **All day,** last night sits at the strip's start as a faint amber stub with its moon. A tap opens the same card in the strip's popover, a sheet at accessibility sizes.
+- **The card says what each part is:**
+  - "Last night";
+  - "Apps locked from 10:15 pm to 7:00 am", over a moon → sun bar;
+  - "Apps open from … to …" where the bar breaks;
+  - "You chose sleep over a locked app N times";
+  - "Last 7 nights" (or "Your first 7 nights") over the dots, which are the seven nights up to last night;
+  - on landmark mornings, the landmark and Share inside it.
+- **Removed:** D75's "Tonight 10:30 pm" over the strip (the hero says it), and D69's "replaces the starts-at hero".

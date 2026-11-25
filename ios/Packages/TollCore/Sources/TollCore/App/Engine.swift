@@ -61,6 +61,8 @@ public enum Engine {
       case .gapOffer: state.gap.offered = false
       default: state.dismissedCards.insert(card.rawValue)
       }
+    case .putAwayLastNight(let night):
+      state.lastNightSeen = night
     case .gap(let setting):
       GapRules.set(setting, &state, now: now, calendar: calendar, config: config)
     case .keepGap:
