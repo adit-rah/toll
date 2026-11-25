@@ -183,7 +183,7 @@ struct BeforeBedTests {
     let morning = date(2026, 11, 18, 8)
     let a = HomeSnapshot(state: state, log: plain, now: morning, calendar: london)
     let b = HomeSnapshot(state: state, log: helped, now: morning, calendar: london)
-    #expect(a.morning == b.morning && a.bars == b.bars)
+    #expect(a.lastNight == b.lastNight && a.bars == b.bars)
     let sleepA = YourSleep(state: state, log: plain, history: [], now: morning, calendar: london)
     let sleepB = YourSleep(state: state, log: helped, history: [], now: morning, calendar: london)
     #expect(sleepA == sleepB)

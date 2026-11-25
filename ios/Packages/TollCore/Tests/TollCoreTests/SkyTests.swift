@@ -177,12 +177,12 @@ struct SkyTests {
       HomeSnapshot(
         state: state, log: nights([17]), now: date(2026, 11, 18, 9), calendar: london,
         history: history
-      ).morning)
+      ).lastNight)
     #expect(morning.landmark?.nights == 7)
     let sixth = HomeSnapshot(
       state: state, log: nights([17]), now: date(2026, 11, 18, 9), calendar: london,
       history: Array(history.dropFirst()))
-    #expect(sixth.morning != nil)
-    #expect(sixth.morning?.landmark == nil)
+    #expect(sixth.lastNight != nil)
+    #expect(sixth.lastNight?.landmark == nil)
   }
 }

@@ -49,8 +49,12 @@ public struct DayTimeline: Equatable, Sendable {
     public var bed: Double?
     /// "Bed at 10:30 pm", for the snippet.
     public var bedText: String?
+    /// Last night, where it ended at the strip's start: its snippet is last night's card.
+    public var lastNight: Morning?
 
     public var isNight: Bool { kind == .sleep }
+    /// What a demo opens and an identifier names: the block, or "lastNight".
+    public var key: String { lastNight == nil ? block.raw : "lastNight" }
 
     public var phase: Phase {
       switch state {
@@ -64,7 +68,8 @@ public struct DayTimeline: Equatable, Sendable {
     /// The snippet in one line, for VoiceOver: "Your night, 10:30 pm – 7:00 am, 4 apps, Home,
     /// Tonight".
     public var spoken: String {
-      ([title, hours] + [bedText].compactMap { $0 } + [apps, place, stateText])
+      if let lastNight { return [title, lastNight.spoken].joined(separator: ", ") }
+      return ([title, hours] + [bedText].compactMap { $0 } + [apps, place, stateText])
         .joined(separator: ", ")
     }
   }
@@ -84,8 +89,6 @@ public struct DayTimeline: Equatable, Sendable {
   public var nowLabel: String
   /// Every six hours on the clock (12 am, 6 am, 12 pm, 6 pm), none hard against an edge.
   public var hours: [Hour]
-  /// Over the strip's end, where the night is: "Tonight 10:30 pm" under the morning card (HomeSnapshot).
-  public var label: String?
 
   /// `blocking` is false when nothing can block: the free week over, or Screen Time off (#45).
   public init(state: DuskState, now: Date, calendar: Calendar, blocking: Bool = true) {
@@ -112,6 +115,18 @@ public struct DayTimeline: Equatable, Sendable {
     }
     self.segments = segments.sorted { $0.start < $1.start }
     hours = Self.hours(from: start, to: end, calendar: calendar, fraction: fraction)
+  }
+
+  /// Last night where it ended, at the strip's start: a tap opens its card for review until the
+  /// next night starts (HomeSnapshot).
+  mutating func add(lastNight: Morning, sleep: BlockID) {
+    let at = min(
+      1, max(0, lastNight.ended.timeIntervalSince(start) / max(1, end.timeIntervalSince(start))))
+    let segment = Segment(
+      id: "lastNight", block: sleep, kind: .sleep, start: at, end: at, state: .ended,
+      title: Copy.Morning.lastNight, hours: "\(lastNight.from) – \(lastNight.to)", apps: "",
+      place: "", placeKind: .anywhere, stateText: Copy.Strip.ended, lastNight: lastNight)
+    segments = ([segment] + segments).sorted { $0.start < $1.start }
   }
 
   /// The day the strip covers. While a night is on, or the next one ends within a day, it ends at

@@ -46,7 +46,6 @@ struct HomeSnapshotTests {
     #expect(home.eyebrow == "Night ends at")
     // The hero says away; the pill neither repeats it nor sells at night (D33).
     #expect(home.pill == nil)
-    #expect(home.timeline?.label == nil)
     #expect(home.timeline?.segments.first?.stateText == "Apps lock when you're home")
   }
 

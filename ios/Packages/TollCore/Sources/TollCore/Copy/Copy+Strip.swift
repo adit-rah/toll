@@ -21,7 +21,5 @@ extension Copy {
     /// What a tap on the strip does, for VoiceOver.
     public static let hint = "Shows its hours, apps and place"
     public static func now(_ time: String) -> String { "Now, \(time)" }
-    /// Over the night on the strip while the morning card shows last night.
-    public static func tonightAt(_ time: String) -> String { "Tonight \(time)" }
   }
 }
