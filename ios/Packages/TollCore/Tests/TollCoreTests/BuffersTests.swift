@@ -127,6 +127,25 @@ struct BuffersTests {
     #expect(GapRules.changed(state) == nil)
   }
 
+  @Test func mondaysCardNamesBothSidesWhenBothGrew() throws {
+    var state = installed()
+    nights(&state, from: 16, count: 5)
+    let monday = date(2026, 11, 23, 12)
+    run(&state, monday)
+    #expect(GapRules.changes(state) == [.before, .after])
+    let card = try #require(
+      GapCard(.gapWeek, state: state, now: monday, calendar: london, config: config))
+    #expect(
+      card.title
+        == "This week, apps lock 30 min before sleep and stay locked 25 min after you wake")
+    #expect(card.detail == "Up from 15 and 10")
+    #expect(card.action == "Keep last week's")
+    #expect(apply(.keepGap, &state, date(2026, 11, 23, 14)) == nil)
+    #expect(state.gap.minutes == 15)
+    #expect(state.after.minutes == 10)
+    #expect(GapRules.changes(state).isEmpty)
+  }
+
   @Test func settingsChangesOneSideAndItsTarget() {
     var state = installed()
     #expect(

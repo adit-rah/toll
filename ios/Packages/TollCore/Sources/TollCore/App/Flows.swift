@@ -68,6 +68,12 @@ public enum Flows {
     _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig = .defaults,
     registry: [OneTimeFlow] = registry
   ) -> OneTimeFlow? {
+    // "One a day" is one flow a day: the one offered today stays offered all day, until it's
+    // answered or put off, and no other flow joins it.
+    if let today = registry.first(where: { shownToday($0, state, now: now, calendar: calendar) }) {
+      let calm = calm(state, now: now, calendar: calendar, config: config, besides: today.id)
+      return calm && today.applies(state) ? today : nil
+    }
     guard calm(state, now: now, calendar: calendar, config: config) else { return nil }
     return registry.first { flow in
       guard flow.applies(state) else { return false }
@@ -79,7 +85,8 @@ public enum Flows {
   /// Never during a night (its gap included) or a pause, nor in the last minutes before the lock,
   /// nor before setup is done; and not twice on one day.
   public static func calm(
-    _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig = .defaults
+    _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig = .defaults,
+    besides id: String? = nil
   ) -> Bool {
     guard state.setupFinishedAt != nil, !state.isBlocking, state.door == nil,
       state.doorAskedAt == nil, let lock = state.lockSleep
@@ -91,7 +98,18 @@ public enum Flows {
     {
       return false
     }
-    return !state.flows.values.contains { calendar.isDate($0.at, inSameDayAs: now) }
+    return !state.flows.contains { key, record in
+      key != id && calendar.isDate(record.at, inSameDayAs: now)
+    }
+  }
+
+  /// On screen today and not answered or put off yet, at this version.
+  static func shownToday(
+    _ flow: OneTimeFlow, _ state: DuskState, now: Date, calendar: Calendar
+  ) -> Bool {
+    guard let record = state.flows[flow.id] else { return false }
+    return record.version == flow.version && record.outcome == .shown
+      && calendar.isDate(record.at, inSameDayAs: now)
   }
 
   /// Records how a flow went; "Not now" on its last offer puts it off for good, and the commands

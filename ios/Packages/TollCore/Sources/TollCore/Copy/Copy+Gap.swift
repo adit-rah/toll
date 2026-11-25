@@ -19,8 +19,16 @@ extension Copy {
     public static func afterWeekCard(_ minutes: Int) -> String {
       "This week, apps stay locked \(minutes) min after you wake"
     }
+    /// Both sides changed the same Monday: one line names both, so neither goes unsaid.
+    public static func bothWeekCard(before: Int, after: Int) -> String {
+      "This week, apps lock \(before) min before sleep and stay locked \(after) min after you wake"
+    }
     public static func upFrom(_ minutes: Int) -> String { "Up from \(minutes)" }
+    public static func upFromBoth(_ before: Int, _ after: Int) -> String {
+      "Up from \(before) and \(after)"
+    }
     public static func keep(_ minutes: Int) -> String { "Keep \(minutes)" }
+    public static let keepBoth = "Keep last week's"
     public static let okay = "OK"
 
     /// The one card for an install from before D76.

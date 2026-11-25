@@ -13,14 +13,18 @@ flowchart TD
   migrate[("state.json read at schema 3 or older: step 3 → 4<br/>gap.target 60, after = 0 fixed and offered, health false")] --> fg(["Dusk comes to the foreground"])
   fg --> applies{"Flows.fitSleep.applies:<br/>set up, after.offered?"}
   applies -->|"no"| none(["No card; Tonight as usual"])
-  applies -->|"yes"| calm{"Flows.calm: after setup; no night, gap or buffer on;<br/>no pause; not in the 20 min before the lock;<br/>no flow recorded today"}
+  applies -->|"yes"| shownToday{"Flows.shownToday: this flow shown today,<br/>not answered or put off?"}
+  shownToday -->|"yes: it stays offered all day"| calmToday{"Flows.calm, besides its own record:<br/>no night, buffer or pause; not in the 20 min before the lock"}
+  calmToday -->|"yes"| slot
+  calmToday -->|"no"| none
+  shownToday -->|"no"| calm{"Flows.calm: after setup; no night, gap or buffer on;<br/>no pause; not in the 20 min before the lock;<br/>no flow recorded today (one flow a day)"}
   calm -->|"no"| none
   calm -->|"yes"| done{"state.flows['fit-sleep'] answered or defaulted at version 1?"}
   done -->|"yes"| none
   done -->|"no: AppModel.dueFlow = fit-sleep"| slot{"Tonight's band, in order: Screen Time off, read-only, recovered, location,<br/>last night's card (until noon), then this, then the offers"}
   slot -->|"an earlier note holds it"| none
   slot -->|"the hero says Apps lock at"| card["Card: moon · Fit Dusk to your sleep · Start › · Not now<br/>render: home-fit-card"]
-  card -.->|"appears"| shown[("flows['fit-sleep'] = shown, today")]
+  card -.->|"appears"| shown[("flows['fit-sleep'] = shown, today: offered again at every foreground today")]
   card -->|"Not now"| notNow{"Third Not now? (flows.offers = 3)"}
   notNow -->|"no"| recNotNow[("flows['fit-sleep'] = notNow, notNow + 1")]
   notNow -->|"yes"| defaulted[("flows['fit-sleep'] = defaulted;<br/>defaults: .buffer(after, fixed 0): offered false, nothing else changes")]
@@ -43,6 +47,6 @@ flowchart TD
 **The defaults** leave the person's night exactly as it was: sleep is the hours they set, the buffer before is their gap (still growing or fixed, with D76's 60 as the target), and there is no buffer after. After the third "Not now" the flow never shows again; Settings › Sleep still offers everything it did.
 
 ## Doubts
-- **A shown card goes at the next foreground that day.** `Flows.calm` allows one flow record a day, and showing the card records `shown`, so reopening Dusk the same afternoon hides it until tomorrow. That's #140's rule as built ("it comes back on a later day"); it may read as the card vanishing.
+- **One flow a day, offered all day** (fixed in this branch): `Flows.due` keeps a flow shown today offered at every calm foreground that day, until it is answered or put off; `calm` still lets no second flow start that day (`FlowTests.theFlowOfferedTodayStaysAllDay`).
 - **The gap offer and this flow overlap** for a person from before D76: both are about the buffer before sleep. The flow comes first in the band; answering it sets the gap and clears the offer, and putting it off for good leaves the offer for later.
 - **No render shows Health found inside the sheet.** The onboarding renders (`setup-sleep-found`, `setup-sleep-weekends`) show the same screen.

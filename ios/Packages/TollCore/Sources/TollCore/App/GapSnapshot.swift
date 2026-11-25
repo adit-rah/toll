@@ -77,10 +77,23 @@ public struct GapCard: Equatable, Sendable {
   init?(_ card: TonightCard, state: DuskState, now: Date, calendar: Calendar, config: TollConfig) {
     switch card {
     case .gapWeek:
-      guard let side = GapRules.changed(state), let change = state[side].change else { return nil }
-      title = side == .before ? Copy.Gap.weekCard(change.to) : Copy.Gap.afterWeekCard(change.to)
-      detail = change.grew ? Copy.Gap.upFrom(change.from) : nil
-      action = change.grew ? Copy.Gap.keep(change.from) : nil
+      let changes = GapRules.changes(state).compactMap { side in
+        state[side].change.map { (side, $0) }
+      }
+      guard let (side, change) = changes.first else { return nil }
+      let grew = changes.filter { $0.1.grew }.map(\.1)
+      if changes.count > 1, let after = changes.last?.1 {
+        title = Copy.Gap.bothWeekCard(before: change.to, after: after.to)
+      } else {
+        title = side == .before ? Copy.Gap.weekCard(change.to) : Copy.Gap.afterWeekCard(change.to)
+      }
+      // An ease says only the new numbers (D65); a rise says what it was, and offers it back.
+      switch grew.count {
+      case 0: (detail, action) = (nil, nil)
+      case 1: (detail, action) = (Copy.Gap.upFrom(grew[0].from), Copy.Gap.keep(grew[0].from))
+      default:
+        (detail, action) = (Copy.Gap.upFromBoth(grew[0].from, grew[1].from), Copy.Gap.keepBoth)
+      }
       dismiss = Copy.Gap.okay
     case .gapOffer:
       guard

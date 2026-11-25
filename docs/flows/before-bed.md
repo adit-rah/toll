@@ -22,7 +22,7 @@ flowchart TD
   judge -->|"hard week (2 pauses asked inside that buffer), or Screen Time switched off: a step down"| changed
   judge -->|"anything else, or a fixed gap"| hold(["No change; no card"])
   changed --> weekCard{"Still Monday's night (until Tuesday noon),<br/>nothing blocking, no warning, free nights not over?"}
-  weekCard -->|"yes"| gapWeek["Tonight: This week, apps lock 30 min before sleep · Up from 15<br/>(the side before sleep first; else This week, apps stay locked 20 min after you wake)<br/>render: home-gap-week"]
+  weekCard -->|"yes"| gapWeek["Tonight: This week, apps lock 30 min before sleep · Up from 15<br/>(when both sides changed, one line names both: … before sleep and stay locked 30 min after you wake · Up from 30 and 15 · Keep last week's)<br/>render: home-gap-week"]
   gapWeek -->|"Keep 15 (only after a rise)"| setGap
   gapWeek -->|"OK"| seen[("state.json: both sides' changes seen")]
 

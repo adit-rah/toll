@@ -81,15 +81,23 @@ enum GapRules {
   /// Monday's card's "Keep 15": last week's buffer, still growing. The card names the side that
   /// changed, the buffer before sleep first; answering it answers both.
   static func keep(_ state: inout DuskState, now: Date, calendar: Calendar, config: TollConfig) {
-    guard let side = changed(state) else { return }
-    guard let change = state[side].change else { return }
+    let sides = changes(state)
     seen(&state)
-    set(side, .grows(change.from), &state, now: now, calendar: calendar, config: config)
+    for side in sides {
+      guard let change = state[side].change, change.grew else { continue }
+      set(side, .grows(change.from), &state, now: now, calendar: calendar, config: config)
+    }
   }
 
-  /// The side Monday's card is about: an unseen change, before sleep first.
-  static func changed(_ state: DuskState) -> Gap.Side? {
-    Gap.Side.allCases.first { state[$0].change.map { !$0.seen } ?? false }
+  /// The side Monday's card leads with: an unseen change, before sleep first.
+  static func changed(_ state: DuskState) -> Gap.Side? { changes(state).first }
+
+  /// Every side whose change Monday's card is about: unseen, from the same Monday. When both
+  /// changed, the card names both, so neither goes unsaid.
+  static func changes(_ state: DuskState) -> [Gap.Side] {
+    let unseen = Gap.Side.allCases.filter { state[$0].change.map { !$0.seen } ?? false }
+    guard let week = unseen.first.flatMap({ state[$0].change?.week }) else { return [] }
+    return unseen.filter { state[$0].change?.week == week }
   }
 
   static func seen(_ state: inout DuskState) {
