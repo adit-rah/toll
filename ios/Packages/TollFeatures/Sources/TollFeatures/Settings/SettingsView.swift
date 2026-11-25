@@ -59,7 +59,6 @@ struct SettingsView: View {
             SettingsRow(Copy.Settings.appearance, minHeight: 50) {
               AppearancePicker(selection: $appearance)
             }
-            if appearance != .dark { EveningRow(config: model.config) }
             freeNights
             // An action, not a place: no chevron. Gone once bought, except to say it worked.
             if !model.state.trial.purchased || restored {

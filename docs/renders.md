@@ -73,6 +73,3 @@ Variants: `light`, `dark`, `ax5` (largest Dynamic Type), `dark-ax5`, and `wordle
 
 ## Last night on the strip
 `home-strip-last-night`: Tonight at 8:10 am with last night's card already put away, and the strip's popover open on last night at its start. It is not in `ALL`; dispatch it by name.
-
-## Dark in the evening
-`home-evening-dark`: Tonight at 7:55 pm with Light chosen and "Dark in the evening" on, so it is dark in every variant. `settings-light`: Settings with Light chosen, showing the switch under the picker. Neither is in `ALL`; dispatch them by name.

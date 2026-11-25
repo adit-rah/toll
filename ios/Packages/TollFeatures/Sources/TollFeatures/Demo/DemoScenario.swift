@@ -22,8 +22,6 @@
     /// The map with home already set: "Use anywhere" under it (the audit).
     case setHomeSet = "set-home-set"
     case homeEvening = "home-evening"
-    /// The same evening with Light chosen and "Dark in the evening" on: dark at 7:55 pm.
-    case homeEveningDark = "home-evening-dark"
     case homeBlocked = "home-blocked"
     case homeAway = "home-away"
     case homeFirstWeek = "home-first-week"
@@ -102,8 +100,6 @@
     case settingsHeadsUpDenied = "settings-heads-up-denied"
     /// Home set, location While Using: the Location row leaves for iOS Settings (the audit).
     case settingsWhileUsing = "settings-while-using"
-    /// Settings with Light chosen: "Dark in the evening" under the appearance picker.
-    case settingsLight = "settings-light"
     case purchasePending = "purchase-pending"
     case purchaseFailed = "purchase-failed"
     case purchaseRestoreNone = "purchase-restore-none"
@@ -215,7 +211,7 @@
     var routes: [HomeRoute] {
       switch self {
       case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing,
-        .settingsBeforeBed, .settingsLight:
+        .settingsBeforeBed:
         [.settings]
       case .blockNew, .blockNewGym: [.block(nil)]
       case .blockEdit, .blockEditOn: [.block(BlockID("study"))]
