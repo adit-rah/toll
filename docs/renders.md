@@ -75,3 +75,19 @@ Variants: `light`, `dark`, `ax5` (largest Dynamic Type), `dark-ax5`, and `wordle
 
 ## Last night on the strip
 `home-strip-last-night`: Tonight at 8:10 am with last night's card already put away, and the strip's popover open on last night at its start. It is not in `ALL`; dispatch it by name.
+
+## Motion
+A still can't show a pop or a stutter, so a scenario line can also be filmed. Mark it `motion`:
+```
+motion home-morning: tap --id tonight.lastNight
+motion home-morning: tap -x 200 -y 645; wait 1.2; tap -x 200 -y 380
+```
+- **What the runner does.** It opens the scenario and waits for it to settle as for a still, starts `xcrun simctl io <udid> recordVideo --codec=h264`, runs the steps back to back (no settling between them, so two quick taps stay quick; `wait <seconds>` is a step), waits 1.5 s, and stops the recording with SIGINT so the file is finalised. Then it takes the usual screenshot and tree.
+- **What comes back,** beside `screen.png`: `motion.mp4`, and `motion.txt`, each step's start in seconds from the recording's start. `fetch-renders.sh` lists the videos after the index. A motion line runs in every variant asked for, so dispatch motion lines with one variant.
+- **Taps by position are faster** than `--id` or `--label`, which look the element up first (about half a second). To retarget something mid-animation, tap by position; take positions from the scenario's `ui.json` (points, not pixels). Hit testing follows where things are going, not where they are drawn, so the second tap goes where the element will be.
+- **Reading it, in a Linux session:** `ios/scripts/motion-strip.sh build/renders/light/<line>/motion.mp4`. It needs ffmpeg and python3 with Pillow, and writes beside the video, in `strip/`:
+  - `frames/`: every frame at 60 fps, from 100 ms before the interaction to 400 ms after the strip.
+  - `strip.png`: every 2nd frame for 600 ms (`SPAN`) after the interaction, each with its time, and a bar per frame of how much it changed from the one before.
+  - `change.txt`: per frame, the time from the interaction, the mean absolute difference from the frame before (0–255) and a flag: `pop` (one frame carries far more change than its neighbours: a jump), `dead` (a still frame between moving ones: a dropped frame), `restart` (the screen stood still 50 ms or more, then moved again: two animations where one was meant).
+  - The interaction is the first frame that changes after the first step in `motion.txt`; `AT=<seconds>` sets it. `CROP=w:h:x:y` (video pixels, 3× points on the render device) looks closer at one part, which also makes small changes count.
+- **What it can't judge.** The simulator writes a frame only when the screen changes and runs well below the phone's 120 Hz, so judge the curve and continuity, not smoothness or frame rate; a `dead` frame on the runner is not a dropped frame on a phone. Haptics and Reduce Motion are checked on a device (`docs/device-protocol.md`).

@@ -1,6 +1,7 @@
 #!/bin/bash
 # Fetches the renders the render workflow pushed for a branch into a folder, waiting until they are of
-# the commit asked for (docs/renders.md). Needs only git: no Mac, no GitHub API.
+# the commit asked for (docs/renders.md). Needs only git: no Mac, no GitHub API. Motion lines come
+# back as motion.mp4 and motion.txt beside their screen.png; ios/scripts/motion-strip.sh reads them.
 #
 #   ios/scripts/fetch-renders.sh [out-dir]   default out-dir: build/renders
 #   BRANCH  the branch that was rendered (default: the current one)
@@ -31,3 +32,4 @@ rm -rf "$OUT" && mkdir -p "$OUT"
 git -C "$ROOT" archive FETCH_HEAD | tar -x -C "$OUT"
 echo "$(git -C "$ROOT" log -1 --format=%s FETCH_HEAD) → $OUT" >&2
 cat "$OUT/README.md"
+find "$OUT" -name motion.mp4 | sort
