@@ -24,12 +24,17 @@ struct NightPictureView: View {
       .frame(maxWidth: .infinity)
       NightStrip(strip: picture.timeline)
       if let lock = picture.lockTime, let open = picture.openTime {
-        HStack(spacing: 6) {
-          small(.blocked)
-          Text(Copy.Fit.lockAt(lock))
+        // One line under the strip; at accessibility sizes the two ends stack.
+        AdaptiveStack(spacing: 6) {
+          HStack(spacing: 6) {
+            small(.blocked)
+            Text(Copy.Fit.lockAt(lock))
+          }
           Spacer(minLength: 8)
-          Text(Copy.Fit.openAt(open))
-          small(.open)
+          HStack(spacing: 6) {
+            Text(Copy.Fit.openAt(open))
+            small(.open)
+          }
         }
         .tollType(.detail, TollColor.label2)
         .monospacedDigit()
