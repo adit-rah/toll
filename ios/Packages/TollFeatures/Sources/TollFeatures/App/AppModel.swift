@@ -33,6 +33,8 @@ public final class AppModel {
   @ObservationIgnored private var recording: Task<Void, Never>?
   /// The one-time flow due at the last foreground (`Flows`); none are registered yet (#140).
   public private(set) var dueFlow: String?
+  /// The state file is a newer build's, which this one only reads (`DuskState.minReader`).
+  public private(set) var readOnly = false
 
   public init() {
     // Read now, so Home's first frame doesn't claim Screen Time is off (#45).
@@ -132,6 +134,7 @@ public final class AppModel {
     let outcome = coordinator.wake(cause, commands)
     // Unread: the file couldn't be opened, so nothing ran; what's on screen stays.
     guard outcome.access != nil else { return nil }
+    readOnly = outcome.access == .readOnly
     state = outcome.state
     lastError = outcome.error
     // The whole log: a week of Sleep nights must survive many windows and taps (#44).

@@ -14,9 +14,12 @@ enum Recovery {
     }
     let gap = (record["gap_min"] as? Int).map { min(max($0, 0), TollConfig.defaults.gap.manualMax) }
     state.blocks.insert(
+      // A fixed id, so every process that reads the lost file before one saves brings back the
+      // same night, and the log's lines for it still name it.
       Block(
-        name: Copy.Setup.nightName, kind: .sleep, place: nil, schedule: .everyDay(window),
-        apps: nil),
+        id: state.block(Migration.sleepID) == nil ? Migration.sleepID : .make(),
+        name: Copy.Setup.nightName, kind: .sleep, place: nil,
+        schedule: .everyDay(window), apps: nil),
       at: 0)
     state.recoveredAt = now
     if state.setupFinishedAt == nil {

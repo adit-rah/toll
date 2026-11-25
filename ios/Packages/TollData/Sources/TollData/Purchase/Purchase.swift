@@ -96,14 +96,20 @@ public struct TrialClock: Sendable {
 
   /// A value that isn't the frozen format is unreadable, never "no start" (#140).
   private func read(_ scope: Keychain.Scope) -> TrialStart.Reading {
-    guard let item = keychain.item(.trialStart, in: scope) else { return .none }
+    let item: Keychain.Item
+    switch keychain.lookup(.trialStart, in: scope) {
+    case .missing: return .none
+    case .unknown: return .unknown
+    case .found(let found): item = found
+    }
     guard let seconds = item.text.flatMap(Double.init), seconds.isFinite else {
       return .unreadable(writtenAt: item.writtenAt)
     }
     return .date(Date(timeIntervalSinceReferenceDate: seconds))
   }
 
-  /// `TrialStart` never changes an unreadable copy, so this never writes over one.
+  /// `TrialStart` never changes an unreadable copy, so this never writes over one, and with either
+  /// copy unknown it changes neither.
   private func write(_ new: TrialStart, over old: TrialStart) {
     if new.thisPhone != old.thisPhone, case .date(let date) = new.thisPhone {
       save(date, in: .thisPhone)

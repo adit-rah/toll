@@ -188,6 +188,20 @@ struct TrialTests {
         == TrialStart(thisPhone: .date(written), appleID: .unreadable(writtenAt: written)))
   }
 
+  /// The Keychain answering "locked" or "busy" is not "no start": nothing is written that pass, so
+  /// the iCloud copy's earlier start from another phone is never replaced.
+  @Test func anUnknownCopyWritesNothing() {
+    let first = date(2026, 11, 3, 21)
+    let later = date(2026, 11, 20, 21)
+    let unsure = TrialStart(thisPhone: .date(later), appleID: .unknown)
+    #expect(!unsure.known)
+    #expect(unsure.start == later)
+    #expect(unsure.settled == unsure)
+    #expect(unsure.begun(now: date(2026, 11, 26, 20)) == unsure)
+    let back = TrialStart(thisPhone: .date(later), appleID: .date(first))
+    #expect(back.settled == TrialStart(thisPhone: first, appleID: first))
+  }
+
   /// The iCloud copy can arrive after setup on a new phone: the state takes the earlier start, and
   /// the free nights end when they would have on the first phone.
   @Test func anEarlierStartArrivingLaterEndsTheFreeNights() {

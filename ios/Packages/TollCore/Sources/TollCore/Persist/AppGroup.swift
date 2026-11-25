@@ -139,7 +139,10 @@ public enum CoordinatedFile {
     return result
   }
 
-  public static func append(_ data: Data, to url: URL) {
+  /// Whether every byte went in.
+  @discardableResult
+  public static func append(_ data: Data, to url: URL) -> Bool {
+    var written = false
     coordinate(url, writing: true) { target in
       let manager = FileManager.default
       if !manager.fileExists(atPath: target.path) {
@@ -149,9 +152,10 @@ public enum CoordinatedFile {
       }
       guard let handle = try? FileHandle(forWritingTo: target) else { return }
       defer { try? handle.close() }
-      _ = try? handle.seekToEnd()
-      try? handle.write(contentsOf: data)
+      guard (try? handle.seekToEnd()) != nil else { return }
+      written = (try? handle.write(contentsOf: data)) != nil
     }
+    return written
   }
 
   private static func coordinate(_ url: URL, writing: Bool, _ body: (URL) -> Void) {

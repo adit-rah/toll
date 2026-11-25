@@ -56,6 +56,9 @@ struct StateStoreTests {
     #expect(state.gap.minutes == 15)
     #expect(state.setupFinishedAt != nil)
     #expect(state.recoveredAt != nil)
+    // Read again before any write, it's the same night.
+    #expect(sleep.id == Migration.sleepID)
+    #expect(files.store.load().sleepBlock?.id == sleep.id)
     #expect(HomeSnapshot(state: state, log: [], now: Date(), calendar: london).recovered)
   }
 
@@ -167,6 +170,19 @@ struct StateStoreTests {
     #expect(try Data(contentsOf: files.state) == newer)
     #expect(fakes.shields.last?.selections == [Data([1])])
     #expect(fakes.windows.isEmpty)
+    // A change it can't keep isn't made: the shield stays as the file says, and no line is logged
+    // that a night record would read as Screen Time off.
+    let refused = Coordinator(store: files.store, shield: fakes, schedule: fakes, log: fakes)
+      .run(
+        .permission, [.screenTime(false), .headsUp(false)],
+        clock: CoordinatorTests.FixedClock(now: date(2026, 11, 17, 23, 5)))
+    #expect(refused.error == .readOnly)
+    #expect(refused.state.headsUp)
+    #expect(refused.state.blocks == outcome.state.blocks)
+    #expect(refused.state.screenTimeAllowed == true)
+    #expect(fakes.shields.last?.selections == [Data([1])])
+    #expect(fakes.lines.isEmpty)
+    #expect(try Data(contentsOf: files.state) == newer)
   }
 
   /// A newer file that allows this build to write it: its new keys are given up by design (the

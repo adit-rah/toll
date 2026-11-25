@@ -102,20 +102,21 @@ public struct NightLog: Sendable {
     self.url = url
   }
 
-  /// Appends the nights not yet in the file; returns how many. `known` limits the check to the
-  /// lines already read, for the monitor, which reads only the file's end.
+  /// Appends the nights not yet in the file; returns how many, or nil if any couldn't be written.
+  /// `known` limits the check to the lines already read, for the monitor, which reads only the
+  /// file's end.
   @discardableResult
   public func record(
     _ nights: [NightFacts], calendar: Calendar, model: ModelStamp,
     by writer: NightRecordLine.Writer = .app, known lines: [Data]? = nil
-  ) -> Int {
+  ) -> Int? {
     let known = Set((lines ?? self.lines()).compactMap { Self.fields($0)?.night })
     var added = 0
     for facts in nights where !known.contains(NightRecordLine.key(facts.night, calendar: calendar))
     {
       guard let line = NightRecordLine.encode(facts, calendar: calendar, model: model, by: writer)
-      else { continue }
-      CoordinatedFile.append(line + Data([0x0A]), to: url)
+      else { return nil }
+      guard CoordinatedFile.append(line + Data([0x0A]), to: url) else { return nil }
       added += 1
     }
     return added

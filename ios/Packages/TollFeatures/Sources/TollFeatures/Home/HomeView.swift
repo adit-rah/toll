@@ -10,6 +10,8 @@ struct HomeView: View {
   let home: HomeSnapshot
   let price: String
   var locationFact = Copy.Setup.whileUsingFact
+  /// A newer TestFlight build wrote the state file: this one can't save changes (#140).
+  var readOnly = false
   let openSettings: () -> Void
   let openDoor: () -> Void
   /// While a pause is open, from the hero (the pause sheet can be swiped away).
@@ -127,10 +129,11 @@ struct HomeView: View {
     }
   }
 
-  /// One at a time, the most pressing first: Screen Time off, then a night that came back without
-  /// its apps, then location, then last night's card in the morning, then Tonight's offers.
+  /// One at a time, the most pressing first: Screen Time off, then a build that can't save, then a
+  /// night that came back without its apps, then location, then last night's card in the morning, then Tonight's offers.
   private var note: HomeNote? {
     if home.screenTimeOff { return .screenTimeOff }
+    if readOnly { return .readOnly }
     if home.recovered { return .recovered }
     if home.locationBanner { return .location }
     if home.lastNightCard, home.lastNight != nil { return .lastNight }
@@ -156,6 +159,8 @@ struct HomeView: View {
       NoteCard(Copy.Home.screenTimeOffCard, severity: .broken) {
         SettingsLink(Copy.Home.turnOn, action: turnOnScreenTime)
       }
+    case .readOnly:
+      NoteCard(Copy.Home.readOnlyCard, severity: .degraded)
     case .recovered:
       NoteCard(Copy.Home.recoveredCard, severity: .degraded) {
         SettingsLink(Copy.Home.chooseApps, action: chooseNightApps)
@@ -206,6 +211,6 @@ struct HomeView: View {
 
 /// What may float over Tonight, one at a time.
 enum HomeNote: Hashable {
-  case screenTimeOff, recovered, location, lastNight
+  case screenTimeOff, readOnly, recovered, location, lastNight
   case card(TonightCard)
 }

@@ -170,6 +170,7 @@ extension Copy {
       case .unknownPlace: "Choose the place again."
       case .sleepBlockCannotBeDeleted: sleepStays
       case .noSleepBlock: "Your nights are already set."
+      case .readOnly: Home.readOnlyCard
       case .door: ""
       }
     }

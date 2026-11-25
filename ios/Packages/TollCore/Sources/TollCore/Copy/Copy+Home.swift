@@ -97,6 +97,9 @@ extension Copy {
     public static let recoveredCard =
       "Dusk couldn't read its settings and kept your night. Choose your apps again."
     public static let chooseApps = Setup.chooseApps
+    /// A TestFlight build older than the one that last wrote the state file (#140).
+    public static let readOnlyCard =
+      "This version of Dusk can't save changes. Update it in TestFlight."
 
     public static let thisWeek = "This week"
     public static let seeAll = "See all"

@@ -4,9 +4,16 @@ import Foundation
 /// the App Group file, ManagedSettings, DeviceActivity, the transition log. Tests use fakes.
 public protocol StatePort: Sendable {
   func load() -> DuskState
-  /// Read, change and write as one step, so two processes never interleave. Nil when the state
-  /// couldn't be read at all, such as before the first unlock after a restart: `body` didn't run.
-  func update<T>(_ body: (inout DuskState) -> T) -> Stored<T>?
+  /// Read, change and write as one step, so two processes never interleave. `body` is told first
+  /// whether its change will be saved. Nil when the state couldn't be read at all, such as before
+  /// the first unlock after a restart: `body` didn't run.
+  func update<T>(_ body: (inout DuskState, StateAccess) -> T) -> Stored<T>?
+}
+
+extension StatePort {
+  func update<T>(_ body: (inout DuskState) -> T) -> Stored<T>? {
+    update { state, _ in body(&state) }
+  }
 }
 
 /// What `StatePort.update` did with the change.

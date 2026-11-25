@@ -109,16 +109,22 @@ struct NightKeeperTests {
     #expect(try JSONDecoder().decode(NightRecord.self, from: data).modelVersion == stamp.version)
   }
 
-  /// The monitor never links the model: it reads which artifact the app's `model.json` names.
-  @Test func theMonitorStampsWithTheArtifactTheAppsModelFileNames() throws {
+  /// The monitor never links the model: it stamps its lines with the version `sync-model.sh` wrote
+  /// from the artifact, which can't be a stale `model.json`.
+  @Test func theMonitorStampsWithTheArtifactThisBuildCarries() {
+    #expect(BundledModel.version == ModelArtifact.bundled().version)
+    #expect(ModelStamp.fixed(BundledModel.version) == stamp)
+  }
+
+  /// A night that can't be written keeps the log untrimmed, so the next opening tries again.
+  @Test func aNightThatCantBeWrittenKeepsTheLog() throws {
     let files = Files()
-    let url = files.folder.appending(path: "model.json")
-    #expect(ModelFile.stamp(url) == nil)
-    let cache = ModelCache.refreshed(
-      nil, artifact: .bundled(), policy: stamp.policy, records: []
-    ).cache
-    try JSONEncoder().encode(cache).write(to: url)
-    #expect(ModelFile.stamp(url) == stamp)
+    let blocked = files.folder.appending(path: "nights.jsonl")
+    try FileManager.default.createDirectory(at: blocked, withIntermediateDirectories: true)
+    files.log(monday + busyTuesday(TransitionLog.maxLines + 50))
+    #expect(
+      files.keeper.keep(state, model: stamp, now: date(2026, 11, 17, 18), calendar: london) == nil)
+    #expect(files.keeper.transitions.read(limit: .max).count == TransitionLog.maxLines + 54)
   }
 
   /// Every shape the night log has had (D62, D83's gap, D84's hours, D85's helper, #140's record

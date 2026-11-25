@@ -17,10 +17,13 @@ public struct TrialStart: Equatable, Sendable {
     /// it can mean is a start no later than when it was written, so that's what it counts as:
     /// never new free nights.
     case unreadable(writtenAt: Date)
+    /// The Keychain didn't say (locked, busy): there may be a start. Nothing is written while any
+    /// copy is unknown, so an earlier start from another phone is never dropped.
+    case unknown
 
     var date: Date? {
       switch self {
-      case .none: nil
+      case .none, .unknown: nil
       case .date(let date): date
       case .unreadable(let written): written
       }
@@ -46,17 +49,23 @@ public struct TrialStart: Equatable, Sendable {
   /// one that began before the iCloud copy arrived takes the earlier date. An unreadable copy stays
   /// as it is.
   public var settled: TrialStart {
-    guard let start else { return self }
+    guard let start, known else { return self }
     return TrialStart(
       thisPhone: Self.put(start, over: thisPhone), appleID: Self.put(start, over: appleID))
   }
 
   /// When setup ends: the earliest start on record, or `now` when there is none, in both places.
+  /// With a copy unknown nothing changes; the next `settle` brings any earlier start into the
+  /// state, which keeps the earliest.
   public func begun(now: Date) -> TrialStart {
+    guard known else { return self }
     let start = start ?? now
     return TrialStart(
       thisPhone: Self.put(start, over: thisPhone), appleID: Self.put(start, over: appleID))
   }
+
+  /// Both copies answered.
+  public var known: Bool { thisPhone != .unknown && appleID != .unknown }
 
   private static func put(_ start: Date, over reading: Reading) -> Reading {
     if case .unreadable = reading { return reading }

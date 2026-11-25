@@ -34,13 +34,12 @@ public struct DuskStore: StatePort {
     }
   }
 
-  public func update<T>(_ body: (inout DuskState) -> T) -> Stored<T>? {
+  public func update<T>(_ body: (inout DuskState, StateAccess) -> T) -> Stored<T>? {
     var stored: Stored<T>?
     CoordinatedFile.change(url) { contents, writer in
       let now = Date()
       var state: DuskState
       var access = StateAccess.saved
-      var kept = false
       switch contents {
       case .unreadable:
         return
@@ -52,19 +51,20 @@ public struct DuskStore: StatePort {
         if !reading.writable {
           access = .readOnly
         } else if let keep = reading.keep(now: now), !writer.has(keep) {
-          kept = writer.keep(data, as: keep)
           // Nothing is written until the file as it was is safe beside it.
-          if !kept { access = .readOnly }
+          if writer.keep(data, as: keep) {
+            Kept.prune(beside: writer.url)
+          } else {
+            access = .readOnly
+          }
         }
       }
-      let value = body(&state)
+      let value = body(&state, access)
       if access == .saved {
         state.schema = DuskState.schema
         state.minReader = DuskState.minReader
         state.writtenBy = build
-        if let data = try? Self.encoder.encode(state), writer.replace(with: data) {
-          if kept { Kept.prune(beside: writer.url) }
-        } else {
+        if (try? Self.encoder.encode(state)).map(writer.replace(with:)) != true {
           access = .readOnly
         }
       }
@@ -115,8 +115,12 @@ public struct DuskStore: StatePort {
       }
       return Reading(state: Migration.fromV1(legacy), schema: 1)
     }
-    let schema = object["schema"] as? Int ?? 2
-    let minReader = object["minReader"] as? Int ?? min(schema, 2)
+    let labelled = object["schema"] as? Int ?? 2
+    // Every build that writes `minReader` writes it. Without it, the file was written by a build
+    // from before #140, which kept whatever `schema` it read: a newer number over its own shape,
+    // after a downgrade. So it's that build's shape, schema 2, whatever the label says.
+    let schema = object["minReader"] == nil ? min(labelled, 2) : labelled
+    let minReader = object["minReader"] as? Int ?? schema
     var source = data
     if schema < DuskState.schema {
       let upgraded = Migration.upgrade(object, from: schema)

@@ -31,6 +31,7 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `set-home` · `set-home-off` · `set-home-location` · `set-home-always` · `set-home-location-off` · `set-home-set` | "Only when I'm home" as a sheet over Tonight: the map (home placed in London; `-off` with location denied), the location prompt, Always, and location off; `-set`: the map with home already set, offering "Use anywhere" |
 | `home-evening` · `home-blocked` · `home-away` · `home-first-week` · `home-last-night` · `home-paused` · `home-location` | Home in each state, with a Sleep and a Study block and a sample week of log, built around the time of the render |
 | `home-recovered` | Tonight after the state file was lost and the night came back from its record without its apps: the quiet note with "Choose apps" (#140) |
+| `home-read-only` | Tonight on a TestFlight build older than the one that wrote the state file: the note that changes can't be saved (#140) |
 | `home-morning` · `home-morning-gap` · `home-morning-away` · `home-morning-card` | Tonight at 8:10 am with the morning card (#103): after a night with taps, with a ten-minute pause, and away; `-card`: after the first night with home not set, so the home card shows with it |
 | `home-anywhere` · `home-card` | Home not set yet: the first evening ("Anywhere"), and the morning-after card offering home |
 | `home-day` | Tonight on a weekday at 11 am with Study on: the one quiet line about another block (D68, #89), and Study and Gym on the day's strip (D75) |

@@ -15,6 +15,11 @@ struct StateFixtureTests {
   ]
   /// The current format; a new schema adds its own and moves this one into `past`.
   static let newest = "v3"
+  /// A past shape under a newer label: a build from before #140 writes back the `schema` it read,
+  /// so after a downgrade its own shape says 3. It has no `minReader`.
+  static let relabelled = [
+    "relabelled-v2-07": "v2-07-heads-up", "relabelled-v2-10": "v2-10-last-night",
+  ]
 
   static func fixture(_ name: String) throws -> Data {
     let url = try #require(
@@ -26,7 +31,7 @@ struct StateFixtureTests {
     let folder = try #require(Bundle.module.resourceURL).appending(path: "Fixtures/state")
     let names = try FileManager.default.contentsOfDirectory(atPath: folder.path)
       .filter { $0.hasSuffix(".json") }.map { String($0.dropLast(5)) }
-    #expect(Set(names) == Set(Self.past + [Self.newest]))
+    #expect(Set(names) == Set(Self.past + [Self.newest] + Self.relabelled.keys))
   }
 
   @Test(arguments: past + [newest])
@@ -65,6 +70,19 @@ struct StateFixtureTests {
     if name >= "v2-10" { #expect(state.lastNightSeen == date(2026, 11, 16, 0)) }
     let again = try DuskStore.encoder.encode(state)
     #expect(DuskStore.decode(again) == state)
+  }
+
+  /// Read as the shape it is, so every step it needs still runs: the heads-up build's file has no
+  /// gap, and is offered it once, as its own v2 label would be.
+  @Test(arguments: relabelled.keys.sorted())
+  func aPastShapeUnderANewerLabelStillMigrates(_ name: String) throws {
+    let reading = DuskStore.reading(try Self.fixture(name))
+    let original = DuskStore.reading(
+      try Self.fixture(try #require(Self.relabelled[name])))
+    #expect(reading.schema == 2)
+    #expect(reading.writable)
+    #expect(reading.state == original.state)
+    #expect(reading.state.gap.offered == (name == "relabelled-v2-07"))
   }
 
   /// A new field can't land without a fixture: what today's encoder writes must have the newest

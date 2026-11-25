@@ -57,4 +57,6 @@ public enum CommandError: Error, Equatable, Sendable {
   /// Empty, or longer than the block screen's title holds (#62).
   case invalidName
   case unknownPlace
+  /// This build only reads the state file: a newer one wrote it (`DuskState.minReader`).
+  case readOnly
 }

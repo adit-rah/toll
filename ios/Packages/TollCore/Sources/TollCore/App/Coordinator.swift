@@ -38,9 +38,11 @@ public struct Coordinator: Sendable {
     let now = clock.now
     let monotonic = clock.monotonic
     let config = config
-    let stored = store.update { state -> Outcome in
+    let stored = store.update { state, access -> Outcome in
       var error: CommandError?
-      for command in commands {
+      // Nothing it changes would be saved: reconcile what's there, and say so.
+      if access == .readOnly, !commands.isEmpty { error = .readOnly }
+      for command in commands where access == .saved {
         if let refused = Engine.apply(
           command, to: &state, now: now, calendar: calendar, config: config), error == nil
         {
@@ -62,12 +64,13 @@ public struct Coordinator: Sendable {
     return outcome
   }
 
-  /// Read only, the shield still follows the state, but schedules aren't touched: what they were
-  /// set to couldn't be saved, so every wake would set them again.
+  /// Read only, the shield still follows the state as read, but nothing is logged and schedules
+  /// aren't touched: what they were set to couldn't be saved, so every wake would set them again,
+  /// and a line for a change that wasn't kept would be read as a fact of the night.
   private func perform(_ effects: Effects, saved: Bool) {
     shield.apply(effects.shield)
-    if let line = effects.log { log.append(line) }
     guard saved else { return }
+    if let line = effects.log { log.append(line) }
     if let windows = effects.windows {
       do {
         try schedule.monitor(windows: windows)

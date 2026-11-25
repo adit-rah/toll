@@ -83,11 +83,12 @@
 
   extension Coordinator.Outcome {
     /// The monitor's sweep: a night that just ended goes into the night log now, not when Dusk is
-    /// next opened (#140). Never from a state it couldn't read, and not before the app has written
-    /// which model it runs (`ModelFile`), which the record names.
+    /// next opened (#140). Never from a state it couldn't read; stamped with the artifact this
+    /// build carries.
     public func recordNight() {
-      guard access != nil, let model = ModelFile.stamp() else { return }
-      NightKeeper().keepRecent(state, model: model, now: Date(), calendar: .current)
+      guard access != nil else { return }
+      NightKeeper().keepRecent(
+        state, model: .fixed(BundledModel.version), now: Date(), calendar: .current)
     }
   }
 #endif

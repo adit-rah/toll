@@ -77,7 +77,7 @@ struct LiveHome: View {
       TimelineView(.everyMinute) { context in
         HomeView(
           home: snapshot(context.date), price: model.price,
-          locationFact: locationFact(model.location),
+          locationFact: locationFact(model.location), readOnly: model.readOnly,
           openSettings: { path.append(.settings) },
           // The sheet can be swiped away during a pause, so Tonight's capsule brings it back.
           openDoor: {

@@ -18,18 +18,21 @@ public struct NightKeeper: Sendable {
     self.nights = nights
   }
 
-  /// The app, on opening: every ended night since setup, from the whole log, then the trim.
+  /// The app, on opening: every ended night since setup, from the whole log, then the trim, only
+  /// if every night went in. Nil when one didn't: the log keeps it for the next try.
   @discardableResult
   public func keep(
     _ state: DuskState, model: ModelStamp, now: Date, calendar: Calendar,
     config: TollConfig = .defaults
-  ) -> Int {
+  ) -> Int? {
     guard let sleep = state.sleepBlock else { return 0 }
     let ended = NightFacts.ended(
       log: transitions.read(limit: .max), sleep: sleep, gap: state.gap,
       since: state.setupFinishedAt,
       now: now, calendar: calendar, regret: TimeInterval(config.door.regretSeconds))
-    let added = nights.record(ended, calendar: calendar, model: model, by: .app)
+    guard let added = nights.record(ended, calendar: calendar, model: model, by: .app) else {
+      return nil
+    }
     transitions.trim()
     return added
   }
@@ -41,7 +44,7 @@ public struct NightKeeper: Sendable {
   public func keepRecent(
     _ state: DuskState, model: ModelStamp, now: Date, calendar: Calendar,
     config: TollConfig = .defaults
-  ) -> Int {
+  ) -> Int? {
     guard let sleep = state.sleepBlock, let setup = state.setupFinishedAt else { return 0 }
     let log = transitions.tail(bytes: Self.logTailBytes)
     let reach = log.whole ? nil : log.lines.map(\.at).min()
