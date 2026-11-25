@@ -147,6 +147,14 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var offers = 3
   }
 
+  /// Tonight's band (`TonightBand`): from this many minutes before the lock, it belongs to the
+  /// night. Offers wait for tomorrow and last night's row is done; the heads-up (20 min) and Before
+  /// bed's gap come inside it.
+  public struct Band: Codable, Sendable, Equatable {
+    public init() {}
+    public var nightMinutes = 60
+  }
+
   public var window = Window()
   public var home = Home()
   public var door = Door()
@@ -158,6 +166,7 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public var sky = Sky()
   public var helpers = Helpers()
   public var flows = OneTimeFlows()
+  public var band = Band()
 
   public init() {}
 
