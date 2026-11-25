@@ -14,45 +14,12 @@ struct TonightCardView: View {
   var untilBed: Int?
   let open: () -> Void
   let dismiss: () -> Void
-  @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
-    HStack(alignment: .top, spacing: TollSpacing.rowGap) {
-      IconTile(content.symbol, accent: false)
-      VStack(alignment: .leading, spacing: 0) {
-        RowText(title: content.title, detail: content.detail)
-          .accessibilityElement(children: .combine)
-        // Side by side; stacked at accessibility sizes so neither action truncates.
-        let actions =
-          typeSize.isAccessibilitySize
-          ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0))
-          : AnyLayout(HStackLayout(spacing: 20))
-        actions {
-          if let action = content.action {
-            Button(action: open) {
-              HStack(spacing: 4) {
-                Text(action)
-                Image(symbol: .forward).unredacted()
-                  .font(.system(size: 12, weight: .bold))
-                  .accessibilityHidden(true)
-              }
-            }
-            .tollType(.action, TollColor.accent)
-            .frame(minHeight: TollSpacing.minTapTarget)
-          }
-          Button(content.dismiss, action: dismiss)
-            .tollType(.action, TollColor.label2)
-            .frame(minHeight: TollSpacing.minTapTarget)
-        }
-        .padding(.top, 2)
-      }
-    }
-    .padding(.top, TollSpacing.noteCardVertical)
-    .padding(.bottom, 2)
-    .padding(.horizontal, TollSpacing.cardPadding)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
+    let content = self.content
+    BandCard(
+      symbol: content.symbol, title: content.title, detail: content.detail,
+      action: content.action, dismiss: content.dismiss, open: open, putAway: dismiss)
   }
 
   /// Each kind's words and symbol; a new kind adds its case here (#104). No action: the card only
@@ -85,5 +52,57 @@ struct TonightCardView: View {
         Copy.Helpers.showMe, Copy.Home.notNow
       )
     }
+  }
+}
+
+/// A card in Tonight's band: its symbol, its words, one link that opens it and a quiet word that
+/// puts it away. Tonight's offers and the one-time flows (#140) share it.
+struct BandCard: View {
+  let symbol: TollSymbol
+  let title: String
+  let detail: String?
+  let action: String?
+  let dismiss: String
+  let open: () -> Void
+  let putAway: () -> Void
+  @Environment(\.dynamicTypeSize) private var typeSize
+
+  var body: some View {
+    HStack(alignment: .top, spacing: TollSpacing.rowGap) {
+      IconTile(symbol, accent: false)
+      VStack(alignment: .leading, spacing: 0) {
+        RowText(title: title, detail: detail)
+          .accessibilityElement(children: .combine)
+        // Side by side; stacked at accessibility sizes so neither action truncates.
+        let actions =
+          typeSize.isAccessibilitySize
+          ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0))
+          : AnyLayout(HStackLayout(spacing: 20))
+        actions {
+          if let action {
+            Button(action: open) {
+              HStack(spacing: 4) {
+                Text(action)
+                Image(symbol: .forward).unredacted()
+                  .font(.system(size: 12, weight: .bold))
+                  .accessibilityHidden(true)
+              }
+            }
+            .tollType(.action, TollColor.accent)
+            .frame(minHeight: TollSpacing.minTapTarget)
+          }
+          Button(dismiss, action: putAway)
+            .tollType(.action, TollColor.label2)
+            .frame(minHeight: TollSpacing.minTapTarget)
+        }
+        .padding(.top, 2)
+      }
+    }
+    .padding(.top, TollSpacing.noteCardVertical)
+    .padding(.bottom, 2)
+    .padding(.horizontal, TollSpacing.cardPadding)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(
+      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
   }
 }

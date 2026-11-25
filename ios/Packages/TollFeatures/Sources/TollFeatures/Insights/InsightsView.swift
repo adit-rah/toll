@@ -28,6 +28,18 @@ struct InsightsView: View {
             if let best = sleep.best {
               BestCard(best: best).padding(.top, 12)
             }
+            // The night as it's planned, three parts: before sleep, sleep, after waking (#144).
+            if let plan = sleep.plan {
+              SectionHeader(Copy.Fit.aroundTitle).padding(.top, 28)
+              NightPictureView(picture: plan)
+                .padding(.vertical, TollSpacing.statsCardVertical)
+                .padding(.horizontal, TollSpacing.cardPadding)
+                .background(
+                  TollColor.surface,
+                  in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
+                )
+                .padding(.top, TollSpacing.headerToCard)
+            }
             ranges(insights)
           }
           .tollGutter()

@@ -49,7 +49,7 @@ struct SettingsView: View {
               SettingsRow(Copy.Settings.onlyAtHome, detail: onlyAtHome, glyph: true) { Chevron() }
             }
             .buttonStyle(.plain)
-            BeforeBedRow(model: model)
+            SleepRow(model: model)
             HeadsUpRow(model: model)
             SettingsRow(Copy.Settings.lastNight, detail: lastNight)
           }

@@ -3,8 +3,8 @@ import TollCore
 import TollScreenTime
 import TollUI
 
-/// Onboarding (D68): Welcome, when you get up, Screen Time, the apps, then Ready. Five screens to a
-/// first locked night; home is offered after it (`SetHomeFlow`).
+/// Onboarding (D68, #144): Welcome, Fit Dusk to your sleep, your sleep, the time around it, Screen
+/// Time, the apps, then Ready. Home is offered after the first night (`SetHomeFlow`).
 struct SetupFlow: View {
   @State private var model: SetupModel
 
@@ -25,7 +25,11 @@ struct SetupFlowContent: View {
       WelcomeView(model: model)
         .navigationDestination(for: SetupModel.Step.self) { step in
           switch step {
-          case .wake: WakeTimeView(model: model)
+          case .fit: FitView(model: model)
+          case .sleep:
+            SleepTimesStep(draft: model.draft, step: step.number) { model.go(.around) }
+          case .around:
+            AroundStep(draft: model.draft, step: step.number) { model.go(.screenTime) }
           case .screenTime: ScreenTimeView(model: model)
           case .blocklist: BlocklistView(model: model)
           case .ready: ReadyView(model: model)
@@ -101,7 +105,16 @@ struct WelcomeView: View {
 
   @ViewBuilder private func actions(_ offer: Trial.Offer) -> some View {
     VStack(spacing: 0) {
-      PrimaryButton(offer.isFree ? Copy.Setup.start : Copy.Setup.setUp) { model.go(.wake) }
+      PrimaryButton(
+        offer.isFree ? Copy.Fit.start(nights: model.app.config.trial.nights) : Copy.Setup.setUp
+      ) { model.go(.fit) }
+      // The whole purchase, quieter, under the free nights (#144): bought or not, setup goes on.
+      if offer != .purchased {
+        QuietButton(Copy.Fit.buyNow(model.app.price)) {
+          Task { await model.buyNow() }
+        }
+        .disabled(model.buying || restoring)
+      }
       // Found, the card says Purchased and setup goes on from the button; not found, the user is
       // told and stays here (#46). Once bought the link keeps its room, so the button stays put.
       QuietButton(Copy.Setup.restore, type: .smallQuiet) {

@@ -110,6 +110,8 @@ private struct NightBar: View {
         }
       }
       .frame(height: 10)
+      // Sleep full height, the buffers around it lower (#144): three parts by shape.
+      .mask { SleepShape(sleep: morning.sleep) }
       glyph(.sun)
     }
     .tollChartTypeLimit()
@@ -119,5 +121,23 @@ private struct NightBar: View {
     Image(symbol: symbol).unredacted()
       .font(.system(size: 12, weight: .semibold))
       .foregroundStyle(TollColor.label2)
+  }
+}
+
+/// The night bar's outline: full height over sleep, half height over the buffers either side.
+private struct SleepShape: View {
+  let sleep: Morning.Span
+
+  var body: some View {
+    GeometryReader { proxy in
+      let width = proxy.size.width
+      ZStack(alignment: .leading) {
+        Rectangle().frame(height: proxy.size.height / 2)
+        Rectangle()
+          .frame(width: max(4, width * (sleep.end - sleep.start)))
+          .offset(x: width * sleep.start)
+      }
+      .frame(maxHeight: .infinity)
+    }
   }
 }

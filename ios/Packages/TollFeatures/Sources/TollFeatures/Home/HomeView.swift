@@ -30,6 +30,12 @@ struct HomeView: View {
   var putAwayLastNight: (Date) -> Void = { _ in }
   /// A block's editor, from the strip's snippet (D75).
   var openBlock: (BlockID) -> Void = { _ in }
+  /// The one-time flow due today (`Flows`, #144), its card's "Start" and "Not now", and that it
+  /// was seen.
+  var flow: String?
+  var openFlow: () -> Void = {}
+  var notNowFlow: () -> Void = {}
+  var flowShown: () -> Void = {}
   /// Demo renders open the strip on this segment's snippet: a block, or "lastNight" (docs/renders.md).
   var snippet: String?
   @Environment(\.dynamicTypeSize) private var typeSize
@@ -130,13 +136,15 @@ struct HomeView: View {
   }
 
   /// One at a time, the most pressing first: Screen Time off, then a build that can't save, then a
-  /// night that came back without its apps, then location, then last night's card in the morning, then Tonight's offers.
+  /// night that came back without its apps, then location, then last night's card in the morning,
+  /// then a one-time flow (#140, only at a calm moment), then Tonight's offers.
   private var note: HomeNote? {
     if home.screenTimeOff { return .screenTimeOff }
     if readOnly { return .readOnly }
     if home.recovered { return .recovered }
     if home.locationBanner { return .location }
     if home.lastNightCard, home.lastNight != nil { return .lastNight }
+    if let flow, case .tonight = home.hero { return .flow(flow) }
     return home.card.map(HomeNote.card)
   }
 
@@ -173,6 +181,13 @@ struct HomeView: View {
       if let night = home.lastNight {
         LastNightCard(night: night) { putAwayLastNight(night.night) }
       }
+    case .flow:
+      BandCard(
+        symbol: .sleep, title: Copy.Fit.cardTitle, detail: Copy.Fit.cardDetail,
+        action: Copy.Fit.cardAction, dismiss: Copy.Home.notNow, open: openFlow,
+        putAway: notNowFlow
+      )
+      .onAppear(perform: flowShown)
     case .card(let card):
       TonightCardView(
         card: card, headsUp: home.headsUp, gap: home.gapCard, untilBed: home.untilBed,
@@ -212,5 +227,6 @@ struct HomeView: View {
 /// What may float over Tonight, one at a time.
 enum HomeNote: Hashable {
   case screenTimeOff, readOnly, recovered, location, lastNight
+  case flow(String)
   case card(TonightCard)
 }

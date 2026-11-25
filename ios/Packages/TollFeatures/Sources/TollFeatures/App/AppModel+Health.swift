@@ -27,7 +27,7 @@ extension AppModel {
     }
     let nights = await SleepSource().nights(now: Date(), calendar: .current, config: config)
     guard !nights.isEmpty else { return }
-    await Task.detached(priority: .utility) {
+    _ = await Task.detached(priority: .utility) {
       NightLog().correct(with: nights, calendar: .current)
     }.value
     history = NightLog().past(calendar: .current)

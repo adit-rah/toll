@@ -2,10 +2,11 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// The night as a picture (D68, #76): moon, start – end, sun, over a strip of the night alone. Turning
-/// the wake wheel slides the night along the strip, so the change shows without words. It changes
-/// with no motion: design §2.5 has no row for it. Tonight's strip is the whole day (D75); setup and
-/// Blocks' night card stay on the night, which is all they're about.
+/// The night as a picture (D68, #76, #144): moon, asleep – wake, sun, over a strip of the night
+/// alone; with buffers, the lock's ends under it, a lock where apps lock and an open lock where they
+/// open. Changing a time slides the night along the strip, so the change shows without words. It
+/// changes with no motion: design §2.5 has no row for it. Tonight's strip is the whole day (D75);
+/// setup and Blocks' night card stay on the night, which is all they're about.
 struct NightPictureView: View {
   let picture: NightPicture
 
@@ -22,9 +23,27 @@ struct NightPictureView: View {
       }
       .frame(maxWidth: .infinity)
       NightStrip(strip: picture.timeline)
+      if let lock = picture.lockTime, let open = picture.openTime {
+        HStack(spacing: 6) {
+          small(.blocked)
+          Text(Copy.Fit.lockAt(lock))
+          Spacer(minLength: 8)
+          Text(Copy.Fit.openAt(open))
+          small(.open)
+        }
+        .tollType(.detail, TollColor.label2)
+        .monospacedDigit()
+        .padding(.top, 4)
+      }
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(picture.timeline.label)
+  }
+
+  private func small(_ symbol: TollSymbol) -> some View {
+    Image(symbol: symbol).unredacted()
+      .font(.system(size: 12, weight: .semibold))
+      .foregroundStyle(TollColor.label2)
   }
 
   private func glyph(_ symbol: TollSymbol) -> some View {
@@ -35,8 +54,9 @@ struct NightPictureView: View {
 }
 
 /// The night on the boards' 6 pm → 10 am strip (or one fitted to it, #82): an 8 pt track, the night
-/// solid while on, outlined before, dashed when nothing will block. Ready draws the gap before bed
-/// (D76) as a thinner step before the night, split from it by a notch.
+/// solid while on, outlined before, dashed when nothing will block. The buffers around sleep (D76,
+/// #144) are thinner steps either side of it, each split from it by a notch, so the three parts
+/// differ by height and place, never colour alone.
 struct NightStrip: View {
   let strip: NightPicture.Strip
 
@@ -52,6 +72,12 @@ struct NightStrip: View {
             gap
               .frame(width: step, height: 4)
               .offset(x: width * strip.start - 2 - step, y: 2)
+          }
+          if let open = strip.open, open > strip.end {
+            let step = max(8, width * (open - strip.end) - 2)
+            gap
+              .frame(width: step, height: 4)
+              .offset(x: width * strip.end + 2, y: 2)
           }
           night
             .frame(width: max(8, width * (strip.end - strip.start)), height: 8)

@@ -4,8 +4,8 @@ import TollUI
 
 /// One segment of Tonight's strip: solid while on, outlined before, faint once over, dashed when
 /// nothing will block. The night in amber; other blocks in greys. The kind's glyph when there's room
-/// for it. The night's gap before bed (D76) is a lower step before the tall bar with the moon, split
-/// from it by a notch, so it reads as part of the night and apart from it by shape, not colour.
+/// for it. The night's buffers (D76, #144) are lower steps either side of the tall bar with the
+/// moon, sleep, each split from it by a notch, so the three parts read apart by shape, not colour.
 struct SegmentBar: View {
   let segment: DayTimeline.Segment
   let width: CGFloat
@@ -16,23 +16,32 @@ struct SegmentBar: View {
   static let gapMinWidth: CGFloat = 8
 
   var body: some View {
-    if let share = gapShare {
+    let (before, after) = shares
+    if before != nil || after != nil {
       HStack(spacing: Self.notch) {
-        bar(glyph: false)
-          .frame(
-            width: max(Self.gapMinWidth, width * share - Self.notch / 2), height: Self.gapHeight)
+        if let before { step(before) }
         bar(glyph: true)
+        if let after { step(after) }
       }
     } else {
       bar(glyph: true)
     }
   }
 
-  /// The gap's share of the night's bar; nil without one, or with no room to draw it.
-  private var gapShare: Double? {
-    guard segment.isNight, let bed = segment.bed, segment.end > segment.start else { return nil }
-    let share = (bed - segment.start) / (segment.end - segment.start)
-    return share > 0 && share < 1 && width * (1 - share) >= 2 * Self.gapMinWidth ? share : nil
+  private func step(_ share: Double) -> some View {
+    bar(glyph: false)
+      .frame(width: max(Self.gapMinWidth, width * share - Self.notch / 2), height: Self.gapHeight)
+  }
+
+  /// Each buffer's share of the night's bar; nil without one, or with no room to draw it.
+  private var shares: (before: Double?, after: Double?) {
+    guard segment.isNight, segment.end > segment.start else { return (nil, nil) }
+    let length = segment.end - segment.start
+    let before = segment.bed.map { ($0 - segment.start) / length }.flatMap { $0 > 0 ? $0 : nil }
+    let after = segment.wake.map { (segment.end - $0) / length }.flatMap { $0 > 0 ? $0 : nil }
+    let sleep = 1 - (before ?? 0) - (after ?? 0)
+    guard width * sleep >= 2 * Self.gapMinWidth else { return (nil, nil) }
+    return (before, after)
   }
 
   private func bar(glyph showsGlyph: Bool) -> some View {

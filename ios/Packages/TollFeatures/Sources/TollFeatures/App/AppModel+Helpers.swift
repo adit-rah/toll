@@ -1,6 +1,7 @@
 import Foundation
 import TollCore
 import TollData
+import TollScreenTime
 
 /// Before bed's helpers (D80): the rules are TollCore's; these send the person's choices, leave the
 /// private log line the night record reads, and start or stop the tone.
@@ -25,9 +26,17 @@ extension AppModel {
     BreathTone.shared.stop()
   }
 
-  /// Settings › Before bed's "Done": the gap (held while the night is on, B-3) and the helpers'
-  /// switch and breath, which apply at once.
-  func setBeforeBed(_ gap: Gap.Setting, helpers: Helpers) {
-    send(.edit, [.gap(gap), .helpers(helpers)])
+  /// Settings › Sleep's "Save" (#144), in one change: the night's hours if they moved and both
+  /// buffers (held while the night is on, B-3), and the helpers' switch and breath, at once.
+  func saveSleep(
+    _ sleep: Block?, before: (Gap.Setting, Int), after: (Gap.Setting, Int), helpers: Helpers
+  ) {
+    let hours: [Command] = sleep.map { [.saveBlock(Blocklist.counted($0))] } ?? []
+    send(
+      .edit,
+      hours + [
+        .buffer(.before, before.0, target: before.1), .buffer(.after, after.0, target: after.1),
+        .helpers(helpers),
+      ])
   }
 }

@@ -8,7 +8,9 @@
     @State private var model: SetupModel
 
     init(app: AppModel, path: [SetupModel.Step]) {
-      _model = State(initialValue: SetupModel(app: app, path: path))
+      let model = SetupModel(app: app, path: path)
+      DemoScenario.current?.prepare(model.draft)
+      _model = State(initialValue: model)
     }
 
     var body: some View {
@@ -17,7 +19,6 @@
           let scenario = DemoScenario.current
           ScreenTimeAuthorization.simulated = scenario?.screenTime
           LocationAccess.simulated = scenario?.location
-          model.weekendsDiffer = scenario == .wakeWeekends
           model.app.readPermissions()
         }
     }
