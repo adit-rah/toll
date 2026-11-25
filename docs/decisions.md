@@ -450,3 +450,25 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - "Last 7 nights" (or "Your first 7 nights") over the dots, which are the seven nights up to last night;
   - on landmark mornings, the landmark and Share inside it.
 - **Removed:** D75's "Tonight 10:30 pm" over the strip (the hero says it), and D69's "replaces the starts-at hero".
+
+**D92. Data on the phone changes safely** (2026-11-25, #140, after D90; reviewed independently before merge). Dusk never loses a person to a format.
+- **Reading is lossy.** A missing key takes its default, an unknown enum value takes its safe fallback, and an element that can't be read is dropped alone.
+- **A bad file is never written over:**
+  - A file that can't be opened (before first unlock) is never written, and nothing runs.
+  - One that can't be parsed is kept aside (`state.unreadable-*`). The night comes back from the latest night record, and Tonight shows one note, "Dusk couldn't read its settings and kept your night. Choose your apps again.", until the apps are chosen.
+  - One read in part, or at another schema, is kept before the first write over it.
+- **`state.json` carries `schema`, `minReader` and `writtenBy`:**
+  - The schema is raised on every change of shape or meaning.
+  - A file without `minReader` is read as schema 2, whatever its label, because builds before this one rewrote files without changing the label.
+  - A build below `minReader` applies no command, follows the file for the shield, logs nothing, and Tonight says "This version of Dusk can't save changes. Update it in TestFlight."
+  - Migrations are steps on the JSON as written. Each has a fixture made by its own build's encoder, kept forever. Changes expand, then contract.
+- **The night log is append-only,** with `record` and `rev`:
+  - A correction is a new line, and every reader takes the highest `rev`.
+  - `model_version` is the artifact this build carries (`BundledModel.version`).
+  - Nights are recorded before the log is trimmed: by the monitor at each sweep, and by the app on opening. A night that can't be written keeps the log untrimmed.
+- **`model.json` is a cache,** rebuilt from the night log whenever the artifact changes. Swift and Python share a rebuild fixture.
+- **The Keychain trial start's format is frozen:**
+  - Only "not found" means there's no start; any other answer is unknown, and nothing is written that pass.
+  - An unreadable value counts as a start no later than when it was written, and is never written over.
+- **One-time flows** exist only for what a person must decide. They live in a registry in TollCore, show at a calm moment and at most one a day, and take safe defaults after the third "Not now". None are registered yet.
+- **Trade-off, accepted:** a build below a file's `minReader` can't save edits or pauses until it's updated. That only happens on TestFlight.

@@ -7,7 +7,7 @@ import numpy as np
 from . import insights as insight_rules
 from .artifact import Params
 from .model import State, predict, prior_state, update
-from .night import Context, features, phi
+from .night import Context, features, latest, phi
 from .policy import choose_one
 from .rng import SplitMix64Batch
 
@@ -60,3 +60,12 @@ class PersonModel:
 
     def insights(self) -> list[dict]:
         return insight_rules.insights(self._state, self.params)
+
+
+def rebuild(params: Params, records: list[dict]) -> PersonModel:
+    """A person's state from their whole night log, as the app rebuilds it when a new artifact ships:
+    each night once, at its highest revision, in night order."""
+    person = PersonModel(params)
+    for record in latest(records):
+        person.update(record)
+    return person

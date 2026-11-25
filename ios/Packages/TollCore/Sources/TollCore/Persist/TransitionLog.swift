@@ -27,7 +27,15 @@ public struct TransitionLog: Sendable {
     .reversed()
   }
 
+  /// The lines in the file's last `bytes`, oldest first, and whether that's every line.
+  public func tail(bytes: Int) -> (lines: [Transition], whole: Bool) {
+    let decoder = DuskStore.decoder
+    let tail = CoordinatedFile.tail(url, bytes: bytes)
+    return (tail.lines.compactMap { try? decoder.decode(Transition.self, from: $0) }, tail.whole)
+  }
+
   /// Run by the app, never an extension: rewriting the file is the one slow thing the log does.
+  /// Only after the nights in it are recorded (`NightKeeper`).
   public func trim() {
     CoordinatedFile.update(url) { data in
       guard let data else { return nil }

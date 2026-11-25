@@ -29,6 +29,12 @@ public final class AppModel {
   @ObservationIgnored private var started = false
   /// What was last handed to iOS, so only a change reschedules; nil reschedules on the next sync.
   @ObservationIgnored var scheduledHeadsUps: [HeadsUp]?
+  /// The night log's last write, so the next waits for it.
+  @ObservationIgnored private var recording: Task<Void, Never>?
+  /// The one-time flow due at the last foreground (`Flows`); none are registered yet (#140).
+  public private(set) var dueFlow: String?
+  /// The state file is a newer build's, which this one only reads (`DuskState.minReader`).
+  public private(set) var readOnly = false
 
   public init() {
     // Read now, so Home's first frame doesn't claim Screen Time is off (#45).
@@ -71,7 +77,6 @@ public final class AppModel {
     Task { if let price = await Purchase.displayPrice() { self.price = price } }
     send(.launch, TrialClock().settle().map { [.trialStart($0)] } ?? [])
     countApps()
-    Task.detached(priority: .background) { TransitionLog().trim() }
   }
 
   public func foreground() {
@@ -85,6 +90,7 @@ public final class AppModel {
     // iCloud Keychain may have brought an earlier start from another phone since (D78).
     send(.foreground, TrialClock().settle().map { [.trialStart($0)] } ?? [])
     recordNights()
+    dueFlow = Flows.due(state, now: Date(), calendar: .current, config: config)?.id
     Task {
       setPurchased(await Purchase.isPurchased())
       // A region event can land while nothing was listening, such as before the first unlock after a
@@ -97,14 +103,25 @@ public final class AppModel {
   }
 
   /// One record per ended Sleep night into the night log, so the nights outlive the transition
-  /// log's trimming (#51). Each night is written once.
+  /// log's trimming (#51), then the trim, never before (#140); then the person's model state moves
+  /// on by those nights, or is rebuilt for a new artifact. Off the main thread, one run at a time.
   func recordNights() {
-    guard let sleep = state.sleepBlock else { return }
-    let nights = NightFacts.ended(
-      log: log, sleep: sleep, gap: state.gap, since: state.setupFinishedAt, now: Date(),
-      calendar: .current, regret: TimeInterval(config.door.regretSeconds))
-    NightLog().record(nights, calendar: .current)
     history = NightLog().past(calendar: .current)
+    let state = state
+    let config = config
+    let previous = recording
+    recording = Task.detached(priority: .utility) { [weak self] in
+      await previous?.value
+      NightKeeper().keep(
+        state, model: ModelStore.stamp, now: Date(), calendar: .current, config: config)
+      ModelStore().refresh()
+      let past = NightLog().past(calendar: .current)
+      await self?.show(history: past)
+    }
+  }
+
+  private func show(history: [PastNight]) {
+    self.history = history
   }
 
   /// Every change goes through here.
@@ -115,6 +132,9 @@ public final class AppModel {
       if DemoScenario.current != nil { return nil }
     #endif
     let outcome = coordinator.wake(cause, commands)
+    // Unread: the file couldn't be opened, so nothing ran; what's on screen stays.
+    guard outcome.access != nil else { return nil }
+    readOnly = outcome.access == .readOnly
     state = outcome.state
     lastError = outcome.error
     // The whole log: a week of Sleep nights must survive many windows and taps (#44).
@@ -131,7 +151,7 @@ public final class AppModel {
     #if DEBUG
       if DemoScenario.current != nil { return }
     #endif
-    let latest = DuskStore().load()
+    guard let latest = DuskStore().loadIfReadable() else { return }
     guard latest != state else { return }
     state = latest
     // The monitor applies a held edit when the night ends; the heads-up follows the new hours.

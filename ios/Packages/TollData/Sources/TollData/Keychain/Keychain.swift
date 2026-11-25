@@ -35,22 +35,53 @@ public struct Keychain: Sendable {
   }
 
   public func string(_ key: Key, in scope: Scope = .thisPhone) -> String? {
-    if let memory { return memory.values.withLock { $0[Memory.Slot(key: key, scope: scope)] } }
+    if case .found(let item) = lookup(key, in: scope) { return item.text }
+    return nil
+  }
+
+  /// An item that's there, with its text if it is text, and when it was last written.
+  public struct Item: Sendable, Equatable {
+    public var text: String?
+    public var writtenAt: Date
+  }
+
+  /// `unknown` when the Keychain answered with anything but the item or "not found" (locked, busy,
+  /// interrupted): never read as missing, so nothing is written over an item that is there (#140).
+  public enum Lookup: Sendable, Equatable {
+    case found(Item)
+    case missing
+    case unknown
+  }
+
+  public func lookup(_ key: Key, in scope: Scope = .thisPhone) -> Lookup {
+    if let memory {
+      return memory.values.withLock { $0[Memory.Slot(key: key, scope: scope)] }.map(Lookup.found)
+        ?? .missing
+    }
     var query = base(key, scope)
     query[kSecReturnData as String] = true
+    query[kSecReturnAttributes as String] = true
     query[kSecMatchLimit as String] = kSecMatchLimitOne
-    var item: CFTypeRef?
-    guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
-      let data = item as? Data
-    else {
-      return nil
+    var result: CFTypeRef?
+    let status = SecItemCopyMatching(query as CFDictionary, &result)
+    if status == errSecItemNotFound { return .missing }
+    guard status == errSecSuccess, let attributes = result as? [String: Any] else {
+      return .unknown
     }
-    return String(data: data, encoding: .utf8)
+    let data = attributes[kSecValueData as String] as? Data
+    // The Keychain stamps every item; "now" stands in only if it ever didn't.
+    let written =
+      attributes[kSecAttrModificationDate as String] as? Date
+      ?? attributes[kSecAttrCreationDate as String] as? Date ?? Date()
+    return .found(
+      Item(text: data.flatMap { String(data: $0, encoding: .utf8) }, writtenAt: written))
   }
 
   public func set(_ value: String?, for key: Key, in scope: Scope = .thisPhone) {
     if let memory {
-      memory.values.withLock { $0[Memory.Slot(key: key, scope: scope)] = value }
+      memory.values.withLock {
+        $0[Memory.Slot(key: key, scope: scope)] = value.map { Item(text: $0, writtenAt: Date()) }
+      }
       return
     }
     SecItemDelete(base(key, scope) as CFDictionary)
@@ -96,5 +127,5 @@ private final class Memory: Sendable {
     let key: Keychain.Key
     let scope: Keychain.Scope
   }
-  let values = Mutex<[Slot: String]>([:])
+  let values = Mutex<[Slot: Keychain.Item]>([:])
 }

@@ -80,4 +80,15 @@
       run(cause, commands, clock: SystemClock())
     }
   }
+
+  extension Coordinator.Outcome {
+    /// The monitor's sweep: a night that just ended goes into the night log now, not when Dusk is
+    /// next opened (#140). Never from a state it couldn't read; stamped with the artifact this
+    /// build carries.
+    public func recordNight() {
+      guard access != nil else { return }
+      NightKeeper().keepRecent(
+        state, model: .fixed(BundledModel.version), now: Date(), calendar: .current)
+    }
+  }
 #endif

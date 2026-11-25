@@ -16,6 +16,8 @@ let package = Package(
     .target(name: "TollScreenTime", dependencies: ["TollCore"]),
     .testTarget(
       name: "TollCoreTests",
-      dependencies: ["TollCore", .product(name: "SleepModel", package: "SleepModel")]),
+      dependencies: ["TollCore", .product(name: "SleepModel", package: "SleepModel")],
+      // A sample of every format the state file has had, kept forever (#140).
+      resources: [.copy("Fixtures")]),
   ]
 )

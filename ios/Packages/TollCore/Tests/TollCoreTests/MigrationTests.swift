@@ -18,7 +18,7 @@ struct MigrationTests {
 
   @Test func readsSchemaOneAsASleepBlockAtHome() {
     let state = DuskStore.decode(Data(v1.utf8))
-    #expect(state.schema == 2)
+    #expect(state.schema == DuskState.schema)
     #expect(state.blocks.count == 1)
     let sleep = state.sleepBlock
     #expect(sleep?.schedule == .everyDay(usual))

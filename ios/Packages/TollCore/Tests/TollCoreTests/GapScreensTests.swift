@@ -114,6 +114,8 @@ struct GapScreensTests {
     let encoded = try DuskStore.encoder.encode(old)
     let object = try JSONSerialization.jsonObject(with: encoded)
     var json = try #require(object as? [String: Any])
+    // A schema 2 file without a gap is from before D76 (`Migration.v2to3`).
+    json["schema"] = 2
     json["gap"] = nil
     let state = DuskStore.decode(try JSONSerialization.data(withJSONObject: json))
     #expect(state.gap.minutes == 0)
@@ -222,7 +224,7 @@ struct GapScreensTests {
     #expect(monday.gap == 30)
     #expect(monday.bed == date(2026, 11, 23, 22, 30))
     #expect(monday.plannedStart == date(2026, 11, 23, 22))
-    let data = try #require(NightRecordLine.encode(monday, calendar: london))
+    let data = try #require(NightRecordLine.encode(monday, calendar: london, model: stamp))
     let record = try JSONDecoder().decode(NightRecord.self, from: data)
     #expect(record.plannedBedtime.hasPrefix("2026-11-23T22:30:00"))
     #expect(record.bed == record.plannedBedtime)

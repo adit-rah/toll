@@ -19,8 +19,11 @@ struct BlockEditorView: View {
   /// The night's place is home, set with the same map as Tonight and Settings (the audit).
   @State private var settingHome = false
 
-  init(app: AppModel, editing id: BlockID?) {
+  /// `pickingApps` opens Apple's picker straight away: Tonight's note for a night that came back
+  /// without its apps (#140).
+  init(app: AppModel, editing id: BlockID?, pickingApps: Bool = false) {
     _model = State(initialValue: BlockEditorModel(app: app, editing: id))
+    _picking = State(initialValue: pickingApps)
   }
 
   var body: some View {

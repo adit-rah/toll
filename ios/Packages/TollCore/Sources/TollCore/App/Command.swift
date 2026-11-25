@@ -41,6 +41,8 @@ public enum Command: Sendable {
   case lockDoor
   /// When the pause was asked for, from the block screen or Tonight; nil clears it.
   case askDoor(Date?)
+  /// How a one-time flow went (`Flows`); its defaults apply when it's put off for good.
+  case flow(id: String, version: Int, FlowRecord.Outcome)
 }
 
 public enum CommandError: Error, Equatable, Sendable {
@@ -55,4 +57,6 @@ public enum CommandError: Error, Equatable, Sendable {
   /// Empty, or longer than the block screen's title holds (#62).
   case invalidName
   case unknownPlace
+  /// This build only reads the state file: a newer one wrote it (`DuskState.minReader`).
+  case readOnly
 }

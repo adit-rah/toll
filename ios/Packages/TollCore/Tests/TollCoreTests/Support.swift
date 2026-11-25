@@ -1,4 +1,5 @@
 import Foundation
+import SleepModel
 
 @testable import TollCore
 
@@ -24,6 +25,10 @@ func time(_ hour: Int, _ minute: Int = 0) -> ClockTime { ClockTime(hour: hour, m
 let usual = TimeWindow(start: time(22, 30), end: time(7))
 
 let london = calendar("Europe/London")
+
+/// What the app stamps its night records with: the bundled artifact's version, never a constant.
+let stamp = ModelStamp.fixed(ModelArtifact.bundled().version)
+
 let homePlace = Place(
   id: PlaceID("home"), name: "Home", latitude: 51.5, longitude: -0.12, radiusMeters: 150)
 let libraryPlace = Place(

@@ -79,7 +79,12 @@ One note or card at a time, the first that applies. It floats where it fits and 
 flowchart TD
   slot(["Tonight's slot"]) --> stOff{"Screen Time off after setup?"}
   stOff -->|"yes"| stNote["Screen Time is off for Dusk. Nothing can be blocked. Turn on<br/>render: home-screen-time-off"]
-  stOff -->|"no"| locNote{"The night has a place and location is short of Always?"}
+  stOff -->|"no"| readOnly{"A newer build wrote the state file<br/>(below its minReader)?"}
+  readOnly -->|"yes"| readOnlyNote["This version of Dusk can't save changes. Update it in TestFlight.<br/>render: home-read-only"]
+  readOnly -->|"no"| recovered{"The night came back from its record without its apps,<br/>none chosen since?"}
+  recovered -->|"yes"| recoveredNote["Dusk couldn't read its settings and kept your night. Choose your apps again. Choose apps<br/>render: home-recovered"]
+  recoveredNote -->|"Choose apps"| nightApps["The night's editor with Apple's apps picker open<br/>render: none"]
+  recovered -->|"no"| locNote{"The night has a place and location is short of Always?"}
   locNote -->|"yes"| locationNote["The location note: Change in Settings<br/>render: home-location"]
   locNote -->|"no"| lastNight{"Last night's card is due<br/>(before noon, not put away)?"}
   lastNight -->|"yes"| lastNightCard["Last night's row, folded; open, its card with OK<br/>render: home-morning, home-morning-open, home-morning-card"]

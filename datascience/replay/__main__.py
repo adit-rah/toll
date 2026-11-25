@@ -16,6 +16,8 @@ from pathlib import Path
 from dusk_model import artifact
 from dusk_model.artifact import Params
 
+from dusk_model.night import latest
+
 from .evaluate import replay
 from .health import records
 
@@ -36,7 +38,8 @@ def main() -> None:
         weekend = time.fromisoformat(args.weekend_bedtime or args.bedtime)
         nights = records(args.health, weekday, weekend)
     else:
-        nights = [json.loads(line) for line in args.records.read_text().splitlines() if line.strip()]
+        # Each night once, at its highest revision, as the app reads its own log.
+        nights = latest([json.loads(line) for line in args.records.read_text().splitlines() if line.strip()])
     report = replay(nights, params)
     if args.out:
         args.out.write_text(json.dumps(report, indent=2) + "\n")
