@@ -14,7 +14,7 @@ public final class AppModel {
   public private(set) var state = DuskState()
   public private(set) var log: [Transition] = []
   /// Every recorded night (D62), so Your sleep's counts outlive the log's trimming (#103).
-  public private(set) var history: [PastNight] = []
+  public internal(set) var history: [PastNight] = []
   public private(set) var screenTime = ScreenTimeAuthorization.State.notDetermined
   public private(set) var location = LocationAccess.State.notDetermined
   /// iOS's answer for the heads-up (D68); nil until read, and nothing is scheduled or offered before.
@@ -31,8 +31,8 @@ public final class AppModel {
   @ObservationIgnored var scheduledHeadsUps: [HeadsUp]?
   /// The night log's last write, so the next waits for it.
   @ObservationIgnored private var recording: Task<Void, Never>?
-  /// The one-time flow due at the last foreground (`Flows`); none are registered yet (#140).
-  public private(set) var dueFlow: String?
+  /// The one-time flow due at the last foreground (`Flows`): "Fit Dusk to your sleep" (#144).
+  public internal(set) var dueFlow: String?
   /// The state file is a newer build's, which this one only reads (`DuskState.minReader`).
   public private(set) var readOnly = false
 
@@ -117,6 +117,8 @@ public final class AppModel {
       ModelStore().refresh()
       let past = NightLog().past(calendar: .current)
       await self?.show(history: past)
+      // Health's sleep for the nights just recorded, once a watch has synced it (#144).
+      await self?.correctNightsFromHealth()
     }
   }
 

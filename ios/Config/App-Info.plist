@@ -8,6 +8,8 @@
 	<string>Only checks whether you are home. It never records where you go.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Starts your night when you get home and stops it when you leave, even with the app closed. It only checks whether you are home and never records where you go.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Dusk reads your sleep from Health to suggest your hours and show how your nights go. It never writes to Health or sends it anywhere.</string>
 	<key>TollPrivacyURL</key>
 	<string>$(TOLL_PRIVACY_URL)</string>
 	<key>TollSupportEmail</key>
