@@ -1,12 +1,14 @@
 import Foundation
 
 extension Copy {
-  /// The morning card on Tonight (D65, #103). Facts about the person's own night, never praise; the
+  /// The morning on Tonight (D65, #103). Facts about the person's own night, never praise; the
   /// hours are the night (D68), and the block isn't called "Sleep".
   public enum Morning {
     public static let lastNight = "Last night"
-    /// Over the bar when the night ran: what the bar and its times are (D75).
+    /// Over the big number when the night ran: what it counts (D75).
     public static let lockedLastNight = "Apps locked last night"
+    /// Under the number: when the block first came on and last went off, "10:15 pm – 7:00 am".
+    public static func span(from: String, to: String) -> String { "\(from) – \(to)" }
     /// The "Never mind" taps on the block screen (the founder's words, 24 Nov 2026).
     public static func putDown(_ n: Int) -> String {
       n == 1 ? "You chose sleep once" : "You chose sleep \(n) times"

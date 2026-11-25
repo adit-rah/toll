@@ -6,11 +6,30 @@ extension Copy {
   /// Shown until StoreKit returns the localized price (decisions D34).
   public static let fallbackPrice = "$9.99"
 
-  /// Hours and minutes of a window: "8 h 30 m".
+  /// Hours and minutes of a window: "8 h 30 m", "8 h", "45 m".
   public static func length(minutes: Int) -> String {
-    let hours = minutes / 60
-    let rest = minutes % 60
-    return rest == 0 ? "\(hours) h" : "\(hours) h \(rest) m"
+    lengthParts(minutes: minutes).map { "\($0.number) \($0.unit)" }.joined(separator: " ")
+  }
+
+  /// `length` as its numbers and units, so a big number can set the units small, as the hero's
+  /// time does "pm". Hours are left off under one, and minutes on the hour.
+  public static func lengthParts(minutes: Int) -> [(number: String, unit: String)] {
+    let hours = max(0, minutes) / 60
+    let rest = max(0, minutes) % 60
+    var parts: [(number: String, unit: String)] = []
+    if hours > 0 { parts.append(("\(hours)", "h")) }
+    if rest > 0 || hours == 0 { parts.append(("\(rest)", "m")) }
+    return parts
+  }
+
+  /// `length` for VoiceOver: "8 hours 45 minutes", "1 hour".
+  public static func lengthSpoken(minutes: Int) -> String {
+    let hours = max(0, minutes) / 60
+    let rest = max(0, minutes) % 60
+    var words: [String] = []
+    if hours > 0 { words.append(hours == 1 ? "1 hour" : "\(hours) hours") }
+    if rest > 0 || hours == 0 { words.append(rest == 1 ? "1 minute" : "\(rest) minutes") }
+    return words.joined(separator: " ")
   }
 
   /// "10:30 pm – 7:00 am". `short` reads "9 am – 5 pm" when both ends are whole hours, as Home's rows

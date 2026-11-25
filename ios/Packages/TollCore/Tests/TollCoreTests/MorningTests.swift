@@ -89,6 +89,34 @@ struct MorningTests {
       morning.spoken.contains("open from 12:40") || morning.spoken.contains("open from 00:40"))
   }
 
+  /// The big number is how long the block shielded, pauses left out: Your sleep's count (D84).
+  @Test func theNumberIsHowLongAppsWereLocked() throws {
+    #expect(home(date(2026, 11, 17, 9), night()).morning?.locked == 510)
+    let paused = night(extra: [
+      line(date(2026, 11, 17, 0, 40), .doorStart, active: [sleep], door: .open),
+      line(date(2026, 11, 17, 0, 50), .doorEnd, active: [sleep]),
+    ])
+    let morning = try #require(home(date(2026, 11, 17, 9), paused).morning)
+    #expect(morning.locked == 500)
+    #expect(Copy.length(minutes: 500) == "8 h 20 m")
+    #expect(Copy.lengthSpoken(minutes: 500) == "8 hours 20 minutes")
+    #expect(Copy.Morning.span(from: morning.from, to: morning.to).contains(" – "))
+  }
+
+  /// Units are set small beside the numbers, as "pm" is; nothing reads "0 h".
+  @Test func lengthsSplitIntoNumbersAndUnits() {
+    func parts(_ minutes: Int) -> [String] {
+      Copy.lengthParts(minutes: minutes).flatMap { [$0.number, $0.unit] }
+    }
+    #expect(parts(525) == ["8", "h", "45", "m"])
+    #expect(parts(480) == ["8", "h"])
+    #expect(parts(45) == ["45", "m"])
+    #expect(parts(0) == ["0", "m"])
+    #expect(Copy.length(minutes: 45) == "45 m")
+    #expect(Copy.lengthSpoken(minutes: 61) == "1 hour 1 minute")
+    #expect(Copy.lengthSpoken(minutes: 120) == "2 hours")
+  }
+
   /// An away night is named, never "missed" (D65).
   @Test func anAwayNightIsNamed() throws {
     let log = [
@@ -98,6 +126,7 @@ struct MorningTests {
     let morning = try #require(home(date(2026, 11, 17, 9), log).morning)
     #expect(morning.outcome == .away)
     #expect(morning.ran.isEmpty)
+    #expect(morning.locked == nil)
     #expect(morning.putDown == nil)
     #expect(morning.spoken.contains("Away from home"))
     // Nothing was locked, so the eyebrow doesn't say it was; the line says why.

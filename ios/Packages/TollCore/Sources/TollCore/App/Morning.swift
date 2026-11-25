@@ -1,7 +1,7 @@
 import Foundation
 
-/// The morning card on Tonight (D65, #103): last night from Dusk's own log, in place of the
-/// "starts at" hero from the end of the night until noon. Exact facts about the person's own night,
+/// The morning on Tonight (D65, #103): last night from Dusk's own log, in the hero's place and form
+/// from the end of the night until noon. Exact facts about the person's own night,
 /// and nothing to keep up. A night that was due and didn't run shows no card: a bad night is neutral
 /// and forward-looking, so Tonight looks ahead instead.
 public struct Morning: Equatable, Sendable {
@@ -27,6 +27,9 @@ public struct Morning: Equatable, Sendable {
   /// Where the block was on; the room between two of them is a gap (a pause, or a time away).
   public var ran: [Span]
   public var gaps: [Span]
+  /// Minutes the night's block shielded, pauses left out: the morning's big number, the same count
+  /// as Your sleep's hours (D84). Nil when nothing blocked.
+  public var locked: Int?
   /// "You chose sleep 3 times": the "Never mind" taps while the night's block was on (D46). Nil at
   /// zero, since nothing new means nothing shown.
   public var putDown: String?
@@ -82,6 +85,7 @@ public struct Morning: Equatable, Sendable {
     let last = stretches.last?.end ?? night.plannedEnd
     from = Copy.time(first, in: calendar)
     to = Copy.time(last, in: calendar)
+    locked = outcome == .ran ? Int((night.locked / 60).rounded()) : nil
     putDown = outcome == .ran && night.stops > 0 ? Copy.Morning.putDown(night.stops) : nil
     eyebrow = outcome == .ran ? Copy.Morning.lockedLastNight : Copy.Morning.lastNight
     switch outcome {
