@@ -150,6 +150,10 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 132 | Before the first night (empty sky): tap the sky | Nothing changes | | |
 | 133 | VoiceOver: focus the sky, then double-tap | It reads the label, then "Double-tap to show the names."; double-tap brightens them and the hint becomes "Double-tap to fade the names." | | |
 | 134 | Show the names in the morning (from 5 am), evening (from 4 pm) and night (from 9 pm) | Every name is readable against the sky in each light, including any low near the hills | | |
+| 135 | Install build N, finish setup, then install an older TestFlight build | Tonight still shows the night; the app does not return to Welcome (fails today if N added a stored enum case, #140) | | |
+| 136 | Don't open Dusk for several nights while nights run, then open it | Every one of those nights appears in Your sleep and the sky | | |
+| 137 | Revoke Screen Time in iOS Settings while the night is locked, then open Dusk | Note whether the shield lifts and whether the schedules survive; Tonight says Screen Time is off | | |
+| 138 | Approve an Ask to Buy on the parent's phone while Dusk stays closed after the free nights | Note whether that night locks before Dusk is opened (#141) | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
