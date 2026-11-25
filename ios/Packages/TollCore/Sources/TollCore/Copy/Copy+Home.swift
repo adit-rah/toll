@@ -93,6 +93,13 @@ extension Copy {
     public static let screenTimeOffDetail = "Nothing blocks tonight"
     public static let screenTimeOffCard = "Screen Time is off for Dusk. Nothing can be blocked."
     public static let turnOn = "Turn on"
+    /// The night came back from its record without its apps (#140).
+    public static let recoveredCard =
+      "Dusk couldn't read its settings and kept your night. Choose your apps again."
+    public static let chooseApps = Setup.chooseApps
+    /// A TestFlight build older than the one that last wrote the state file (#140).
+    public static let readOnlyCard =
+      "This version of Dusk can't save changes. Update it in TestFlight."
 
     public static let thisWeek = "This week"
     public static let seeAll = "See all"

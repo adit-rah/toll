@@ -26,8 +26,9 @@ extension NightRecordLine {
 }
 
 extension NightLog {
-  /// Every recorded night, oldest first, for Your sleep's counts (#103).
+  /// Every recorded night, oldest first, each at its highest revision, for Your sleep's counts
+  /// (#103).
   public func past(calendar: Calendar) -> [PastNight] {
-    lines().compactMap { NightRecordLine.past($0, calendar: calendar) }
+    current().compactMap { NightRecordLine.past($0, calendar: calendar) }
   }
 }

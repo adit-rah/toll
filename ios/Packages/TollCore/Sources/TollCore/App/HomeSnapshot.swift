@@ -59,6 +59,8 @@ public struct HomeSnapshot: Equatable, Sendable {
   /// The one way Dusk fails completely: Screen Time switched off after setup (#45). Takes the
   /// location card's place.
   public var screenTimeOff: Bool
+  /// The night came back without its apps (#140): after Screen Time off, before location.
+  public var recovered: Bool
   /// The one optional card under the pill when no warning holds the slot (#102).
   public var card: TonightCard?
   /// The first heads-up the night would get, for the card that offers it (#104).
@@ -95,6 +97,7 @@ public struct HomeSnapshot: Equatable, Sendable {
   ) {
     let sleep = state.sleepBlock
     screenTimeOff = state.setupFinishedAt != nil && !screenTime
+    recovered = state.nightNeedsApps
     // The hero's times are the lock's, which starts the gap before bed (D76).
     hero = Self.hero(state, sleep: state.lockSleep, now: now, calendar: calendar, config: config)
     if screenTimeOff, state.trial.entitled { hero = .screenTimeOff }
@@ -113,7 +116,7 @@ public struct HomeSnapshot: Equatable, Sendable {
       state.setupFinishedAt != nil && state.location == .scheduleOnly && sleep?.place != nil
     untilBed = Self.untilBed(state, hero: hero, now: now, calendar: calendar)
     card = Self.card(
-      state, now: now, calendar: calendar, warning: screenTimeOff || locationBanner,
+      state, now: now, calendar: calendar, warning: screenTimeOff || recovered || locationBanner,
       notifications: notifications, untilBed: untilBed)
     if card == .headsUp {
       headsUp =
@@ -151,7 +154,7 @@ public struct HomeSnapshot: Equatable, Sendable {
       let noon = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: now)
       lastNightCard =
         noon.map { now < $0 } == true && state.lastNightSeen != night.night && !screenTimeOff
-        && !locationBanner
+        && !recovered && !locationBanner
       lastNight = night
     }
     timeline = day.segments.isEmpty ? nil : day

@@ -30,7 +30,7 @@ Rules that keep it that way:
 ## The model
 
 ```
-DuskState (schema 2, one coordinated JSON file in the App Group)
+DuskState (schema 3, one coordinated JSON file in the App Group)
 ├── blocks:   [Block]                     ≤ blocks.max, exactly one of kind .sleep
 ├── places:   [Place]                     shared by blocks; one is Home
 ├── presence: [PlaceID: Presence]         last word from region monitoring
@@ -40,6 +40,7 @@ DuskState (schema 2, one coordinated JSON file in the App Group)
 ├── unlocks:  UnlockSupply                the week's pauses, shared by all blocks (D67)
 ├── trial:    Trial (start, purchased)
 ├── gap:      Gap                         minutes the night locks before bed, growing or fixed (D76)
+├── flows:    [id: FlowRecord]            how each one-time flow last went (#140)
 └── runtime:  per-block active night and last end (B-4), clock anchor, scheduled windows
 ```
 
@@ -65,7 +66,24 @@ DeviceActivity only wakes the monitor; reconcile decides.
 
 ## Migration
 
-Schema 1 is step 2's `SleepState`: one window, one home, one blocklist. On first load it becomes a Sleep block at a Home place with that window and those apps; presence, door, unlocks, trial and purchase carry over. Tested.
+Schema 1 is step 2's `SleepState`: one window, one home, one blocklist. On first load it becomes a Sleep block at a Home place with that window and those apps; presence, door, unlocks, trial and purchase carry over. Schema 2 is the blocks (D29), with fields added later without a raise, `lastNightSeen` (D91) the last; 3 adds `minReader`, `writtenBy` , `flows` and `recoveredAt`, and moves "a file without a gap is from before D76" out of a decoder default into its step (#140). Tested, from a sample of every past format.
+
+## Data and its evolution
+
+There's no server, so every change to what Dusk keeps happens on the phone, in four processes that ship together and read the same files (`docs/flows/data.md` lists them). A build can meet a file from any earlier build, and, on TestFlight, from a later one. The rules every change follows:
+
+- **Never lose a person.** Reading is lossy (`Persist/Lossy.swift`, `Decoding.swift`): a missing key takes its default, an unknown enum value its safe fallback (a block kind is `.other`, a location mode `.scheduleOnly`, a gap mode `.fixed`), and an element that can't be read is dropped alone. Only what identifies a thing is required. A new stored type gets a decoder written with these helpers, never a synthesized one.
+- **Never write over what wasn't read.** A file that's there but can't be opened (before the first unlock) is left alone, and no effect runs. A file that can't be parsed is kept as `state.unreadable-<time>.json`; one read in part, as `state.partial-<time>.json`; one at another schema, once, as `state.v<n>.json`; then the new state is written atomically. The night comes back from the latest night record (`Recovery`); the free nights' start comes back from the Keychain at the next launch. Setup shows again only when there's no record.
+- **Expand, then contract.** A build that adds a field, an enum case or a key first ships readers that tolerate it; only a later build writes it. A field's meaning never changes in place: it gets a new key.
+- **Bump the schema** for every change of shape or meaning, additive or not (`DuskState.schema`). Set `DuskState.minReader` to the new schema when an older build would misread what this one writes, or drop it to harm (a new enum case; a field whose loss changes behaviour). A build below a file's `minReader` reads it and never writes it: it applies no command (`CommandError.readOnly`), the shield follows the file as read, nothing is logged, schedules are left as they are, and Tonight says changes can't be saved. A file without `minReader` came from a build before #140, which writes back whatever `schema` it read: it's read as schema 2, so every step it needs still runs.
+- **Add a migration step** (`Migration.steps`) for the new schema, on the JSON as written, never through today's types. A default that carries a decision belongs in a step, keyed by the schema it applies to, not in a decoder.
+- **Add a fixture.** Put a file in the new format, written by the build's own encoder, in `Tests/TollCoreTests/Fixtures/state/`, list it, and move the previous newest into `past`. `StateFixtureTests` migrates every fixture to the current shape, checks what each held and round-trips it, and fails when today's encoder writes a key path the newest fixture doesn't have. Fixtures are kept forever.
+- **Night records are append-only.** A line is never rewritten. Each carries `record` (its format) and `rev`; a correction is a new line for the same night with a higher `rev`, and every reader takes the highest (the app's `NightLog`, `SleepModel.ModelCache`, `datascience`'s `latest`). `model_version` comes from the bundled artifact (the monitor's from `BundledModel`, generated from it by `sync-model.sh`). Readers accept every past shape. Nights are recorded before the transition log is trimmed (`NightKeeper`), by the monitor at each sweep and by the app on opening.
+- **The model state is a cache.** `model.json` holds the person's state and the artifact it was built with; when the bundled artifact differs, the app rebuilds it from the night log, so a new model needs no migration in either direction. A rebuild fixture keeps Swift and Python equal.
+- **The Keychain trial start's format never changes.** An older build on another phone of the same Apple ID reads it. Anything more goes in a new account beside it. A value that can't be read is never written over and never read as "no start"; a Keychain answer other than "not found" is unknown, and nothing is written that pass.
+- **Platform names are formats too.** A renamed ManagedSettings store, DeviceActivity name or CLMonitor id strands the old one unless the change clears it, as `TollLeftovers` does.
+- **Add a one-time flow only when a person must decide** (`docs/flows/README.md`). Everything else is a migration step.
+- **Nothing leaves the phone** at any step: no network, no analytics. Kept copies and caches live in the App Group beside what they copy.
 
 ## Where things live
 

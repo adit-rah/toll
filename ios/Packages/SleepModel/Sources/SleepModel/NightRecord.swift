@@ -34,9 +34,13 @@ public struct NightRecord: Codable, Sendable, Equatable {
   /// The helper last opened before bed that night ("list", "breathe", "words"); nil when none was,
   /// and in older records.
   public var helper: String?
+  /// The line's own format and revision (#140); nil in lines from before, which are 1. A
+  /// correction is a later line for the same night with a higher `rev`.
+  public var record: Int?
+  public var rev: Int?
 
   enum CodingKeys: String, CodingKey {
-    case night, policy, weekend, wake, bed, helper
+    case night, policy, weekend, wake, bed, helper, record, rev
     case gapMin = "gap_min"
     case plannedBedtime = "planned_bedtime"
     case plannedWake = "planned_wake"

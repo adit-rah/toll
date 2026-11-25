@@ -14,6 +14,7 @@ from dusk_model import artifact
 
 from . import v0
 from .fixtures import all_cases, check_nonempty, rng_case
+from .rebuild import case as rebuild_case
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / "artifacts"
@@ -27,7 +28,8 @@ def main() -> None:
     check_nonempty(cases)
     lines = [json.dumps(rng_case())] + [json.dumps(c) for c in cases]
     (ARTIFACTS / "fixtures.jsonl").write_text("\n".join(lines) + "\n")
-    print(f"wrote {path.name} and {len(lines)} fixture cases")
+    (ARTIFACTS / "rebuild.json").write_text(json.dumps(rebuild_case()) + "\n")
+    print(f"wrote {path.name}, {len(lines)} fixture cases and the rebuild fixture")
 
 
 if __name__ == "__main__":

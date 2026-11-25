@@ -17,6 +17,7 @@ from dusk_model import artifact
 
 from . import v0
 from .fixtures import all_cases, rng_case
+from .rebuild import case as rebuild_case
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -47,6 +48,8 @@ def main() -> None:
     lines = (ROOT / "artifacts" / "fixtures.jsonl").read_text().splitlines()
     fresh = [rng_case()] + all_cases()
     same([json.loads(line) for line in lines], json.loads(json.dumps(fresh)), "fixtures", problems)
+    committed_rebuild = json.loads((ROOT / "artifacts" / "rebuild.json").read_text())
+    same(committed_rebuild, json.loads(json.dumps(rebuild_case())), "rebuild", problems)
     for p in problems[:20]:
         print(p)
     if problems:

@@ -159,6 +159,49 @@ struct TrialTests {
     #expect(none.begun(now: start) == TrialStart(thisPhone: start, appleID: start))
   }
 
+  // MARK: A copy that can't be read (#140 risk 5)
+
+  /// Corrupt, or a format from a build that broke the rule: on main it read as no start, so setup
+  /// granted the free nights again from now, and `settle` wrote over it.
+  @Test func anUnreadableCopyNeverGrantsNewFreeNights() {
+    let written = date(2026, 11, 3, 21)
+    let now = date(2026, 11, 26, 20)
+    let unreadable = TrialStart(thisPhone: .unreadable(writtenAt: written), appleID: .none)
+    #expect(unreadable.start == written)
+    #expect(unreadable.begun(now: now).start == written)
+    let offer = Trial.offer(
+      start: unreadable.begun(now: now).start, purchased: false, now: now,
+      sleep: .everyDay(usual), calendar: london, config: .defaults)
+    #expect(offer == .used(endedAt: date(2026, 11, 17, 7)))
+  }
+
+  @Test func anUnreadableCopyIsNeverWrittenOver() {
+    let start = date(2026, 11, 17, 15)
+    let written = date(2026, 11, 20, 9)
+    let mixed = TrialStart(thisPhone: .date(start), appleID: .unreadable(writtenAt: written))
+    #expect(mixed.start == start)
+    #expect(mixed.settled == mixed)
+    #expect(mixed.begun(now: date(2026, 11, 26, 20)) == mixed)
+    let later = TrialStart(thisPhone: .none, appleID: .unreadable(writtenAt: written))
+    #expect(
+      later.settled
+        == TrialStart(thisPhone: .date(written), appleID: .unreadable(writtenAt: written)))
+  }
+
+  /// The Keychain answering "locked" or "busy" is not "no start": nothing is written that pass, so
+  /// the iCloud copy's earlier start from another phone is never replaced.
+  @Test func anUnknownCopyWritesNothing() {
+    let first = date(2026, 11, 3, 21)
+    let later = date(2026, 11, 20, 21)
+    let unsure = TrialStart(thisPhone: .date(later), appleID: .unknown)
+    #expect(!unsure.known)
+    #expect(unsure.start == later)
+    #expect(unsure.settled == unsure)
+    #expect(unsure.begun(now: date(2026, 11, 26, 20)) == unsure)
+    let back = TrialStart(thisPhone: .date(later), appleID: .date(first))
+    #expect(back.settled == TrialStart(thisPhone: first, appleID: first))
+  }
+
   /// The iCloud copy can arrive after setup on a new phone: the state takes the earlier start, and
   /// the free nights end when they would have on the first phone.
   @Test func anEarlierStartArrivingLaterEndsTheFreeNights() {

@@ -97,7 +97,7 @@ struct YourSleepTests {
         log: nights([16]), sleep: sleepBlock(), since: date(2026, 11, 16, 12),
         now: date(2026, 11, 17, 9), calendar: london
       ).first)
-    let line = try #require(NightRecordLine.encode(facts, calendar: london))
+    let line = try #require(NightRecordLine.encode(facts, calendar: london, model: stamp))
     let past = try #require(NightRecordLine.past(line, calendar: london))
     #expect(past.night == date(2026, 11, 16, 0) && past.ran)
   }

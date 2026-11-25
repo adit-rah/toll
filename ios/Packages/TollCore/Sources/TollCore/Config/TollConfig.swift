@@ -138,6 +138,15 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var breathRange: ClosedRange<Int> { breathMinMinutes...breathMaxMinutes }
   }
 
+  /// One-time flows for people already using Dusk (#140, `Flows`).
+  public struct OneTimeFlows: Codable, Sendable, Equatable {
+    public init() {}
+    /// None this close to the lock: the heads-up's 20 minutes (D68) belong to the night.
+    public var quietBeforeLockMinutes = 20
+    /// Offered at most this many times; "Not now" on the last applies its defaults.
+    public var offers = 3
+  }
+
   public var window = Window()
   public var home = Home()
   public var door = Door()
@@ -148,6 +157,7 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public var gap = Gap()
   public var sky = Sky()
   public var helpers = Helpers()
+  public var flows = OneTimeFlows()
 
   public init() {}
 

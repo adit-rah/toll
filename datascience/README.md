@@ -6,8 +6,8 @@ Dusk's sleep model, built, fitted and tested in Python, following the founders' 
 dusk_model/   reference implementation: rng, artifact, night records, model, policy, insights
 sim/          synthetic people, six scenarios, the pass criteria, tuning, dampened start policies, the growing gap, figures
 replay/       real nights in (Health export or Dusk's night records), prediction error out
-export/       writes the artifact and the parity fixtures; compares the Swift package (parity.py)
-artifacts/    every exported version, kept; fixtures.jsonl
+export/       writes the artifact, the parity fixtures and the rebuild fixture; compares the Swift package (parity.py)
+artifacts/    every exported version, kept; fixtures.jsonl; rebuild.json (a night log and the state rebuilt from it)
 reports/      criteria.json, tuning.md, figures/
 tests/        pytest
 ```

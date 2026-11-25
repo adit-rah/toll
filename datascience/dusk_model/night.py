@@ -50,6 +50,26 @@ RECORD_FIELDS = [
 HELPERS = ("list", "breathe", "words")
 
 
+def revision(record: dict) -> int:
+    """A record's revision: lines from before records carried one (#140) are revision 1."""
+    return int(record.get("rev") or 1)
+
+
+def latest(records: list[dict]) -> list[dict]:
+    """One record per night, its highest revision, the first written of equals, in night order.
+
+    The night log is append-only: a correction, such as Health's sleep arriving later, is a new line
+    for the same night with a higher `rev`. Every reader takes this view of it (the app's `NightLog`
+    and the Swift package's `ModelCache` too), so all three agree on which nights the model saw.
+    """
+    best: dict[str, dict] = {}
+    for record in records:
+        held = best.get(record["night"])
+        if held is None or revision(record) > revision(held):
+            best[record["night"]] = record
+    return [best[night] for night in sorted(best)]
+
+
 @dataclass(frozen=True)
 class Context:
     """What is known about a night before it starts."""

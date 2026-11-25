@@ -1,11 +1,22 @@
 import Foundation
 
 /// Everything the app and its extensions share, in one coordinated file in the App Group
-/// (docs/architecture.md). Schema 1 was step 2's single-block state; `Migration` reads it.
+/// (docs/architecture.md). Every change of shape or meaning raises `schema` and adds a step to
+/// `Migration` ("Data and its evolution" there).
 public struct DuskState: Codable, Hashable, Sendable {
-  public static let schema = 2
+  /// 1 was step 2's single-block file; 2 the blocks (D29); 3 added `minReader`, `writtenBy` and
+  /// `flows` (#140).
+  public static let schema = 3
+  /// The oldest schema that may write over a file this build writes. A build below it reads the
+  /// file and never writes it, so nothing it can't hold is lost. Raise it to `schema` when a build
+  /// starts writing something an older one would misread, or drop to harm: a new enum case, or a
+  /// field whose loss changes what happens.
+  public static let minReader = 2
 
   public var schema = DuskState.schema
+  public var minReader = DuskState.minReader
+  /// The build that last wrote the file, for reading a downgrade.
+  public var writtenBy: String?
   public var blocks: [Block] = []
   public var places: [Place] = []
   public var presence: [PlaceID: Presence] = [:]
@@ -37,6 +48,12 @@ public struct DuskState: Codable, Hashable, Sendable {
   public var gap = Gap()
   /// Before bed's helpers in the gap (D80): on unless switched off, and the breath's length.
   public var helpers = Helpers()
+  /// One-time flows (`Flows`) by id, as each last went: keyed by string, so an id a newer build
+  /// adds never stops the file loading.
+  public var flows: [String: FlowRecord] = [:]
+  /// When the night was brought back from a night record because the file had lost it (#140):
+  /// its apps couldn't come back, and Tonight says so until they're chosen.
+  public var recoveredAt: Date?
   public var runtime = RuntimeState()
 
   public init() {}
@@ -47,6 +64,14 @@ public struct DuskState: Codable, Hashable, Sendable {
   }
 
   public var sleepBlock: Block? { blocks.first(where: \.isSleep) }
+
+  /// The night came back from a night record without its apps (`Recovery`), and none have been
+  /// chosen since: a choice held for the night's end counts (B-3).
+  public var nightNeedsApps: Bool {
+    guard recoveredAt != nil, let sleep = sleepBlock, sleep.apps == nil else { return false }
+    if case .save(let draft) = pending[sleep.id] { return draft.apps == nil }
+    return true
+  }
   /// The night's block as it runs: locking the gap before bed (D76). Its stored hours are bed to
   /// wake; every rule about when it's on reads these.
   public var lockSleep: Block? { sleepBlock.map(locking) }
