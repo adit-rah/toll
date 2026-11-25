@@ -17,7 +17,7 @@ Every user flow in Dusk, as built on `main`, drawn as a Mermaid flowchart. A UX 
 | [permissions.md](permissions.md) | Losing and getting back Screen Time, location and notifications | D8, D10, D37, D48, D72 |
 | [your-sleep.md](your-sleep.md) | Your sleep: the sky, a star's night, the week, the ranges, landmarks and sharing | D69, D79, D81, D84, D88 |
 | [blocks.md](blocks.md) | The Blocks tab and the block editor: new, edit, delete, the night's editor | D29, D45, D73, D84, D87 |
-| [data.md](data.md) | Every piece of data that persists: where, its format, who writes and reads it, what a format change does today | D11, D62, D78 |
+| [data.md](data.md) | Every piece of data that persists: where, its format, who writes and reads it, what a format change does | D11, D62, D78, #140 |
 
 ## Conventions
 
@@ -66,9 +66,28 @@ There is no CI check. A pull request that changes a flow updates its chart, and 
 | `ios/Packages/TollCore/Sources/TollCore/App/` (`HomeSnapshot`, `TonightCard`, `Morning`, `HeadsUp`, `GapRules`, `GapSnapshot`, `DoorRules`, `Engine*`) | tonight, pause, heads-up, before-bed, set-home, purchase |
 | `…/TollCore/App/` (`YourSleep`, `InsightsSnapshot`, `Sky*`, `PastNight`, `NightFacts`) | your-sleep, data |
 | `…/TollCore/Domain/` (`Trial`, `TrialStart`, `Door`, `Gap`) | purchase, pause, before-bed |
-| `…/TollCore/Persist/`, `…/TollCore/App/DuskState.swift`, `…/TollCore/Domain/` (any `Codable` type) | data |
+| `…/TollCore/Persist/`, `…/TollCore/App/DuskState.swift`, `…/TollCore/App/Flows.swift`, `…/TollCore/Domain/` (any `Codable` type) | data, and each `once-*` chart |
 | `ios/Packages/TollCore/Sources/TollScreenTime/`, `ios/Monitor/`, `ios/ShieldAction/`, `ios/ShieldConfig/` | pause, permissions, data |
 | `ios/Packages/TollData/` | purchase, set-home, heads-up, permissions, data |
 | `ios/Packages/SleepModel/`, `datascience/export/` | data |
 
 When a flow is added, add its chart, a row in the first table and its folders in this one.
+
+## One-time flows
+
+Some changes need the person: a build starts keeping something people already using Dusk have never been asked for (the onboarding redesign's sleep interval and buffers, say), and there's no server to fill it in for them. A one-time flow asks them once, in the app, at a calm moment. The registry is `Flows` in `TollCore/App/Flows.swift`; it has no flows yet (#140).
+
+**Add a flow only when a person must decide.** If a safe value can be worked out from what's stored, a migration step does it (`docs/architecture.md`, "Data and its evolution") and nobody is asked.
+
+To add one:
+
+1. **The stored field first.** Add the field it fills, with its migration step and fixture, as any stored change. Choose the field's value for people who never answer: it must keep everything as it was for them.
+2. **The entry.** Add a `OneTimeFlow` to `Flows.registry`, in the order flows should win:
+   - `id`: a stable string, never reused (`confirm-night`).
+   - `version`: 1. Raise it only when everyone who answered must be asked again.
+   - `applies`: a pure predicate over `DuskState`: who needs it (set up before the build that added the field, no answer yet). Never "everyone".
+   - `defaults`: the commands applied when it's put off for good, chosen so nothing changes for the person.
+3. **What the app does.** At each foreground `AppModel` reads `Flows.due` into `dueFlow`. The screen that shows it sends `.flow(id:version:.shown)` when it appears, then `.answered` with the person's commands, or `.notNow`. The third "Not now" (`flows.offers`) records `.defaulted` and applies `defaults`. Every outcome goes into `state.flows`, so it's asked once per version.
+4. **When it may show** (`Flows.calm`, tested): after setup; never during a night or its gap, a pause, or while any block is on; never in the last `flows.quietBeforeLockMinutes` (20) before the lock; at most one flow on any day. It shows in Tonight's card slot, after warnings and before offers, and opens a sheet; no takeover (D86).
+5. **Tests** in `FlowTests`: its `applies` for an install from each past fixture that needs it and one that doesn't, its defaults leaving the person's night as it was, and its record.
+6. **Its chart:** `docs/flows/once-<id>.md`, with `applies`, the moments it may show, every outcome and what each writes, and the defaults. Add a row to the first table.
