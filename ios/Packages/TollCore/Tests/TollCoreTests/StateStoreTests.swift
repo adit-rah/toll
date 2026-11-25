@@ -87,6 +87,7 @@ struct StateStoreTests {
     try FileManager.default.createDirectory(at: files.state, withIntermediateDirectories: true)
     var ran = false
     #expect(files.store.update { _ in ran = true } == nil)
+    #expect(files.store.loadIfReadable() == nil)
     #expect(!ran)
     let fakes = CoordinatorTests.Fakes()
     let outcome = Coordinator(store: files.store, shield: fakes, schedule: fakes, log: fakes)
@@ -164,6 +165,7 @@ struct StateStoreTests {
       try Data("nope".utf8).write(
         to: files.folder.appending(path: "state.unreadable-\(stamp).json"))
     }
+    try Data("nope".utf8).write(to: files.state)
     files.store.update { _ in () }
     #expect(files.kept("state.unreadable-").count == Kept.keep)
     #expect(

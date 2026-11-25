@@ -22,9 +22,15 @@ public struct DuskStore: StatePort {
 
   /// Never writes: ShieldConfig reads through this alone.
   public func load() -> DuskState {
+    loadIfReadable() ?? DuskState()
+  }
+
+  /// Nil when the file is there but can't be opened, so a reader keeps what it had.
+  public func loadIfReadable() -> DuskState? {
     switch CoordinatedFile.contents(url) {
-    case .missing, .unreadable: return DuskState()
-    case .data(let data): return read(data, now: Date()).state
+    case .missing: DuskState()
+    case .unreadable: nil
+    case .data(let data): read(data, now: Date()).state
     }
   }
 
@@ -34,6 +40,7 @@ public struct DuskStore: StatePort {
       let now = Date()
       var state: DuskState
       var access = StateAccess.saved
+      var kept = false
       switch contents {
       case .unreadable:
         return
@@ -44,11 +51,10 @@ public struct DuskStore: StatePort {
         state = reading.state
         if !reading.writable {
           access = .readOnly
-        } else if let keep = reading.keep(now: now), !writer.has(keep),
-          !writer.keep(data, as: keep)
-        {
+        } else if let keep = reading.keep(now: now), !writer.has(keep) {
+          kept = writer.keep(data, as: keep)
           // Nothing is written until the file as it was is safe beside it.
-          access = .readOnly
+          if !kept { access = .readOnly }
         }
       }
       let value = body(&state)
@@ -57,7 +63,7 @@ public struct DuskStore: StatePort {
         state.minReader = DuskState.minReader
         state.writtenBy = build
         if let data = try? Self.encoder.encode(state), writer.replace(with: data) {
-          Kept.prune(beside: writer.url)
+          if kept { Kept.prune(beside: writer.url) }
         } else {
           access = .readOnly
         }

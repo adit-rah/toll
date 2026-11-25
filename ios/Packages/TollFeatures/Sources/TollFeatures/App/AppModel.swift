@@ -148,7 +148,7 @@ public final class AppModel {
     #if DEBUG
       if DemoScenario.current != nil { return }
     #endif
-    let latest = DuskStore().load()
+    guard let latest = DuskStore().loadIfReadable() else { return }
     guard latest != state else { return }
     state = latest
     // The monitor applies a held edit when the night ends; the heads-up follows the new hours.
