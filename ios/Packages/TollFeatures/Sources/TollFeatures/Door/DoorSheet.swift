@@ -16,19 +16,23 @@ struct DoorSheet: View {
   var body: some View {
     let supply = HomeSnapshot.Supply(
       state: model.state, now: now, calendar: .current, config: model.config)
-    Group {
-      if let door = model.state.door {
-        switch door.phase {
-        case .waiting: DoorWaiting(model: model, door: door, now: now)
-        case .open: DoorOpen(model: model, door: door, now: now)
+    // The stack stays while its states come and go, so it carries the crossfade and the haptic; on
+    // the states themselves, which are each new, neither would ever see a change.
+    ZStack {
+      Group {
+        if let door = model.state.door {
+          switch door.phase {
+          case .waiting: DoorWaiting(model: model, door: door, now: now)
+          case .open: DoorOpen(model: model, door: door, now: now)
+          }
+        } else if supply.left == 0 {
+          DoorNoneLeft(model: model, supply: supply)
+        } else {
+          DoorChoose(model: model, supply: supply)
         }
-      } else if supply.left == 0 {
-        DoorNoneLeft(model: model, supply: supply)
-      } else {
-        DoorChoose(model: model, supply: supply)
       }
+      .transition(Motion.pageSwap)
     }
-    .transition(.opacity)
     .animation(Motion.movement, value: model.state.door?.phase)
     .tollHaptic(.light, trigger: model.state.door?.phase)
   }
@@ -178,11 +182,14 @@ private struct DoorOpen: View {
           in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
         )
         .padding(.top, 20)
-        .transition(.opacity)
+        // Design §2.5: it fades out over 200 ms when its time is up, on the clock's tick, which
+        // carries no animation of its own.
+        .transition(.opacity.animation(Motion.stateChange))
       }
     } actions: {
       if let regretEnd = door.regretEndsAt(model.config), now >= regretEnd {
         Footnote(Copy.Door.pauseUsed, alignment: .center).padding(.bottom, 10)
+          .transition(.opacity.animation(Motion.stateChange))
       }
       PrimaryButton {
         model.lockDoor()

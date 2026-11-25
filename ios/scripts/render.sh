@@ -5,7 +5,8 @@
 #
 #   ios/scripts/render.sh [out-dir]          default out-dir: build/renders
 #   SCENARIOS  one per line: `<scenario>` or `<scenario>: <axe step>; <axe step>…`
-#              (default: every scenario in ALL below)
+#              (default: every scenario in ALL below). `motion <scenario>: <steps>` also films the
+#              steps into motion.mp4, and `wait <seconds>` is a step there (docs/renders.md, "Motion").
 #   VARIANTS   any of light dark ax5 dark-ax5 wordless dark-wordless, space-separated (default: light).
 #              wordless draws every line of text as a placeholder bar (docs/design.md §5).
 #   UDID       the simulator to use (default: render-device.sh picks and boots one)
@@ -105,11 +106,44 @@ except Exception: sys.exit(1)'; then
   echo "${drawn:-never}"
 }
 slug() { printf '%s' "$1" | tr -cs 'A-Za-z0-9' '-' | sed 's/^-//; s/-$//' | cut -c1-60; }
+now() { python3 -c 'import time; print(f"{time.time():.3f}")'; }
+since() { python3 -c "import time; print(f'{time.time() - $1:.2f}')"; }
+# Films a motion line's steps (docs/renders.md, "Motion"): recording starts before the first step
+# and stops 1.5 s after the last, with SIGINT so the file is finalised. The steps run back to back,
+# without settling. motion.txt says when each started, in seconds from the recording's start.
+film() {
+  local dir=$1 steps=$2 step recorder began
+  xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$dir/motion.mp4" >"$dir/record.txt" 2>&1 &
+  recorder=$!
+  for _ in $(seq 50); do
+    if grep -q "Recording started" "$dir/record.txt" 2>/dev/null; then break; fi
+    sleep 0.1
+  done
+  began=$(now)
+  # A tap in the recording's first moments was sometimes lost.
+  sleep 1
+  IFS=';' read -r -a parts <<<"$steps"
+  for step in "${parts[@]}"; do
+    step=$(trim "$step")
+    [ -z "$step" ] && continue
+    printf '%s %s\n' "$(since "$began")" "$step" >>"$dir/motion.txt"
+    case $step in
+      wait\ *) sleep "${step#wait }" ;;
+      *) eval "axe $step --udid \"$UDID\"" >>"$dir/steps.txt" 2>&1 || echo "step failed: $step" >>"$dir/steps.txt" ;;
+    esac
+  done
+  sleep 1.5
+  kill -INT "$recorder" 2>/dev/null || true
+  wait "$recorder" 2>/dev/null || true
+}
+
 capture() {
-  local variant=$1 line=$2 scenario steps dir step marker began=$SECONDS first drawn
-  scenario=$(trim "${line%%:*}")
+  local variant=$1 line=$2 spec scenario steps dir step marker began=$SECONDS first drawn motion=""
+  spec=$line
+  case $line in "motion "*) motion=1 spec=${line#motion } ;; esac
+  scenario=$(trim "${spec%%:*}")
   steps=""
-  case $line in *:*) steps=${line#*:} ;; esac
+  case $spec in *:*) steps=${spec#*:} ;; esac
   dir=$OUT/$variant/$(slug "$line")
   mkdir -p "$dir"
   marker=$dir/.started
@@ -125,7 +159,9 @@ capture() {
     echo "$variant/$(slug "$line"): did not launch" >&2
   fi
   drawn=$(settle)
-  if [ -n "$steps" ]; then
+  if [ -n "$motion" ]; then
+    film "$dir" "$steps"
+  elif [ -n "$steps" ]; then
     IFS=';' read -r -a parts <<<"$steps"
     for step in "${parts[@]}"; do
       step=$(trim "$step")
@@ -176,7 +212,11 @@ for runtime, ds in json.load(sys.stdin)['devices'].items():
   while IFS= read -r line; do
     [ -z "$(trim "$line")" ] && continue
     printf '| `%s` |' "$line"
-    for v in $VARIANTS; do printf ' ![](%s/%s/screen.png) |' "$v" "$(slug "$line")"; done
+    for v in $VARIANTS; do
+      printf ' ![](%s/%s/screen.png)' "$v" "$(slug "$line")"
+      if [ -f "$OUT/$v/$(slug "$line")/motion.mp4" ]; then printf ' [motion](%s/%s/motion.mp4)' "$v" "$(slug "$line")"; fi
+      printf ' |'
+    done
     echo
   done <<<"$SCENARIOS"
 } >"$OUT/README.md"

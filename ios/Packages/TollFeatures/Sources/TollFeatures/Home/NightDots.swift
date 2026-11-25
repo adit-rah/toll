@@ -103,7 +103,7 @@ struct Stat: View {
             .foregroundStyle(TollColor.label2)
             .accessibilityHidden(true)
         }
-        Text(value).tollType(.stat, TollColor.label)
+        Text(value).tollType(.stat, TollColor.label).contentTransition(.numericText())
       }
       Text(label).tollType(.caption, TollColor.label2).fixedSize(horizontal: false, vertical: true)
     }

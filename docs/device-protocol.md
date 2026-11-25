@@ -192,6 +192,16 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 174 | True Tone on under warm indoor light, Light chosen | Dusk's whites adapt as a reading app's do, slightly warmer than Settings | | |
 | 175 | Increase Contrast on, both appearances, in Settings and Tonight | Text is darker in light and brighter in dark than with it off | | |
 | 176 | Trigger a system alert (e.g. delete a block) | Its buttons are tinted Dusk's amber, not blue | | |
+| 177 | Open last night's row, then fold it, at the default text size and at AX5 | One surface grows from the row and folds back to it; the header rides the top edge; the details fade in after the first 100 ms; the chevron turns half a turn; nothing overlaps or jumps; the state and strip don't move | | |
+| 178 | Same, with a card above (e.g. the home offer) | The card fades out in place as last night opens and back as it folds; it never moves | | |
+| 179 | Same on the smallest phone at the largest non-AX size, where the open card doesn't fit above the strip | Note whether the band's move under the state reads as a jump | | |
+| 180 | Tap last night's row, then tap its header within 150 ms | The card turns back from where it is, smoothly, without restarting or jumping | | |
+| 181 | Rows 177 and 178 with Reduce Motion on | The card snaps to size and its content crossfades over 200 ms; the chevrons crossfade | | |
+| 182 | Pause: Pause for 10 min, then wait for the wait to end | Choosing → waiting → open: the old page fades at once and the new comes in, the sheet doesn't move, and a light haptic plays at each change | | |
+| 183 | Let the regret line expire | It fades out over 200 ms and "pause used" fades in; nothing else moves | | |
+| 184 | Purchase: restore with nothing to restore, then OK; Before bed: open a page, then Something else | Pages swap in place with no snap | | |
+| 185 | Tonight's "Not now" on a card | It fades out over 200 ms in place; the state never animates | | |
+| 186 | Open Your sleep for the first time after a new night; watch any countdown | The newest star brightens over 450 ms, then its lines draw, once; countdown digits roll each second without stutter at 120 Hz | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

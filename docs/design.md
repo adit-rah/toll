@@ -103,7 +103,7 @@ Radii: card 18, button 16, field 12, chart bar 6; tiles 8/10/11/12/13 by size (`
 
 ### 2.5 Motion and haptics
 
-Motion explains where things came from and where they went. It never celebrates, never loops, never asks to be noticed. Three durations: 200 ms (state changes), 300 ms (things moving), 450 ms (first appearance). One spring: response 0.35, damping 0.85, ≤ 2% overshoot. Reduce Motion replaces every move or scale with a crossfade of the same duration; numeric transitions stay. **If a transition is not in this table, there is none.**
+Motion explains where things came from and where they went. It never celebrates, never loops, never asks to be noticed. Motion uses critically damped springs with no bounce (SwiftUI's `.smooth(duration:)`, `Motion` in TollUI), at three perceived durations: 200 ms (state changes), 300 ms (things moving), 450 ms (first appearance). A spring starts at once, never overshoots, and a tap mid-way turns it back from where it is, at the speed it has, instead of restarting. Each animation is scoped to the value that changes (`.animation(_:value:)` on the view that shows it), so nothing else animates with it. Reduce Motion replaces every move or scale with a crossfade of the same duration; numeric transitions stay. **If a transition is not in this table, there is none.**
 
 | Moment | Motion |
 |---|---|
@@ -114,14 +114,17 @@ Motion explains where things came from and where they went. It never celebrates,
 | A pip empties or fills | Crossfade 200 ms (#72). |
 | Door sheet opens or closes | System sheet. |
 | Tonight's strip: a segment's snippet opens or closes | System popover (a system sheet at accessibility sizes), D75. A pressed segment or pill dims at once, with no motion. |
-| Door: choosing → waiting → open | Content crossfades 300 ms inside the sheet; the sheet does not move. |
+| Door: choosing → waiting → open | Content crossfades inside the sheet, 300 ms in all: the old fades at once, the new comes in after the first 100 ms, so the two barely overlap (`Motion.pageSwap`). The sheet does not move. |
 | Countdown | `contentTransition(.numericText(countsDown: true))` each second; the colon never blinks. |
+| Before bed: a page opens, or goes back to the choices | As the door's states (`Motion.pageSwap`); the sheet does not move. The tone's page swaps Stop for Done with a 200 ms crossfade when the tone ends. |
+| Purchase: the offer becomes an outcome, or back | As the door's states (`Motion.pageSwap`); the sheet does not move. |
 | Regret line expires | Fades out 200 ms; nothing else moves. |
 | A card or note arrives or leaves (Tonight, the block editor) | Fades 200 ms in place; nothing else moves. |
-| Last night's card opens or closes | It grows up from its row, or shrinks back to it, over 300 ms; its content fades in after the first 100 ms; nothing else moves. A card above the row in Tonight's band fades out over 200 ms in place as it opens, and back in as it folds. With Reduce Motion, a 200 ms crossfade. |
+| Last night's card opens or closes | One surface grows up from its row, or shrinks back to it, over 300 ms, with its content clipped to it; the header rides its top edge. Content fades in after the first 100 ms and out at once: the details, the row's outcome and "OK". Its chevron turns half a turn on the same curve (`chevron.up` becomes `chevron.down`). Nothing else moves. A card above the row in Tonight's band fades out over 200 ms in place as it opens, and back in as it folds; it keeps its place, and the open card grows over its room. With Reduce Motion, a 200 ms crossfade, the chevrons included. |
 | Your sky's newest star (D79), the first time Your sleep shows it | The star brightens from nothing over 450 ms (`firstAppearance`); then each line it adds draws from the star it joins over 450 ms, a trimmed path. Once. Reduce Motion: the star and its lines crossfade in 200 ms. Nothing twinkles, pulses or loops; a landmark line arrives with last night's card. |
 | Your sky: a star's night opens or closes | System popover (a system sheet at accessibility sizes), as Tonight's strip. |
 | Your sky's names brighten or fade (a tap on the open sky) | Crossfade 200 ms. A star's figure, while its night is open, the same. Nothing dims them on its own. |
+| Your sleep: the range changes | Its numbers use `numericText` and its chart crossfades, 200 ms; the sky and the week above don't move. |
 | Your sleep's bar as the sky scrolls under it | None: it takes the page's colour at once. |
 | Settings | System list and pushes. |
 | Block screen (system) | None of ours; Apple animates the shield. |

@@ -15,24 +15,34 @@ public enum Motion {
     public static let rise: CGFloat = 6
   }
 
-  public static var stateChange: Animation { .easeInOut(duration: Duration.stateChange) }
-  public static var movement: Animation { .easeInOut(duration: Duration.movement) }
-  public static var firstAppearance: Animation { .easeOut(duration: Duration.firstAppearance) }
-  public static var progressFill: Animation { .easeOut(duration: Duration.progressFill) }
+  // Every curve is a critically damped spring with no bounce, at the table's perceived durations:
+  // it starts at once, never overshoots, and a change mid-way retargets from where things are and
+  // how fast they move, instead of restarting.
+  public static var stateChange: Animation { .smooth(duration: Duration.stateChange) }
+  public static var movement: Animation { .smooth(duration: Duration.movement) }
+  public static var firstAppearance: Animation { .smooth(duration: Duration.firstAppearance) }
+  public static var progressFill: Animation { .smooth(duration: Duration.progressFill) }
 
-  /// Last night's card opening (design §2.5): it grows over `movement`, and its content fades in
-  /// once the card has begun to grow, so the words never sit outside it.
-  public static var unfoldContent: Animation {
-    .easeOut(duration: Duration.stateChange).delay(Duration.movement - Duration.stateChange)
+  /// Content that arrives as its container grows (last night's card): it fades in once the card
+  /// has grown for 100 ms, so the words never sit outside it.
+  public static var contentIn: Animation {
+    stateChange.delay(Duration.movement - Duration.stateChange)
   }
 
-  /// The one spring: no overshoot past 2%.
-  public static var spring: Animation { .spring(response: 0.35, dampingFraction: 0.85) }
+  /// Content that leaves as its container shrinks: it fades at once, before the edge reaches it.
+  public static var contentOut: Animation { stateChange }
+
+  /// One page of a sheet giving way to the next in place (the pause, the purchase, Before bed): the
+  /// old fades at once and the new comes in after the first 100 ms, so the two sets of words
+  /// barely overlap, and the whole swap still takes `movement`.
+  public static var pageSwap: AnyTransition {
+    .asymmetric(insertion: .opacity.animation(contentIn), removal: .opacity.animation(contentOut))
+  }
 
   public static func staggered(
     _ index: Int, step: TimeInterval, duration: TimeInterval = Duration.firstAppearance
   ) -> Animation {
-    .easeOut(duration: duration).delay(Double(index) * step)
+    .smooth(duration: duration).delay(Double(index) * step)
   }
 }
 

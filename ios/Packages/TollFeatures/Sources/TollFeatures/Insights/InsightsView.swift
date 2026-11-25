@@ -28,7 +28,9 @@ struct InsightsView: View {
             if let best = sleep.best {
               BestCard(best: best).padding(.top, 12)
             }
-            ranges(insights)
+            // Design §2.5: a new range changes only its own numbers and chart, never the sky.
+            VStack(alignment: .leading, spacing: 0) { ranges(insights) }
+              .animation(Motion.stateChange, value: range)
           }
           .tollGutter()
           .padding(.bottom, 32)
@@ -44,7 +46,6 @@ struct InsightsView: View {
       .ignoresSafeArea(.container, edges: .top)
     }
     .background(TollColor.bg)
-    .animation(Motion.stateChange, value: range)
     .tollPushed(Copy.Tabs.sleep)
     // The bar is see-through over the night, with light text over it in both appearances.
     .toolbarBackground(skyGone ? TollColor.bg : Color.clear, for: .navigationBar)
