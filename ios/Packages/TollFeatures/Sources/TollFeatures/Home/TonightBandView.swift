@@ -27,7 +27,9 @@ struct TonightBandView: View {
         ZStack(alignment: .bottom) {
           VStack(spacing: Self.between) {
             card(hidden: lastNightOpen && night != nil)
-            if let night { LastNightBand(night: night, open: .constant(false), putAway: {}).hidden() }
+            if let night {
+              LastNightBand(night: night, open: .constant(false), putAway: {}).hidden()
+            }
           }
           lastNight
         }
