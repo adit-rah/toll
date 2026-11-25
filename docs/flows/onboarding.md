@@ -12,7 +12,7 @@ flowchart TD
   setupDone -->|"yes"| tabs(["Tonight, see tonight.md"])
   setupDone -->|"no: a new install, or a state file that could not be read (data.md)"| keychain{"Free nights already started on this phone or Apple ID?<br/>(Keychain, both copies, earliest wins)"}
   keychain -->|"no"| welcomeFresh["Welcome: 14 nights free, two rows of seven empty segments<br/>render: welcome"]
-  keychain -->|"yes, still running"| welcomeRunning["Welcome: the offer says when they end<br/>render: none"]
+  keychain -->|"yes, still running"| welcomeRunning["Welcome: 14 nights free, without the segments; Ready says when they end<br/>render: none"]
   keychain -->|"yes, used up"| welcomeUsed["Welcome: Free nights used, then the price<br/>render: none"]
   keychain -->|"bought"| welcomeBought["Welcome: Purchased<br/>render: none"]
 
