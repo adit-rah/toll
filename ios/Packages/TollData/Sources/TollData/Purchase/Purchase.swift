@@ -94,18 +94,24 @@ public struct TrialClock: Sendable {
     TrialStart(thisPhone: read(.thisPhone), appleID: read(.appleID))
   }
 
-  private func read(_ scope: Keychain.Scope) -> Date? {
-    keychain.string(.trialStart, in: scope).flatMap(Double.init).map(
-      Date.init(timeIntervalSinceReferenceDate:))
+  /// A value that isn't the frozen format is unreadable, never "no start" (#140).
+  private func read(_ scope: Keychain.Scope) -> TrialStart.Reading {
+    guard let item = keychain.item(.trialStart, in: scope) else { return .none }
+    guard let seconds = item.text.flatMap(Double.init), seconds.isFinite else {
+      return .unreadable(writtenAt: item.writtenAt)
+    }
+    return .date(Date(timeIntervalSinceReferenceDate: seconds))
   }
 
+  /// `TrialStart` never changes an unreadable copy, so this never writes over one.
   private func write(_ new: TrialStart, over old: TrialStart) {
-    if new.thisPhone != old.thisPhone { save(new.thisPhone, in: .thisPhone) }
-    if new.appleID != old.appleID { save(new.appleID, in: .appleID) }
+    if new.thisPhone != old.thisPhone, case .date(let date) = new.thisPhone {
+      save(date, in: .thisPhone)
+    }
+    if new.appleID != old.appleID, case .date(let date) = new.appleID { save(date, in: .appleID) }
   }
 
-  private func save(_ date: Date?, in scope: Keychain.Scope) {
-    keychain.set(
-      date.map { String($0.timeIntervalSinceReferenceDate) }, for: .trialStart, in: scope)
+  private func save(_ date: Date, in scope: Keychain.Scope) {
+    keychain.set(String(date.timeIntervalSinceReferenceDate), for: .trialStart, in: scope)
   }
 }

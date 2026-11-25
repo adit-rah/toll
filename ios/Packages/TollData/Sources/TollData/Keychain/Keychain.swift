@@ -35,22 +35,40 @@ public struct Keychain: Sendable {
   }
 
   public func string(_ key: Key, in scope: Scope = .thisPhone) -> String? {
+    item(key, in: scope)?.text
+  }
+
+  /// An item that's there, with its text if it is text, and when it was last written.
+  public struct Item: Sendable, Equatable {
+    public var text: String?
+    public var writtenAt: Date
+  }
+
+  public func item(_ key: Key, in scope: Scope = .thisPhone) -> Item? {
     if let memory { return memory.values.withLock { $0[Memory.Slot(key: key, scope: scope)] } }
     var query = base(key, scope)
     query[kSecReturnData as String] = true
+    query[kSecReturnAttributes as String] = true
     query[kSecMatchLimit as String] = kSecMatchLimitOne
-    var item: CFTypeRef?
-    guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
-      let data = item as? Data
+    var result: CFTypeRef?
+    guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
+      let attributes = result as? [String: Any]
     else {
       return nil
     }
-    return String(data: data, encoding: .utf8)
+    let data = attributes[kSecValueData as String] as? Data
+    // The Keychain stamps every item; "now" stands in only if it ever didn't.
+    let written =
+      attributes[kSecAttrModificationDate as String] as? Date
+      ?? attributes[kSecAttrCreationDate as String] as? Date ?? Date()
+    return Item(text: data.flatMap { String(data: $0, encoding: .utf8) }, writtenAt: written)
   }
 
   public func set(_ value: String?, for key: Key, in scope: Scope = .thisPhone) {
     if let memory {
-      memory.values.withLock { $0[Memory.Slot(key: key, scope: scope)] = value }
+      memory.values.withLock {
+        $0[Memory.Slot(key: key, scope: scope)] = value.map { Item(text: $0, writtenAt: Date()) }
+      }
       return
     }
     SecItemDelete(base(key, scope) as CFDictionary)
@@ -96,5 +114,5 @@ private final class Memory: Sendable {
     let key: Keychain.Key
     let scope: Keychain.Scope
   }
-  let values = Mutex<[Slot: String]>([:])
+  let values = Mutex<[Slot: Keychain.Item]>([:])
 }
