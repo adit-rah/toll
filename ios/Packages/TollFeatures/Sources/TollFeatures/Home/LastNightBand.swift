@@ -45,8 +45,7 @@ struct LastNightBand: View {
     HStack(spacing: 0) {
       Button(action: toggle) {
         HStack(spacing: 8) {
-          summary
-          Spacer(minLength: 0)
+          summary.frame(maxWidth: .infinity, alignment: .leading)
           if !open { glyph(.unfold) }
         }
         .padding(.vertical, 12)
