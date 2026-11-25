@@ -98,7 +98,7 @@ private struct SettingsPicture: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 6) {
-      Text(Copy.Setup.alwaysHeader).tollType(small).foregroundStyle(TollColor.label3)
+      Text(Copy.Setup.alwaysHeader).tollType(small).foregroundStyle(TollColor.label2)
       ForEach(Copy.Setup.alwaysOptions, id: \.self) { option in
         Text(option).tollType(small).foregroundStyle(TollColor.label2)
       }

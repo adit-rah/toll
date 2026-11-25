@@ -90,8 +90,7 @@ private struct InsightCard<Content: View>: View {
     }
     .padding(TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
+    .tollSurface()
   }
 }
 

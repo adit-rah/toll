@@ -3,10 +3,11 @@ import UIKit
 
 /// Dusk's block screen colours and mark (the design canvas: amber on near-black, a moon), drawn in
 /// code so the extension carries no asset. Always dark: the block screen is mostly seen at night.
+/// The values are the dark `TollColor` tokens; the extension does not link TollUI.
 enum ShieldIcon {
-  static let background = rgb(0x0D1015)
+  static let background = rgb(0x131210)
   static let label = rgb(0xEEECE6)
-  static let secondaryLabel = rgb(0xA2A8B2)
+  static let secondaryLabel = rgb(0xAAA69E)
   static let accent = rgb(0xE9B96E)
   static let onAccent = rgb(0x1C1408)
 
