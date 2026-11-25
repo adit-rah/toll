@@ -133,6 +133,15 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 115 | Before bed › Breathe, let the tone end with the sheet open | "Stop the tone" becomes "Done" in the same place; nothing above moves | | |
 | 116 | Set home from Tonight with a slow GPS fix | "Finding where you are" appears under the privacy line; when it goes, the map, the card and the privacy line don't move | | |
 | 117 | Welcome at text size AX5 | The title starts at the top, the promise and offer scroll, and "Start my free nights" and Restore stay pinned at the bottom | | |
+| 118 | Set the phone to 25 Nov 2026 (or any date with a known phase) and open Your sleep | The moon matches that night: full or nearly full on 25 Nov 2026 (full moon 24 Nov). A waxing quarter is lit on the right; with home south of the equator, on the left | | |
+| 119 | Open Your sleep at 5 pm, 10 pm and 8 am | An amber glow at the horizon, almost none, then cool blue-grey; nothing animates between them | | |
+| 120 | Tap near a lit star, then far from any star | A system popover points at that star with its date and "Locked … – …"; the far tap does nothing; at accessibility sizes it opens as a sheet | | |
+| 121 | The morning after a night that ran, open Your sleep for the first time | The accent star brightens, then its new line draws from the star it joins; reopening shows it still, with no motion | | |
+| 122 | The same with Reduce Motion on | One 200 ms crossfade of the star and its lines | | |
+| 123 | On a landmark morning, tap share and Save Image | Photos has a 1080 × 1920 poster: evening sky, hills, moon, named figures, "30 nights locked", the date, "DUSK", and nothing else; no network prompt | | |
+| 124 | Your sleep at AX5 | The sky keeps its height; the title is not truncated; the count sits on its own line; the cards below scale | | |
+| 125 | VoiceOver on the sky | One element: "Your sky. 30 nights locked. 4 constellations: the Big Dipper, Cassiopeia, the Little Dipper, Orion." | | |
+| 126 | Your sleep in light appearance, then scroll | The sky matches dark; only the land and page are pale; status text is white over the sky, and the bar takes the page colour once the sky has gone | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
