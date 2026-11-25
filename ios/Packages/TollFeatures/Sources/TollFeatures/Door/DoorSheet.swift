@@ -31,7 +31,7 @@ struct DoorSheet: View {
           DoorChoose(model: model, supply: supply)
         }
       }
-      .transition(.opacity)
+      .transition(Motion.pageSwap)
     }
     .animation(Motion.movement, value: model.state.door?.phase)
     .tollHaptic(.light, trigger: model.state.door?.phase)

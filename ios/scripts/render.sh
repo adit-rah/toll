@@ -110,10 +110,9 @@ now() { python3 -c 'import time; print(f"{time.time():.3f}")'; }
 since() { python3 -c "import time; print(f'{time.time() - $1:.2f}')"; }
 # Films a motion line's steps (docs/renders.md, "Motion"): recording starts before the first step
 # and stops 1.5 s after the last, with SIGINT so the file is finalised. The steps run back to back,
-# without settling, so two quick taps stay quick. motion.txt says when each ran, in seconds from
-# the recording's start.
+# without settling. motion.txt says when each started, in seconds from the recording's start.
 film() {
-  local dir=$1 steps=$2 step recorder began pid alongside=""
+  local dir=$1 steps=$2 step recorder began
   xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$dir/motion.mp4" >"$dir/record.txt" 2>&1 &
   recorder=$!
   for _ in $(seq 50); do
@@ -129,16 +128,9 @@ film() {
     printf '%s %s\n' "$(since "$began")" "$step" >>"$dir/motion.txt"
     case $step in
       wait\ *) sleep "${step#wait }" ;;
-      # AXe takes seconds to start, so a tap mid-animation starts alongside the one before it,
-      # with --pre-delay to land after it.
-      "& "*)
-        eval "axe ${step#& } --udid \"$UDID\"" >>"$dir/steps.txt" 2>&1 &
-        alongside="$alongside $!"
-        ;;
       *) eval "axe $step --udid \"$UDID\"" >>"$dir/steps.txt" 2>&1 || echo "step failed: $step" >>"$dir/steps.txt" ;;
     esac
   done
-  for pid in $alongside; do wait "$pid" 2>/dev/null || true; done
   sleep 1.5
   kill -INT "$recorder" 2>/dev/null || true
   wait "$recorder" 2>/dev/null || true

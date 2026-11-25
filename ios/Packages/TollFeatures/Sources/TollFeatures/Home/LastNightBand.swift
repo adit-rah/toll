@@ -147,14 +147,13 @@ struct LastNightBand: View {
 extension View {
   /// A part of last night's card that comes or goes as it opens or folds (design §2.5): it fades
   /// in after the first 100 ms and out at once, and while hidden it's neither tapped nor heard.
+  /// Only its opacity takes that timing: its place follows the card's edge on the card's curve.
   fileprivate func shown(_ shown: Bool, reduceMotion: Bool) -> some View {
-    opacity(shown ? 1 : 0)
-      .animation(
-        shown ? (reduceMotion ? Motion.stateChange : Motion.contentIn) : Motion.contentOut,
-        value: shown
-      )
-      .allowsHitTesting(shown)
-      .accessibilityHidden(!shown)
+    animation(shown ? (reduceMotion ? Motion.stateChange : Motion.contentIn) : Motion.contentOut) {
+      $0.opacity(shown ? 1 : 0)
+    }
+    .allowsHitTesting(shown)
+    .accessibilityHidden(!shown)
   }
 }
 

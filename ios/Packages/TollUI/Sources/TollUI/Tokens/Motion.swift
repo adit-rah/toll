@@ -32,6 +32,13 @@ public enum Motion {
   /// Content that leaves as its container shrinks: it fades at once, before the edge reaches it.
   public static var contentOut: Animation { stateChange }
 
+  /// One page of a sheet giving way to the next in place (the pause, the purchase, Before bed): the
+  /// old fades at once and the new comes in after the first 100 ms, so the two sets of words
+  /// barely overlap, and the whole swap still takes `movement`.
+  public static var pageSwap: AnyTransition {
+    .asymmetric(insertion: .opacity.animation(contentIn), removal: .opacity.animation(contentOut))
+  }
+
   public static func staggered(
     _ index: Int, step: TimeInterval, duration: TimeInterval = Duration.firstAppearance
   ) -> Animation {

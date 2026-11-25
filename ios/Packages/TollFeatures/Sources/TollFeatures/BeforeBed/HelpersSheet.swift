@@ -32,7 +32,7 @@ struct HelpersSheet: View {
   /// while the pages come and go, so it carries the animation.
   var body: some View {
     ZStack {
-      Group { content }.transition(.opacity)
+      Group { content }.transition(Motion.pageSwap)
     }
     .animation(Motion.movement, value: page)
     .animation(Motion.stateChange, value: tone.playing)

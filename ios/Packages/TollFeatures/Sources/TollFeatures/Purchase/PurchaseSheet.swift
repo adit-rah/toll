@@ -34,7 +34,7 @@ struct PurchaseSheet: View {
   /// animate its own arrival.
   var body: some View {
     ZStack {
-      Group { page }.transition(.opacity)
+      Group { page }.transition(Motion.pageSwap)
     }
     .animation(Motion.movement, value: outcome)
   }

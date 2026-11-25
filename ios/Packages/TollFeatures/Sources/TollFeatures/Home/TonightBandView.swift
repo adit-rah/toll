@@ -46,8 +46,7 @@ struct TonightBandView: View {
   @ViewBuilder private func card(hidden: Bool) -> some View {
     if let card = home.band.card {
       item(card)
-        .opacity(hidden ? 0 : 1)
-        .animation(Motion.stateChange, value: hidden)
+        .animation(Motion.stateChange) { $0.opacity(hidden ? 0 : 1) }
         .allowsHitTesting(!hidden)
         .accessibilityHidden(hidden)
         .transition(.opacity.animation(Motion.stateChange))
