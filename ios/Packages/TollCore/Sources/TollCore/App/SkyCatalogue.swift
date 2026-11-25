@@ -13,6 +13,8 @@ struct SkyStar: Sendable {
   let x: Double
   let y: Double
   let magnitude: Double
+  /// B–V colour index: below 0 blue-white, about 0.65 the Sun's, above 1.4 orange-red.
+  let bv: Double
 }
 
 /// A constellation's stars, as a range of the table, and its lines, as pairs of table indexes. A

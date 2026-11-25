@@ -107,6 +107,11 @@ public struct TollConfig: Codable, Sendable, Equatable {
     /// Nights the lock ran that make a quiet landmark morning, the only times the sky can be
     /// shared (D79).
     public var landmarks = [7, 30, 100, 365]
+    /// The hour, on the phone's clock, each of the sky's three lights starts when the screen opens:
+    /// the evening's dusk glow, the night's almost none, the morning's pale blue-grey.
+    public var eveningFromHour = 16
+    public var nightFromHour = 21
+    public var morningFromHour = 5
   }
 
   /// Before bed's three helpers in the gap (D80). The breath is about 6 a minute: the tone rises

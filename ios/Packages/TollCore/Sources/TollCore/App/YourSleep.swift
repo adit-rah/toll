@@ -70,7 +70,7 @@ public struct YourSleep: Equatable, Sendable {
     let ran = Set(past.filter(\.ran).map(\.night))
     let total = ran.count
     nights = total > 0 ? Copy.YourSleep.nights(total) : nil
-    sky = NightsRan.sky(ran, sleep: sleep, now: now, calendar: calendar, config: config)
+    sky = NightsRan.sky(ran, state: state, now: now, calendar: calendar, config: config)
 
     // The week of the night that's on or next: last night's until it ends, then tonight's.
     let inNight = sleep?.schedule.occurrence(containing: now, calendar: calendar) != nil
@@ -111,6 +111,28 @@ public struct YourSleep: Equatable, Sendable {
       // Titled by what the dots above don't show (the audit).
       best = Best(title: Copy.YourSleep.bestDetail, detail: Copy.YourSleep.best(week.blocked))
     }
+  }
+
+  /// What a tap on a star shows: the night that lit it, "Mon 23 Nov" over "Locked 10:15 pm –
+  /// 7:00 am". Past the table a star belongs to several nights; it shows the latest.
+  public func starNight(_ star: Int, calendar: Calendar = .current) -> StarNight? {
+    let count = SkyCatalogue.stars.count
+    let ran = past.filter(\.ran)
+    guard star >= 0, star < count, star < ran.count else { return nil }
+    let latest = star + (ran.count - 1 - star) / count * count
+    let night = ran[latest]
+    let locked = night.start.flatMap { start in
+      night.end.map {
+        Copy.Sky.locked(Copy.time(start, in: calendar), Copy.time($0, in: calendar))
+      }
+    }
+    return StarNight(day: Copy.Sky.night(night.night, calendar: calendar), locked: locked)
+  }
+
+  public struct StarNight: Equatable, Sendable {
+    public var day: String
+    /// Nil when the record kept no times.
+    public var locked: String?
   }
 
   /// The Monday that starts a day's week, whatever the phone's first weekday.
