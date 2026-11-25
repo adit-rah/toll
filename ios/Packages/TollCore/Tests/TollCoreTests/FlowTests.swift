@@ -89,7 +89,8 @@ struct FlowTests {
     var answered = shown
     _ = Flows.record("example", version: 1, .answered, in: &answered, now: date(2026, 11, 17, 16))
     let both = [sample, other]
-    #expect(Flows.due(answered, now: date(2026, 11, 17, 17), calendar: london, registry: both) == nil)
+    #expect(
+      Flows.due(answered, now: date(2026, 11, 17, 17), calendar: london, registry: both) == nil)
     #expect(
       Flows.due(answered, now: date(2026, 11, 18, 15), calendar: london, registry: both)?.id
         == "other")
