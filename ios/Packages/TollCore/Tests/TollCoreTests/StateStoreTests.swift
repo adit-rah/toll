@@ -55,6 +55,31 @@ struct StateStoreTests {
     #expect(sleep.apps == nil)
     #expect(state.gap.minutes == 15)
     #expect(state.setupFinishedAt != nil)
+    #expect(state.recoveredAt != nil)
+    #expect(HomeSnapshot(state: state, log: [], now: Date(), calendar: london).recovered)
+  }
+
+  /// Tonight's note holds the slot until the night's apps are chosen, held for the night's end
+  /// or not.
+  @Test func theNoteGoesWhenTheNightsAppsAreChosen() throws {
+    var state = setUp()
+    state.setupFinishedAt = date(2026, 11, 16, 9)
+    state.recoveredAt = date(2026, 11, 17, 9)
+    state.blocks[0].apps = nil
+    let afternoon = date(2026, 11, 17, 15)
+    let home = HomeSnapshot(state: state, log: [], now: afternoon, calendar: london)
+    #expect(home.recovered)
+    #expect(home.card == nil && !home.lastNightCard)
+    var chosen = state
+    var night = try #require(chosen.sleepBlock)
+    night.apps = Data([1])
+    #expect(apply(.saveBlock(night), &chosen, afternoon) == nil)
+    #expect(!HomeSnapshot(state: chosen, log: [], now: afternoon, calendar: london).recovered)
+    var held = state
+    run(&held, date(2026, 11, 17, 23))
+    #expect(apply(.saveBlock(night), &held, date(2026, 11, 17, 23)) == nil)
+    #expect(held.sleepBlock?.apps == nil)
+    #expect(!held.nightNeedsApps)
   }
 
   @Test func withNoNightRecordItsSetupAgainAndTheFileIsStillKept() {

@@ -17,6 +17,8 @@ struct HomeView: View {
   let openPurchase: () -> Void
   let fixLocation: () -> Void
   var turnOnScreenTime: () -> Void = {}
+  /// The night came back without its apps (#140): Apple's picker over the night's editor.
+  var chooseNightApps: () -> Void = {}
   /// The Tonight card's link and its "Not now" (#102).
   var openCard: (TonightCard) -> Void = { _ in }
   var dismissCard: (TonightCard) -> Void = { _ in }
@@ -125,10 +127,11 @@ struct HomeView: View {
     }
   }
 
-  /// One at a time, the most pressing first: Screen Time off, then location, then last night's
-  /// card in the morning, then Tonight's offers.
+  /// One at a time, the most pressing first: Screen Time off, then a night that came back without
+  /// its apps, then location, then last night's card in the morning, then Tonight's offers.
   private var note: HomeNote? {
     if home.screenTimeOff { return .screenTimeOff }
+    if home.recovered { return .recovered }
     if home.locationBanner { return .location }
     if home.lastNightCard, home.lastNight != nil { return .lastNight }
     return home.card.map(HomeNote.card)
@@ -152,6 +155,10 @@ struct HomeView: View {
     case .screenTimeOff:
       NoteCard(Copy.Home.screenTimeOffCard, severity: .broken) {
         SettingsLink(Copy.Home.turnOn, action: turnOnScreenTime)
+      }
+    case .recovered:
+      NoteCard(Copy.Home.recoveredCard, severity: .degraded) {
+        SettingsLink(Copy.Home.chooseApps, action: chooseNightApps)
       }
     case .location:
       NoteCard(locationFact, severity: .degraded) {
@@ -199,6 +206,6 @@ struct HomeView: View {
 
 /// What may float over Tonight, one at a time.
 enum HomeNote: Hashable {
-  case screenTimeOff, location, lastNight
+  case screenTimeOff, recovered, location, lastNight
   case card(TonightCard)
 }

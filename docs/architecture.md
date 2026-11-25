@@ -66,7 +66,7 @@ DeviceActivity only wakes the monitor; reconcile decides.
 
 ## Migration
 
-Schema 1 is step 2's `SleepState`: one window, one home, one blocklist. On first load it becomes a Sleep block at a Home place with that window and those apps; presence, door, unlocks, trial and purchase carry over. Schema 2 is the blocks (D29), with fields added later without a raise, `lastNightSeen` (D91) the last; 3 adds `minReader`, `writtenBy` and `flows`, and moves "a file without a gap is from before D76" out of a decoder default into its step (#140). Tested, from a sample of every past format.
+Schema 1 is step 2's `SleepState`: one window, one home, one blocklist. On first load it becomes a Sleep block at a Home place with that window and those apps; presence, door, unlocks, trial and purchase carry over. Schema 2 is the blocks (D29), with fields added later without a raise, `lastNightSeen` (D91) the last; 3 adds `minReader`, `writtenBy` , `flows` and `recoveredAt`, and moves "a file without a gap is from before D76" out of a decoder default into its step (#140). Tested, from a sample of every past format.
 
 ## Data and its evolution
 

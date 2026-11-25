@@ -51,6 +51,9 @@ public struct DuskState: Codable, Hashable, Sendable {
   /// One-time flows (`Flows`) by id, as each last went: keyed by string, so an id a newer build
   /// adds never stops the file loading.
   public var flows: [String: FlowRecord] = [:]
+  /// When the night was brought back from a night record because the file had lost it (#140):
+  /// its apps couldn't come back, and Tonight says so until they're chosen.
+  public var recoveredAt: Date?
   public var runtime = RuntimeState()
 
   public init() {}
@@ -61,6 +64,14 @@ public struct DuskState: Codable, Hashable, Sendable {
   }
 
   public var sleepBlock: Block? { blocks.first(where: \.isSleep) }
+
+  /// The night came back from a night record without its apps (`Recovery`), and none have been
+  /// chosen since: a choice held for the night's end counts (B-3).
+  public var nightNeedsApps: Bool {
+    guard recoveredAt != nil, let sleep = sleepBlock, sleep.apps == nil else { return false }
+    if case .save(let draft) = pending[sleep.id] { return draft.apps == nil }
+    return true
+  }
   /// The night's block as it runs: locking the gap before bed (D76). Its stored hours are bed to
   /// wake; every rule about when it's on reads these.
   public var lockSleep: Block? { sleepBlock.map(locking) }

@@ -3,8 +3,8 @@ import Foundation
 /// A person whose state file lost their night is brought back from what survives (#140): the
 /// latest night record holds the night's hours and its gap, and the app puts the free nights'
 /// start back from the Keychain at its next launch (`TrialClock.settle`). The night's apps can't
-/// come back from a record, so the block shows "No apps" until they're chosen again. Setup shows
-/// again only when there's no record to start from.
+/// come back from a record, so Tonight says so until they're chosen again (`nightNeedsApps`).
+/// Setup shows again only when there's no record to start from.
 enum Recovery {
   static func restoreNight(_ state: inout DuskState, from record: [String: Any]?, now: Date) {
     guard state.sleepBlock == nil else { return }
@@ -18,6 +18,7 @@ enum Recovery {
         name: Copy.Setup.nightName, kind: .sleep, place: nil, schedule: .everyDay(window),
         apps: nil),
       at: 0)
+    state.recoveredAt = now
     if state.setupFinishedAt == nil {
       state.gap = Gap()
       state.gap.minutes = gap ?? 0

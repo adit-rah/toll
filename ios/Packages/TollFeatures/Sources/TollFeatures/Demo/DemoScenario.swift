@@ -30,6 +30,8 @@
     case homePaused = "home-paused"
     case homeLocation = "home-location"
     case homeScreenTimeOff = "home-screen-time-off"
+    /// The night came back from its record without its apps (#140).
+    case homeRecovered = "home-recovered"
     case homeNoBlocks = "home-no-blocks"
     case homeMorning = "home-morning"
     case homeMorningGap = "home-morning-gap"

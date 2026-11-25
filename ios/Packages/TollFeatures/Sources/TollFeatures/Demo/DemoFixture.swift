@@ -198,6 +198,11 @@
         state.trial.entitled = false
       }
       if scenario == .homeLocation { state.location = .scheduleOnly }
+      if scenario == .homeRecovered, let night = state.blocks.firstIndex(where: \.isSleep) {
+        state.recoveredAt = now
+        state.blocks[night].apps = nil
+        state.blocks[night].appCount = 0
+      }
       if blocked {
         state.runtime.active[BlockID("sleep")] =
           night.night(

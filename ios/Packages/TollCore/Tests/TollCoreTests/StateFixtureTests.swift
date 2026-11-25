@@ -124,6 +124,7 @@ struct StateFixtureTests {
     state.gap.tally.nights = [date(2026, 11, 16, 0)]
     state.helpers.breathMinutes = 5
     state.lastNightSeen = date(2026, 11, 16, 0)
+    state.recoveredAt = date(2026, 11, 17, 9)
     state.flows["example"] = FlowRecord(
       version: 1, outcome: .notNow, at: date(2026, 11, 17, 10), notNow: 1)
     state.writtenBy = "0.9.0 (42)"

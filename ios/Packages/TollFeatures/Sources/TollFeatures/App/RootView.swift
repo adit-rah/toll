@@ -87,6 +87,9 @@ struct LiveHome: View {
           lockAgain: { model.lockDoor() },
           openPurchase: { buying = true }, fixLocation: openSystemSettings,
           turnOnScreenTime: { Task { await model.turnOnScreenTime() } },
+          chooseNightApps: {
+            if let night = model.state.sleepBlock?.id { path.append(.nightApps(night)) }
+          },
           openCard: { card in
             switch card {
             case .home: settingHome = true
@@ -160,6 +163,7 @@ struct HomeDestination: View {
     switch route {
     case .settings: SettingsView(model: model, openPurchase: openPurchase)
     case .block(let id): BlockEditorView(app: model, editing: id)
+    case .nightApps(let id): BlockEditorView(app: model, editing: id, pickingApps: true)
     case .log: TransitionLogView(model: model)
     }
   }
@@ -172,6 +176,9 @@ enum HomeRoute: Hashable {
   /// A block to edit, or nil for a new one; pushed over Blocks, or over Tonight from the strip's
   /// snippet (D75), so Back returns where it came from.
   case block(BlockID?)
+  /// The night's editor with Apple's apps picker already open: the night came back without its apps
+  /// (#140).
+  case nightApps(BlockID)
 }
 
 extension View {
