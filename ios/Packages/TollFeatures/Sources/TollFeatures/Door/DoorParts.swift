@@ -34,6 +34,17 @@ struct DoorNoneLeft: View {
   }
 }
 
+/// The room choosing's "Not now" takes under its button, kept empty while waiting and open, so the
+/// main button stays on one line through the pause and only its words change (design §2.1).
+struct LinkRoom: View {
+  var body: some View {
+    QuietButton(Copy.Door.notNow) {}
+      .frame(maxWidth: .infinity)
+      .hidden()
+      .accessibilityHidden(true)
+  }
+}
+
 /// "You wait 60 seconds first. Cancelling costs nothing." on `surfaceRaised`.
 struct WaitNote: View {
   let seconds: Int

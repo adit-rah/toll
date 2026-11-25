@@ -46,11 +46,11 @@ struct HelpersSheet: View {
               Text(Copy.Helpers.stopTone)
             }
           }
+          // The quiet link's height, so Stop sits where Done lands when the tone ends.
           Footnote(
             Copy.Helpers.toneUntil(Copy.time(until)), symbol: .tone, alignment: .center
           )
-          .frame(maxWidth: .infinity)
-          .padding(.top, 12)
+          .frame(maxWidth: .infinity, minHeight: TollSpacing.minTapTarget)
         } else {
           finish
         }

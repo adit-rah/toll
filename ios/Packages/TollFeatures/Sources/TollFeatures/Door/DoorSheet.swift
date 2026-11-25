@@ -68,7 +68,7 @@ private struct DoorWaiting: View {
   let now: Date
 
   var body: some View {
-    SheetPage(height: DoorSheet.height) {
+    SheetPage(height: DoorSheet.height, overhang: 16) {
       Image(symbol: .wait).unredacted()
         .font(.system(size: 22, weight: .medium))
         .foregroundStyle(TollColor.label2)
@@ -106,6 +106,7 @@ private struct DoorWaiting: View {
     } actions: {
       // Choosing already said cancelling costs nothing.
       PrimaryButton(Copy.Door.cancel, tone: .neutral) { model.cancelDoor() }
+      LinkRoom()
     }
   }
 }
@@ -119,7 +120,7 @@ private struct DoorOpen: View {
   let now: Date
 
   var body: some View {
-    SheetPage(height: DoorSheet.height) {
+    SheetPage(height: DoorSheet.height, overhang: 16) {
       HStack(spacing: 8) {
         Image(symbol: .unlock).unredacted()
           .font(.system(size: 20, weight: .semibold))
@@ -191,6 +192,7 @@ private struct DoorOpen: View {
           Text(Copy.Door.lockAgain)
         }
       }
+      LinkRoom()
     }
   }
 }

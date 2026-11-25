@@ -42,10 +42,52 @@ struct WelcomeView: View {
   let model: SetupModel
   @State private var restoring = false
   @State private var nothingToRestore = false
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
+    let offer = model.offer(now: Date())
+    Group {
+      // At accessibility sizes the promise and the offer scroll and the button stays pinned
+      // (design §2.1); otherwise they wouldn't fit and the button would sit below the screen.
+      if typeSize.isAccessibilitySize {
+        ScrollView {
+          VStack(alignment: .leading, spacing: 0) {
+            promise
+            OfferCard(offer: offer, price: model.app.price, nights: model.app.config.trial.nights)
+              .padding(.top, 24)
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .tollGutter()
+          .padding(.top, TollSpacing.barHeight)
+          .padding(.bottom, 24)
+        }
+        .background(TollColor.bg)
+        .tollBottomBar(endsWithLink: true) { actions(offer) }
+      } else {
+        VStack(alignment: .leading, spacing: 0) {
+          Spacer(minLength: 24)
+          promise
+          Spacer(minLength: 24)
+        }
+        .tollGutter()
+        .padding(.top, TollSpacing.barHeight)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .background(TollColor.bg)
+        .tollBottomBar(endsWithLink: true) {
+          VStack(spacing: 0) {
+            OfferCard(offer: offer, price: model.app.price, nights: model.app.config.trial.nights)
+              .padding(.bottom, 16)
+            actions(offer)
+          }
+        }
+      }
+    }
+    .toolbar(.hidden, for: .navigationBar)
+    .sheet(isPresented: $nothingToRestore) { RestoreNoneSheet() }
+  }
+
+  private var promise: some View {
     VStack(alignment: .leading, spacing: 0) {
-      Spacer(minLength: 24)
       Text(Copy.Setup.welcomeTitle)
         .tollType(.display, TollColor.label)
         .fixedSize(horizontal: false, vertical: true)
@@ -54,33 +96,24 @@ struct WelcomeView: View {
         .tollType(.lead, TollColor.label2)
         .fixedSize(horizontal: false, vertical: true)
         .padding(.top, 16)
-      Spacer(minLength: 24)
     }
-    .tollGutter()
-    .padding(.top, TollSpacing.barHeight)
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-    .background(TollColor.bg)
-    .tollBottomBar(endsWithLink: true) {
-      VStack(spacing: 0) {
-        let offer = model.offer(now: Date())
-        OfferCard(offer: offer, price: model.app.price, nights: model.app.config.trial.nights)
-          .padding(.bottom, 16)
-        PrimaryButton(offer.isFree ? Copy.Setup.start : Copy.Setup.setUp) { model.go(.wake) }
-        // Found, the card says Purchased and setup goes on from the button; not found, the user is
-        // told and stays here (#46).
-        QuietButton(Copy.Setup.restore, type: .smallQuiet) {
-          Task {
-            restoring = true
-            nothingToRestore = !(await model.app.restore())
-            restoring = false
-          }
+  }
+
+  @ViewBuilder private func actions(_ offer: Trial.Offer) -> some View {
+    VStack(spacing: 0) {
+      PrimaryButton(offer.isFree ? Copy.Setup.start : Copy.Setup.setUp) { model.go(.wake) }
+      // Found, the card says Purchased and setup goes on from the button; not found, the user is
+      // told and stays here (#46). Once bought the link keeps its room, so the button stays put.
+      QuietButton(Copy.Setup.restore, type: .smallQuiet) {
+        Task {
+          restoring = true
+          nothingToRestore = !(await model.app.restore())
+          restoring = false
         }
-        .disabled(restoring || offer == .purchased)
-        .opacity(offer == .purchased ? 0 : 1)
       }
+      .disabled(restoring || offer == .purchased)
+      .opacity(offer == .purchased ? 0 : 1)
     }
-    .toolbar(.hidden, for: .navigationBar)
-    .sheet(isPresented: $nothingToRestore) { RestoreNoneSheet() }
   }
 }
 
