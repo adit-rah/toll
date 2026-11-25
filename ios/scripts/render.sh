@@ -120,7 +120,8 @@ film() {
     sleep 0.1
   done
   began=$(now)
-  sleep 0.5
+  # A tap in the recording's first moments was sometimes lost.
+  sleep 1
   IFS=';' read -r -a parts <<<"$steps"
   for step in "${parts[@]}"; do
     step=$(trim "$step")
