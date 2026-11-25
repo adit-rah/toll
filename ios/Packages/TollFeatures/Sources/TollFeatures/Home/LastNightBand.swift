@@ -34,7 +34,7 @@ struct LastNightBand: View {
     }
     .padding(.horizontal, TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(TollColor.surface, in: shape)
+    .tollSurface(shape)
     // While it grows or shrinks, nothing shows outside the card.
     .clipShape(shape)
   }

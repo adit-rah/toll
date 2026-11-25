@@ -183,6 +183,15 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 165 | On a Monday the gap grew, open Tonight 30 min before the lock; then Tuesday at 8 am | Only Monday's card; on Tuesday, Monday's card with last night's row under it | | |
 | 166 | In the gap with Before bed's card unanswered and home not set | Only Before bed's card | | |
 | 167 | On a 375-pt phone (iPhone SE), a morning with a card and last night's row | Both fit above the strip, or sit under the state with the screen scrolling; the state never moves | | |
+| 168 | Light chosen, outdoors in direct sunlight, auto-brightness on: open Tonight, Settings and the pause sheet | Every line is readable and cards show by their hairline; nothing is washed out; amber buttons read clearly | | |
+| 169 | Dark (default), a dark room at minimum brightness: open Tonight, Your sleep and the pause sheet | No screen or sheet flashes bright; secondary text and empty pips are still readable | | |
+| 170 | Light chosen, minimum brightness in a dark room | The page is warm grey paper, not white; the only bright points are iOS's tab bar and switch knob | | |
+| 171 | Reduce White Point on at 80%, both appearances | Secondary text, chevrons, empty pips and the strip's dashed slots are still visible | | |
+| 172 | Smart Invert on, with Dark then Light | Record how Dusk looks; if Dark turns white or the sky and photos invert, file a ticket to mark the sky `accessibilityIgnoresInvertColors` | | |
+| 173 | Phone in light mode, Dusk on Dark: cold launch at night | The launch screen is dark (`#131210`), with no white frame | | |
+| 174 | True Tone on under warm indoor light, Light chosen | Dusk's whites adapt as a reading app's do, slightly warmer than Settings | | |
+| 175 | Increase Contrast on, both appearances, in Settings and Tonight | Text is darker in light and brighter in dark than with it off | | |
+| 176 | Trigger a system alert (e.g. delete a block) | Its buttons are tinted Dusk's amber, not blue | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

@@ -183,9 +183,7 @@ private struct OfferCard: View {
       .frame(maxWidth: .infinity, alignment: .leading)
     }
     .padding(TollSpacing.cardPadding)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
-    )
+    .tollSurface()
     .accessibilityElement(children: .combine)
   }
 }

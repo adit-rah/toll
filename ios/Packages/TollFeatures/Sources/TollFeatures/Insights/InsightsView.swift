@@ -34,10 +34,7 @@ struct InsightsView: View {
               NightPictureView(picture: plan)
                 .padding(.vertical, TollSpacing.statsCardVertical)
                 .padding(.horizontal, TollSpacing.cardPadding)
-                .background(
-                  TollColor.surface,
-                  in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
-                )
+                .tollSurface()
                 .padding(.top, TollSpacing.headerToCard)
             }
             ranges(insights)
@@ -102,8 +99,7 @@ private struct InsightCard<Content: View>: View {
     }
     .padding(TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
+    .tollSurface()
   }
 }
 

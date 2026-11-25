@@ -516,3 +516,19 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Amends D86:** "one at a time" becomes one card plus last night's row.
 - **The heads-up offer is a setup offer.** It asks once, and in the last hour it would describe tomorrow's heads-up.
 - **The rule** is `TonightBand` in TollCore, tested. It is charted in `docs/flows/tonight.md`.
+
+**D95. Easy on the eyes, text still strong** (2026-11-25, founder feedback; eye-comfort audit, with research in the founders' private ledger).
+- **Dark stays the default (D36).** If someone chooses Light or Match iPhone, that choice stands; the app never forces dark over Light.
+- **Light mode is warm paper.** The page is `#EDEAE4` and cards are `#E6E3DC`, both near 80% luminance, and nothing is pure white.
+  - Cards are never brighter than the page. A step of tone and a one-pixel `separator` hairline (`tollSurface`) set them apart.
+  - Sheets use the card colour.
+  - Near-white fell from 39–89% of light screens to 0–3%; what's left is Apple's glass tab bar.
+- **Dark mode is a warm near-black** (`#131210`), with the same contrast as before.
+- **Text stays strong.** Body text is 13:1 or more on every surface, and never under 7:1. Secondary text is 5.4:1 or more, in both appearances. Increase Contrast goes further.
+- **`label3` is for marks, never words.** Disabled titles, footnotes and headers use `label2`. The sky's faint names (D89) are the exception.
+- **No large white areas:**
+  - Apple's segmented control takes `chosen` instead of white.
+  - The launch screen is the dark page.
+  - The app asks for the reading white point (`UIWhitePointAdaptivityStyleReading`).
+  - The shield and the system accent follow the palette.
+- **The warm palette is a choice of look,** with no claim about sleep.

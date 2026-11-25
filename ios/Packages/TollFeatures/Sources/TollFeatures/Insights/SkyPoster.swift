@@ -26,7 +26,7 @@ struct SkyPoster: View {
           Text(landmark.number).tollType(.sheetTitle, TollColor.label)
         }
         if let date = landmark.date {
-          Text(date).tollType(.detail, TollColor.label3)
+          Text(date).tollType(.detail, TollColor.label2)
         }
         Spacer(minLength: 0)
         Text(Copy.Sky.wordmark)

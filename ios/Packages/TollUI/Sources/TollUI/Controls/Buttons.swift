@@ -31,7 +31,7 @@ private struct PrimaryButtonBody<Label: View>: View {
   var body: some View {
     let shape = RoundedRectangle(cornerRadius: TollRadius.button, style: .continuous)
     label
-      .tollType(.button, isEnabled ? foreground : TollColor.label3)
+      .tollType(.button, isEnabled ? foreground : TollColor.label2)
       .lineLimit(2)
       .multilineTextAlignment(.center)
       .padding(.horizontal, 16)
@@ -90,7 +90,7 @@ private struct QuietButtonBody<Label: View>: View {
 
   var body: some View {
     label
-      .tollType(type, isEnabled ? color : TollColor.label3)
+      .tollType(type, isEnabled ? color : TollColor.label2)
       .multilineTextAlignment(.center)
       .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
       .contentShape(Rectangle())

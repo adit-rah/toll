@@ -42,9 +42,9 @@ public enum SkyColor {
 
   /// Lit stars, before their B–V tint: the dark `label`.
   public static let star = hex(0xEEECE6)
-  /// Figure lines and constellation names: the dark `label3`, faint so the sky reads as a sky.
+  /// Figure lines and constellation names: a faint cool grey, so the sky reads as a sky.
   public static let line = hex(0x646B76)
-  /// Lines a tap brings forward (`SkyFocus`): one step up, the dark `label2`.
+  /// Lines a tap brings forward (`SkyFocus`): one step up, a cool grey.
   public static let lineBright = hex(0xA2A8B2)
   /// Names a tap brings forward: the sky's text, legible on every light.
   public static let nameBright = hex(0xEEECE6)

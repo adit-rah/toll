@@ -18,8 +18,7 @@ public struct Card<Content: View>: View {
       }
     }
     .padding(.horizontal, TollSpacing.cardPadding)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
+    .tollSurface()
   }
 }
 
@@ -191,9 +190,7 @@ public struct NoteCard<Accessory: View>: View {
     }
     .padding(.vertical, TollSpacing.noteCardVertical)
     .padding(.horizontal, TollSpacing.cardPadding)
-    .background(
-      severity == .broken ? TollColor.warnSoft : TollColor.surface,
-      in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
+    .tollSurface(fill: severity == .broken ? TollColor.warnSoft : TollColor.surface)
   }
 }
 

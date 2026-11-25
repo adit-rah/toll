@@ -105,7 +105,7 @@ struct SettingsView: View {
           }
         }
         Text(Copy.Settings.versionLine(AppLinks.version))
-          .tollType(.detail, TollColor.label3)
+          .tollType(.detail, TollColor.label2)
           .frame(maxWidth: .infinity)
           .padding(.top, 20)
       }
