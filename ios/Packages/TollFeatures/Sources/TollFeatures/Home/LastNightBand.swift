@@ -92,15 +92,14 @@ struct LastNightBand: View {
         status.fixedSize().shown(!open, reduceMotion: reduceMotion)
       }
       // On lines of its own the status would leave the open header with lines of empty room, so
-      // here it goes, and the header's height changes with the card's.
-      VStack(alignment: .leading, spacing: 4) {
+      // here its room closes with the card's curve as it fades. Removed instead, it would hold its
+      // room until its fade ended and then give it up in one frame.
+      VStack(alignment: .leading, spacing: open ? 0 : 4) {
         title
-        if !open {
-          status.transition(
-            .asymmetric(
-              insertion: .opacity.animation(reduceMotion ? Motion.stateChange : Motion.contentIn),
-              removal: .opacity.animation(Motion.contentOut)))
-        }
+        status
+          .shown(!open, reduceMotion: reduceMotion)
+          .frame(height: open ? 0 : nil, alignment: .top)
+          .clipped()
       }
     }
   }
