@@ -15,7 +15,7 @@ public enum TollColor {
   public static let separator = dynamic(light: 0xCFCAC0, dark: 0x2D2B27)
   /// The chosen segment of Apple's segmented control: one step up from its track, and no brighter
   /// than the page.
-  public static let chosen = dynamic(light: 0xEDEAE4, dark: 0x3A3833)
+  public static let chosen = dynamic(light: 0xEDEAE4, dark: 0x45423D)
   /// Chart bars that are not tonight, the sheet grabber, dashed empty slots.
   public static let bar = dynamic(light: 0xC6C1B6, dark: 0x35332E)
 

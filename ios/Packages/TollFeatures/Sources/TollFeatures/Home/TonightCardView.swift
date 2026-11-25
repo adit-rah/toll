@@ -51,8 +51,7 @@ struct TonightCardView: View {
     .padding(.bottom, 2)
     .padding(.horizontal, TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(
-      TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous))
+    .tollSurface()
   }
 
   /// Each kind's words and symbol; a new kind adds its case here (#104). No action: the card only

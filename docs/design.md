@@ -53,7 +53,7 @@ Times are the phone's 12- or 24-hour format with "am"/"pm" lowercase; Home's row
 The canvas's tokens (sticky note s4), dark first (decisions D36). Light mode is worked out from the same names. Tokens live in `TollColor`. The warm tones are a choice of look.
 
 - **No large bright area in either appearance.** Nothing in the app's own palette is pure white: light mode is warm paper, page and cards near 80% relative luminance, sheets and buttons included. Dark is a warm near-black.
-- **Cards are no brighter than the page.** In light, `surface` sits a step darker than `bg` (1.07:1) and cards are edged with a one-pixel `separator` hairline (`tollSurface`), so tone and a line, not glare, set them apart. Tonight's band and Setup's cards still draw `surface` alone, by tone only, until they move to `tollSurface`. In dark, cards are a step lighter, with the same hairline. Tiles and tracks are one step further (`surfaceRaised`).
+- **Cards are no brighter than the page.** In light, `surface` sits a step darker than `bg` (1.07:1) and cards are edged with a one-pixel `separator` hairline (`tollSurface`), so tone and a line, not glare, set them apart. Setup's cards still draw `surface` alone, by tone only, until they move to `tollSurface`. Sheets and popovers are `surface` without a line; the system draws their edge. In dark, cards are a step lighter, with the same hairline. Tiles and tracks are one step further (`surfaceRaised`).
 - **Text stays strong.** Body text (`label`) is 13:1 or more on every surface, and never under 7:1; secondary text (`label2`) 5.4:1 or more. Increase Contrast takes text and the accent further (the second value in a cell).
 - **`label3` is for marks, never words** someone needs to read: chevrons, empty pips, outlines, dashed slots, a glyph beside a word. It is 3:1 or more on `bg` and `surface`. Disabled titles, footnotes and headers use `label2`. Your sky's faint names (D89) are the one exception.
 - **Apple's chrome keeps Apple's colours:** the glass tab bar and back button, switches, alerts, the block screen. The one exception is the segmented control's chosen segment, white by default, which takes `chosen`.
@@ -66,7 +66,7 @@ The canvas's tokens (sticky note s4), dark first (decisions D36). Light mode is 
 | `surfaceRaised` | `#25231F` | `#DAD6CE` | Icon tiles, tracks, the Apple tile, disabled and neutral buttons |
 | `separator` | `#2D2B27` | `#CFCAC0` | Hairlines, between rows and around cards |
 | `bar` | `#35332E` | `#C6C1B6` | Chart bars, dashed empty slots |
-| `chosen` | `#3A3833` | `#EDEAE4` | The chosen segment of Apple's segmented control (`TollChrome`), never white |
+| `chosen` | `#45423D` | `#EDEAE4` | The chosen segment of Apple's segmented control (`TollChrome`), never white |
 | `label` | `#EEECE6` · `#F7F5F0` | `#1A1C20` · `#0E0F11` | Text: 14.7:1 (dark) and 13.3:1 (light) on `surface` |
 | `label2` | `#AAA69E` · `#C2BEB6` | `#4F5258` · `#3F4247` | Secondary text: 7.2:1 and 6.1:1 on `surface` |
 | `label3` | `#77736B` · `#8E8A83` | `#72757B` · `#5B5E64` | Marks: 3.7:1 and 3.6:1 on `surface` |

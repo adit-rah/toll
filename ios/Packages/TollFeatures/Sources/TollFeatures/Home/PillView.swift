@@ -34,7 +34,7 @@ struct PillView: View {
       .padding(.leading, 14)
       .padding(.trailing, 12)
       .frame(minHeight: 30)
-      .background(last ? TollColor.accentSoft : TollColor.surface, in: Capsule())
+      .tollSurface(Capsule(), fill: last ? TollColor.accentSoft : TollColor.surface)
       .frame(minHeight: TollSpacing.minTapTarget)
       .contentShape(Rectangle())
     }
