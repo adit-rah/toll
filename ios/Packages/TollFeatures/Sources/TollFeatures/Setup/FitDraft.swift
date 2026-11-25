@@ -92,6 +92,9 @@ final class FitDraft {
 
   var fit: Fit { Fit(sleep: schedule, before: before, after: after, health: health) }
 
+  /// One side's start and target.
+  subscript(side: Gap.Side) -> Fit.Buffer { side == .before ? before : after }
+
   /// One side's start, inside 0 and its target.
   func setStart(_ side: Gap.Side, _ minutes: Int) {
     var buffer = side == .before ? before : after

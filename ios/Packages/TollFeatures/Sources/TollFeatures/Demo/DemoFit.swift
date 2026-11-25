@@ -15,6 +15,15 @@
       }
     }
 
+    /// The side whose sheet the screen opens on.
+    var bufferSheet: Gap.Side? {
+      switch self {
+      case .aroundBefore: .before
+      case .settingsSleepAfter: .after
+      default: nil
+      }
+    }
+
     /// Someone set up before #144: no buffer after yet, and the flow due.
     var fitOffered: Bool { self == .homeFitCard || fitSheetPath != nil }
 

@@ -134,9 +134,6 @@ extension Copy {
     public static func readyNow(_ end: String) -> String { "From now until \(end)." }
     public static let anywhere = "Anywhere"
     public static let anywhereDetail = "At its set times, wherever you are"
-    /// Ready, before home is set (D68): where tonight runs, and that home comes later.
-    public static let anywhereUntilHome =
-      "Wherever you are. You can add home after the first night."
     public static let blocked = "Blocked"
     /// "2 categories · 2 apps": counts, because iOS never tells the app the names (D41).
     public static func blockedCount(categories: Int, apps: Int, sites: Int = 0) -> String {
@@ -150,9 +147,6 @@ extension Copy {
     }
     public static func unlocks(_ n: Int) -> String {
       n == 1 ? "1 pause a week" : "\(n) pauses a week"
-    }
-    public static func unlocksDetail(minutes: Int) -> String {
-      "Every app opens for \(minutes) minutes"
     }
     public static func freeNightsEnded(_ day: String, price: String) -> String {
       "Your free nights ended \(day). Nothing is blocked until the \(price) purchase."

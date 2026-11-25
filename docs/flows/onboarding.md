@@ -43,8 +43,10 @@ flowchart TD
   foundWeekends -->|"Continue"| around
   ask -->|"Continue (off while the hours are invalid)"| around
 
-  around["4 · The time around your sleep: lock → sleep → wake → open;<br/>'Recommended to start': Before sleep 30 min tonight, growing to 60; After waking 15, growing to 30<br/>render: setup-around"]
-  around -->|"After waking's tonight set to 0"| aroundOff["The same with no time after waking: None<br/>render: setup-around-off"]
+  around["4 · The time around your sleep: the night drawn lock → sleep → open, the lock's ends marked with their times;<br/>two rows: Before sleep · 30 min tonight, growing to 60 ›, After waking · 15 min tonight, growing to 30 ›;<br/>'Recommended to start. Tap either to change it.'<br/>render: setup-around"]
+  around -->|"a row"| bufferSheet["That side's sheet: Tonight (minutes), Grows to (minutes), None; Done<br/>render: setup-around-before"]
+  bufferSheet -->|"Done: the picture and the row show the change"| around
+  around -.->|"after waking set to None"| aroundOff["The same with no time after waking: None<br/>render: setup-around-off"]
   around -->|"Continue"| screenTime
   aroundOff -->|"Continue"| screenTime
 
@@ -61,7 +63,7 @@ flowchart TD
   appsCheck -->|"no"| apps
   appsCheck -->|"yes: Continue"| ready
 
-  ready["7 · You're set: Apps lock at 10:50 pm tonight.<br/>lock · moon 11:20 pm – 7:10 am sun · open; before and after rows, Anywhere, the apps, 3 pauses, the free nights<br/>render: ready, ready-health"]
+  ready["7 · You're set: Apps lock at 10:50 pm tonight.<br/>the night drawn, then three lines: Lock 10:50 pm (30 min before sleep), Sleep 11:20 pm – 7:10 am, Open 7:25 am (15 min after waking);<br/>one short line: Anywhere · the apps · 3 pauses a week; the free nights<br/>render: ready, ready-health"]
   ready -->|"Done (no Back)"| begin[("Keychain: the free nights' start, this phone and iCloud<br/>state.json: the night's block (sleep, no place), gap and after growing from their starts to their targets, health, setupFinishedAt")]
   begin --> inLock{"Inside tonight's lock already?"}
   inLock -->|"no"| evening["Tonight: Apps lock at, 30 min before sleep; the strip: before · sleep · after<br/>render: home-anywhere"]

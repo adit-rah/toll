@@ -27,6 +27,9 @@
     case fitSheetSleep = "fit-sheet-sleep"
     case fitSheetAround = "fit-sheet-around"
     case settingsSleep = "settings-sleep"
+    /// Each side's small sheet: before sleep from onboarding, after waking from Settings › Sleep.
+    case aroundBefore = "setup-around-before"
+    case settingsSleepAfter = "settings-sleep-after"
     case screenTime = "screen-time"
     case screenTimeAllowed = "screen-time-allowed"
     case screenTimeDenied = "screen-time-denied"
@@ -145,7 +148,7 @@
       case .welcome: return []
       case .fit: return [.fit]
       case .sleepFound, .sleepFoundWeekends, .sleepAsk, .sleepNone: return [.fit, .sleep]
-      case .around, .aroundOff: return around
+      case .around, .aroundOff, .aroundBefore: return around
       case .screenTime, .screenTimeAllowed, .screenTimeDenied: return around + [.screenTime]
       case .blocklist: return around + [.screenTime, .blocklist]
       case .ready, .readyHealth: return around + [.screenTime, .blocklist, .ready]
@@ -228,7 +231,7 @@
       switch self {
       case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing:
         [.settings]
-      case .settingsSleep: [.settings, .sleep]
+      case .settingsSleep, .settingsSleepAfter: [.settings, .sleep]
       case .blockNew, .blockNewGym: [.block(nil)]
       case .blockEdit, .blockEditOn: [.block(BlockID("study"))]
       case .blockNight: [.block(BlockID("sleep"))]

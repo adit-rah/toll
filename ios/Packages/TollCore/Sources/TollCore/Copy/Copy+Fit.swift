@@ -44,9 +44,15 @@ extension Copy {
     public static let before = "Before sleep"
     public static let after = "After waking"
     /// The buffers are the same recommended start for everyone; only the hours come from Health.
-    public static let suggested = "Recommended to start. Change either one."
-    /// Under "After waking": what it's for, claimed no more strongly, and how to switch it off.
-    public static let afterWhy = "For a calmer start to the morning. Set tonight to 0 for none."
+    public static let suggested = "Recommended to start. Tap either to change it."
+    public static let changeHint = "Changes how long, tonight and as it grows"
+    /// Each side's sheet: what it does, and for after waking what it's for, claimed no more
+    /// strongly than that.
+    public static let beforeSheet =
+      "Apps lock this long before you fall asleep. It grows a step after a week with few pauses."
+    public static let afterSheet =
+      "Apps stay locked this long after you wake, for a calmer start to the morning. It grows the same way."
+    public static let done = "Done"
     /// A buffer's row: tonight's minutes and what it grows to, or none.
     public static func grows(_ minutes: Int, to target: Int) -> String {
       minutes == 0
@@ -57,8 +63,6 @@ extension Copy {
     public static let tonight = "Tonight"
     public static let growsTo = "Grows to"
     public static func minutes(_ minutes: Int) -> String { "\(minutes) min" }
-    public static let growsNote =
-      "Each grows a step after a week with few pauses, and eases back after a week with more."
     /// The drawing's ends: when apps lock, and when they open again.
     public static func lockAt(_ time: String) -> String { "Lock \(time)" }
     public static func openAt(_ time: String) -> String { "Open \(time)" }
@@ -76,7 +80,6 @@ extension Copy {
     public static func afterWaking(_ minutes: Int) -> String {
       minutes == 0 ? "None after waking" : "\(minutes) min after waking"
     }
-    public static func readyDetail(target: Int) -> String { "Grows with you, up to \(target) min" }
 
     /// The one-time flow for people already using Dusk (#144), as Tonight's card and its sheet.
     public static let cardTitle = "Fit \(name) to your sleep"

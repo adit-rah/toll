@@ -110,8 +110,8 @@ private struct NightBar: View {
         }
       }
       .frame(height: 10)
-      // Sleep full height, the buffers around it lower (#144): three parts by shape.
-      .mask { SleepShape(sleep: morning.sleep) }
+      // The buffers around sleep striped (#144): three parts by texture, not colour.
+      .overlay { BufferStripes(sleep: morning.sleep) }
       glyph(.sun)
     }
     .tollChartTypeLimit()
@@ -124,20 +124,29 @@ private struct NightBar: View {
   }
 }
 
-/// The night bar's outline: full height over sleep, half height over the buffers either side.
-private struct SleepShape: View {
+/// Stripes over the bar where the lock ran around sleep, before it and after waking, with a notch
+/// at each edge of sleep.
+private struct BufferStripes: View {
   let sleep: Morning.Span
 
   var body: some View {
     GeometryReader { proxy in
       let width = proxy.size.width
       ZStack(alignment: .leading) {
-        Rectangle().frame(height: proxy.size.height / 2)
-        Rectangle()
-          .frame(width: max(4, width * (sleep.end - sleep.start)))
-          .offset(x: width * sleep.start)
+        if sleep.start > 0 {
+          Hatch().stroke(TollColor.surface, lineWidth: 1.5)
+            .frame(width: width * sleep.start)
+          Rectangle().fill(TollColor.surface).frame(width: 2).offset(x: width * sleep.start - 1)
+        }
+        if sleep.end < 1 {
+          Hatch().stroke(TollColor.surface, lineWidth: 1.5)
+            .frame(width: width * (1 - sleep.end))
+            .offset(x: width * sleep.end)
+          Rectangle().fill(TollColor.surface).frame(width: 2).offset(x: width * sleep.end - 1)
+        }
       }
-      .frame(maxHeight: .infinity)
+      .clipped()
     }
+    .accessibilityHidden(true)
   }
 }

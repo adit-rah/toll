@@ -22,7 +22,7 @@ flowchart TD
   locRow -->|"no"| locReport(["Location · Always, While Using, Approximate or Off (reports only)"])
 
   settings -->|"Only when I'm home · On, Off, or On/Off from 7:00 am"| setHome["The home map sheet, see set-home.md<br/>render: set-home-set, or set-home from settings-anywhere"]
-  settings -->|"Sleep · 10:30 pm – 7 am · 15 min before · 10 min after"| sleepScreen["Sleep (pushed): the night drawn lock · sleep · open;<br/>Fall asleep and Wake up, Different on weekends;<br/>Before sleep and After waking, each Grows with you (tonight, grows to) or Fixed;<br/>Something to do before sleep, the breathing tone's length<br/>render: settings-sleep"]
+  settings -->|"Sleep · 10:30 pm – 7 am · 30 min before · 15 min after"| sleepScreen["Sleep (pushed): the night drawn lock · sleep · open;<br/>Fall asleep and Wake up, Different on weekends;<br/>a row each for Before sleep and After waking, each opening its sheet (render: settings-sleep-after): Grows with you, Fixed or None, and only the minutes it needs;<br/>Something to do before sleep, the breathing tone's length<br/>render: settings-sleep"]
   sleepScreen -->|"Back"| settings
   sleepScreen -->|"Save"| sleepSaved[("state.json in one change: the night's hours (.saveBlock), .buffer before and after, .helpers;<br/>hours and minutes held while the night is on (B-3), targets and helpers at once")]
   sleepSaved --> settings

@@ -27,6 +27,7 @@ struct SleepSettingsView: View {
   @State private var after: BufferChoice
   @State private var helpers: Bool
   @State private var breath: Int
+  @State private var editing: Gap.Side?
   private let nightOn: Bool
 
   init(model: AppModel) {
@@ -42,6 +43,9 @@ struct SleepSettingsView: View {
     _before = State(initialValue: BufferChoice(snapshot))
     _after = State(
       initialValue: BufferChoice(BeforeBed(state: model.state, side: .after, config: model.config)))
+    #if DEBUG
+      _editing = State(initialValue: DemoScenario.current?.bufferSheet)
+    #endif
     _helpers = State(initialValue: model.state.helpers.on)
     _breath = State(initialValue: model.breathMinutes)
     nightOn = snapshot.nightOn
@@ -53,14 +57,18 @@ struct SleepSettingsView: View {
         ScreenTitle(Copy.Fit.sheetTitle, kind: .pushed)
         SetupLine(Copy.Fit.sheetBody).padding(.top, TollSpacing.titleToLine)
         if let picture = NightPicture(
-          .everyDay(draft.window), gap: before.minutes, after: after.minutes, now: Date(),
+          .everyDay(draft.window), gap: before.tonight, after: after.tonight, now: Date(),
           calendar: .current)
         {
           NightPictureView(picture: picture).padding(.top, 20)
         }
         SleepTimesCard(draft: draft).padding(.top, 20)
-        BufferChoiceCard(side: .before, choice: $before, config: model.config).padding(.top, 12)
-        BufferChoiceCard(side: .after, choice: $after, config: model.config).padding(.top, 12)
+        // One row a side, as onboarding draws them; each opens its own small sheet.
+        Card {
+          BufferRow(side: .before, detail: before.summary) { editing = .before }
+          BufferRow(side: .after, detail: after.summary) { editing = .after }
+        }
+        .padding(.top, 12)
         if nightOn {
           Footnote(Copy.Gap.tonightStays).padding(.top, TollSpacing.underCard)
         }
@@ -70,6 +78,15 @@ struct SleepSettingsView: View {
       .padding(.bottom, 24)
     }
     .background(TollColor.bg)
+    .sheet(
+      isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })
+    ) {
+      if let side = editing {
+        BufferChoiceSheet(
+          side: side, choice: side == .before ? $before : $after, config: model.config
+        ) { editing = nil }
+      }
+    }
     .tollPushed(Copy.Fit.sheetTitle)
     .tollBottomBar {
       PrimaryButton(Copy.Fit.save) {
@@ -116,68 +133,88 @@ struct SleepSettingsView: View {
 
 /// One side as Settings edits it: growing from tonight's minutes toward a target, or fixed.
 struct BufferChoice: Equatable {
-  var grows: Bool
+  enum Mode: Equatable { case grows, fixed, none }
+
+  var mode: Mode
   var minutes: Int
   var target: Int
 
   init(_ snapshot: BeforeBed) {
-    grows = snapshot.grows
+    mode = snapshot.grows ? .grows : snapshot.minutes == 0 ? .none : .fixed
     minutes = snapshot.minutes
     target = max(snapshot.target, snapshot.minutes)
   }
 
-  var setting: Gap.Setting { grows ? .grows(minutes) : .fixed(minutes) }
+  var setting: Gap.Setting {
+    switch mode {
+    case .grows: .grows(minutes)
+    case .fixed: .fixed(minutes)
+    case .none: .fixed(0)
+    }
+  }
+
+  /// Tonight's minutes as the picture draws them.
+  var tonight: Int { mode == .none ? 0 : minutes }
+
+  /// The row's line: what it does tonight and grows to, fixed, or none.
+  var summary: String {
+    switch mode {
+    case .grows: Copy.Fit.grows(minutes, to: target)
+    case .fixed: Copy.Gap.fixedDetail(minutes)
+    case .none: Copy.Fit.off
+    }
+  }
 }
 
-/// A side's card: its glyph and words, growing or fixed with a tick (never colour alone), and the
-/// numbers each needs.
-struct BufferChoiceCard: View {
+/// One side in its own small sheet: growing from tonight's minutes toward a target, fixed, or none,
+/// each with a tick (never colour alone), and only the numbers the choice needs.
+struct BufferChoiceSheet: View {
   let side: Gap.Side
   @Binding var choice: BufferChoice
   let config: TollConfig
+  let close: () -> Void
 
   var body: some View {
     let limits = config.limits(side)
-    Card {
-      CardRow(
-        side == .before ? Copy.Fit.before : Copy.Fit.after,
-        detail: choice.grows
-          ? Copy.Fit.grows(choice.minutes, to: choice.target) : Copy.Gap.fixedDetail(choice.minutes)
-      ) {
-        IconTile(side == .before ? .beforeBed : .afterWake)
+    SheetPage(height: 520) {
+      SheetTitle(side == .before ? Copy.Fit.before : Copy.Fit.after)
+      SheetBody(side == .before ? Copy.Fit.beforeSheet : Copy.Fit.afterSheet)
+      VStack(spacing: 0) {
+        TickRow(title: Copy.Gap.grows, chosen: choice.mode == .grows) {
+          choice.mode = .grows
+          // Growing from nothing would stay at nothing until a smooth week: start where a new
+          // install does.
+          if choice.minutes == 0 { choice.minutes = min(limits.start, choice.target) }
+        }
+        Hairline()
+        TickRow(title: Copy.Gap.fixed, chosen: choice.mode == .fixed) { choice.mode = .fixed }
+        Hairline()
+        TickRow(title: Copy.Fit.off, chosen: choice.mode == .none) { choice.mode = .none }
+        switch choice.mode {
+        case .grows:
+          Hairline()
+          MinutesRow(
+            title: Copy.Fit.tonight, minutes: choice.minutes, range: 0...choice.target, step: 5
+          ) { choice.minutes = $0 }
+          Hairline()
+          MinutesRow(
+            title: Copy.Fit.growsTo, minutes: choice.target, range: 0...limits.manualMax,
+            step: limits.manualStep
+          ) { choice.target = max($0, choice.minutes) }
+        case .fixed:
+          Hairline()
+          MinutesRow(
+            title: Copy.Gap.fixedOption, minutes: choice.minutes, range: 0...limits.manualMax,
+            step: limits.manualStep
+          ) { choice.minutes = $0 }
+        case .none:
+          EmptyView()
+        }
       }
-      option(Copy.Gap.grows, chosen: choice.grows) { choice.grows = true }
-      option(Copy.Gap.fixed, chosen: !choice.grows) { choice.grows = false }
-      MinutesRow(
-        title: choice.grows ? Copy.Fit.tonight : Copy.Gap.fixedOption, minutes: choice.minutes,
-        range: 0...(choice.grows ? choice.target : limits.manualMax),
-        step: choice.grows ? 5 : limits.manualStep
-      ) { choice.minutes = $0 }
-      if choice.grows {
-        MinutesRow(
-          title: Copy.Fit.growsTo, minutes: choice.target, range: 0...limits.manualMax,
-          step: limits.manualStep
-        ) { choice.target = max($0, choice.minutes) }
-      }
+      .padding(.top, 16)
+    } actions: {
+      PrimaryButton(Copy.Fit.done, action: close)
     }
-    .tollHaptic(.selection, trigger: choice.grows)
-  }
-
-  private func option(_ title: String, chosen: Bool, pick: @escaping () -> Void) -> some View {
-    Button(action: pick) {
-      HStack(spacing: TollSpacing.rowGap) {
-        Text(title).tollType(.rowTitle, TollColor.label)
-        Spacer(minLength: 0)
-        Image(symbol: .done).unredacted()
-          .font(.system(size: 15, weight: .semibold))
-          .foregroundStyle(TollColor.accent)
-          .opacity(chosen ? 1 : 0)
-          .accessibilityHidden(true)
-      }
-      .frame(minHeight: 44)
-      .contentShape(Rectangle())
-    }
-    .buttonStyle(.plain)
-    .accessibilityAddTraits(chosen ? .isSelected : [])
+    .tollHaptic(.selection, trigger: choice.mode)
   }
 }

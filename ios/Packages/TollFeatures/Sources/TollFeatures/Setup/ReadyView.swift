@@ -1,14 +1,13 @@
 @preconcurrency import FamilyControls
-@preconcurrency import ManagedSettings
 import SwiftUI
 import TollCore
 import TollScreenTime
 import TollUI
 
 /// Ready (D68, #76, #144): tonight as pictures. A tick before the eyebrow, when apps lock, tonight
-/// as lock · moon asleep – wake sun · open, how long before sleep and after waking, then where it
-/// runs (anywhere until home is set), the apps with their count and icons, and the pauses as dots.
-/// No back button: onboarding is done.
+/// drawn lock · sleep · open, the same three as lines, then one short line of the rest: where it
+/// runs (anywhere until home is set), the apps' count and the week's pauses. Short enough to read
+/// whole at the default size; it scrolls at accessibility sizes. No back button: onboarding is done.
 struct ReadyView: View {
   let model: SetupModel
 
@@ -21,44 +20,41 @@ struct ReadyView: View {
         draft.schedule, gap: draft.before.start, after: draft.after.start, now: Date(),
         calendar: .current)
       {
-        NightPictureView(picture: night).padding(.top, 24)
+        NightPictureView(picture: night).padding(.top, 20)
+        // The night in three lines, in the picture's order: lock, sleep, open.
+        Card {
+          CardRow(
+            Copy.Fit.lockAt(night.lockTime ?? night.start),
+            detail: Copy.Fit.beforeSleep(draft.before.start), size: .list
+          ) {
+            IconTile(.blocked, accent: false)
+          }
+          CardRow(Copy.Gap.sleepSpan(night.start, night.end), size: .list) {
+            IconTile(.sleep)
+          }
+          CardRow(
+            Copy.Fit.openAt(night.openTime ?? night.end),
+            detail: Copy.Fit.afterWaking(draft.after.start), size: .list
+          ) {
+            IconTile(.open, accent: false)
+          }
+        }
+        .padding(.top, 16)
       }
-      Card {
-        CardRow(
-          Copy.Fit.beforeSleep(draft.before.start),
-          detail: draft.before.off ? nil : Copy.Fit.readyDetail(target: draft.before.target)
-        ) {
-          IconTile(.beforeBed, accent: false)
-        }
-        CardRow(
-          Copy.Fit.afterWaking(draft.after.start),
-          detail: draft.after.off ? nil : Copy.Fit.readyDetail(target: draft.after.target)
-        ) {
-          IconTile(.afterWake, accent: false)
-        }
-        CardRow(Copy.Setup.anywhere, detail: Copy.Setup.anywhereUntilHome) {
-          IconTile(.anywhere, accent: false)
-        }
-        CardRow(
-          Copy.Setup.blocked,
-          detail: Copy.Setup.blockedCount(
-            categories: model.selection.categoryTokens.count,
-            apps: Blocklist.items(model.selection))
-        ) {
-          IconTile(.apps, accent: false)
-        } trailing: {
-          AppIcons(tokens: Array(model.selection.applicationTokens.prefix(3)))
-        }
-        CardRow(
-          Copy.Setup.unlocks(unlocks),
-          detail: Copy.Setup.unlocksDetail(minutes: model.app.config.door.minutes)
-        ) {
-          IconTile(.unlock, accent: false)
-        } trailing: {
-          Pips(filled: unlocks, total: unlocks, spoken: Copy.Setup.unlocks(unlocks))
-        }
+      // The rest, one short line of what else tonight holds.
+      AdaptiveStack(spacing: 14) {
+        fact(.anywhere, Copy.Setup.anywhere)
+        fact(.apps, apps.isEmpty ? Copy.Setup.blocked : apps)
+        fact(.unlock, Copy.Setup.unlocks(unlocks))
       }
-      .padding(.top, 24)
+      .padding(.vertical, 12)
+      .padding(.horizontal, TollSpacing.cardPadding)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background(
+        TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
+      )
+      .accessibilityElement(children: .combine)
+      .padding(.top, 12)
     } actions: {
       if let footnote {
         // The free nights as segments, none used yet (#77), over the words.
@@ -77,6 +73,23 @@ struct ReadyView: View {
   }
 
   private var unlocks: Int { model.app.config.unlocks.max }
+
+  /// "2 categories · 2 apps"; the simulator has no tokens to count.
+  private var apps: String {
+    Copy.Setup.blockedCount(
+      categories: model.selection.categoryTokens.count, apps: Blocklist.items(model.selection))
+  }
+
+  private func fact(_ symbol: TollSymbol, _ text: String) -> some View {
+    HStack(spacing: 6) {
+      Image(symbol: symbol).unredacted()
+        .font(.system(size: 13, weight: .medium))
+        .foregroundStyle(TollColor.label2)
+        .accessibilityHidden(true)
+      Text(text).tollType(.detail, TollColor.label)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+  }
 
   /// From the stored trial start, so a reinstall or a new phone isn't promised more (#46, D78).
   private var footnote: String? {
@@ -97,20 +110,5 @@ struct ReadyView: View {
     }
     let start = lock.nextStart(after: now, calendar: .current) ?? now
     return Copy.Setup.readyLine(Copy.time(start))
-  }
-}
-
-/// Up to three of the chosen apps' own icons, from the system (`Label(token)`); the app never knows
-/// which apps they are (D41). None in the simulator, which has no tokens.
-private struct AppIcons: View {
-  let tokens: [ApplicationToken]
-
-  var body: some View {
-    HStack(spacing: 4) {
-      ForEach(tokens, id: \.self) { token in
-        Label(token).labelStyle(.iconOnly).frame(width: 24, height: 24)
-      }
-    }
-    .accessibilityHidden(true)
   }
 }
