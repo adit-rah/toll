@@ -493,3 +493,26 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - Its hint is "Double-tap to show last night.".
 - **Motion** (design §2.5): it grows over 300 ms and its content fades in after the first 100 ms. With Reduce Motion, a 200 ms crossfade.
 - **The rule** is `Morning.status` and `statusSpoken` in TollCore, tested.
+
+**D94. Tonight's band is one designed system** (2026-11-25, founder feedback; amends D86, D91 and D93).
+- **Kinds, each with its time:**
+  - **Problems** show at any time until fixed. They are: Screen Time off, a build that can't save, a night without its apps, and location short of Always.
+  - **Night cards:** Before bed's card shows only in the gap. Monday's card shows from Monday noon until Tuesday noon, while nothing is locked.
+  - **A one-time flow, then setup offers** (home, then the heads-up, then the gap offer). These show only at calm times:
+    - nothing is locked;
+    - free nights are left, or Dusk is bought;
+    - it is not during the night, and not within `band.nightMinutes` (60) of the lock.
+
+    Offers also need a night to have ended since setup.
+  - **Last night's row** shows from wake until noon, until OK, and never in the hour before the lock.
+- **One card, by kind:** a problem first, then a night card, then a flow, then a setup offer. Last night's folded row may sit under the card, nearest the strip. There are never more than two items.
+- **The hour before the lock belongs to the night.**
+  - Before the gap: at most Monday's card.
+  - In the gap: Before bed's card, or nothing.
+  - Offers and flows wait for tomorrow.
+- **Opening:** last night opens upward. While it is open, a card above it fades out in place over 200 ms, and comes back when it folds. Nothing is pushed into the state or covered.
+- **The chevrons follow the motion:** the folded row shows `chevron.up` and the open header `chevron.down`.
+- **Amends D91:** last night's row no longer waits behind the location, lost-apps or can't-save notes; it sits under them. With Screen Time off, last night still isn't shown.
+- **Amends D86:** "one at a time" becomes one card plus last night's row.
+- **The heads-up offer is a setup offer.** It asks once, and in the last hour it would describe tomorrow's heads-up.
+- **The rule** is `TonightBand` in TollCore, tested. It is charted in `docs/flows/tonight.md`.
