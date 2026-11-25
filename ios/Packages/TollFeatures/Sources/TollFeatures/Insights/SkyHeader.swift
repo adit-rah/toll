@@ -100,15 +100,20 @@ struct SkyHeader: View {
   /// its one line. VoiceOver has both in the sky's own label.
   @ViewBuilder private var line: some View {
     if let nights = sleep.nights {
-      HStack(spacing: 14) {
-        IconTile(.sleep, size: .large)
-        Text(nights)
-          .tollType(.sheetTitle, TollColor.label)
-          .fixedSize(horizontal: false, vertical: true)
-        Spacer(minLength: 0)
-        if let landmark = sleep.sky.landmark {
-          SkyShare(landmark: landmark)
+      let count = Text(nights)
+        .tollType(.sheetTitle, TollColor.label)
+        .fixedSize(horizontal: false, vertical: true)
+      // At accessibility sizes the count gets the whole width under the moon and share.
+      VStack(alignment: .leading, spacing: 6) {
+        HStack(spacing: 14) {
+          IconTile(.sleep, size: .large)
+          if !typeSize.isAccessibilitySize { count }
+          Spacer(minLength: 0)
+          if let landmark = sleep.sky.landmark {
+            SkyShare(landmark: landmark)
+          }
         }
+        if typeSize.isAccessibilitySize { count }
       }
       .accessibilityElement(children: .contain)
     } else {
