@@ -51,14 +51,14 @@ flowchart TD
   facts -->|"no"| none(["No card, no segment: Tonight looks ahead"])
   facts -->|"yes"| strip["Last night at the strip's start, until the next lock<br/>render: home-strip-last-night"]
   facts -->|"yes"| morningCheck{"Before noon, not put away for this night,<br/>no Screen Time or location note?"}
-  morningCheck -->|"yes"| row["Folded to one row in the slot, every time Tonight appears:<br/>moon, Last night, the outcome's glyph and words, chevron down<br/>render: home-morning, home-morning-gap, home-day"]
+  morningCheck -->|"yes"| row["Folded to one row in the slot, every time Tonight appears:<br/>moon, Last night, the outcome's glyph and words, chevron up<br/>render: home-morning, home-morning-gap, home-day"]
   morningCheck -->|"no"| strip
   row --> status{"The row's status (Morning.status)"}
   status -->|"a landmark: the 7th, 30th, 100th or 365th night that ran"| statusLandmark["30 nights. Orion is in your sky.<br/>render: home-morning-landmark"]
   status -->|"it ran, with or without a break"| statusRan["lock: Locked 8 h 45 m"]
   status -->|"away"| statusAway["figure.walk: Away, nothing locked"]
   status -->|"Screen Time off"| statusOff["hourglass: Screen Time was off"]
-  row -->|"tap the row"| card["The card, grown up from its row: Last night, OK, chevron up;<br/>Apps locked from … to …; the bar; Apps open from … to …;<br/>You chose sleep over a locked app N times; Last 7 nights<br/>render: home-morning-open"]
+  row -->|"tap the row"| card["The card, grown up from its row: Last night, OK, chevron down;<br/>Apps locked from … to …; the bar; Apps open from … to …;<br/>You chose sleep over a locked app N times; Last 7 nights<br/>render: home-morning-open"]
   card -->|"tap its header"| row
   card -->|"OK"| seen[("state.json: lastNightSeen = the night")]
   seen --> strip
