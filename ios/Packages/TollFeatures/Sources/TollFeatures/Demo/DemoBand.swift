@@ -1,5 +1,6 @@
 #if DEBUG
   import Foundation
+  import TollCore
 
   /// Tonight's band's scenarios (`TonightBand`, docs/renders.md): each pair it allows, and the hour
   /// before the lock.
