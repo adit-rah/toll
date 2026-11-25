@@ -82,10 +82,13 @@ public struct TollConfig: Codable, Sendable, Equatable {
   /// numbers are `datascience/sim/gap_rule.py`'s, so the app does what the simulator measured.
   public struct Gap: Codable, Sendable, Equatable {
     public init() {}
-    /// A new install's gap; installs from before D76 keep 0 and are offered this once.
-    public var start = 15
+    /// A new install's gap, the founders' choice: long enough to wind down from the first night,
+    /// half the target. A person may start lower. Installs from before D76 keep 0 and are offered
+    /// this once.
+    public var start = 30
     public var step = 15
-    /// The weekly rule never grows it past this; a person may choose more by hand.
+    /// The target everyone grows toward: the weekly rule never grows it past this; a person may
+    /// choose more by hand.
     public var cap = 60
     public var manualMax = 90
     /// Settings' fixed gap moves in these steps, 0 to `manualMax`.
@@ -106,15 +109,15 @@ public struct TollConfig: Codable, Sendable, Equatable {
   /// weekly rule as the gap before sleep, toward its own target.
   public struct After: Codable, Sendable, Equatable {
     public init() {}
-    /// A new install's, unless the person moves it. Smaller than the gap before: the morning is
-    /// the person's own, so it starts gently.
-    public var start = 10
-    /// 10, 20, 30: two smooth weeks reach the usual target.
-    public var step = 10
-    /// What it grows toward when nothing suggests otherwise.
+    /// A new install's, the founders' choice: on from the first night, for a calmer start to the
+    /// morning, and smaller than the gap before. 0 switches it off.
+    public var start = 15
+    /// One smooth week reaches the target, with D76's step.
+    public var step = 15
+    /// What it grows toward.
     public var target = 30
     public var manualMax = 60
-    public var manualStep = 10
+    public var manualStep = 15
   }
 
   /// Reading past sleep from Apple Health (#144): the usual time asleep and awake, from the
@@ -138,21 +141,13 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var correctDays = 7
   }
 
-  /// Suggestion v0 for the buffers' targets (#144; #145 replaces it with a model-backed rule): a
-  /// baseline for everyone, a step more for each sign that sleep is hard to reach, within a cap.
+  /// The buffers' targets at onboarding (#144): the same recommended baseline for everyone. Health
+  /// can't say how long a person takes to fall asleep, and how much their nights vary needs weeks
+  /// more than onboarding has, so nothing personal moves it yet; #145 personalises it later from
+  /// Dusk's own nights.
   public struct Suggestion: Codable, Sendable, Equatable {
     public init() {}
-    /// Everyone's target before sleep: D76's growing gap.
     public var before = 60
-    /// Taking long to fall asleep: in bed to asleep, where the source gives both.
-    public var latencyOverMinutes = 30
-    public var latencyAdd = 15
-    /// Falling asleep at very different times: the standard deviation of onset.
-    public var variabilityOverMinutes = 60
-    public var variabilityAdd = 15
-    /// The suggestion never goes past this; a person may choose up to `gap.manualMax`.
-    public var beforeMax = 90
-    /// Everyone's target after waking.
     public var after = 30
   }
 

@@ -21,7 +21,6 @@ final class FitDraft {
   var health: Bool
   /// What Health said, when it had enough nights; the sleep step says it.
   private(set) var estimate: SleepEstimate?
-  private(set) var suggestion: BufferSuggestion
   /// Waiting for iOS's sheet and Health's nights.
   var reading = false
 
@@ -43,32 +42,27 @@ final class FitDraft {
     self.before = before
     self.after = after
     self.health = health
-    suggestion = BufferSuggestion(nil, config: config)
   }
 
-  /// A new person: 7 am, the night's usual length before it, and the suggestion's buffers.
+  /// A new person: 7 am, the night's usual length before it, and the recommended buffers.
   static func fresh(_ config: TollConfig) -> FitDraft {
-    let fit = Fit.suggested(sleep: nil, BufferSuggestion(nil, config: config), health: false)
+    let fit = Fit.suggested(sleep: nil, health: false, config: config)
     return FitDraft(
       config: config, schedule: nil, before: fit.before, after: fit.after, health: false)
   }
 
   /// Someone already using Dusk: their night and gap as they are (`Fit.existing`).
   static func existing(_ state: DuskState, config: TollConfig) -> FitDraft {
-    let fit = Fit.existing(state, BufferSuggestion(nil, config: config), config: config)
+    let fit = Fit.existing(state, config: config)
     return FitDraft(
       config: config, schedule: fit.sleep, before: fit.before, after: fit.after,
       health: fit.health)
   }
 
-  /// Health answered: its usual times, weekends apart when they differ, and the suggestion from
-  /// them. Nil leaves the times to the person and keeps the baseline.
+  /// Health answered: its usual times, weekends apart when they differ. Nil leaves the times to
+  /// the person. The buffers stay the recommended baseline either way.
   func found(_ estimate: SleepEstimate?) {
     self.estimate = estimate
-    let suggestion = BufferSuggestion(estimate, config: config)
-    self.suggestion = suggestion
-    before.target = max(suggestion.before, before.start)
-    after.target = max(suggestion.after, after.start)
     guard let estimate else { return }
     asleep = estimate.usual.asleep
     wake = estimate.usual.wake

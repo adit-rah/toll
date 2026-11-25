@@ -36,16 +36,17 @@ flowchart TD
   hk -.->|"answered, either way"| enough{"At least 7 nights in the last 28 days?<br/>(SleepEstimate; iOS never says if reading was refused)"}
   enough -->|"yes"| found["3 · Your sleep: 'You usually fall asleep around 11:20 pm and wake around 7:10 am',<br/>moon to sun, both ends on their rows<br/>render: setup-sleep-found"]
   enough -->|"yes, Fri and Sat differ by 45 min or more"| foundWeekends["Your sleep: weeknights, and Fri and Sat nights apart<br/>render: setup-sleep-weekends"]
-  enough -->|"no: too few nights, or refused"| ask
+  enough -->|"no: too few nights, or refused"| askHealth["3 · Your sleep: the same question, and 'Apple Health has fewer than 7 recent nights…'<br/>render: setup-sleep-none"]
+  askHealth -->|"Continue"| around
   fit -->|"Set my hours myself"| ask["3 · Your sleep: 'When do you usually fall asleep and wake up?'<br/>the same rows; Different on weekends<br/>render: setup-sleep-ask"]
   found -->|"Continue"| around
   foundWeekends -->|"Continue"| around
   ask -->|"Continue (off while the hours are invalid)"| around
 
-  around["4 · The time around your sleep: lock → sleep → wake → open;<br/>Before sleep 15 min tonight, growing to 60; After waking 10, growing to 30<br/>render: setup-around"]
-  around -.->|"from Health: in bed over 30 min before sleep, or onset spread over 60 min"| aroundHealth["The same, suggested from your sleep: before grows to 75 or 90<br/>render: setup-around-health"]
+  around["4 · The time around your sleep: lock → sleep → wake → open;<br/>'Recommended to start': Before sleep 30 min tonight, growing to 60; After waking 15, growing to 30<br/>render: setup-around"]
+  around -->|"After waking's tonight set to 0"| aroundOff["The same with no time after waking: None<br/>render: setup-around-off"]
   around -->|"Continue"| screenTime
-  aroundHealth -->|"Continue"| screenTime
+  aroundOff -->|"Continue"| screenTime
 
   screenTime["5 · Allow Screen Time<br/>render: screen-time"]
   screenTime -->|"Allow"| fcPrompt{{"iOS: Family Controls prompt"}}
@@ -60,10 +61,10 @@ flowchart TD
   appsCheck -->|"no"| apps
   appsCheck -->|"yes: Continue"| ready
 
-  ready["7 · You're set: Apps lock at 11:05 pm tonight.<br/>lock · moon 11:20 pm – 7:10 am sun · open; before and after rows, Anywhere, the apps, 3 pauses, the free nights<br/>render: ready, ready-health"]
+  ready["7 · You're set: Apps lock at 10:50 pm tonight.<br/>lock · moon 11:20 pm – 7:10 am sun · open; before and after rows, Anywhere, the apps, 3 pauses, the free nights<br/>render: ready, ready-health"]
   ready -->|"Done (no Back)"| begin[("Keychain: the free nights' start, this phone and iCloud<br/>state.json: the night's block (sleep, no place), gap and after growing from their starts to their targets, health, setupFinishedAt")]
   begin --> inLock{"Inside tonight's lock already?"}
-  inLock -->|"no"| evening["Tonight: Apps lock at, 15 min before sleep; the strip: before · sleep · after<br/>render: home-anywhere"]
+  inLock -->|"no"| evening["Tonight: Apps lock at, 30 min before sleep; the strip: before · sleep · after<br/>render: home-anywhere"]
   inLock -->|"yes"| locked["Tonight: Apps locked until<br/>render: none (home-blocked has home set)"]
   evening -.->|"lock time: the monitor wakes"| locked
   locked -.->|"the lock ends, after the buffer after waking"| morningAfter["Tonight: last night's card; the home card once it is put away<br/>render: home-morning-card"]
@@ -79,6 +80,7 @@ Going Back from any step keeps what was chosen; leaving the app before Ready's D
 - **Welcome's other offers, restore and "Buy it now" outcomes have no render.** `welcome` shows only the fresh offer.
 - **Health refused looks like Health with no nights.** iOS doesn't say which; both lead to the asking screen, which is what #144 asks for. A person who refused can't be told how to allow it without guessing.
 - **"Use Apple Health" waits on iOS's sheet and the read, with the button disabled and nothing moving** (design §2.5 has no spinner). On a phone with years of sleep the read is a few hundred samples, so the wait should be short; it isn't measured.
-- **The suggestion is v0** (`BufferSuggestion`, TollConfig `suggestion`): every person gets 60 before and 30 after, plus 15 before for each sign. #145 replaces it.
-- **A night that is on at Done has no render.** `ready` covers the title ("From now until 7:20 am"), but Tonight locked with home not set has no scenario.
+- **The buffers are a baseline, not fitted.** Everyone is offered 30 before sleep growing to 60, and 15 after waking growing to 30 (`BufferSuggestion`, TollConfig `suggestion`). Health fits the hours only: it can't say how long a person takes to fall asleep, and how much nights vary needs weeks more data. #145 personalises the buffers later from Dusk's own nights.
+- **Most people without a watch land on the asking screen.** An iPhone alone has written no sleep to Health since iOS 18; only a worn tracker or manual entries do.
+- **A night that is on at Done has no render.** `ready` covers the title ("From now until 7:25 am"), but Tonight locked with home not set has no scenario.
 - **An unreadable state file sends a set-up phone back here.** See `data.md`.

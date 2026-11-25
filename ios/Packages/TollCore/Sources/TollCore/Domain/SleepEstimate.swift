@@ -23,10 +23,6 @@ public struct SleepEstimate: Equatable, Sendable {
   public var usual: Usual
   /// Fri and Sat nights, only when they differ from the rest by `health.weekendSplitMinutes`.
   public var weekends: Usual?
-  /// The median minutes from getting into bed to falling asleep, where the source gives both.
-  public var latency: Int?
-  /// How much the time of falling asleep varies: its standard deviation, in minutes.
-  public var variability: Int?
 
   /// Nil with fewer than `health.minNights` recent nights: Dusk asks instead.
   public init?(
@@ -58,9 +54,6 @@ public struct SleepEstimate: Equatable, Sendable {
         weekends = b
       }
     }
-    let latencies = nights.compactMap(\.latency).sorted()
-    latency = latencies.count >= health.minWeekendNights ? latencies[latencies.count / 2] : nil
-    variability = Self.spread(nights.map { Self.clock($0.onset, calendar) })
     guard usual.window.isValid, weekends?.window.isValid ?? true else { return nil }
   }
 
@@ -84,7 +77,7 @@ public struct SleepEstimate: Equatable, Sendable {
   }
 
   /// Each time as minutes from the times' circular mean, in -720 ..< 720: on that line a median
-  /// and a spread mean what they say, whichever side of midnight the times fall.
+  /// means what it says, whichever side of midnight the times fall.
   static func offsets(_ minutes: [Int]) -> (anchor: Double, offsets: [Double]) {
     let angles = minutes.map { Double($0) / 1440 * 2 * .pi }
     let mean = atan2(angles.map(sin).reduce(0, +), angles.map(cos).reduce(0, +))
@@ -108,37 +101,18 @@ public struct SleepEstimate: Equatable, Sendable {
     let minute = (Int(value) % 1440 + 1440) % 1440
     return ClockTime(hour: minute / 60, minute: minute % 60)
   }
-
-  /// The standard deviation of the times around their circular mean, in whole minutes.
-  static func spread(_ minutes: [Int]) -> Int? {
-    guard minutes.count >= 2 else { return nil }
-    let (_, offsets) = offsets(minutes)
-    let mean = offsets.reduce(0, +) / Double(offsets.count)
-    let variance = offsets.map { ($0 - mean) * ($0 - mean) }.reduce(0, +) / Double(offsets.count)
-    return Int(variance.squareRoot().rounded())
-  }
 }
 
-/// The buffers' targets, suggestion v0 (#144; #145 replaces it with a model-backed rule): every
-/// person gets the baseline, and a step more before sleep for each sign that sleep is slow to
-/// come or comes at very different times. The numbers are `TollConfig.suggestion`'s.
+/// The buffers' targets at onboarding (#144): the recommended baseline, the same for everyone
+/// (`TollConfig.suggestion`). Health's sleep fits the hours, not the buffers: nothing in it says
+/// how long a person takes to fall asleep, and #145 personalises the buffers later from Dusk's own
+/// nights.
 public struct BufferSuggestion: Equatable, Sendable {
   public var before: Int
   public var after: Int
-  /// Something in the person's own Health history moved it from the baseline.
-  public var personal: Bool
 
-  public init(_ estimate: SleepEstimate?, config: TollConfig = .defaults) {
-    let rule = config.suggestion
-    var before = rule.before
-    if let latency = estimate?.latency, latency > rule.latencyOverMinutes {
-      before += rule.latencyAdd
-    }
-    if let spread = estimate?.variability, spread > rule.variabilityOverMinutes {
-      before += rule.variabilityAdd
-    }
-    self.before = min(before, rule.beforeMax)
-    after = rule.after
-    personal = self.before != rule.before
+  public init(config: TollConfig = .defaults) {
+    before = config.suggestion.before
+    after = config.suggestion.after
   }
 }

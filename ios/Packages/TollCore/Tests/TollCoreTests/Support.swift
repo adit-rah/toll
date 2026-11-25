@@ -81,6 +81,12 @@ func arrive(_ state: inout DuskState, _ place: Place = homePlace, _ at: Date, in
   state.presence[place.id] = Presence(isInside: inside, at: at)
 }
 
+/// The gap as D76 shipped it, 15 minutes growing to 60 and nothing after waking: the weekly rule's
+/// tests read as they were written, whatever a new install's defaults are now (#144).
+let d76 = Fit(
+  sleep: nil, before: .init(start: 15, target: 60), after: .init(start: 0, target: 30),
+  health: false)
+
 /// This week's counts as `Week` makes them, read back from the bars Home keeps (#44).
 extension HomeSnapshot {
   var nightsBlocked: Int {

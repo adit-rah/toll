@@ -34,18 +34,36 @@ struct FitFlowTests {
     _ = apply(
       .finishSetup(
         sleep: sleepBlock(), home: homePlace, trialStart: date(2026, 11, 16, 15),
-        fit: .suggested(sleep: nil, BufferSuggestion(nil), health: false)),
+        fit: .suggested(sleep: nil, health: false)),
       &state, date(2026, 11, 16, 15))
     #expect(!Flows.fitSleep.applies(state))
   }
 
-  @Test func theFlowStartsFromTheirNightAndGap() throws {
-    let state = try migrated()
-    let fit = Fit.existing(state, BufferSuggestion(nil))
+  @Test func theFlowOffersTheSameStartKeepingALongerGap() throws {
+    var state = try migrated()
+    // Their gap is 15, below the baseline's start: they're offered 30, growing to 60.
+    state.gap.pending = nil
+    var fit = Fit.existing(state)
     #expect(fit.sleep == .everyDay(usual))
-    // Their held change to 30 counts; the target is D76's 60.
     #expect(fit.before == .init(start: 30, target: 60))
-    #expect(fit.after == .init(start: 10, target: 30))
+    #expect(fit.after == .init(start: 15, target: 30))
+    // A gap already at 30 or more is kept, a fixed 75 included.
+    state.gap.minutes = 45
+    #expect(Fit.existing(state).before == .init(start: 45, target: 60))
+    state.gap = Gap()
+    state.gap.minutes = 75
+    fit = Fit.existing(state)
+    #expect(fit.before == .init(start: 75, target: 75))
+  }
+
+  @Test func aSideAtZeroIsOff() throws {
+    var state = try migrated()
+    var fit = Fit.existing(state)
+    fit.after.start = 0
+    #expect(apply(.fit(fit), &state, date(2026, 11, 26, 15)) == nil)
+    #expect(state.after.minutes == 0)
+    #expect(state.after.mode == .fixed)
+    #expect(state.lockSleep?.schedule.windows.first?.end == time(7))
   }
 
   @Test func answeringFitsTheNightAndEndsTheFlow() throws {
@@ -125,8 +143,7 @@ struct FitFlowTests {
     #expect(log.missingSleep(since: date(2026, 11, 10, 12), calendar: london) == ["2026-11-16"])
     let slept = SleepNight(
       night: date(2026, 11, 16, 0), onset: date(2026, 11, 16, 23, 5),
-      wake: date(2026, 11, 17, 6, 50), asleepMinutes: 440, awakeMinutes: 15, inBed: nil,
-      source: .watch)
+      wake: date(2026, 11, 17, 6, 50), asleepMinutes: 440, awakeMinutes: 15, source: .watch)
     #expect(log.correct(with: [slept], calendar: london) == 1)
     // Once corrected, nothing more to add.
     #expect(log.correct(with: [slept], calendar: london) == 0)

@@ -27,9 +27,15 @@
       case .sleepFoundWeekends:
         draft.health = true
         draft.found(DemoHealth.estimate(weekends: true, now: now))
-      case .aroundHealth, .readyHealth:
+      case .readyHealth:
         draft.health = true
-        draft.found(DemoHealth.estimate(slow: true, now: now))
+        draft.found(DemoHealth.estimate(weekends: true, now: now))
+      case .sleepNone:
+        draft.health = true
+        draft.found(nil)
+      case .aroundOff:
+        draft.found(nil)
+        draft.setStart(.after, 0)
       default:
         draft.found(nil)
       }
@@ -37,9 +43,9 @@
   }
 
   /// Four weeks of a watch's nights: asleep about 11:20 pm and up about 7:10 am; on Fri and Sat
-  /// nights, with `weekends`, about 12:30 am to 9 am; with `slow`, 40 minutes in bed first.
+  /// nights, with `weekends`, about 12:30 am to 9 am.
   enum DemoHealth {
-    static func estimate(weekends: Bool = false, slow: Bool = false, now: Date) -> SleepEstimate? {
+    static func estimate(weekends: Bool = false, now: Date) -> SleepEstimate? {
       let calendar = Calendar.current
       var samples: [SleepSample] = []
       for back in 1...27 {
@@ -56,12 +62,6 @@
         let end = start.addingTimeInterval(late ? 8.5 * 3600 : 7 * 3600 + 50 * 60)
         samples.append(
           SleepSample(start: start, end: end, kind: .asleep, source: .watch, sourceID: "watch"))
-        if slow {
-          samples.append(
-            SleepSample(
-              start: start.addingTimeInterval(-40 * 60), end: start, kind: .inBed, source: .watch,
-              sourceID: "watch"))
-        }
       }
       return SleepEstimate(
         SleepNight.from(samples, calendar: calendar), now: now, calendar: calendar)

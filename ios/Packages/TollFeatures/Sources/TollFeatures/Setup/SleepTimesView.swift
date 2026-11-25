@@ -31,7 +31,9 @@ struct SleepTimesStep: View {
   }
 
   private var note: String {
-    guard let estimate = draft.estimate else { return Copy.Fit.askNote }
+    guard let estimate = draft.estimate else {
+      return draft.health ? Copy.Fit.askAfterHealth : Copy.Fit.askNote
+    }
     let found = Copy.Fit.foundNote(estimate.nights)
     return estimate.weekends == nil ? found : found + " " + Copy.Fit.weekendsFound
   }

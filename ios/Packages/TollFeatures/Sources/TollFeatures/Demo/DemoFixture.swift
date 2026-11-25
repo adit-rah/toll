@@ -134,12 +134,12 @@
       if scenario == .homeStripLastNight {
         state.lastNightSeen = calendar.startOfDay(for: now.addingTimeInterval(-12 * 3600))
       }
-      // A new install locks 15 minutes before sleep (D76) and 10 after waking (#144); the offers
+      // A new install locks 30 minutes before sleep (D76) and 15 after waking (#144); the offers
       // are for people from before each.
       state.gap = scenario == .homeGapOffer ? .existing : .newInstall()
       state.after =
         scenario == .homeGapOffer || scenario.fitOffered
-        ? .none(target: 30) : .growing(from: 10, to: 30)
+        ? .none(target: 30) : .growing(from: 15, to: 30)
       state.after.offered = scenario.fitOffered
       if scenario == .homeGapWeek {
         state.gap.minutes = 30

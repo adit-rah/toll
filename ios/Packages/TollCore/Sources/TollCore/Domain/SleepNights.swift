@@ -28,8 +28,7 @@ public struct SleepSample: Hashable, Sendable {
   }
 }
 
-/// One night's sleep from Health: when sleep began and ended, how long asleep and awake, and when
-/// the person got into bed where the source says so.
+/// One night's sleep from Health: when sleep began and ended, and how long asleep and awake.
 public struct SleepNight: Equatable, Sendable {
   /// The night's key, noon to noon, as the night log keys it.
   public var night: Date
@@ -37,14 +36,7 @@ public struct SleepNight: Equatable, Sendable {
   public var wake: Date
   public var asleepMinutes: Int
   public var awakeMinutes: Int
-  public var inBed: Date?
   public var source: SleepSample.Source
-
-  /// In bed to asleep, in minutes; nil when the source gives no time in bed.
-  public var latency: Int? {
-    guard let inBed, inBed <= onset else { return nil }
-    return Int(onset.timeIntervalSince(inBed) / 60)
-  }
 
   /// Fri and Sat nights, as "Different on weekends" splits them.
   public func weekend(_ calendar: Calendar) -> Bool {
@@ -73,13 +65,10 @@ public struct SleepNight: Equatable, Sendable {
       guard let onset = mine.map(\.start).min(), let wake = mine.map(\.end).max() else {
         return nil
       }
-      let ownBed = samples.filter { $0.kind == .inBed && $0.sourceID == chosen }
-      let bed = (ownBed.isEmpty ? samples.filter { $0.kind == .inBed } : ownBed).map(\.start).min()
       let awake = samples.filter { $0.kind == .awake && $0.sourceID == chosen }
       return SleepNight(
         night: key, onset: onset, wake: wake, asleepMinutes: minutes(mine),
-        awakeMinutes: minutes(awake), inBed: bed,
-        source: mine.first?.source ?? .other)
+        awakeMinutes: minutes(awake), source: mine.first?.source ?? .other)
     }
     .sorted { $0.night < $1.night }
   }

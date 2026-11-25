@@ -3,9 +3,10 @@ import TollCore
 import TollUI
 
 /// The time around your sleep (#144): apps lock a while before sleep and stay locked a while after
-/// waking. Dusk suggests each side's target; each starts gently and grows weekly toward it (D76's
-/// rule, both sides), and both numbers on each side can change. Drawn as lock → sleep → wake →
-/// open. Shared by onboarding and the one-time flow, whose last step it is.
+/// waking. Both sides start from the same recommended baseline for everyone (only the hours come
+/// from Health) and grow weekly toward their targets (D76's rule, both sides); both numbers on each
+/// side can change, and the side after down to none. Drawn as lock → sleep → wake → open. Shared
+/// by onboarding and the one-time flow, whose last step it is.
 struct AroundStep: View {
   @Bindable var draft: FitDraft
   let step: Int?
@@ -23,13 +24,10 @@ struct AroundStep: View {
       {
         NightPictureView(picture: picture).padding(.top, 24)
       }
-      Footnote(
-        draft.health && draft.estimate != nil ? Copy.Fit.suggestedHealth : Copy.Fit.suggested,
-        symbol: draft.health && draft.estimate != nil ? TollSymbol.health : nil
-      )
-      .padding(.top, 20)
+      Footnote(Copy.Fit.suggested).padding(.top, 20)
       BufferCard(draft: draft, side: .before).padding(.top, 8)
       BufferCard(draft: draft, side: .after).padding(.top, 12)
+      Footnote(Copy.Fit.afterWhy, symbol: .afterWake).padding(.top, TollSpacing.underCard)
       Footnote(Copy.Fit.growsNote).padding(.top, TollSpacing.underCard)
     } actions: {
       PrimaryButton(action, action: next)

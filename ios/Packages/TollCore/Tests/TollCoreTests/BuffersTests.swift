@@ -86,7 +86,7 @@ struct BuffersTests {
       seen.append((state.gap.minutes, state.after.minutes))
     }
     #expect(seen.map(\.0) == [30, 45, 60, 60, 60])
-    #expect(seen.map(\.1) == [20, 30, 30, 30, 30])
+    #expect(seen.map(\.1) == [25, 30, 30, 30, 30])
     #expect(state.gap.change?.from == 45)
   }
 
@@ -119,7 +119,7 @@ struct BuffersTests {
       run(&state, date(2026, 11, day + 1, 7, 40), .windowEnd)
     }
     run(&state, date(2026, 11, 23, 12))
-    #expect(state.after.minutes == 20)
+    #expect(state.after.minutes == 15)
     #expect(state.gap.minutes == 30)
     // Monday's card names the side before sleep first; answering it answers both.
     #expect(GapRules.changed(state) == .before)
@@ -166,7 +166,7 @@ struct BuffersTests {
     let after = BeforeBed(state: state, side: .after)
     #expect(after.grows)
     #expect(after.target == 30)
-    #expect(plain(after.detail) == "Grows with you · now 10 min · next 20")
+    #expect(plain(after.detail) == "Grows with you · now 10 min · next 25")
     run(&state, date(2026, 11, 16, 23, 30))
     #expect(
       apply(.buffer(.after, .fixed(20), target: nil), &state, date(2026, 11, 16, 23, 30)) == nil)

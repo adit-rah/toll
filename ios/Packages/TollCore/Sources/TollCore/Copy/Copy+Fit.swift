@@ -25,6 +25,10 @@ extension Copy {
       "From your last \(nights) nights in Apple Health. Change either time if it's off."
     }
     public static let askNote = "Your best guess is fine. You can change it later in Settings."
+    /// Health had too few recent nights, or reading was refused: iOS doesn't say which, and an
+    /// iPhone alone writes no sleep. Said as a fact, then the same calm ask.
+    public static let askAfterHealth =
+      "Apple Health has fewer than 7 recent nights of sleep, which needs a watch or a sleep app. Your best guess is fine. You can change it later in Settings."
     public static let fallAsleep = "Fall asleep"
     public static let wakeUp = "Wake up"
     public static let weekendsFound = "Fri and Sat nights are later, so they're set apart."
@@ -39,12 +43,16 @@ extension Copy {
       "Apps lock a while before you fall asleep, and stay locked a while after you wake."
     public static let before = "Before sleep"
     public static let after = "After waking"
-    public static let suggestedHealth = "Suggested from your sleep in Apple Health"
-    public static let suggested = "Suggested to start"
-    /// A buffer's row: tonight's minutes and what it grows to.
+    /// The buffers are the same recommended start for everyone; only the hours come from Health.
+    public static let suggested = "Recommended to start. Change either one."
+    /// Under "After waking": what it's for, claimed no more strongly, and how to switch it off.
+    public static let afterWhy = "For a calmer start to the morning. Set tonight to 0 for none."
+    /// A buffer's row: tonight's minutes and what it grows to, or none.
     public static func grows(_ minutes: Int, to target: Int) -> String {
-      minutes >= target
-        ? "\(minutes) min every night" : "\(minutes) min tonight, growing to \(target)"
+      minutes == 0
+        ? off
+        : minutes >= target
+          ? "\(minutes) min every night" : "\(minutes) min tonight, growing to \(target)"
     }
     public static let tonight = "Tonight"
     public static let growsTo = "Grows to"
@@ -61,7 +69,13 @@ extension Copy {
     }
 
     /// Ready and Tonight: the buffer after waking, beside "15 min before sleep".
-    public static func afterWaking(_ minutes: Int) -> String { "\(minutes) min after waking" }
+    public static let off = "None"
+    public static func beforeSleep(_ minutes: Int) -> String {
+      minutes == 0 ? "None before sleep" : Gap.beforeBed(minutes)
+    }
+    public static func afterWaking(_ minutes: Int) -> String {
+      minutes == 0 ? "None after waking" : "\(minutes) min after waking"
+    }
     public static func readyDetail(target: Int) -> String { "Grows with you, up to \(target) min" }
 
     /// The one-time flow for people already using Dusk (#144), as Tonight's card and its sheet.

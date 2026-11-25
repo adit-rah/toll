@@ -10,14 +10,15 @@
   enum DemoScenario: String, CaseIterable {
     case empty, welcome, blocklist, ready
     /// Onboarding fitted to sleep (#144): Fit Dusk to your sleep; your sleep found in Health, with
-    /// weekends apart, or asked; the time around it, from the baseline or from Health's signs; and
-    /// Ready after Health.
+    /// weekends apart, asked, and asked after Health had too few nights; the time around it, as
+    /// recommended and with the side after switched off; and Ready after Health.
     case fit
     case sleepFound = "setup-sleep-found"
     case sleepFoundWeekends = "setup-sleep-weekends"
     case sleepAsk = "setup-sleep-ask"
     case around = "setup-around"
-    case aroundHealth = "setup-around-health"
+    case aroundOff = "setup-around-off"
+    case sleepNone = "setup-sleep-none"
     case readyHealth = "ready-health"
     /// One-time flow #1 for people already using Dusk (#144): its card on Tonight, and its sheet on
     /// each step. Settings › Sleep, where sleep and both buffers change later.
@@ -143,8 +144,8 @@
       switch self {
       case .welcome: return []
       case .fit: return [.fit]
-      case .sleepFound, .sleepFoundWeekends, .sleepAsk: return [.fit, .sleep]
-      case .around, .aroundHealth: return around
+      case .sleepFound, .sleepFoundWeekends, .sleepAsk, .sleepNone: return [.fit, .sleep]
+      case .around, .aroundOff: return around
       case .screenTime, .screenTimeAllowed, .screenTimeDenied: return around + [.screenTime]
       case .blocklist: return around + [.screenTime, .blocklist]
       case .ready, .readyHealth: return around + [.screenTime, .blocklist, .ready]

@@ -25,14 +25,14 @@ struct ReadyView: View {
       }
       Card {
         CardRow(
-          Copy.Gap.beforeBed(draft.before.start),
-          detail: Copy.Fit.readyDetail(target: draft.before.target)
+          Copy.Fit.beforeSleep(draft.before.start),
+          detail: draft.before.off ? nil : Copy.Fit.readyDetail(target: draft.before.target)
         ) {
           IconTile(.beforeBed, accent: false)
         }
         CardRow(
           Copy.Fit.afterWaking(draft.after.start),
-          detail: Copy.Fit.readyDetail(target: draft.after.target)
+          detail: draft.after.off ? nil : Copy.Fit.readyDetail(target: draft.after.target)
         ) {
           IconTile(.afterWake, accent: false)
         }

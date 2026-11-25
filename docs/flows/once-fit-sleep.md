@@ -32,7 +32,7 @@ flowchart TD
   hk -.->|"fewer, or refused"| sleepAsk
   sheet1 -->|"Set my hours myself"| sleepAsk["2 of 3 · Your sleep: asked, their night's hours filled in<br/>render: fit-sheet-sleep"]
   sleepFound -->|"Continue"| around
-  sleepAsk -->|"Continue"| around["3 of 3 · The time around your sleep:<br/>before from their gap (start as it is, target at least 60); after 10, growing to 30<br/>render: fit-sheet-around"]
+  sleepAsk -->|"Continue"| around["3 of 3 · The time around your sleep:<br/>before 30 growing to 60, or their gap where it is already 30 or more; after 15, growing to 30<br/>render: fit-sheet-around"]
   around -->|"Save"| answered[(".fit: the night's hours (held if the night is on, B-3), both buffers growing from their starts to their targets, health;<br/>flows['fit-sleep'] = answered; after.offered false")]
   answered --> tonight(["Tonight: Apps lock at …, the strip before · sleep · after"])
 

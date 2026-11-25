@@ -14,6 +14,12 @@ public struct Fit: Equatable, Sendable {
       self.start = start
       self.target = target
     }
+
+    /// Off: a start of 0 keeps that side fixed at none rather than growing from nothing.
+    public var off: Bool { start == 0 }
+
+    /// What it becomes in the state: growing from its start, or none.
+    var setting: Gap.Setting { off ? .fixed(0) : .grows(start) }
   }
 
   /// Bed to wake, weekends apart when they differ; nil keeps the night's hours.
@@ -39,30 +45,31 @@ public struct Fit: Equatable, Sendable {
       }
     }
   }
+}
 
-  /// What a new person is offered: the suggestion's targets, and each side's gentle start.
+extension Fit {
+  /// What a new person is offered: the recommended baseline (`TollConfig.suggestion`), each side
+  /// growing from its start. Health fits the hours, not these.
   public static func suggested(
-    sleep: WeeklySchedule?, _ suggestion: BufferSuggestion, health: Bool,
-    config: TollConfig = .defaults
+    sleep: WeeklySchedule?, health: Bool, config: TollConfig = .defaults
   ) -> Fit {
-    Fit(
+    let baseline = BufferSuggestion(config: config)
+    return Fit(
       sleep: sleep,
-      before: Buffer(start: min(config.gap.start, suggestion.before), target: suggestion.before),
-      after: Buffer(start: min(config.after.start, suggestion.after), target: suggestion.after),
+      before: Buffer(start: min(config.gap.start, baseline.before), target: baseline.before),
+      after: Buffer(start: min(config.after.start, baseline.after), target: baseline.after),
       health: health)
   }
 
-  /// Someone already using Dusk (the one-time flow): their night and their gap as they are, the
-  /// suggestion's targets where theirs are lower, and the after side's gentle start.
-  public static func existing(
-    _ state: DuskState, _ suggestion: BufferSuggestion, config: TollConfig = .defaults
-  ) -> Fit {
-    let gap = state.gap
-    return Fit(
-      sleep: state.sleepBlock?.schedule,
-      before: Buffer(start: gap.upcoming, target: max(gap.target, suggestion.before, gap.upcoming)),
-      after: Buffer(start: min(config.after.start, suggestion.after), target: suggestion.after),
-      health: state.health)
+  /// Someone already using Dusk (the one-time flow): their night as it is and the same baseline
+  /// as a new person, keeping their gap where it already starts at the baseline's start or more.
+  public static func existing(_ state: DuskState, config: TollConfig = .defaults) -> Fit {
+    var fit = suggested(sleep: state.sleepBlock?.schedule, health: state.health, config: config)
+    let gap = state.gap.upcoming
+    if gap >= fit.before.start {
+      fit.before = Buffer(start: gap, target: max(fit.before.target, gap))
+    }
+    return fit
   }
 
   /// Fitted: the night's hours as chosen, and both buffers growing from their starts.
@@ -80,21 +87,20 @@ public struct Fit: Equatable, Sendable {
     }
     for side in Gap.Side.allCases {
       GapRules.set(
-        side, .grows(fit[side].start), target: fit[side].target, &state, now: now,
+        side, fit[side].setting, target: fit[side].target, &state, now: now,
         calendar: calendar, config: config)
     }
     state.health = fit.health
     return nil
   }
 
-  /// A new install's buffers, before the first night: in force at once, growing from the start.
+  /// A new install's buffers, before the first night: in force at once, growing from the start,
+  /// or none where the start is 0.
   static func install(_ fit: Fit, config: TollConfig) -> (before: Gap, after: Gap) {
-    let before = config.limits(.before)
-    let after = config.limits(.after)
-    return (
-      .growing(
-        from: fit.before.start, to: Gap.clamped(target: fit.before.target, limits: before)),
-      .growing(from: fit.after.start, to: Gap.clamped(target: fit.after.target, limits: after))
-    )
+    func gap(_ side: Gap.Side) -> Gap {
+      let target = Gap.clamped(target: fit[side].target, limits: config.limits(side))
+      return fit[side].off ? .none(target: target) : .growing(from: fit[side].start, to: target)
+    }
+    return (gap(.before), gap(.after))
   }
 }

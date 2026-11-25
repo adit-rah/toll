@@ -15,7 +15,8 @@ struct GapScreensTests {
     var state = setUp()
     #expect(
       apply(
-        .finishSetup(sleep: sleepBlock(), home: homePlace, trialStart: date(2026, 11, 16, 15)),
+        .finishSetup(
+          sleep: sleepBlock(), home: homePlace, trialStart: date(2026, 11, 16, 15), fit: d76),
         &state, date(2026, 11, 16, 15)) == nil)
     state.trial.purchased = true
     state.dismissedCards = [TonightCard.headsUp.rawValue]
@@ -124,8 +125,9 @@ struct GapScreensTests {
     #expect(home.hero == .tonight(start: date(2026, 11, 17, 22, 30), detail: home.heroDetail))
     #expect(home.card == .gapOffer)
     let card = try #require(home.gapCard)
-    #expect(card.title == "Lock apps 15 min before sleep?")
-    #expect(plain(card.detail) == "Apps lock at 10:15 pm. Your night still ends at 7:00 am.")
+    // The offer is a new install's start: 30 since #144.
+    #expect(card.title == "Lock apps 30 min before sleep?")
+    #expect(plain(card.detail) == "Apps lock at 10:00 pm. Your night still ends at 7:00 am.")
     #expect(card.action == "Turn on")
 
     var yes = state
@@ -158,7 +160,7 @@ struct GapScreensTests {
     #expect(apply(.gap(.fixed(0)), &state, date(2026, 11, 17, 12)) == nil)
     #expect(BeforeBed(state: state).detail == "None")
     var sheet = BeforeBed(state: state)
-    #expect(sheet.choice(grows: true, fixed: 0) == .grows(15))
+    #expect(sheet.choice(grows: true, fixed: 0) == .grows(30))
     #expect(sheet.choice(grows: true, fixed: 90) == .grows(60))
     #expect(sheet.choice(grows: false, fixed: 75) == .fixed(75))
     sheet.setting = .grows(45)

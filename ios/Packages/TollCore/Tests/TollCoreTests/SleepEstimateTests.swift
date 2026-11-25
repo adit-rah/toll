@@ -3,8 +3,8 @@ import Testing
 
 @testable import TollCore
 
-/// #144: the usual time asleep and awake from Health's nights, and suggestion v0 for the buffers'
-/// targets. Sources are merged before anything is counted.
+/// #144: the usual time asleep and awake from Health's nights, and the buffers' recommended
+/// baseline. Sources are merged before anything is counted.
 struct SleepEstimateTests {
   let config = TollConfig.defaults
   /// Wednesday 25 November 2026, 9 am: the estimate reads the four weeks before.
@@ -13,22 +13,15 @@ struct SleepEstimateTests {
   /// A night that starts on 11 November plus `day`, asleep at `asleep` minutes past 10 pm and up
   /// eight hours later.
   func night(
-    _ day: Int, asleep: Int = 80, hours: Double = 8, inBed: Int? = nil,
-    source: SleepSample.Source = .watch, id: String = "watch"
+    _ day: Int, asleep: Int = 80, hours: Double = 8, source: SleepSample.Source = .watch,
+    id: String = "watch"
   ) -> [SleepSample] {
     let onset = date(2026, 11, day, 22).addingTimeInterval(TimeInterval(asleep * 60))
-    var samples = [
+    return [
       SleepSample(
         start: onset, end: onset.addingTimeInterval(hours * 3600), kind: .asleep, source: source,
         sourceID: id)
     ]
-    if let inBed {
-      samples.append(
-        SleepSample(
-          start: onset.addingTimeInterval(-TimeInterval(inBed * 60)), end: onset, kind: .inBed,
-          source: source, sourceID: id))
-    }
-    return samples
   }
 
   func estimate(_ samples: [SleepSample]) -> SleepEstimate? {
@@ -40,11 +33,13 @@ struct SleepEstimateTests {
     #expect(config.health.lookbackDays == 28)
     #expect(config.health.minNights == 7)
     #expect(config.health.weekendSplitMinutes == 45)
+    #expect(config.health.minWeekendNights == 3)
     #expect(config.suggestion.before == 60)
-    #expect(config.suggestion.beforeMax == 90)
     #expect(config.suggestion.after == 30)
-    #expect(config.gap.start == 15)
-    #expect(config.after.start == 10)
+    #expect(config.gap.start == 30)
+    #expect(config.gap.step == 15)
+    #expect(config.gap.manualMax == 90)
+    #expect(config.after.start == 15)
   }
 
   @Test func sevenNightsAreTheLeast() {
@@ -62,7 +57,6 @@ struct SleepEstimateTests {
     let found = try #require(estimate(samples))
     #expect(found.usual.asleep == time(0, 0))
     #expect(found.usual.wake == time(8, 0))
-    #expect(found.variability == 20)
   }
 
   @Test func onlyTheLastFourWeeksCount() {
@@ -129,38 +123,22 @@ struct SleepEstimateTests {
     #expect(SleepNight.from([nap], calendar: london).isEmpty)
   }
 
-  @Test func latencyNeedsTimeInBed() throws {
-    let slow = try #require(estimate((14...20).flatMap { night($0, inBed: 40) }))
-    #expect(slow.latency == 40)
-    #expect(try #require(estimate((14...20).flatMap { night($0) })).latency == nil)
+  @Test func twoWeekendNightsAreTooFewToSetThemApart() throws {
+    // Only the 20th and 21st are Fri and Sat nights in 15–21 November (the 14th is out).
+    let late = (15...21).flatMap { day in night(day, asleep: [20, 21].contains(day) ? 150 : 80) }
+    #expect(try #require(estimate(late)).weekends == nil)
   }
 
-  // MARK: Suggestion v0
+  // MARK: The baseline
 
-  @Test func everyoneStartsFromTheBaseline() {
-    let none = BufferSuggestion(nil)
-    #expect((none.before, none.after, none.personal) == (60, 30, false))
-    let steady = BufferSuggestion(estimate((14...20).flatMap { night($0, inBed: 10) }))
-    #expect((steady.before, steady.after, steady.personal) == (60, 30, false))
-  }
-
-  @Test func slowOrScatteredSleepAddsAStepEach() {
-    let slow = BufferSuggestion(estimate((14...20).flatMap { night($0, inBed: 45) }))
-    #expect(slow.before == 75)
-    #expect(slow.personal)
-    let scattered = (14...20).enumerated().flatMap { index, day in
-      night(day, asleep: index.isMultiple(of: 2) ? 0 : 200, inBed: 45)
-    }
-    let both = BufferSuggestion(estimate(scattered))
-    #expect(both.before == 90)
-    var tight = config
-    tight.suggestion.beforeMax = 80
-    #expect(BufferSuggestion(estimate(scattered), config: tight).before == 80)
+  @Test func everyoneGetsTheSameBaseline() {
+    let baseline = BufferSuggestion()
+    #expect((baseline.before, baseline.after) == (60, 30))
   }
 
   @Test func aSuggestedFitStartsGently() {
-    let fit = Fit.suggested(sleep: nil, BufferSuggestion(nil), health: false)
-    #expect(fit.before == .init(start: 15, target: 60))
-    #expect(fit.after == .init(start: 10, target: 30))
+    let fit = Fit.suggested(sleep: nil, health: false)
+    #expect(fit.before == .init(start: 30, target: 60))
+    #expect(fit.after == .init(start: 15, target: 30))
   }
 }

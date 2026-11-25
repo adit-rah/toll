@@ -35,7 +35,8 @@ struct GapRuleTests {
   }
 
   @Test func tunablesMatchD76() {
-    #expect(config.gap.start == 15)
+    // The start moved from 15 to 30 with #144; the rule is unchanged.
+    #expect(config.gap.start == 30)
     #expect(config.gap.step == 15)
     #expect(config.gap.cap == 60)
     #expect(config.gap.manualMax == 90)
@@ -123,7 +124,8 @@ struct GapRuleTests {
     var state = setUp()
     #expect(
       apply(
-        .finishSetup(sleep: sleepBlock(), home: homePlace, trialStart: date(2026, 11, 16, 15)),
+        .finishSetup(
+          sleep: sleepBlock(), home: homePlace, trialStart: date(2026, 11, 16, 15), fit: d76),
         &state, date(2026, 11, 16, 15)) == nil)
     state.trial.purchased = true
     run(&state, date(2026, 11, 16, 15))
