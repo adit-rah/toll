@@ -49,8 +49,11 @@
   extension DemoScenario {
     /// Scenarios set the morning after a night: Tonight's morning card and Your sleep's weeks.
     var isMorning: Bool {
-      [.homeMorning, .homeMorningGap, .homeMorningAway, .homeMorningCard, .sleepMonday, .sleepBest]
-        .contains(self)
+      [
+        .homeMorning, .homeMorningGap, .homeMorningAway, .homeMorningCard, .homeStripLastNight,
+        .sleepMonday, .sleepBest,
+      ]
+      .contains(self)
         || (skyNights != nil && ![.sleepSkyEvening, .sleepSkyNight].contains(self))
     }
 
@@ -165,6 +168,10 @@
         : calendar.date(byAdding: .day, value: -setupAgo, to: now)
       state.trial.start = state.setupFinishedAt
       state.trial.purchased = later || morning || scenario.isGap
+      // Last night's card was put away; the strip opens it again.
+      if scenario == .homeStripLastNight {
+        state.lastNightSeen = calendar.startOfDay(for: now.addingTimeInterval(-12 * 3600))
+      }
       // A new install locks 15 minutes before bed (D76); the offer is for one from before it.
       state.gap = scenario == .homeGapOffer ? .existing : .newInstall()
       if scenario == .homeGapWeek {

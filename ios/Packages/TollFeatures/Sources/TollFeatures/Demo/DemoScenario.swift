@@ -40,9 +40,11 @@
     /// A weekday at 11 am with Study on: Tonight's one quiet line about it (D68, #89), and Study and
     /// Gym on the day's strip (D75).
     case homeDay = "home-day"
-    /// The strip's snippet open (D75): on the night in the evening, and on Study at 11 am.
+    /// The strip's snippet open (D75): on the night in the evening, on Study at 11 am, and on last
+    /// night at 8:10 am with its card already put away.
     case homeStripNight = "home-strip-night"
     case homeStripDay = "home-strip-day"
+    case homeStripLastNight = "home-strip-last-night"
     /// The free-week pill's purchase sheet over Tonight (D75), and the hero while a pause is open.
     case homePillPurchase = "home-pill-purchase"
     case homePauseOpen = "home-pause-open"
@@ -188,11 +190,12 @@
     var newBlockKind: Block.Kind? { self == .blockNewGym ? .gym : nil }
     /// Weekday scenarios at 11 am, with Study on.
     var isDay: Bool { [.homeDay, .homeStripDay, .blocksDay, .blockEditOn].contains(self) }
-    /// The block whose snippet the strip opens on (D75).
-    var snippet: BlockID? {
+    /// The segment whose snippet the strip opens on (D75): a block, or last night.
+    var snippet: String? {
       switch self {
-      case .homeStripNight: BlockID("sleep")
-      case .homeStripDay: BlockID("study")
+      case .homeStripNight: "sleep"
+      case .homeStripDay: "study"
+      case .homeStripLastNight: "lastNight"
       default: nil
       }
     }
