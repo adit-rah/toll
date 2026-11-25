@@ -49,6 +49,7 @@ struct NightPictureView: View {
     Image(symbol: symbol).unredacted()
       .font(.system(size: 12, weight: .semibold))
       .foregroundStyle(TollColor.label2)
+      .accessibilityHidden(true)
   }
 
   private func glyph(_ symbol: TollSymbol) -> some View {
