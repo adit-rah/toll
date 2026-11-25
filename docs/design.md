@@ -50,31 +50,38 @@ Times are the phone's 12- or 24-hour format with "am"/"pm" lowercase; Home's row
 
 ### 2.3 Colour
 
-The canvas's tokens (sticky note s4), dark first (decisions D36). Light mode is worked out from the same names. Tokens live in `TollColor`.
+The canvas's tokens (sticky note s4), dark first (decisions D36), made calmer for the eyes (the eye-comfort audit, 25 Nov 2026). Light mode is worked out from the same names. Tokens live in `TollColor`.
+
+- **No pure white or black.** Nothing in the app's own palette is above 0.9 relative luminance or below #0D0D0D: the light page is warm paper, cards and sheets a gentle step lighter, and the dark page a warm near-black. Apple's own chrome (the tab bar, alerts, the block screen) keeps Apple's colours.
+- **Cards are told from the page by tone, not glare:** a step of about 1.08:1 in both appearances, with tiles and tracks one step further (`surfaceRaised`).
+- **Text is a little softer than the extremes,** about 12–14:1 for `label`; Increase Contrast takes every text token back to the strong values (the second value in each cell below).
+- **Contrast floors:** text ≥ 4.5:1 on `bg`, `surface` and its tints; `label3` is for quiet marks and outlines (empty pips, dashed slots, chevrons) and disabled text, at ≥ 3:1 on `bg` and `surface`.
 
 | Token | Dark | Light | Use |
 |---|---|---|---|
-| `bg` | `#0D1015` | `#F6F5F1` | Page |
-| `surface` | `#161A21` | `#FFFFFF` | Cards, rows, sheets |
-| `surfaceRaised` | `#1F242C` | `#EDEBE5` | Icon tiles, tracks, the Apple tile, disabled and neutral buttons |
-| `separator` | `#262B34` | `#E3E1DA` | Hairlines |
-| `bar` | `#2C323C` | `#D9D6CE` | Chart bars, dashed empty slots |
-| `label` / `label2` / `label3` | `#EEECE6` / `#A2A8B2` / `#646B76` | `#1A1C20` / `#5B6068` / `#9A9EA5` | Text |
-| `accent` | `#E9B96E` | `#8E5E14` | The one accent: main buttons, links, what is on |
+| `bg` | `#131210` | `#ECE9E2` | Page |
+| `surface` | `#1C1A17` | `#F4F2ED` | Cards, rows, sheets |
+| `surfaceRaised` | `#25231F` | `#E3E0D8` | Icon tiles, tracks, the Apple tile, disabled and neutral buttons |
+| `separator` | `#2D2B27` | `#DAD6CD` | Hairlines |
+| `bar` | `#35332E` | `#D0CCC2` | Chart bars, dashed empty slots |
+| `label` | `#E4E0D8` · `#F3F1EC` | `#25272B` · `#141518` | Text: 14.2:1 (dark) and 12.3:1 (light) on `bg` |
+| `label2` | `#A6A198` · `#BDB9B1` | `#575A60` · `#45484D` | Secondary text: 7.3:1 and 5.7:1 on `bg` |
+| `label3` | `#77736B` · `#8E8A83` | `#7C7F85` · `#5F6268` | Quiet marks and disabled text: 4.0:1 and 3.3:1 on `bg` |
+| `accent` | `#E6B66C` · `#F2CD91` | `#845810` · `#6E480F` | The one accent: main buttons, links, what is on. 5.1:1 on the light `bg` |
 | `accentSoft` | accent @ 14% | accent @ 14% | Leading tiles, "on" backgrounds |
-| `onAccent` | `#1C1408` | `#FFFFFF` | Text on the accent |
-| `ok` | `#86C9A9` | `#2E7D5B` | A number going the right way |
-| `warn` · `warnSoft` | `#EE9E74` · @ 12% | `#B4542C` · @ 12% | Over a limit; deleting |
+| `onAccent` | `#1C1408` | `#F6F4EF` | Text on the accent: 9.8:1 and 5.6:1 |
+| `ok` | `#86C9A9` | `#2A7454` | A number going the right way |
+| `warn` · `warnSoft` | `#EE9E74` · @ 12% | `#9C4824` · @ 12% | Over a limit; deleting. 4.7:1 on the light `warnSoft` |
 
-Your sky (D79) is the same night in both appearances; only the land under it follows light or dark. Your sleep opens onto it: full bleed under the status bar, about the top 45% of the screen at every text size, "Your sleep" set on it in the dark `label`, and "N nights locked" with its moon on the land just under it. Its colours are `SkyColor` (`TollUI/Tokens/SkyColors.swift`):
+Your sky (D79) is the same night in both appearances; only the land under it follows light or dark. Your sleep opens onto it: full bleed under the status bar, about the top 45% of the screen at every text size, "Your sleep" set on it in the sky's `text`, and "N nights locked" with its moon on the land just under it. Its colours are `SkyColor` (`TollUI/Tokens/SkyColors.swift`):
 
 | Token | Value | Use |
 |---|---|---|
-| `palette(.evening)` | `#05070F` → `#0C1030` → `#1F1D47` → `#3A2B4E`, glow dark `accent` @ 42% | Opened from 4 pm: dusk, the app's name |
+| `palette(.evening)` | `#05070F` → `#0C1030` → `#1F1D47` → `#3A2B4E`, glow `#E9B96E` @ 42% | Opened from 4 pm: dusk, the app's name |
 | `palette(.night)` | `#04060D` → `#0A0E26` → `#141A3B`, glow `#2A3366` @ 35% | Opened from 9 pm: almost no glow |
 | `palette(.morning)` | `#070A18` → `#131B3D` → `#2C3A5E` → `#4A5A7A`, glow `#B4C2D6` @ 45% | Opened from 5 am: cool, pale blue-grey |
-| `star` · `line` · `newest` · `text` | dark `label` · dark `label3` · dark `accent` · dark `label` | Lit stars before their B–V tint · figure lines and names · the newest star · words on the sky |
-| `lineBright` · `nameBright` | dark `label2` · dark `label` | Lines and names a tap brought forward |
+| `star` · `line` · `newest` · `text` | `#EEECE6` · `#646B76` · `#E9B96E` · `#EEECE6` | Lit stars before their B–V tint · figure lines and names · the newest star · words on the sky |
+| `lineBright` · `nameBright` | `#A2A8B2` · `#EEECE6` | Lines and names a tap brought forward |
 | `dust` · `moon` | `#DDE3F0` at 7–35% · `#F1EEE4` | The fixed dust and the Milky Way · the moon, its earthshine at 10% |
 
 - **Light:** three fixed palettes by the hour the screen opens (`TollConfig.sky`), with nothing moving between them. A vertical gradient, near-black blue at the top through deep indigo, and a low elliptical glow from the horizon's middle.
@@ -85,7 +92,7 @@ Your sky (D79) is the same night in both appearances; only the land under it fol
 - **The newest star** is `newest` with a stronger halo until the next night starts.
 - **One renderer** (`SkyScene`) draws Your sleep, the landmark tile and the shared 1080 × 1920 poster (the evening light over dark land, the moon, named figures, "30 nights locked", the date small and a small wordmark).
 
-All text ≥ 4.5:1 in both; Increase Contrast pushes the accent further. Appearance: Dark (default) · Light · Match iPhone, in Settings.
+All text ≥ 4.5:1 in both; Increase Contrast takes text and the accent further. The sky keeps its own values, brighter than the page's softened text, so its names stay 4.5:1 on every light (D89). Appearance: Dark (default) · Light · Match iPhone, in Settings.
 
 ### 2.4 Shape and depth
 
