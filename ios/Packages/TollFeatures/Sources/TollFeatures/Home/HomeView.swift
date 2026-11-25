@@ -65,9 +65,6 @@ struct HomeView: View {
       }
     }
     .background(TollColor.bg)
-    .animation(Motion.stateChange, value: home.hero)
-    // Design §2.5: a card fades in place; nothing else moves.
-    .animation(Motion.stateChange, value: home.band)
     .onAppear { lastNightOpen = lastNightStartsOpen }
     .onDisappear { lastNightOpen = false }
     .onChange(of: scenePhase) { _, phase in
@@ -90,7 +87,7 @@ struct HomeView: View {
           .layoutValue(key: HomeRoleKey.self, value: .note)
           .layoutValue(key: HomeNoteKeepsToStripKey.self, value: home.band.hasLastNight)
           .accessibilitySortPriority(1)
-          .transition(.opacity)
+          .transition(.opacity.animation(Motion.stateChange))
       }
       strip.layoutValue(key: HomeRoleKey.self, value: .strip)
     }
@@ -133,6 +130,9 @@ struct HomeView: View {
     }
     .frame(maxWidth: .infinity)
     .accessibilityElement(children: .contain)
+    // Design §2.5: the state line crossfades. Scoped to the state, so a change in the band never
+    // animates it (D86).
+    .animation(Motion.stateChange, value: home.hero)
   }
 
   @ViewBuilder private var strip: some View {
@@ -151,6 +151,7 @@ struct HomeView: View {
     }
     if !home.band.isEmpty {
       band.padding(.top, home.pill == nil ? 4 : 12)
+        .transition(.opacity.animation(Motion.stateChange))
     }
   }
 
@@ -158,11 +159,15 @@ struct HomeView: View {
   private var band: some View {
     TonightBandView(
       home: home, locationFact: locationFact, lastNightOpen: $lastNightOpen,
+      growsUp: !typeSize.isAccessibilitySize,
       actions: TonightBandActions(
         fixLocation: fixLocation, turnOnScreenTime: turnOnScreenTime,
         chooseNightApps: chooseNightApps, openCard: openCard, dismissCard: dismissCard,
         putAwayLastNight: putAwayLastNight, openFlow: openFlow, notNowFlow: notNowFlow,
-        flowShown: flowShown))
+        flowShown: flowShown)
+    )
+    // Design §2.5: a card fades in place; nothing else moves.
+    .animation(Motion.stateChange, value: home.band)
   }
 
   /// The gear, and the pill centred in the bar, so its coming and going moves nothing; it drops its

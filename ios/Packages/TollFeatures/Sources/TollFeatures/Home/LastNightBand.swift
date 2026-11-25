@@ -24,53 +24,67 @@ struct LastNightBand: View {
         LastNightDetails(night: night)
           .padding(.top, 2)
           .padding(.bottom, TollSpacing.noteCardVertical)
-          // Design §2.5: the content fades in once the card has begun to grow.
-          .transition(
-            .asymmetric(
-              insertion: .opacity.animation(
-                reduceMotion ? Motion.stateChange : Motion.unfoldContent),
-              removal: .opacity.animation(Motion.stateChange)))
+          .transition(.content(reduceMotion: reduceMotion))
       }
     }
     .padding(.horizontal, TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
+    // One surface whose height follows the content; nothing shows outside it while it grows or
+    // shrinks, so the card is seen to grow from the row rather than its words arriving first.
     .background(TollColor.surface, in: shape)
-    // While it grows or shrinks, nothing shows outside the card.
     .clipShape(shape)
   }
 
-  /// The row, and the open card's header: one button that opens or folds, with "OK" beside the
-  /// chevron once open.
+  /// The row, and the open card's header: one button that opens or folds, with "OK" over the room
+  /// kept for it beside the chevron once open. The chevron is one view in both, so it turns with
+  /// the card instead of being swapped for another.
   private var header: some View {
-    HStack(spacing: 0) {
-      Button(action: toggle) {
-        HStack(spacing: 8) {
-          summary.frame(maxWidth: .infinity, alignment: .leading)
-          if !open { glyph(.unfold) }
-        }
-        .padding(.vertical, 12)
-        .contentShape(Rectangle())
+    Button(action: toggle) {
+      HStack(spacing: 8) {
+        summary.frame(maxWidth: .infinity, alignment: .leading)
+        if open { ok.hidden() }
+        chevron
       }
-      .buttonStyle(.tollPressable)
-      .accessibilityLabel(night.statusSpoken)
-      .accessibilityValue(open ? Copy.Morning.unfolded : Copy.Morning.folded)
-      .accessibilityHint(open ? Copy.Morning.foldHint : Copy.Morning.unfoldHint)
-      .accessibilityIdentifier("tonight.lastNight")
+      .padding(.vertical, 12)
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(.tollPressable)
+    .accessibilityLabel(night.statusSpoken)
+    .accessibilityValue(open ? Copy.Morning.unfolded : Copy.Morning.folded)
+    .accessibilityHint(open ? Copy.Morning.foldHint : Copy.Morning.unfoldHint)
+    .accessibilityIdentifier("tonight.lastNight")
+    .overlay(alignment: .trailing) {
       if open {
-        Button(Copy.Morning.ok, action: putAway)
-          .tollType(.action, TollColor.label2)
-          .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
+        Button(action: putAway) { ok }
+          .frame(minHeight: TollSpacing.minTapTarget)
           .contentShape(Rectangle())
-        // The chevron folds it too; VoiceOver has the row for that.
-        Button(action: toggle) {
-          glyph(.fold)
-            .frame(minWidth: 28, minHeight: TollSpacing.minTapTarget, alignment: .trailing)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.tollPressable)
-        .accessibilityHidden(true)
+          .padding(.trailing, Self.chevronWidth + 8)
+          .transition(.content(reduceMotion: reduceMotion))
       }
     }
+  }
+
+  private static let chevronWidth: CGFloat = 14
+
+  private var ok: some View {
+    Text(Copy.Morning.ok)
+      .tollType(.action, TollColor.label2)
+      .frame(minWidth: TollSpacing.minTapTarget)
+  }
+
+  /// `chevron.up` turned half a turn as the card opens, which is `chevron.down` (design §2.6); with
+  /// Reduce Motion the two crossfade instead of turning.
+  @ViewBuilder private var chevron: some View {
+    Group {
+      if reduceMotion {
+        glyph(open ? .fold : .unfold)
+          .id(open)
+          .transition(.opacity.animation(Motion.stateChange))
+      } else {
+        glyph(.unfold).rotationEffect(.degrees(open ? 180 : 0))
+      }
+    }
+    .frame(width: Self.chevronWidth)
   }
 
   /// "☾ Last night  🔒 Locked 8 h 45 m" on one line when it fits, else the status under the title,
@@ -79,11 +93,11 @@ struct LastNightBand: View {
     ViewThatFits(in: .horizontal) {
       HStack(alignment: .firstTextBaseline, spacing: 10) {
         title
-        if !open { status.fixedSize() }
+        if !open { status.fixedSize().transition(.content(reduceMotion: reduceMotion)) }
       }
       VStack(alignment: .leading, spacing: 4) {
         title
-        if !open { status }
+        if !open { status.transition(.content(reduceMotion: reduceMotion)) }
       }
     }
   }

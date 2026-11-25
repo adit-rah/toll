@@ -178,11 +178,14 @@ private struct DoorOpen: View {
           in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
         )
         .padding(.top, 20)
-        .transition(.opacity)
+        // Design §2.5: it fades out over 200 ms when its time is up, on the clock's tick, which
+        // carries no animation of its own.
+        .transition(.opacity.animation(Motion.stateChange))
       }
     } actions: {
       if let regretEnd = door.regretEndsAt(model.config), now >= regretEnd {
         Footnote(Copy.Door.pauseUsed, alignment: .center).padding(.bottom, 10)
+          .transition(.opacity.animation(Motion.stateChange))
       }
       PrimaryButton {
         model.lockDoor()

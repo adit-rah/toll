@@ -3,33 +3,63 @@ import TollCore
 import TollUI
 
 /// Tonight's band, laid out from `TonightBand`: at most one card, and last night's row under it,
-/// nearest the strip. While last night is open, the card above fades out (design §2.5, "A card or
-/// note arrives or leaves") so the open card grows into its room without pushing it into the state
-/// or covering it; folding brings it back the same way.
+/// nearest the strip. While last night is open, the card above fades out in place (design §2.5),
+/// so nothing is pushed into the state; folding brings it back the same way.
 struct TonightBandView: View {
   let home: HomeSnapshot
   var locationFact = Copy.Setup.whileUsingFact
   @Binding var lastNightOpen: Bool
+  /// Below accessibility sizes the band keeps its bottom edge above the strip and last night opens
+  /// upward; at accessibility sizes it sits in the column and opens downward.
+  var growsUp = true
   var actions = TonightBandActions()
 
   /// Two items sit as far apart as the card under the pill at accessibility sizes (D48).
   private static let between: CGFloat = 12
 
+  private var night: Morning? { home.band.hasLastNight ? home.lastNight : nil }
+
   var body: some View {
-    VStack(spacing: Self.between) {
-      if let card = home.band.card, !(lastNightOpen && home.band.hasLastNight) {
-        item(card)
-          .transition(.opacity.animation(Motion.stateChange))
-          .id(card)
-      }
-      if home.band.hasLastNight, let night = home.lastNight {
-        LastNightBand(night: night, open: $lastNightOpen) {
-          lastNightOpen = false
-          actions.putAwayLastNight(night.night)
+    Group {
+      if growsUp {
+        // The card sits over a hidden copy of the folded row and the row lies over both, so the
+        // card keeps its place while hidden and the open card grows over its room.
+        ZStack(alignment: .bottom) {
+          VStack(spacing: Self.between) {
+            card(hidden: lastNightOpen && night != nil)
+            if let night { LastNightBand(night: night, open: .constant(false), putAway: {}).hidden() }
+          }
+          lastNight
+        }
+      } else {
+        VStack(spacing: Self.between) {
+          if !(lastNightOpen && night != nil) { card(hidden: false) }
+          lastNight
         }
       }
     }
     .accessibilityElement(children: .contain)
+  }
+
+  @ViewBuilder private func card(hidden: Bool) -> some View {
+    if let card = home.band.card {
+      item(card)
+        .opacity(hidden ? 0 : 1)
+        .animation(Motion.stateChange, value: hidden)
+        .allowsHitTesting(!hidden)
+        .accessibilityHidden(hidden)
+        .transition(.opacity.animation(Motion.stateChange))
+        .id(card)
+    }
+  }
+
+  @ViewBuilder private var lastNight: some View {
+    if let night {
+      LastNightBand(night: night, open: $lastNightOpen) {
+        lastNightOpen = false
+        actions.putAwayLastNight(night.night)
+      }
+    }
   }
 
   @ViewBuilder private func item(_ item: TonightBand.Item) -> some View {
