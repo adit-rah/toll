@@ -3,10 +3,11 @@ import Testing
 
 @testable import TollCore
 
-/// The morning card (D65, #103): exact facts about last night, shown from the end of the night until
-/// noon, and nothing when there's nothing new.
+/// Last night's card (D65, #103): exact facts about last night, to review from the end of the night
+/// until the next one starts, and nothing when there's nothing new.
 struct MorningTests {
   let sleep = BlockID("sleep")
+  func plain(_ text: String) -> String { text.replacingOccurrences(of: "\u{202F}", with: " ") }
 
   func line(
     _ at: Date, _ cause: ReconcileCause, active: [BlockID], home: Bool? = true,
@@ -39,38 +40,93 @@ struct MorningTests {
     HomeSnapshot(state: state ?? self.state, log: log, now: now, calendar: london)
   }
 
-  @Test func lastNightFromItsEndUntilNoon() throws {
+  /// Last night is there to review from its end until the next night starts; it floats as
+  /// Tonight's card only in the morning, and the hero keeps saying what tonight holds.
+  @Test func lastNightFromItsEndUntilTheNextNight() throws {
     let log = night(taps: 3)
-    let morning = try #require(home(date(2026, 11, 17, 9), log).morning)
-    #expect(morning.outcome == .ran)
-    #expect(morning.ran == [.init(start: 0, end: 1)])
-    #expect(morning.gaps.isEmpty)
-    #expect(morning.from.hasPrefix("10:30") || morning.from.hasPrefix("22:30"))
-    #expect(morning.to.hasPrefix("7:00") || morning.to.hasPrefix("07:00"))
-    #expect(morning.putDown == "You chose sleep 3 times")
-    #expect(morning.eyebrow == "Apps locked last night")
-    // The card is last night, so the strip under it names tonight (the audit).
-    let label = home(date(2026, 11, 17, 9), log).timeline?.label
-    #expect(label?.replacingOccurrences(of: "\u{202F}", with: " ") == "Tonight 10:30 pm")
-    // Still the night, and from noon: Tonight looks ahead.
-    #expect(home(date(2026, 11, 17, 6, 30), log).morning == nil)
-    let noon = home(date(2026, 11, 17, 12), log)
-    #expect(noon.morning == nil)
-    #expect(noon.timeline?.label == nil)
-    #expect(noon.eyebrow == "Apps lock at")
+    let morning = home(date(2026, 11, 17, 9), log)
+    let last = try #require(morning.lastNight)
+    #expect(last.outcome == .ran)
+    #expect(last.ran == [.init(start: 0, end: 1)])
+    #expect(last.gaps.isEmpty)
+    #expect(last.from.hasPrefix("10:30") || last.from.hasPrefix("22:30"))
+    #expect(last.to.hasPrefix("7:00") || last.to.hasPrefix("07:00"))
+    #expect(last.putDown == "You chose sleep over a locked app 3 times")
+    #expect(last.eyebrow == "Last night")
+    #expect(plain(last.headline) == "Apps locked from 10:30 pm to 7:00 am")
+    #expect(last.openLine == nil)
+    #expect(last.weekTitle == "Your first 7 nights")
+    #expect(last.week.last?.isLatest == true)
+    #expect(morning.lastNightCard)
+    // The hero is tonight's all day (founder, 25 Nov).
+    #expect(morning.eyebrow == "Apps lock at")
+    // On the strip, where the night ended: its start.
+    let segment = try #require(morning.timeline?.segments.first)
+    #expect(segment.key == "lastNight")
+    #expect(segment.lastNight == last)
+    #expect(segment.start == 0)
+    // Still the night: nothing to review yet.
+    #expect(home(date(2026, 11, 17, 6, 30), log).lastNight == nil)
+    // From noon it no longer floats; the strip still opens it, with the same seven nights.
+    let afternoon = home(date(2026, 11, 17, 15), log)
+    #expect(!afternoon.lastNightCard)
+    #expect(afternoon.lastNight?.week == last.week)
+    #expect(afternoon.timeline?.segments.first?.key == "lastNight")
+    // Once tonight's lock starts, it's gone.
+    let tonight = home(date(2026, 11, 17, 23), log)
+    #expect(tonight.lastNight == nil)
+    #expect(tonight.timeline?.segments.contains { $0.lastNight != nil } == false)
+  }
+
+  /// "OK" puts the card away for this morning; the next morning brings the next night's.
+  @Test func okPutsItAwayForTheMorning() throws {
+    var s = state
+    let log = night(taps: 1)
+    let night16 = try #require(home(date(2026, 11, 17, 9), log, state: s).lastNight?.night)
+    #expect(
+      Engine.apply(
+        .putAwayLastNight(night16), to: &s, now: date(2026, 11, 17, 9),
+        calendar: london) == nil)
+    let after = home(date(2026, 11, 17, 9, 5), log, state: s)
+    #expect(!after.lastNightCard)
+    #expect(after.lastNight != nil)
+    let next = night(taps: 1).map { line in
+      var moved = line
+      moved.at = moved.at.addingTimeInterval(24 * 3600)
+      return moved
+    }
+    #expect(home(date(2026, 11, 18, 9), log + next, state: s).lastNightCard)
+  }
+
+  /// A warning holds the band first; last night's card waits behind it.
+  @Test func aWarningGoesFirst() {
+    let home = HomeSnapshot(
+      state: state, log: night(), now: date(2026, 11, 17, 9), calendar: london, screenTime: false)
+    #expect(!home.lastNightCard)
+  }
+
+  /// A pause or a time away is a break in the bar, and the line under it says when.
+  @Test func breaksAreSaid() {
+    #expect(Copy.Morning.open([]) == nil)
+    #expect(
+      Copy.Morning.open([("12:40 am", "12:50 am")]) == "Apps open from 12:40 am to 12:50 am")
+    #expect(
+      Copy.Morning.open([("1", "2"), ("3", "4")]) == "Apps open 2 times in the night")
   }
 
   /// Nothing new means nothing shown: no taps, no line.
   @Test func noTapsNoLine() throws {
-    let morning = try #require(home(date(2026, 11, 17, 9), night()).morning)
+    let morning = try #require(home(date(2026, 11, 17, 9), night()).lastNight)
     #expect(morning.putDown == nil)
-    #expect(home(date(2026, 11, 17, 9), night(taps: 1)).morning?.putDown == "You chose sleep once")
+    #expect(
+      home(date(2026, 11, 17, 9), night(taps: 1)).lastNight?.putDown
+        == "You chose sleep over a locked app once")
   }
 
   /// "Unlock in Dusk" isn't putting it down (D46).
   @Test func onlyNeverMindCounts() {
     let log = night(extra: [line(date(2026, 11, 16, 23), .doorAsked, active: [sleep])])
-    #expect(home(date(2026, 11, 17, 9), log).morning?.putDown == nil)
+    #expect(home(date(2026, 11, 17, 9), log).lastNight?.putDown == nil)
   }
 
   /// A pause lifts the shield, so the bar has a gap where it was open (D67).
@@ -79,7 +135,7 @@ struct MorningTests {
       line(date(2026, 11, 17, 0, 40), .doorStart, active: [sleep], door: .open),
       line(date(2026, 11, 17, 0, 50), .doorEnd, active: [sleep]),
     ])
-    let morning = try #require(home(date(2026, 11, 17, 9), log).morning)
+    let morning = try #require(home(date(2026, 11, 17, 9), log).lastNight)
     #expect(morning.ran.count == 2)
     #expect(morning.gaps.count == 1)
     let start = 130.0 / 510
@@ -95,13 +151,13 @@ struct MorningTests {
       line(date(2026, 11, 16, 22, 30), .windowStart, active: [], home: false),
       line(date(2026, 11, 17, 7), .windowEnd, active: [], home: false),
     ]
-    let morning = try #require(home(date(2026, 11, 17, 9), log).morning)
+    let morning = try #require(home(date(2026, 11, 17, 9), log).lastNight)
     #expect(morning.outcome == .away)
     #expect(morning.ran.isEmpty)
     #expect(morning.putDown == nil)
     #expect(morning.spoken.contains("Away from home"))
-    // Nothing was locked, so the eyebrow doesn't say it was; the line says why.
     #expect(morning.eyebrow == "Last night")
+    #expect(morning.headline == "Away from home, so nothing locked")
   }
 
   @Test func screenTimeOffIsNamed() {
@@ -109,7 +165,7 @@ struct MorningTests {
       line(date(2026, 11, 16, 22, 30), .windowStart, active: [sleep], screenTime: false),
       line(date(2026, 11, 17, 0, 10), .blockScreen, active: [sleep], screenTime: false),
     ]
-    let morning = home(date(2026, 11, 17, 9), log).morning
+    let morning = home(date(2026, 11, 17, 9), log).lastNight
     #expect(morning?.outcome == .noScreenTime)
     #expect(morning?.putDown == nil)
   }
@@ -118,14 +174,14 @@ struct MorningTests {
   /// and Tonight says when tonight starts.
   @Test func aNightThatDidntRunShowsNothing() {
     let morning = home(date(2026, 11, 17, 9), [])
-    #expect(morning.morning == nil)
+    #expect(morning.lastNight == nil)
     #expect(morning.eyebrow == "Apps lock at")
   }
 
   @Test func afterTheTrialTheMorningIsTheTrialsToSay() {
     var s = state
     s.trial.entitled = false
-    #expect(home(date(2026, 11, 17, 9), night(taps: 2), state: s).morning == nil)
+    #expect(home(date(2026, 11, 17, 9), night(taps: 2), state: s).lastNight == nil)
   }
 
   /// A weekday night seen on a Saturday afternoon starts on Monday: the eyebrow says so, and the
@@ -169,7 +225,11 @@ struct MorningTests {
         Copy.Morning.spokenRan(from: "10:30 pm", to: "7:00 am", gaps: [("1:00 am", "1:10 am")]),
         Copy.Morning.spokenAway(from: "10:30 pm", to: "7:00 am"),
         Copy.Morning.spokenNoScreenTime(from: "10:30 pm", to: "7:00 am"),
-        Copy.YourSleep.newWeek, Copy.YourSleep.bestDetail, Copy.Morning.lockedLastNight,
+        Copy.YourSleep.newWeek, Copy.YourSleep.bestDetail, Copy.Morning.lastSeven,
+        Copy.Morning.firstSeven, Copy.Morning.ok,
+        Copy.Morning.locked(from: "10:30 pm", to: "7:00 am"),
+        Copy.Morning.open([("1:00 am", "1:10 am")]) ?? "",
+        Copy.Morning.open([("1", "2"), ("3", "4")]) ?? "",
       ]
     let banned = [
       "great", "well done", "nice", "good", "bad", "streak", "missed", "fail", "!", "sleep", "%",

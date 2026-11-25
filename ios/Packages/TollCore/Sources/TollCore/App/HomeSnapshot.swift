@@ -67,10 +67,13 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var gapCard: GapCard?
   /// The whole day as a strip, every block on it (D75).
   public var timeline: DayTimeline?
-  /// The last seven nights, as the morning card's dots draw them (#103).
+  /// The last seven nights, or the first seven from setup (#103).
   public var bars: [Bar]
-  /// From the end of the night until noon, last night in place of the "starts at" hero (#103).
-  public var morning: Morning?
+  /// Last night, to review, from its end until the next night starts: the strip opens it all day
+  /// (#103). The hero keeps saying what tonight holds.
+  public var lastNight: Morning?
+  /// Last night's card floats on Tonight: in the morning, until put away, and after any warning.
+  public var lastNightCard = false
   /// Over the big time, what it means: "Apps lock at", "Apps locked until" (D75).
   public var eyebrow: String
   /// With no night to show, the night's editor is the way forward (the audit's dead end).
@@ -127,17 +130,29 @@ public struct HomeSnapshot: Equatable, Sendable {
     let week = Week(
       log: log, now: now, calendar: calendar, since: state.setupFinishedAt, sleep: sleep)
     bars = week.bars
-    if case .tonight(let start, _) = hero {
-      morning = Morning(state: state, log: log, now: now, calendar: calendar, config: config)
-      // The morning card is last night, so the strip under it names tonight (the audit).
-      if morning != nil { day.label = Copy.Strip.tonightAt(Copy.time(start, in: calendar)) }
-      if morning?.outcome == .ran {
+    // Until the next night starts: once it does, the hero is about it.
+    if case .tonight = hero,
+      state.lockSleep?.schedule.occurrence(containing: now, calendar: calendar) == nil,
+      var night = Morning(state: state, log: log, now: now, calendar: calendar, config: config)
+    {
+      // The seven nights up to last night, all day: the card is about last night.
+      let upTo = Week(
+        log: log, now: night.ended, calendar: calendar, since: state.setupFinishedAt, sleep: sleep)
+      night.week = upTo.bars
+      night.weekTitle = upTo.firstWeek ? Copy.Morning.firstSeven : Copy.Morning.lastSeven
+      if night.outcome == .ran {
         // Only a night that ran can be a landmark; the count reads the night log too (D79).
         let ran = NightsRan.keys(
           state: state, log: log, history: history, now: now, calendar: calendar)
-        morning?.landmark =
+        night.landmark =
           NightsRan.sky(ran, state: state, now: now, calendar: calendar, config: config).landmark
       }
+      if let sleep { day.add(lastNight: night, sleep: sleep.id) }
+      let noon = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: now)
+      lastNightCard =
+        noon.map { now < $0 } == true && state.lastNightSeen != night.night && !screenTimeOff
+        && !locationBanner
+      lastNight = night
     }
     timeline = day.segments.isEmpty ? nil : day
     if case .tonight = hero, state.gap.minutes > 0 {

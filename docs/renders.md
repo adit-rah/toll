@@ -67,3 +67,6 @@ Variants: `light`, `dark`, `ax5` (largest Dynamic Type), `dark-ax5`, and `wordle
 ## What it cannot show
 - Real app names and icons: picker tokens do not exist in the simulator.
 - The block screen, the picker, region monitoring, and anything else that needs Family Controls or a real location. Those are in `docs/device-protocol.md`.
+
+## Last night on the strip
+`home-strip-last-night`: Tonight at 8:10 am with last night's card already put away, and the strip's popover open on last night at its start. It is not in `ALL`; dispatch it by name.

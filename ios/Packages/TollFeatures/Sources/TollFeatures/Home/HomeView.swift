@@ -22,10 +22,12 @@ struct HomeView: View {
   var dismissCard: (TonightCard) -> Void = { _ in }
   /// Before bed's helpers, from the capsule in the gap (D80).
   var openHelpers: () -> Void = {}
+  /// Last night's card's "OK": put away for this morning, by the night's key.
+  var putAwayLastNight: (Date) -> Void = { _ in }
   /// A block's editor, from the strip's snippet (D75).
   var openBlock: (BlockID) -> Void = { _ in }
-  /// Demo renders open the strip on this block's snippet (docs/renders.md).
-  var snippet: BlockID?
+  /// Demo renders open the strip on this segment's snippet: a block, or "lastNight" (docs/renders.md).
+  var snippet: String?
   @Environment(\.dynamicTypeSize) private var typeSize
 
   private static let bottomMargin: CGFloat = 28
@@ -52,7 +54,6 @@ struct HomeView: View {
     }
     .background(TollColor.bg)
     .animation(Motion.stateChange, value: home.hero)
-    .animation(Motion.stateChange, value: home.morning)
     // Design §2.5: a card fades in place; nothing else moves.
     .animation(Motion.stateChange, value: note)
   }
@@ -99,18 +100,14 @@ struct HomeView: View {
   /// The state, and what belongs with it: the purchase card once Off, the line about another block.
   private var heroBlock: some View {
     VStack(spacing: 0) {
-      // From the end of the night until noon, last night takes the hero's place (#103).
-      if let morning = home.morning {
-        MorningCard(morning: morning, nights: home.bars)
-      } else {
-        HomeHero(
-          hero: home.hero, eyebrow: home.eyebrow, beforeBed: home.beforeBed,
-          place: home.heroPlace, supply: home.supply,
-          openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil, lockAgain: lockAgain,
-          setNight: home.setNight.map { night -> () -> Void in { openBlock(night) } },
-          openHelpers: home.untilBed == nil ? nil : openHelpers
-        )
-      }
+      // Tonight's state all day; last night is a card to review, never the hero (founder, 25 Nov).
+      HomeHero(
+        hero: home.hero, eyebrow: home.eyebrow, beforeBed: home.beforeBed,
+        place: home.heroPlace, supply: home.supply,
+        openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil, lockAgain: lockAgain,
+        setNight: home.setNight.map { night -> () -> Void in { openBlock(night) } },
+        openHelpers: home.untilBed == nil ? nil : openHelpers
+      )
       if case .off = home.hero {
         OffCard(price: price, open: openPurchase).padding(.top, 18)
       }
@@ -128,10 +125,12 @@ struct HomeView: View {
     }
   }
 
-  /// One at a time, the most pressing first: Screen Time off, then location, then Tonight's card.
+  /// One at a time, the most pressing first: Screen Time off, then location, then last night's
+  /// card in the morning, then Tonight's offers.
   private var note: HomeNote? {
     if home.screenTimeOff { return .screenTimeOff }
     if home.locationBanner { return .location }
+    if home.lastNightCard, home.lastNight != nil { return .lastNight }
     return home.card.map(HomeNote.card)
   }
 
@@ -157,6 +156,10 @@ struct HomeView: View {
     case .location:
       NoteCard(locationFact, severity: .degraded) {
         SettingsLink(Copy.Home.fixInSettings, action: fixLocation)
+      }
+    case .lastNight:
+      if let night = home.lastNight {
+        LastNightCard(night: night) { putAwayLastNight(night.night) }
       }
     case .card(let card):
       TonightCardView(
@@ -196,6 +199,6 @@ struct HomeView: View {
 
 /// What may float over Tonight, one at a time.
 enum HomeNote: Hashable {
-  case screenTimeOff, location
+  case screenTimeOff, location, lastNight
   case card(TonightCard)
 }

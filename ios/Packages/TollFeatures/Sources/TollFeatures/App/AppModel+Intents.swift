@@ -36,6 +36,11 @@ extension AppModel {
     send(.edit, [.dismissCard(card)])
   }
 
+  /// Last night's card put away for this morning; the strip still opens it.
+  func putAwayLastNight(_ night: Date) {
+    send(.edit, [.putAwayLastNight(night)])
+  }
+
   /// A block as the user last chose it: a held edit if one waits (B-3), else what is in force.
   func draft(_ id: BlockID) -> Block? {
     if case .save(let block) = state.pending[id] { return block }

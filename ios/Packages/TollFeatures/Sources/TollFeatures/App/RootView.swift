@@ -104,6 +104,7 @@ struct LiveHome: View {
             if !model.state.dismissed(.beforeBed) { model.dismiss(.beforeBed) }
             helpersUp = true
           },
+          putAwayLastNight: { model.putAwayLastNight($0) },
           // Pushed on Tonight, so Back returns to the strip it came from (D75).
           openBlock: { path.append(.block($0)) }
         )

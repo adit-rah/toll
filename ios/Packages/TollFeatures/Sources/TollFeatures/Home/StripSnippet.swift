@@ -4,7 +4,8 @@ import TollUI
 
 /// What a tap on the strip shows (D75): for each block under the tap, its kind's tile and name
 /// ("Your night" for the night), its state as a glyph and a word, its hours, its apps and where it
-/// runs, and a link into its editor. Two blocks too close to tap apart share one snippet.
+/// runs, and a link into its editor; at the strip's start, last night's card. Two blocks too close
+/// to tap apart share one snippet.
 struct StripSnippet: View {
   let segments: [DayTimeline.Segment]
   let edit: (BlockID) -> Void
@@ -23,7 +24,12 @@ struct StripSnippet: View {
     VStack(alignment: .leading, spacing: 0) {
       ForEach(Array(segments.enumerated()), id: \.element.id) { index, segment in
         if index > 0 { Hairline().padding(.vertical, 12) }
-        section(segment)
+        // Last night's card, the same one the morning shows, so it can be read again all day.
+        if let night = segment.lastNight {
+          LastNightCard(night: night).padding(.bottom, 10)
+        } else {
+          section(segment)
+        }
       }
     }
     .padding(.top, 16)

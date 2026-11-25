@@ -75,6 +75,8 @@ extension HomeSnapshot {
 /// while Sleep was on; "Unlock in Dusk" logs `doorAsked` and isn't one (D24, #44).
 struct Week {
   var bars: [HomeSnapshot.Bar] = []
+  /// The first seven nights from setup, some still to come, rather than the last seven.
+  var firstWeek = false
   /// Nights Sleep ran.
   var blocked = 0
   /// Nights Sleep ran or was due at home; away and paused nights are left out.
@@ -102,6 +104,7 @@ struct Week {
     let first = setup.map(key)
     let sinceSetup = first.map { calendar.dateComponents([.day], from: $0, to: tonight).day ?? 0 }
     let firstWeek = sinceSetup.map { $0 < 7 } ?? false
+    self.firstWeek = firstWeek && given == nil
     let slots: [Date] =
       given
       ?? (firstWeek

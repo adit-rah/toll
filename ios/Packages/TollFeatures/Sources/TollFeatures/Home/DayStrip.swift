@@ -10,8 +10,8 @@ import TollUI
 struct DayStrip: View {
   let timeline: DayTimeline
   let openBlock: (BlockID) -> Void
-  /// Demo renders open on this block's snippet (docs/renders.md).
-  var initial: BlockID?
+  /// Demo renders open on this segment's snippet: a block, or "lastNight" (docs/renders.md).
+  var initial: String?
   @State private var selected: Int?
   @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -32,7 +32,9 @@ struct DayStrip: View {
           // The night last, so it sits over any block whose hours run into it.
           ForEach(timeline.segments.filter { !$0.isNight } + timeline.segments.filter(\.isNight)) {
             segment in
-            let barWidth = max(6, width * (segment.end - segment.start))
+            // Last night is where it ended, at the start: wide enough for its moon.
+            let barWidth = max(
+              segment.lastNight == nil ? 6 : 22, width * (segment.end - segment.start))
             let height = segment.isNight ? Self.nightHeight : Self.dayHeight
             SegmentBar(segment: segment, width: barWidth)
               .frame(width: barWidth, height: height)
@@ -40,15 +42,6 @@ struct DayStrip: View {
               .accessibilityHidden(true)
           }
           now(width)
-          if let label = timeline.label {
-            // Over the strip's end, where the night is: in the mornings now sits at the start.
-            Text(label)
-              .tollType(TollType(size: 11, lineHeight: 14, weight: .semibold, style: .caption2))
-              .foregroundStyle(TollColor.accent)
-              .fixedSize()
-              .frame(width: width, alignment: .trailing)
-              .offset(y: -24)
-          }
           ForEach(targets.indices, id: \.self) { index in
             target(targets[index], index: index, width: width)
           }
@@ -58,7 +51,7 @@ struct DayStrip: View {
           // After the first frame: a popover asked for before the screen is up doesn't show.
           try? await Task.sleep(for: .milliseconds(800))
           selected = targets.firstIndex {
-            $0.segments.contains { timeline.segments[$0].block == initial }
+            $0.segments.contains { timeline.segments[$0].key == initial }
           }
         }
       }
@@ -101,9 +94,9 @@ struct DayStrip: View {
     .buttonStyle(StripTargetStyle())
     .accessibilityLabel(segments.map(\.spoken).joined(separator: "; "))
     .accessibilityHint(Copy.Strip.hint)
-    .accessibilityIdentifier("strip.\(segments.first?.block.raw ?? "")")
+    .accessibilityIdentifier("strip.\(segments.first?.key ?? "")")
     .accessibilityActions {
-      ForEach(segments) { segment in
+      ForEach(segments.filter { $0.lastNight == nil }) { segment in
         Button(Copy.Strip.edit(segment.title)) { openBlock(segment.block) }
       }
     }

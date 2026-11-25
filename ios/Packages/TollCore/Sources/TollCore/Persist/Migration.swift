@@ -88,7 +88,7 @@ extension DuskState {
   enum CodingKeys: String, CodingKey {
     case schema, blocks, places, presence, location, pending, pendingPlaces, door, doorAskedAt
     case unlocks, trial, setupFinishedAt, runtime, screenTimeAllowed, dismissedCards, headsUp
-    case gap, helpers
+    case gap, helpers, lastNightSeen
   }
 
   public init(from decoder: Decoder) throws {
@@ -112,6 +112,7 @@ extension DuskState {
     headsUp = try c.decodeIfPresent(Bool.self, forKey: .headsUp) ?? true
     gap = try c.decodeIfPresent(Gap.self, forKey: .gap) ?? .existing
     helpers = (try? c.decodeIfPresent(Helpers.self, forKey: .helpers)) ?? Helpers()
+    lastNightSeen = try c.decodeIfPresent(Date.self, forKey: .lastNightSeen)
   }
 }
 

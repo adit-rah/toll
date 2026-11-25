@@ -1,9 +1,9 @@
 import Foundation
 
-/// The morning card on Tonight (D65, #103): last night from Dusk's own log, in place of the
-/// "starts at" hero from the end of the night until noon. Exact facts about the person's own night,
-/// and nothing to keep up. A night that was due and didn't run shows no card: a bad night is neutral
-/// and forward-looking, so Tonight looks ahead instead.
+/// Last night's card (D65, #103): last night from Dusk's own log, to review. It floats on Tonight
+/// each morning until put away, and opens from the strip until the next night starts; the hero keeps
+/// saying what tonight holds. Exact facts about the person's own night, and nothing to keep up. A
+/// night that was due and didn't run has no card: a bad night is neutral and forward-looking.
 public struct Morning: Equatable, Sendable {
   public enum Outcome: Equatable, Sendable {
     /// The block ran, at home or anywhere.
@@ -21,32 +21,43 @@ public struct Morning: Equatable, Sendable {
   }
 
   public var outcome: Outcome
+  /// The night's key (noon to noon), which putting the card away remembers.
+  public var night: Date
+  /// When the night was planned to end: where the strip starts, and where last night sits on it.
+  public var ended: Date
   /// When the block first came on and last went off; the planned hours when it didn't run.
   public var from: String
   public var to: String
   /// Where the block was on; the room between two of them is a gap (a pause, or a time away).
   public var ran: [Span]
   public var gaps: [Span]
-  /// "You chose sleep 3 times": the "Never mind" taps while the night's block was on (D46). Nil at
-  /// zero, since nothing new means nothing shown.
+  /// What the bar says, in a sentence over it: "Apps locked from 10:15 pm to 7:00 am", or why
+  /// nothing locked.
+  public var headline: String
+  /// Under the bar when it has a break: "Apps open from 12:40 am to 12:50 am". Nil without one.
+  public var openLine: String?
+  /// "You chose sleep over a locked app 3 times": the "Never mind" taps while the night's block
+  /// was on (D46). Nil at zero, since nothing new means nothing shown.
   public var putDown: String?
-  /// The bar and its times in words, for VoiceOver.
+  /// The headline, the bar and its breaks in words, for VoiceOver.
   public var spoken: String
-  /// What the bar and its times are (D75): "Apps locked last night" when it ran; "Last night"
-  /// when it didn't, since the card's line says why.
-  public var eyebrow: String
+  /// "Last night": what the card is about.
+  public var eyebrow = Copy.Morning.lastNight
+  /// The last seven nights as dots, and what they are: "Last 7 nights" (HomeSnapshot sets both).
+  public var week: [HomeSnapshot.Bar] = []
+  public var weekTitle = Copy.Morning.lastSeven
   /// At 7, 30, 100 and 365 nights, a quiet line, the newly completed shape and a picture to share
   /// (D79).
   public var landmark: Sky.Landmark?
 
-  /// Nil outside the morning, before setup, after the trial (the off hero speaks then), and
-  /// when last night was due and simply didn't run.
+  /// The night that ended within the last day. Nil before setup, after the trial (the off hero
+  /// speaks then), and when last night was due and simply didn't run. HomeSnapshot asks only while
+  /// the next night hasn't started.
   init?(
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
     config: TollConfig = .defaults
   ) {
-    guard state.trial.entitled, let sleep = state.sleepBlock, let setup = state.setupFinishedAt,
-      let noon = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: now), now < noon
+    guard state.trial.entitled, let sleep = state.sleepBlock, let setup = state.setupFinishedAt
     else { return nil }
     let lines = log.sorted { $0.at < $1.at }
     // Only last night matters, so the search starts a day and a half back rather than at setup.
@@ -56,7 +67,7 @@ public struct Morning: Equatable, Sendable {
         since: max(setup, now.addingTimeInterval(-36 * 3600)),
         now: now, calendar: calendar, regret: TimeInterval(config.door.regretSeconds)
       ).last,
-      night.night == nightKey(now, calendar), !night.paused
+      now.timeIntervalSince(night.plannedEnd) < 24 * 3600, !night.paused
     else { return nil }
     if night.ran {
       outcome = .ran
@@ -67,6 +78,8 @@ public struct Morning: Equatable, Sendable {
     } else {
       return nil
     }
+    self.night = night.night
+    ended = night.plannedEnd
 
     let stretches = Self.stretches(
       lines.filter { nightKey($0.at, calendar) == night.night }, sleep: sleep,
@@ -83,14 +96,18 @@ public struct Morning: Equatable, Sendable {
     from = Copy.time(first, in: calendar)
     to = Copy.time(last, in: calendar)
     putDown = outcome == .ran && night.stops > 0 ? Copy.Morning.putDown(night.stops) : nil
-    eyebrow = outcome == .ran ? Copy.Morning.lockedLastNight : Copy.Morning.lastNight
+    let breaks = holes.map { (Copy.time($0.start, in: calendar), Copy.time($0.end, in: calendar)) }
+    openLine = Copy.Morning.open(breaks)
     switch outcome {
     case .ran:
-      spoken = Copy.Morning.spokenRan(
-        from: from, to: to,
-        gaps: holes.map { (Copy.time($0.start, in: calendar), Copy.time($0.end, in: calendar)) })
-    case .away: spoken = Copy.Morning.spokenAway(from: from, to: to)
-    case .noScreenTime: spoken = Copy.Morning.spokenNoScreenTime(from: from, to: to)
+      headline = Copy.Morning.locked(from: from, to: to)
+      spoken = Copy.Morning.spokenRan(from: from, to: to, gaps: breaks)
+    case .away:
+      headline = Copy.Morning.away
+      spoken = Copy.Morning.spokenAway(from: from, to: to)
+    case .noScreenTime:
+      headline = Copy.Morning.noScreenTime
+      spoken = Copy.Morning.spokenNoScreenTime(from: from, to: to)
     }
   }
 
