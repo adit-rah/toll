@@ -90,7 +90,7 @@ Motion explains where things came from and where they went. It never celebrates,
 | Door: choosing → waiting → open | Content crossfades 300 ms inside the sheet; the sheet does not move. |
 | Countdown | `contentTransition(.numericText(countsDown: true))` each second; the colon never blinks. |
 | Regret line expires | Fades out 200 ms; nothing else moves. |
-| Tonight's card arrives or leaves | Fades 200 ms in place; nothing else moves. |
+| A card or note arrives or leaves (Tonight, the block editor) | Fades 200 ms in place; nothing else moves. |
 | Your sky's newest star (D79) | Crossfades in 200 ms, with its lines, once: the first time Your sleep opens after the night that lit it. Nothing twinkles or loops; a landmark line arrives with the morning card. |
 | Settings | System list and pushes. |
 | Block screen (system) | None of ours; Apple animates the shield. |
