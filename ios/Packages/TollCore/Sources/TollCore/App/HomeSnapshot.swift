@@ -61,7 +61,12 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var screenTimeOff: Bool
   /// The night came back without its apps (#140): after Screen Time off, before location.
   public var recovered: Bool
-  /// The one optional card under the pill when no warning holds the slot (#102).
+  /// A build older than the state file's `minReader` (#140): it can't save changes.
+  public var readOnly: Bool
+  /// What floats between the state and the strip, top to bottom: at most one card, then last
+  /// night's row (`TonightBand`).
+  public var band = TonightBand(items: [])
+  /// The band's card, when it's one of Tonight's offers or night cards (#102).
   public var card: TonightCard?
   /// The first heads-up the night would get, for the card that offers it (#104).
   public var headsUp: HeadsUp?
@@ -74,8 +79,8 @@ public struct HomeSnapshot: Equatable, Sendable {
   /// Last night, to review, from its end until the next night starts: the strip opens it all day
   /// (#103). The hero keeps saying what tonight holds.
   public var lastNight: Morning?
-  /// Last night's card floats on Tonight: in the morning, until put away, and after any warning.
-  public var lastNightCard = false
+  /// Last night's row floats in the band: in the morning, until put away, under any card.
+  public var lastNightCard: Bool { band.hasLastNight }
   /// Over the big time, what it means: "Apps lock at", "Apps locked until" (D75).
   public var eyebrow: String
   /// With no night to show, the night's editor is the way forward (the audit's dead end).
@@ -93,11 +98,13 @@ public struct HomeSnapshot: Equatable, Sendable {
   public init(
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
     config: TollConfig = .defaults, screenTime: Bool = true,
-    notifications: NotificationPermission = .allowed, history: [PastNight] = []
+    notifications: NotificationPermission = .allowed, history: [PastNight] = [],
+    readOnly: Bool = false, flow: String? = nil
   ) {
     let sleep = state.sleepBlock
     screenTimeOff = state.setupFinishedAt != nil && !screenTime
     recovered = state.nightNeedsApps
+    self.readOnly = readOnly
     // The hero's times are the lock's, which starts the gap before bed (D76).
     hero = Self.hero(state, sleep: state.lockSleep, now: now, calendar: calendar, config: config)
     if screenTimeOff, state.trial.entitled { hero = .screenTimeOff }
@@ -115,16 +122,14 @@ public struct HomeSnapshot: Equatable, Sendable {
     locationBanner =
       state.setupFinishedAt != nil && state.location == .scheduleOnly && sleep?.place != nil
     untilBed = Self.untilBed(state, hero: hero, now: now, calendar: calendar)
-    card = Self.card(
-      state, now: now, calendar: calendar, warning: screenTimeOff || recovered || locationBanner,
-      notifications: notifications, untilBed: untilBed)
-    if card == .headsUp {
-      headsUp =
-        HeadsUp.nights(
-          state, screenTime: screenTime, now: now, calendar: calendar, config: config
-        ).first
-    }
-    gapCard = Self.gapCard(card, state: state, now: now, calendar: calendar, config: config)
+    var facts = Self.bandFacts(
+      state, now: now, calendar: calendar, notifications: notifications, untilBed: untilBed)
+    facts.screenTimeOff = screenTimeOff
+    facts.readOnly = readOnly
+    facts.recovered = recovered
+    facts.location = locationBanner
+    facts.nightOn = state.lockSleep?.schedule.occurrence(containing: now, calendar: calendar) != nil
+    facts.flow = flow
     heroPlace =
       sleep == nil
       ? nil : state.location == .scheduleOnly ? .anywhere : sleep?.place != nil ? .home : .anywhere
@@ -151,12 +156,19 @@ public struct HomeSnapshot: Equatable, Sendable {
           NightsRan.sky(ran, state: state, now: now, calendar: calendar, config: config).landmark
       }
       if let sleep { day.add(lastNight: night, sleep: sleep.id) }
-      let noon = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: now)
-      lastNightCard =
-        noon.map { now < $0 } == true && state.lastNightSeen != night.night && !screenTimeOff
-        && !recovered && !locationBanner
+      facts.lastNight = true
+      facts.lastNightPutAway = state.lastNightSeen == night.night
       lastNight = night
     }
+    band = TonightBand(facts, now: now, calendar: calendar, config: config)
+    if case .card(let shown) = band.card { card = shown }
+    if card == .headsUp {
+      headsUp =
+        HeadsUp.nights(
+          state, screenTime: screenTime, now: now, calendar: calendar, config: config
+        ).first
+    }
+    gapCard = Self.gapCard(card, state: state, now: now, calendar: calendar, config: config)
     timeline = day.segments.isEmpty ? nil : day
     if case .tonight = hero, state.gap.minutes > 0 {
       beforeBed = Copy.Gap.beforeBed(state.gap.minutes)

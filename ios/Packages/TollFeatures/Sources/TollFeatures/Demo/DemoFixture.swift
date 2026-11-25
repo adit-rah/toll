@@ -20,14 +20,16 @@
       // hours: the latest weekday.
       let weekday = calendar.component(.weekday, from: today)
       let back: Int
-      if scenario == .sleepMonday || scenario == .sleepBest || scenario == .homeGapWeek {
-        back = (weekday - (scenario == .sleepBest ? 1 : 2) + 7) % 7
+      if let day = scenario.weekday {
+        back = (weekday - day + 7) % 7
       } else {
         back = scenario.isDay ? [1: 2, 7: 1][weekday] ?? 0 : 0
       }
       let day = calendar.date(byAdding: .day, value: -back, to: today) ?? today
       let (hour, minute) =
-        scenario.isMorning ? (8, 10) : night ? (23, 40) : scenario.isDay ? (11, 0) : (19, 55)
+        scenario.isMorning
+        ? (8, 10)
+        : night ? (23, 40) : scenario.isDay ? (11, 0) : scenario.nightHour ? (21, 30) : (19, 55)
       return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: day) ?? day
     }
   }
@@ -54,7 +56,7 @@
         .homeStripLastNight,
         .sleepMonday, .sleepBest,
       ]
-      .contains(self)
+      .contains(self) || Self.bandMornings.contains(self)
         || (skyNights != nil && ![.sleepSkyEvening, .sleepSkyNight].contains(self))
     }
 
@@ -67,7 +69,7 @@
       }
     }
 
-    var isGap: Bool { self == .homeGapWeek || self == .homeGapOffer }
+    var isGap: Bool { self == .homeGapOffer || mondaysCard || nightHour }
 
     /// Before bed's scenarios (D80): Tonight in the gap, with the helpers' sheet over it for some.
     var inGap: Bool { [.homeBeforeBed, .homeBeforeBedCard].contains(self) || helperSheet }
@@ -157,7 +159,8 @@
       let nightsAgo =
         scenario == .homeAnywhere || scenario.setHomePath != nil
         ? 0
-        : firstWeek || [.homeCard, .homeMorningCard, .homeHeadsUp].contains(scenario)
+        : firstWeek
+          || [.homeCard, .homeMorningCard, .homeMorningCardOpen, .homeHeadsUp].contains(scenario)
           ? 1
           : scenario == .homeLastNight
             ? 13
@@ -182,7 +185,7 @@
       }
       // A new install locks 15 minutes before bed (D76); the offer is for one from before it.
       state.gap = scenario == .homeGapOffer ? .existing : .newInstall()
-      if scenario == .homeGapWeek {
+      if scenario.mondaysCard {
         state.gap.minutes = 30
         state.gap.change = Gap.Change(
           week: UnlockSupply.week(containing: now, calendar: calendar, config: .defaults),
@@ -199,7 +202,9 @@
         state.trial.start = calendar.date(byAdding: .day, value: -15, to: now)
         state.trial.entitled = false
       }
-      if scenario == .homeLocation { state.location = .scheduleOnly }
+      if scenario == .homeLocation || scenario == .homeMorningLocation {
+        state.location = .scheduleOnly
+      }
       if scenario == .homeRecovered, let night = state.blocks.firstIndex(where: \.isSleep) {
         state.recoveredAt = now
         state.blocks[night].apps = nil

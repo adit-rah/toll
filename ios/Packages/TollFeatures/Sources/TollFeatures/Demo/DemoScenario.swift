@@ -44,6 +44,16 @@
     /// The morning after the first night with home not set: the morning card and Tonight's card
     /// together, so a card's place beside the morning card can be seen.
     case homeMorningCard = "home-morning-card"
+    /// Tonight's band (`TonightBand`): last night's row under the location note, under Monday's
+    /// card on Tuesday, under a one-time flow's card, and open under the home card, which fades out.
+    case homeMorningLocation = "home-morning-location"
+    case homeMorningGapWeek = "home-morning-gap-week"
+    case homeMorningFlow = "home-morning-flow"
+    case homeMorningCardOpen = "home-morning-card-open"
+    /// The hour before the lock: the heads-up offer waits for tomorrow; on Monday, Monday's card
+    /// is the one card.
+    case homeNightHour = "home-night-hour"
+    case homeNightHourMonday = "home-night-hour-monday"
     /// A weekday at 11 am with Study on: Tonight's one quiet line about it (D68, #89), and Study and
     /// Gym on the day's strip (D75).
     case homeDay = "home-day"
@@ -151,7 +161,8 @@
     /// Home not set yet (D68): onboarding's Sleep block has no place.
     var homeNotSet: Bool {
       (setHomePath != nil && self != .setHomeSet)
-        || [.homeAnywhere, .homeCard, .homeMorningCard, .settingsAnywhere].contains(self)
+        || [.homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere]
+        .contains(self)
     }
 
     /// The simulator cannot grant Family Controls or answer the location prompt; each screen past
@@ -168,18 +179,19 @@
     var location: LocationAccess.State? {
       switch self {
       case .setHome, .setHomeLocation, .setHomeAlways, .homeLocation, .setHomeSet,
-        .settingsWhileUsing:
+        .settingsWhileUsing, .homeMorningLocation:
         .whileUsing
       case .setHomeOff: .denied
       case .setHomeLocationOff: .approximate
-      case .homeAnywhere, .homeCard, .homeMorningCard, .settingsAnywhere: .notDetermined
+      case .homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere:
+        .notDetermined
       default: isHome ? .always : nil
       }
     }
     /// Every screen after setup assumes the heads-up is allowed, unless it shows the asking.
     var notifications: NotificationPermission? {
       switch self {
-      case .homeHeadsUp: .notAsked
+      case .homeHeadsUp, .homeNightHour, .homeNightHourMonday: .notAsked
       case .settingsHeadsUpDenied: .denied
       default: isHome ? .allowed : nil
       }
@@ -272,7 +284,8 @@
       let home = HomeSnapshot(
         state: fixture.state, log: fixture.log, now: now, calendar: .current,
         screenTime: scenario != .homeScreenTimeOff,
-        notifications: scenario.notifications ?? .allowed, history: fixture.history)
+        notifications: scenario.notifications ?? .allowed, history: fixture.history,
+        readOnly: scenario == .homeReadOnly, flow: scenario.flow)
       DuskTabs(
         tab: .constant(scenario.tab),
         tonightPath: .constant(scenario.tab == .tonight ? scenario.routes : []),
@@ -283,10 +296,11 @@
         openPurchase: {}
       ) {
         HomeView(
-          home: home, price: Copy.fallbackPrice, readOnly: scenario == .homeReadOnly,
+          home: home, price: Copy.fallbackPrice,
           openSettings: {}, openDoor: {},
           openPurchase: { buying = true }, fixLocation: {}, snippet: scenario.snippet,
-          lastNightStartsOpen: [.homeMorningOpen, .homeMorningLandmarkOpen].contains(scenario)
+          lastNightStartsOpen: [.homeMorningOpen, .homeMorningLandmarkOpen, .homeMorningCardOpen]
+            .contains(scenario)
         )
         .sheet(isPresented: $buying) { PurchaseSheet(model: app, home: home) }
       }
