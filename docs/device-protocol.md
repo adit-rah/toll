@@ -161,6 +161,14 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 143 | The next morning | A new card for the new night, though yesterday's was put away | | |
 | 144 | With Study on at 9 am | The card floats; the Study line stays under the state; offers wait | | |
 | 145 | VoiceOver on the card, then on the stub | "Last night", "Apps locked from … to …" with any open stretch, the taps, then "Last 7 nights" and each night; the stub reads "Last night, Apps locked from …" | | |
+| 146 | Install this build and finish setup, install the previous TestFlight build, then reinstall this one | Neither build returns to Welcome; blocks, hours, home, gap and last night's card match; after reinstalling, `state.json` is schema 3 with `state.v2.json` beside it | | |
+| 147 | After a later build raises `minReader`, reinstall this build and change a block | Tonight says "This version of Dusk can't save changes…"; the change doesn't stick; the shield still follows the night | | |
+| 148 | Replace `state.json` with garbage in the App Group (debug build), then open Dusk | Tonight keeps the night's hours and shows the recovery note; "Choose apps" opens the night's editor with the picker up; once saved, the note goes | | |
+| 149 | Let a night run and don't open Dusk until noon, then share `nights.jsonl` from the activity log | That night's line has `"by":"monitor"`, `"record":2,"rev":1` and this build's `model_version`, once | | |
+| 150 | On a Mac, attach to the Monitor at the sweep after a heavy night (50+ block-screen taps) | Peak memory stays under 6 MB and the night is recorded | | |
+| 151 | Restart the phone and leave it locked through a sweep, then unlock and open Dusk | No free-nights reset; the iCloud copy's start is unchanged on another phone | | |
+| 152 | Delete and reinstall Dusk after the free nights ended | Welcome offers the purchase, not new free nights | | |
+| 153 | Update the app without opening it, and let a night run | The monitor's line names this build's artifact | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
