@@ -14,12 +14,16 @@ public struct Sky: Equatable, Sendable {
     /// Once every star is lit, nights light them again in the same order, each pass a little
     /// brighter, so the sky keeps adding after the table runs out.
     public var times: Int
+    /// The figure the star is part of, so a tap on it can bring that figure forward (`SkyFocus`).
+    public var constellation: Constellation
   }
 
-  /// A line between two stars, as indexes into `Drawing.stars`.
+  /// A line between two stars, as indexes into `Drawing.stars`, and the figure it draws. A line
+  /// may reach a star of an earlier figure, so its figure is its own, not its stars'.
   public struct Line: Equatable, Sendable {
     public var from: Int
     public var to: Int
+    public var constellation: Constellation
   }
 
   /// The part of the sky to frame, in the stars' units (widths of the sky).
@@ -95,11 +99,13 @@ public struct Sky: Equatable, Sendable {
     let stars = table.prefix(lit).enumerated().map { index, star in
       Star(
         x: star.x, y: star.y, magnitude: star.magnitude, bv: star.bv,
-        times: (nights - 1 - index) / table.count + 1)
+        times: (nights - 1 - index) / table.count + 1,
+        constellation: SkyCatalogue.constellations[index])
     }
-    let lines = SkyCatalogue.figures.flatMap(\.lines)
-      .filter { $0.0 < lit && $0.1 < lit }
-      .map { Line(from: $0.0, to: $0.1) }
+    let lines = SkyCatalogue.figures.flatMap { figure in
+      figure.lines.filter { $0.0 < lit && $0.1 < lit }
+        .map { Line(from: $0.0, to: $0.1, constellation: figure.constellation) }
+    }
     let newest = newestIsNew && nights > 0 ? (nights - 1) % table.count : nil
     let completed = SkyCatalogue.figures.filter { $0.stars.upperBound <= lit }
     drawing = Drawing(
@@ -182,7 +188,9 @@ public struct Sky: Equatable, Sendable {
     let position = Dictionary(uniqueKeysWithValues: indexes.enumerated().map { ($1, $0) })
     let picked = indexes.map { stars[$0] }
     let lines = figure.lines.compactMap { line in
-      position[line.0].flatMap { from in position[line.1].map { Line(from: from, to: $0) } }
+      position[line.0].flatMap { from in
+        position[line.1].map { Line(from: from, to: $0, constellation: figure.constellation) }
+      }
     }
     let xs = picked.map(\.x)
     let ys = picked.map(\.y)
