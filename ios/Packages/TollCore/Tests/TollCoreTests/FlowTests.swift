@@ -47,8 +47,9 @@ struct FlowTests {
   }
 
   @Test func neverInTheMinutesBeforeTheLock() {
-    #expect(due(state, date(2026, 11, 17, 22, 15)) == nil)
-    #expect(due(state, date(2026, 11, 17, 22, 5)) == "example")
+    // The band's hour before the lock (`band.nightMinutes`): 10:30 pm, so from 9:30.
+    #expect(due(state, date(2026, 11, 17, 21, 35)) == nil)
+    #expect(due(state, date(2026, 11, 17, 21, 25)) == "example")
     var gap = state
     gap.gap.minutes = 30
     #expect(due(gap, date(2026, 11, 17, 21, 45)) == nil)

@@ -22,7 +22,8 @@
       let home = HomeSnapshot(
         state: fixture.state, log: fixture.log, now: now, calendar: .current,
         screenTime: scenario != .homeScreenTimeOff,
-        notifications: scenario.notifications ?? .allowed, history: fixture.history)
+        notifications: scenario.notifications ?? .allowed, history: fixture.history,
+        readOnly: scenario == .homeReadOnly, flow: scenario.flow)
       DuskTabs(
         tab: .constant(scenario.tab),
         tonightPath: .constant(scenario.tab == .tonight ? scenario.routes : []),
@@ -33,10 +34,11 @@
         openPurchase: {}
       ) {
         HomeView(
-          home: home, price: Copy.fallbackPrice, readOnly: scenario == .homeReadOnly,
+          home: home, price: Copy.fallbackPrice,
           openSettings: {}, openDoor: {},
-          openPurchase: { buying = true }, fixLocation: {},
-          flow: scenario.fitOffered ? Flows.fitSleep.id : nil, snippet: scenario.snippet
+          openPurchase: { buying = true }, fixLocation: {}, snippet: scenario.snippet,
+          lastNightStartsOpen: [.homeMorningOpen, .homeMorningLandmarkOpen, .homeMorningCardOpen]
+            .contains(scenario)
         )
         .sheet(isPresented: $buying) { PurchaseSheet(model: app, home: home) }
       }

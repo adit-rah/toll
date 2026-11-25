@@ -16,7 +16,9 @@ struct ConfigTests {
     #expect(config.blocks.maxApps == 40)
     #expect(config.headsUp.leadMinutes == 20)
     #expect(config.headsUp.nightsAhead == 7)
-    #expect(config.flows.quietBeforeLockMinutes == config.headsUp.leadMinutes)
     #expect(config.flows.offers == 3)
+    #expect(config.band.nightMinutes == 60)
+    // The heads-up falls inside the night's hour on Tonight's band; flows use that hour itself.
+    #expect(config.band.nightMinutes >= config.headsUp.leadMinutes)
   }
 }

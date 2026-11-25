@@ -187,13 +187,21 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var breathRange: ClosedRange<Int> { breathMinMinutes...breathMaxMinutes }
   }
 
-  /// One-time flows for people already using Dusk (#140, `Flows`).
+  /// One-time flows for people already using Dusk (#140, `Flows`). None in the hour before the
+  /// lock: that's `band.nightMinutes`, the band's own, so a flow is never due when the band can't
+  /// show it.
   public struct OneTimeFlows: Codable, Sendable, Equatable {
     public init() {}
-    /// None this close to the lock: the heads-up's 20 minutes (D68) belong to the night.
-    public var quietBeforeLockMinutes = 20
     /// Offered at most this many times; "Not now" on the last applies its defaults.
     public var offers = 3
+  }
+
+  /// Tonight's band (`TonightBand`): from this many minutes before the lock, it belongs to the
+  /// night. Offers wait for tomorrow and last night's row is done; the heads-up (20 min) and Before
+  /// bed's gap come inside it.
+  public struct Band: Codable, Sendable, Equatable {
+    public init() {}
+    public var nightMinutes = 60
   }
 
   public var window = Window()
@@ -210,6 +218,7 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public var sky = Sky()
   public var helpers = Helpers()
   public var flows = OneTimeFlows()
+  public var band = Band()
 
   public init() {}
 

@@ -6,10 +6,11 @@
     /// Scenarios set the morning after a night: Tonight's morning card and Your sleep's weeks.
     var isMorning: Bool {
       [
-        .homeMorning, .homeMorningGap, .homeMorningAway, .homeMorningCard, .homeStripLastNight,
+        .homeMorning, .homeMorningOpen, .homeMorningGap, .homeMorningAway, .homeMorningCard,
+        .homeStripLastNight,
         .sleepMonday, .sleepBest,
       ]
-      .contains(self)
+      .contains(self) || Self.bandMornings.contains(self)
         || (skyNights != nil && ![.sleepSkyEvening, .sleepSkyNight].contains(self))
     }
 
@@ -22,7 +23,7 @@
       }
     }
 
-    var isGap: Bool { self == .homeGapWeek || self == .homeGapOffer }
+    var isGap: Bool { self == .homeGapOffer || mondaysCard || nightHour }
 
     /// Before bed's scenarios (D80): Tonight in the gap, with the helpers' sheet over it for some.
     var inGap: Bool { [.homeBeforeBed, .homeBeforeBedCard].contains(self) || helperSheet }
@@ -42,7 +43,8 @@
       case .sleepSky5: 5
       case .sleepSky7: 7
       case .sleepSky0: 0
-      case .sleepSky30, .homeMorningLandmark, .sleepSkyStar, .sleepSkyNames, .sleepSkyEvening,
+      case .sleepSky30, .homeMorningLandmark, .homeMorningLandmarkOpen, .sleepSkyStar,
+        .sleepSkyNames, .sleepSkyEvening,
         .sleepSkyNight, .sleepSkyMorning:
         30
       case .sleepSky100: 100
@@ -111,7 +113,8 @@
       let nightsAgo =
         scenario == .homeAnywhere || scenario.setHomePath != nil
         ? 0
-        : firstWeek || [.homeCard, .homeMorningCard, .homeHeadsUp].contains(scenario)
+        : firstWeek
+          || [.homeCard, .homeMorningCard, .homeMorningCardOpen, .homeHeadsUp].contains(scenario)
           ? 1
           : scenario == .homeLastNight
             ? 13
@@ -141,7 +144,7 @@
         scenario == .homeGapOffer || scenario.fitOffered
         ? .none(target: 30) : .growing(from: 15, to: 30)
       state.after.offered = scenario.fitOffered
-      if scenario == .homeGapWeek {
+      if scenario.mondaysCard {
         state.gap.minutes = 30
         state.gap.change = Gap.Change(
           week: UnlockSupply.week(containing: now, calendar: calendar, config: .defaults),
@@ -158,7 +161,9 @@
         state.trial.start = calendar.date(byAdding: .day, value: -15, to: now)
         state.trial.entitled = false
       }
-      if scenario == .homeLocation { state.location = .scheduleOnly }
+      if scenario == .homeLocation || scenario == .homeMorningLocation {
+        state.location = .scheduleOnly
+      }
       if scenario == .homeRecovered, let night = state.blocks.firstIndex(where: \.isSleep) {
         state.recoveredAt = now
         state.blocks[night].apps = nil

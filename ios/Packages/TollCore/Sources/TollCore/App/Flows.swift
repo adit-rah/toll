@@ -82,8 +82,8 @@ public enum Flows {
     }
   }
 
-  /// Never during a night (its gap included) or a pause, nor in the last minutes before the lock,
-  /// nor before setup is done; and not twice on one day.
+  /// Never during a night (its gap included) or a pause, nor in the hour before the lock (the
+  /// band's, `band.nightMinutes`), nor before setup is done; and not twice on one day.
   public static func calm(
     _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig = .defaults,
     besides id: String? = nil
@@ -92,7 +92,7 @@ public enum Flows {
       state.doorAskedAt == nil, let lock = state.lockSleep
     else { return false }
     if lock.schedule.occurrence(containing: now, calendar: calendar) != nil { return false }
-    let quiet = TimeInterval(config.flows.quietBeforeLockMinutes * 60)
+    let quiet = TimeInterval(config.band.nightMinutes * 60)
     if let next = lock.schedule.nextStart(after: now, calendar: calendar),
       next.timeIntervalSince(now) < quiet
     {

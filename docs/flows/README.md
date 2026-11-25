@@ -11,7 +11,7 @@ Every user flow in Dusk, as built on `main`, drawn as a Mermaid flowchart. A UX 
 | [set-home.md](set-home.md) | "Only when I'm home": the map, the location prompts, Always, and "Use anywhere" | D68, D71, D84 |
 | [heads-up.md](heads-up.md) | The heads-up before the night: Tonight's offer, iOS's prompt, Settings' switch | D68, D72 |
 | [before-bed.md](before-bed.md) | The gap before bed (Monday's card, the offer to older installs, Settings) and the helpers in the gap | D76, D80, D83, D85 |
-| [tonight.md](tonight.md) | Tonight through a day: what the state shows and when, the card slot's order, the strip | D69, D73, D75, D86 |
+| [tonight.md](tonight.md) | Tonight through a day: what the state shows and when, Tonight's band (its kinds, their times, one card and last night's row), the strip | D69, D73, D75, D86, D91, D93 |
 | [pause.md](pause.md) | The pause: from Tonight or the block screen, the wait, the open pause, Lock again | D67, D70, D84 |
 | [purchase.md](purchase.md) | The free nights, their end, buying, Ask to Buy, restore, refunds | D33, D78, D82, D84 |
 | [settings.md](settings.md) | Settings and every sheet or screen it opens, Settings › Sleep included | D72, D83, D84, D85, #144 |
@@ -41,7 +41,7 @@ flowchart LR
 
 - **Screens** are rectangles. The first line names the screen as people see it; the second is `render: <scenario>`, the id in `docs/renders.md` that shows it, or `render: none` when no scenario does. A tap that a render can reach from a scenario is written `render: <scenario> + tap`.
 - **Edges** carry what the person does (solid, the button's words in quotes where it has them) or what the system does (dotted: a time passing, a region event, iOS answering, an extension waking).
-- **Diamonds** are checks on state, phrased as the code checks them. Where the order of checks matters (Tonight's card slot, the state), the chart keeps the code's order.
+- **Diamonds** are checks on state, phrased as the code checks them. Where the order of checks matters (Tonight's band, the state), the chart keeps the code's order.
 - **Hexagons** with a dashed border are iOS's own UI: permission prompts, Apple's apps picker, the payment sheet, the share sheet, the Settings app.
 - **Cylinders** mark the moments a flow writes to storage (`data.md` says where).
 - Each file starts with what the flow is for and the decisions it implements, and ends with **Doubts**: anything the code left unclear, or that differs from a decision's text.
@@ -91,6 +91,6 @@ To add one:
    - `applies`: a pure predicate over `DuskState`: who needs it (set up before the build that added the field, no answer yet). Never "everyone".
    - `defaults`: the commands applied when it's put off for good, chosen so nothing changes for the person.
 3. **What the app does.** At each foreground `AppModel` reads `Flows.due` into `dueFlow`. The screen that shows it sends `.flow(id:version:.shown)` when it appears, then `.answered` with the person's commands, or `.notNow`. The third "Not now" (`flows.offers`) records `.defaulted` and applies `defaults`. Every outcome goes into `state.flows`, so it's asked once per version.
-4. **When it may show** (`Flows.calm`, tested): after setup; never during a night or its gap, a pause, or while any block is on; never in the last `flows.quietBeforeLockMinutes` (20) before the lock; at most one flow on any day. The flow shown today stays offered all that day, at every calm foreground, until it is answered or put off (`Flows.shownToday`). It shows in Tonight's card slot, after warnings and before offers, and opens a sheet; no takeover (D86).
+4. **When it may show** (`Flows.calm`, tested): after setup; never during a night or its gap, a pause, or while any block is on; never in the hour before the lock (`band.nightMinutes`, 60, the band's own hour); at most one flow on any day, and the flow shown today stays offered all that day, at every calm moment, until it is answered or put off (`Flows.shownToday`). It shows in Tonight's band (`TonightBand`), after problems and night cards and before offers, and opens a sheet; no takeover (D86).
 5. **Tests** in `FlowTests`: its `applies` for an install from each past fixture that needs it and one that doesn't, its defaults leaving the person's night as it was, and its record.
 6. **Its chart:** `docs/flows/once-<id>.md`, with `applies`, the moments it may show, every outcome and what each writes, and the defaults. Add a row to the first table.

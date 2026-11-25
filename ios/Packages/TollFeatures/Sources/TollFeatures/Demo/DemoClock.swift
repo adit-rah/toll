@@ -20,14 +20,16 @@
       // hours: the latest weekday.
       let weekday = calendar.component(.weekday, from: today)
       let back: Int
-      if scenario == .sleepMonday || scenario == .sleepBest || scenario == .homeGapWeek {
-        back = (weekday - (scenario == .sleepBest ? 1 : 2) + 7) % 7
+      if let day = scenario.weekday {
+        back = (weekday - day + 7) % 7
       } else {
         back = scenario.isDay ? [1: 2, 7: 1][weekday] ?? 0 : 0
       }
       let day = calendar.date(byAdding: .day, value: -back, to: today) ?? today
       let (hour, minute) =
-        scenario.isMorning ? (8, 10) : night ? (23, 40) : scenario.isDay ? (11, 0) : (19, 55)
+        scenario.isMorning
+        ? (8, 10)
+        : night ? (23, 40) : scenario.isDay ? (11, 0) : scenario.nightHour ? (21, 30) : (19, 55)
       return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: day) ?? day
     }
   }

@@ -98,7 +98,8 @@ struct MorningTests {
     #expect(home(date(2026, 11, 18, 9), log + next, state: s).lastNightCard)
   }
 
-  /// A warning holds the band first; last night's card waits behind it.
+  /// With Screen Time off now, the state says so and last night isn't shown; other problems keep
+  /// last night's row under their note (`TonightBandTests`).
   @Test func aWarningGoesFirst() {
     let home = HomeSnapshot(
       state: state, log: night(), now: date(2026, 11, 17, 9), calendar: london, screenTime: false)

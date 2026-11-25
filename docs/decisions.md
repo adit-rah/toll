@@ -472,3 +472,47 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - An unreadable value counts as a start no later than when it was written, and is never written over.
 - **One-time flows** exist only for what a person must decide. They live in a registry in TollCore, show at a calm moment and at most one a day, and take safe defaults after the third "Not now". None are registered yet.
 - **Trade-off, accepted:** a build below a file's `minReader` can't save edits or pauses until it's updated. That only happens on TestFlight.
+
+**D93. Last night folds to one row each morning** (2026-11-25, founder, in chat; amends D91).
+- **Folded by default.** Each morning until noon, last night sits in D86's band as one quiet row on the card surface: one line of body text, with 12 pt above and below. The row holds:
+  - the moon and "Last night";
+  - the night's outcome as a glyph and words:
+    - `lock` "Locked 8 h 45 m": the minutes apps were locked, leaving out breaks;
+    - `figure.walk` "Away, nothing locked";
+    - `hourglass` "Screen Time was off";
+    - on a landmark morning, the landmark's line in place of the length;
+  - `chevron.down`.
+- **One button.** The whole row opens the full D91 card, which grows up from the row with its bottom edge kept 20 pt above the strip. The open header ("Last night", "OK", `chevron.up`) folds it again.
+- **When the open card doesn't fit** above the strip, it sits under the state and the screen scrolls. It never goes under the bar, and the state never moves.
+- **Never kept.** It is folded each time Tonight appears and when the app goes to the background.
+- **"OK" is only in the open card.** The folded row is quiet enough to stay until noon.
+- **The strip's popover** still opens the full card.
+- **VoiceOver:**
+  - One button: "Last night, apps locked 8 hours 45 minutes", plus the landmark's line on a landmark morning.
+  - Its value is "Collapsed" or "Expanded".
+  - Its hint is "Double-tap to show last night.".
+- **Motion** (design §2.5): it grows over 300 ms and its content fades in after the first 100 ms. With Reduce Motion, a 200 ms crossfade.
+- **The rule** is `Morning.status` and `statusSpoken` in TollCore, tested.
+
+**D94. Tonight's band is one designed system** (2026-11-25, founder feedback; amends D86, D91 and D93).
+- **Kinds, each with its time:**
+  - **Problems** show at any time until fixed. They are: Screen Time off, a build that can't save, a night without its apps, and location short of Always.
+  - **Night cards:** Before bed's card shows only in the gap. Monday's card shows from Monday noon until Tuesday noon, while nothing is locked.
+  - **A one-time flow, then setup offers** (home, then the heads-up, then the gap offer). These show only at calm times:
+    - nothing is locked;
+    - free nights are left, or Dusk is bought;
+    - it is not during the night, and not within `band.nightMinutes` (60) of the lock.
+
+    Offers also need a night to have ended since setup.
+  - **Last night's row** shows from wake until noon, until OK, and never in the hour before the lock.
+- **One card, by kind:** a problem first, then a night card, then a flow, then a setup offer. Last night's folded row may sit under the card, nearest the strip. There are never more than two items.
+- **The hour before the lock belongs to the night.**
+  - Before the gap: at most Monday's card.
+  - In the gap: Before bed's card, or nothing.
+  - Offers and flows wait for tomorrow.
+- **Opening:** last night opens upward. While it is open, a card above it fades out in place over 200 ms, and comes back when it folds. Nothing is pushed into the state or covered.
+- **The chevrons follow the motion:** the folded row shows `chevron.up` and the open header `chevron.down`.
+- **Amends D91:** last night's row no longer waits behind the location, lost-apps or can't-save notes; it sits under them. With Screen Time off, last night still isn't shown.
+- **Amends D86:** "one at a time" becomes one card plus last night's row.
+- **The heads-up offer is a setup offer.** It asks once, and in the last hour it would describe tomorrow's heads-up.
+- **The rule** is `TonightBand` in TollCore, tested. It is charted in `docs/flows/tonight.md`.

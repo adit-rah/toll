@@ -9,6 +9,12 @@ struct HomeRoleKey: LayoutValueKey {
   static let defaultValue = HomeRole.hero
 }
 
+/// A note that grows up from its row (last night's card) keeps to the strip: when it no longer
+/// fits above the strip it goes under the state, never under the bar.
+struct HomeNoteKeepsToStripKey: LayoutValueKey {
+  static let defaultValue = false
+}
+
 /// Tonight's composition below accessibility sizes (D64, D75): the bar at the top, the state a
 /// little above centre and the strip at the bottom, laid out as if there were no card. A card or
 /// note then floats in the room left over, so its coming and going never moves the state: first
@@ -81,7 +87,8 @@ struct HomeLayout: Layout {
       }
       let note = result.heights[index]
       let band = Self.band(
-        note: note, barBottom: bar, heroTop: heroY, heroBottom: heroBottom, stripTop: baseStripY)
+        note: note, barBottom: bar, heroTop: heroY, heroBottom: heroBottom, stripTop: baseStripY,
+        underBar: !subviews[index][HomeNoteKeepsToStripKey.self])
       result.bands.append(band)
       if band == .flow {
         stripY = max(stripY, heroBottom + Gap.toHero + note + Gap.belowHero)
@@ -107,10 +114,11 @@ struct HomeLayout: Layout {
   /// Just above the strip if it fits there, else under the bar, else after the state. A card that
   /// would touch the state or the strip never floats.
   static func band(
-    note: CGFloat, barBottom: CGFloat, heroTop: CGFloat, heroBottom: CGFloat, stripTop: CGFloat
+    note: CGFloat, barBottom: CGFloat, heroTop: CGFloat, heroBottom: CGFloat, stripTop: CGFloat,
+    underBar: Bool = true
   ) -> Band {
     if stripTop - Gap.toStrip - note >= heroBottom + Gap.toHero { return .bottom }
-    if barBottom + Gap.underBar + note + Gap.toHero <= heroTop { return .top }
+    if underBar, barBottom + Gap.underBar + note + Gap.toHero <= heroTop { return .top }
     return .flow
   }
 }

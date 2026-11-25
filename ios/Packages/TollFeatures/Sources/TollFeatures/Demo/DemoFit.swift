@@ -25,7 +25,7 @@
     }
 
     /// Someone set up before #144: no buffer after yet, and the flow due.
-    var fitOffered: Bool { self == .homeFitCard || fitSheetPath != nil }
+    var fitOffered: Bool { [.homeFitCard, .homeMorningFlow].contains(self) || fitSheetPath != nil }
 
     /// Health's answer, as the onboarding step after "Use Apple Health" holds it.
     @MainActor func prepare(_ draft: FitDraft, now: Date = Date()) {

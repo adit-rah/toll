@@ -10,8 +10,6 @@ struct HomeView: View {
   let home: HomeSnapshot
   let price: String
   var locationFact = Copy.Setup.whileUsingFact
-  /// A newer TestFlight build wrote the state file: this one can't save changes (#140).
-  var readOnly = false
   let openSettings: () -> Void
   let openDoor: () -> Void
   /// While a pause is open, from the hero (the pause sheet can be swiped away).
@@ -30,15 +28,19 @@ struct HomeView: View {
   var putAwayLastNight: (Date) -> Void = { _ in }
   /// A block's editor, from the strip's snippet (D75).
   var openBlock: (BlockID) -> Void = { _ in }
-  /// The one-time flow due today (`Flows`, #144), its card's "Start" and "Not now", and that it
-  /// was seen.
-  var flow: String?
+  /// The one-time flow's card in the band (D92): its action, "Not now", and that it was seen.
   var openFlow: () -> Void = {}
   var notNowFlow: () -> Void = {}
   var flowShown: () -> Void = {}
   /// Demo renders open the strip on this segment's snippet: a block, or "lastNight" (docs/renders.md).
   var snippet: String?
+  /// Demo renders open last night's card in the band.
+  var lastNightStartsOpen = false
+  /// Last night's card in the band, open or folded to its row. Never kept: folded each time Tonight
+  /// appears.
+  @State private var lastNightOpen = false
   @Environment(\.dynamicTypeSize) private var typeSize
+  @Environment(\.scenePhase) private var scenePhase
 
   private static let bottomMargin: CGFloat = 28
 
@@ -65,7 +67,12 @@ struct HomeView: View {
     .background(TollColor.bg)
     .animation(Motion.stateChange, value: home.hero)
     // Design §2.5: a card fades in place; nothing else moves.
-    .animation(Motion.stateChange, value: note)
+    .animation(Motion.stateChange, value: home.band)
+    .onAppear { lastNightOpen = lastNightStartsOpen }
+    .onDisappear { lastNightOpen = false }
+    .onChange(of: scenePhase) { _, phase in
+      if phase == .background { lastNightOpen = false }
+    }
   }
 
   /// Below accessibility sizes. The sort priorities read the bar, the state, the card, the strip.
@@ -78,13 +85,12 @@ struct HomeView: View {
       heroBlock
         .layoutValue(key: HomeRoleKey.self, value: .hero)
         .accessibilitySortPriority(2)
-      if let note {
-        noteView(note)
-          .accessibilityElement(children: .contain)
+      if !home.band.isEmpty {
+        band
           .layoutValue(key: HomeRoleKey.self, value: .note)
+          .layoutValue(key: HomeNoteKeepsToStripKey.self, value: home.band.hasLastNight)
           .accessibilitySortPriority(1)
           .transition(.opacity)
-          .id(note)
       }
       strip.layoutValue(key: HomeRoleKey.self, value: .strip)
     }
@@ -135,66 +141,28 @@ struct HomeView: View {
     }
   }
 
-  /// One at a time, the most pressing first: Screen Time off, then a build that can't save, then a
-  /// night that came back without its apps, then location, then last night's card in the morning,
-  /// then a one-time flow (#140, only at a calm moment), then Tonight's offers.
-  private var note: HomeNote? {
-    if home.screenTimeOff { return .screenTimeOff }
-    if readOnly { return .readOnly }
-    if home.recovered { return .recovered }
-    if home.locationBanner { return .location }
-    if home.lastNightCard, home.lastNight != nil { return .lastNight }
-    if let flow, case .tonight = home.hero { return .flow(flow) }
-    return home.card.map(HomeNote.card)
-  }
-
-  /// At accessibility sizes, the free-night pill and a card, both when both apply: without Always
-  /// the card used to hide the last free night (#45). The card sits 12 pt under the pill.
+  /// At accessibility sizes, the free-night pill and the band, both when both apply: without
+  /// Always the card used to hide the last free night (#45). The band sits 12 pt under the pill.
   @ViewBuilder private var status: some View {
     if let pill = home.pill {
       PillView(pill: pill, open: openPurchase)
         .frame(maxWidth: .infinity)
         .padding(.top, 4)
     }
-    if let note {
-      noteView(note).padding(.top, home.pill == nil ? 4 : 12)
+    if !home.band.isEmpty {
+      band.padding(.top, home.pill == nil ? 4 : 12)
     }
   }
 
-  @ViewBuilder private func noteView(_ note: HomeNote) -> some View {
-    switch note {
-    case .screenTimeOff:
-      NoteCard(Copy.Home.screenTimeOffCard, severity: .broken) {
-        SettingsLink(Copy.Home.turnOn, action: turnOnScreenTime)
-      }
-    case .readOnly:
-      NoteCard(Copy.Home.readOnlyCard, severity: .degraded)
-    case .recovered:
-      NoteCard(Copy.Home.recoveredCard, severity: .degraded) {
-        SettingsLink(Copy.Home.chooseApps, action: chooseNightApps)
-      }
-    case .location:
-      NoteCard(locationFact, severity: .degraded) {
-        SettingsLink(Copy.Home.fixInSettings, action: fixLocation)
-      }
-    case .lastNight:
-      if let night = home.lastNight {
-        LastNightCard(night: night) { putAwayLastNight(night.night) }
-      }
-    case .flow:
-      BandCard(
-        symbol: .sleep, title: Copy.Fit.cardTitle, detail: Copy.Fit.cardDetail,
-        action: Copy.Fit.cardAction, dismiss: Copy.Home.notNow, open: openFlow,
-        putAway: notNowFlow
-      )
-      .onAppear(perform: flowShown)
-    case .card(let card):
-      TonightCardView(
-        card: card, headsUp: home.headsUp, gap: home.gapCard, untilBed: home.untilBed,
-        open: { openCard(card) },
-        dismiss: { dismissCard(card) }
-      )
-    }
+  /// Tonight's band (`TonightBand`): one card, and last night's row under it.
+  private var band: some View {
+    TonightBandView(
+      home: home, locationFact: locationFact, lastNightOpen: $lastNightOpen,
+      actions: TonightBandActions(
+        fixLocation: fixLocation, turnOnScreenTime: turnOnScreenTime,
+        chooseNightApps: chooseNightApps, openCard: openCard, dismissCard: dismissCard,
+        putAwayLastNight: putAwayLastNight, openFlow: openFlow, notNowFlow: notNowFlow,
+        flowShown: flowShown))
   }
 
   /// The gear, and the pill centred in the bar, so its coming and going moves nothing; it drops its
@@ -222,11 +190,4 @@ struct HomeView: View {
     }
     .frame(height: TollSpacing.barHeight)
   }
-}
-
-/// What may float over Tonight, one at a time.
-enum HomeNote: Hashable {
-  case screenTimeOff, readOnly, recovered, location, lastNight
-  case flow(String)
-  case card(TonightCard)
 }

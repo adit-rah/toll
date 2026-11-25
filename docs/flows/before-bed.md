@@ -12,8 +12,8 @@
 flowchart TD
   newInstall(["Onboarding's Done"]) --> grows15[("state.json: gap and after growing from the starts chosen<br/>(30 and 15 recommended; 0 is none) to the targets chosen (60 and 30 recommended)")]
   olderInstall(["A state file from before the gap"]) --> existing[("state.json: gap 0, fixed, offered")]
-  existing --> offerCheck{"Tonight's card slot free<br/>(see tonight.md)?"}
-  offerCheck -->|"yes, and no one-time flow ahead of it"| offerCard["Tonight: Lock apps 30 min before sleep? with the lock and wake times<br/>render: home-gap-offer"]
+  existing --> offerCheck{"Tonight's band free for an offer<br/>(see tonight.md)?"}
+  offerCheck -->|"yes"| offerCard["Tonight: Lock apps 30 min before sleep? with the lock and wake times<br/>render: home-gap-offer"]
   offerCard -->|"Turn on"| setGap
   offerCard -->|"Not now"| offerGone[("state.json: offered off; the card never returns")]
 

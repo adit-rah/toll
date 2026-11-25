@@ -2,7 +2,7 @@
 
 **What it's for:** people set up before #144 have a night but no buffer after waking, no target of their own for the buffer before sleep, and were never asked about Apple Health. Schema 4's migration step keeps their night exactly as it was; this flow offers them, once, onboarding's steps 2 to 4 (Fit Dusk to your sleep, Your sleep, The time around your sleep) in a sheet, starting from their own night and gap.
 
-**Implements:** #144 (the flow), #140 and D92 (the registry, its calm moments and "Not now"), D86 and D91 (Tonight's band), D76 (the weekly rule, now both sides).
+**Implements:** #144 (the flow), #140 and D92 (the registry, its calm moments and "Not now"), D86, D91 and D94 (Tonight's band, `TonightBand`), D76 (the weekly rule, now both sides).
 
 **Code:** `TollCore/App/Flows.swift` (`Flows.fitSleep`, `due`, `calm`, `record`), `Persist/Migration.swift` (`v3to4`), `App/Fit.swift` (`Fit.existing`, `Fit.apply`); `TollFeatures/Setup/FitFlowSheet.swift`, `FitView.swift` (`FitChoice`), `SleepTimesView.swift`, `AroundView.swift`, `FitDraft.swift`; `Home/HomeView.swift` (`HomeNote.flow`), `Home/TonightCardView.swift` (`BandCard`); `App/RootView.swift`, `AppModel.foreground` (`dueFlow`), `AppModel+Intents.swift` (`flow`).
 
@@ -14,16 +14,16 @@ flowchart TD
   fg --> applies{"Flows.fitSleep.applies:<br/>set up, after.offered?"}
   applies -->|"no"| none(["No card; Tonight as usual"])
   applies -->|"yes"| shownToday{"Flows.shownToday: this flow shown today,<br/>not answered or put off?"}
-  shownToday -->|"yes: it stays offered all day"| calmToday{"Flows.calm, besides its own record:<br/>no night, buffer or pause; not in the 20 min before the lock"}
+  shownToday -->|"yes: it stays offered all day"| calmToday{"Flows.calm, besides its own record:<br/>no night, buffer or pause; not in the hour before the lock"}
   calmToday -->|"yes"| slot
   calmToday -->|"no"| none
-  shownToday -->|"no"| calm{"Flows.calm: after setup; no night, gap or buffer on;<br/>no pause; not in the 20 min before the lock;<br/>no flow recorded today (one flow a day)"}
+  shownToday -->|"no"| calm{"Flows.calm: after setup; no night, gap or buffer on;<br/>no pause; not in the hour before the lock (band.nightMinutes);<br/>no flow recorded today (one flow a day)"}
   calm -->|"no"| none
   calm -->|"yes"| done{"state.flows['fit-sleep'] answered or defaulted at version 1?"}
   done -->|"yes"| none
-  done -->|"no: AppModel.dueFlow = fit-sleep"| slot{"Tonight's band, in order: Screen Time off, read-only, recovered, location,<br/>last night's card (until noon), then this, then the offers"}
-  slot -->|"an earlier note holds it"| none
-  slot -->|"the hero says Apps lock at"| card["Card: moon · Fit Dusk to your sleep · Start › · Not now<br/>render: home-fit-card"]
+  done -->|"no: Flows.due = fit-sleep, read with the clock (RootView → HomeSnapshot flow:)"| slot{"TonightBand (tonight.md): a problem or a night card wins;<br/>else this, before any offer; last night's row may sit under it"}
+  slot -->|"a problem or a night card holds it"| none
+  slot -->|"its turn"| card["Card: moon · Fit Dusk to your sleep · Start › · Not now<br/>render: home-fit-card, home-morning-flow"]
   card -.->|"appears"| shown[("flows['fit-sleep'] = shown, today: offered again at every foreground today")]
   card -->|"Not now"| notNow{"Third Not now? (flows.offers = 3)"}
   notNow -->|"no"| recNotNow[("flows['fit-sleep'] = notNow, notNow + 1")]

@@ -56,11 +56,24 @@
     case homeReadOnly = "home-read-only"
     case homeNoBlocks = "home-no-blocks"
     case homeMorning = "home-morning"
+    /// Last night's card open in the band (founder, 25 Nov), on an ordinary and a landmark morning.
+    case homeMorningOpen = "home-morning-open"
+    case homeMorningLandmarkOpen = "home-morning-landmark-open"
     case homeMorningGap = "home-morning-gap"
     case homeMorningAway = "home-morning-away"
     /// The morning after the first night with home not set: the morning card and Tonight's card
     /// together, so a card's place beside the morning card can be seen.
     case homeMorningCard = "home-morning-card"
+    /// Tonight's band (`TonightBand`): last night's row under the location note, under Monday's
+    /// card on Tuesday, under a one-time flow's card, and open under the home card, which fades out.
+    case homeMorningLocation = "home-morning-location"
+    case homeMorningGapWeek = "home-morning-gap-week"
+    case homeMorningFlow = "home-morning-flow"
+    case homeMorningCardOpen = "home-morning-card-open"
+    /// The hour before the lock: the heads-up offer waits for tomorrow; on Monday, Monday's card
+    /// is the one card.
+    case homeNightHour = "home-night-hour"
+    case homeNightHourMonday = "home-night-hour-monday"
     /// A weekday at 11 am with Study on: Tonight's one quiet line about it (D68, #89), and Study and
     /// Gym on the day's strip (D75).
     case homeDay = "home-day"
@@ -170,7 +183,8 @@
     /// Home not set yet (D68): onboarding's Sleep block has no place.
     var homeNotSet: Bool {
       (setHomePath != nil && self != .setHomeSet)
-        || [.homeAnywhere, .homeCard, .homeMorningCard, .settingsAnywhere].contains(self)
+        || [.homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere]
+          .contains(self)
     }
 
     /// The simulator cannot grant Family Controls or answer the location prompt; each screen past
@@ -187,18 +201,19 @@
     var location: LocationAccess.State? {
       switch self {
       case .setHome, .setHomeLocation, .setHomeAlways, .homeLocation, .setHomeSet,
-        .settingsWhileUsing:
+        .settingsWhileUsing, .homeMorningLocation:
         .whileUsing
       case .setHomeOff: .denied
       case .setHomeLocationOff: .approximate
-      case .homeAnywhere, .homeCard, .homeMorningCard, .settingsAnywhere: .notDetermined
+      case .homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere:
+        .notDetermined
       default: isHome ? .always : nil
       }
     }
     /// Every screen after setup assumes the heads-up is allowed, unless it shows the asking.
     var notifications: NotificationPermission? {
       switch self {
-      case .homeHeadsUp: .notAsked
+      case .homeHeadsUp, .homeNightHour, .homeNightHourMonday: .notAsked
       case .settingsHeadsUpDenied: .denied
       default: isHome ? .allowed : nil
       }

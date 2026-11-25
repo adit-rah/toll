@@ -17,7 +17,7 @@ struct BeforeBedTests {
       apply(
         .finishSetup(
           sleep: sleepBlock(place: home ? homePlace.id : nil), home: home ? homePlace : nil,
-          trialStart: date(2026, 11, 16, 15)), &state, date(2026, 11, 16, 15)) == nil)
+          trialStart: date(2026, 11, 16, 15), fit: d76), &state, date(2026, 11, 16, 15)) == nil)
     state.trial.purchased = true
     state.dismissedCards = [TonightCard.headsUp.rawValue]
     run(&state, date(2026, 11, 16, 15))

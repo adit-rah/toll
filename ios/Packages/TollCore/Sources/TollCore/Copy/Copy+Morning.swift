@@ -32,6 +32,31 @@ extension Copy {
     /// Puts the card away for this morning; the strip still opens it.
     public static let ok = "OK"
 
+    /// The folded card's status (founder, 25 Nov): the night's outcome at a glance.
+    public static func statusLocked(_ length: String) -> String { "Locked \(length)" }
+    public static let statusAway = "Away, nothing locked"
+    public static let statusNoScreenTime = "Screen Time was off"
+    /// The folded card for VoiceOver: "Last night, apps locked 8 hours 45 minutes".
+    public static func spokenStatus(_ night: String, landmark: String?) -> String {
+      let line = "\(lastNight), \(night)"
+      return landmark.map { "\(line). \($0)" } ?? line
+    }
+    public static func spokenLocked(minutes: Int) -> String {
+      let hours = minutes / 60
+      let rest = minutes % 60
+      let parts = [
+        hours > 0 ? (hours == 1 ? "1 hour" : "\(hours) hours") : nil,
+        rest > 0 || hours == 0 ? (rest == 1 ? "1 minute" : "\(rest) minutes") : nil,
+      ]
+      return "apps locked " + parts.compactMap { $0 }.joined(separator: " ")
+    }
+    public static let spokenStatusAway = "away from home, nothing locked"
+    /// The folded card's state and what a double-tap does.
+    public static let folded = "Collapsed"
+    public static let unfolded = "Expanded"
+    public static let unfoldHint = "Double-tap to show last night."
+    public static let foldHint = "Double-tap to hide last night."
+
     /// "Apps locked from 10:30 pm to 7:00 am, open from 12:40 am to 12:50 am".
     public static func spokenRan(from: String, to: String, gaps: [(String, String)]) -> String {
       ([locked(from: from, to: to)] + gaps.map { "open from \($0.0) to \($0.1)" })

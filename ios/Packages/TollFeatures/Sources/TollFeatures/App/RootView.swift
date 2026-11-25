@@ -79,7 +79,7 @@ struct LiveHome: View {
       TimelineView(.everyMinute) { context in
         HomeView(
           home: snapshot(context.date), price: model.price,
-          locationFact: locationFact(model.location), readOnly: model.readOnly,
+          locationFact: locationFact(model.location),
           openSettings: { path.append(.settings) },
           // The sheet can be swiped away during a pause, so Tonight's capsule brings it back.
           openDoor: {
@@ -112,10 +112,9 @@ struct LiveHome: View {
           putAwayLastNight: { model.putAwayLastNight($0) },
           // Pushed on Tonight, so Back returns to the strip it came from (D75).
           openBlock: { path.append(.block($0)) },
-          flow: model.dueFlow,
           openFlow: { fitting = true },
-          notNowFlow: { if let id = model.dueFlow { model.flow(id, .notNow) } },
-          flowShown: { if let id = model.dueFlow { model.flow(id, .shown) } }
+          notNowFlow: { if let id = dueFlow(Date()) { model.flow(id, .notNow) } },
+          flowShown: { if let id = dueFlow(Date()) { model.flow(id, .shown) } }
         )
         .sheet(isPresented: $settingHome) { SetHomeFlow(app: model) { settingHome = false } }
         .sheet(isPresented: $fitting) { FitFlowSheet(app: model) { fitting = false } }
@@ -147,7 +146,14 @@ struct LiveHome: View {
       state: model.state, log: model.log, now: now, calendar: .current,
       screenTime: model.screenTime == .approved,
       // Not read yet: no offer, rather than one that vanishes a moment later.
-      notifications: model.notifications ?? .allowed, history: model.history)
+      notifications: model.notifications ?? .allowed, history: model.history,
+      readOnly: model.readOnly, flow: dueFlow(now))
+  }
+
+  /// The one-time flow due now (`Flows.due`), read with the clock so the band follows the day:
+  /// none in the hour before the lock or during the night.
+  private func dueFlow(_ now: Date) -> String? {
+    Flows.due(model.state, now: now, calendar: .current, config: model.config)?.id
   }
 
   private var doorShown: Binding<Bool> {
