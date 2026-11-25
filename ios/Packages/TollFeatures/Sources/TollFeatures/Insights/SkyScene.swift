@@ -24,8 +24,10 @@ struct SkyScene: View {
   var newestStar: CGFloat = 1
   var newestLines: CGFloat = 1
   var newestLinesShown: CGFloat = 1
-  /// A tap near a lit star: its index and where it is, to anchor a popover.
-  var tapped: ((Int, CGRect) -> Void)?
+  /// The lit star whose night is open, set by a tap near it; nil where the sky isn't tappable.
+  var selection: Binding<Int?>?
+  /// What a star's popover shows.
+  var night: ((Int) -> AnyView)?
 
   var body: some View {
     GeometryReader { proxy in
@@ -46,19 +48,43 @@ struct SkyScene: View {
             .frame(width: size.width, height: horizon)
             .offset(y: size.height - horizon)
         }
+        if let selection, let night {
+          marker(selection, night: night, layout: layout)
+        }
       }
       .contentShape(Rectangle())
-      .allowsHitTesting(tapped != nil)
+      .allowsHitTesting(selection != nil)
       .onTapGesture(coordinateSpace: .local) { location in
-        guard let tapped,
-          let index = layout.nearest(drawing.stars, x: location.x, y: location.y)
-        else { return }
-        let star = drawing.stars[index]
-        tapped(
-          index, CGRect(x: layout.x(star.x) - 6, y: layout.y(star.y) - 6, width: 12, height: 12))
+        guard let index = layout.nearest(drawing.stars, x: location.x, y: location.y) else {
+          return
+        }
+        selection?.wrappedValue = index
       }
     }
     .clipped()
+  }
+
+  /// A point on the chosen star, placed by the same layout that drew it, so the popover's arrow
+  /// lands on the star. Offset, as Tonight's strip places its targets.
+  private func marker(
+    _ selection: Binding<Int?>, night: @escaping (Int) -> AnyView, layout: SkyLayout
+  ) -> some View {
+    let chosen = selection.wrappedValue.flatMap {
+      drawing.stars.indices.contains($0) ? drawing.stars[$0] : nil
+    }
+    return Color.clear
+      .frame(width: 12, height: 12)
+      .popover(
+        isPresented: Binding(
+          get: { selection.wrappedValue != nil }, set: { if !$0 { selection.wrappedValue = nil } })
+      ) {
+        if let index = selection.wrappedValue { night(index) }
+      }
+      .offset(
+        x: (chosen.map { layout.x($0.x) } ?? 0) - 6, y: (chosen.map { layout.y($0.y) } ?? 0) - 6
+      )
+      .allowsHitTesting(false)
+      .accessibilityHidden(true)
   }
 
   static func layout(_ drawing: Sky.Drawing, size: CGSize, field: EdgeInsets) -> SkyLayout {

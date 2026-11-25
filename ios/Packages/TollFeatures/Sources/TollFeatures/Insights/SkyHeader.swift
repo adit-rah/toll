@@ -17,9 +17,7 @@ struct SkyHeader: View {
   @State private var newestLines: CGFloat
   @State private var newestLinesShown: CGFloat
   @State private var selected: Int?
-  @State private var anchor = CGRect(x: 0, y: 0, width: 12, height: 12)
   @State private var titleHeight: CGFloat = 43
-  @State private var width: CGFloat = 393
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -58,31 +56,22 @@ struct SkyHeader: View {
           drawing: sky.drawing, light: sky.light, moon: sky.moon,
           moonInset: CGSize(width: 42, height: status + 4 + titleHeight / 2),
           field: field, horizon: Self.horizon, newestStar: newestStar, newestLines: newestLines,
-          newestLinesShown: newestLinesShown
-        ) { index, rect in
-          anchor = rect
-          selected = index
-        }
+          newestLinesShown: newestLinesShown, selection: $selected,
+          night: { index in
+            AnyView(
+              sleep.starNight(index).map { night in
+                StarNightView(night: night)
+                  .presentationCompactAdaptation(
+                    typeSize.isAccessibilitySize ? .sheet : .popover
+                  )
+                  .presentationDetents([.medium])
+                  .presentationBackground(TollColor.surface)
+              })
+          }
+        )
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(sky.spoken)
         .accessibilityAddTraits(.isImage)
-        // A point at the star, so the popover's arrow finds it.
-        Color.clear
-          .frame(width: anchor.width, height: anchor.height)
-          .popover(
-            isPresented: Binding(get: { selected != nil }, set: { if !$0 { selected = nil } })
-          ) {
-            if let selected, let night = sleep.starNight(selected) {
-              StarNightView(night: night)
-                .presentationCompactAdaptation(typeSize.isAccessibilitySize ? .sheet : .popover)
-                .presentationDetents([.medium])
-                .presentationBackground(TollColor.surface)
-            }
-          }
-          // Offset, as Tonight's strip places its targets: the popover follows it to the star.
-          .offset(x: anchor.minX, y: anchor.minY)
-          .allowsHitTesting(false)
-          .accessibilityHidden(true)
         ScreenTitle(Copy.Tabs.sleep, kind: .pushed)
           .environment(\.colorScheme, .dark)
           .dynamicTypeSize(...DynamicTypeSize.accessibility1)
@@ -96,11 +85,6 @@ struct SkyHeader: View {
           .padding(.trailing, 48)
       }
       .frame(height: height)
-      .onGeometryChange(for: CGFloat.self) {
-        $0.size.width
-      } action: {
-        width = $0
-      }
       line.tollGutter().padding(.top, 2)
     }
     .onAppear(perform: arrive)
@@ -108,11 +92,6 @@ struct SkyHeader: View {
       guard let initialStar else { return }
       // After the first frame: a popover asked for before the screen is up doesn't show.
       try? await Task.sleep(for: .milliseconds(900))
-      let layout = SkyScene.layout(
-        sky.drawing, size: CGSize(width: width, height: height), field: field)
-      guard sky.drawing.stars.indices.contains(initialStar) else { return }
-      let star = sky.drawing.stars[initialStar]
-      anchor = CGRect(x: layout.x(star.x) - 6, y: layout.y(star.y) - 6, width: 12, height: 12)
       selected = initialStar
     }
   }
@@ -171,7 +150,7 @@ private struct StarNightView: View {
     VStack(alignment: .leading, spacing: 6) {
       HStack(spacing: 8) {
         Image(symbol: .sleep).unredacted()
-          .font(.system(size: 15, weight: .medium))
+          .font(.subheadline.weight(.medium))
           .foregroundStyle(TollColor.accent)
           .accessibilityHidden(true)
         Text(night.day).tollType(.rowTitle, TollColor.label)
@@ -179,7 +158,7 @@ private struct StarNightView: View {
       if let locked = night.locked {
         HStack(spacing: 8) {
           Image(symbol: .blocked).unredacted()
-            .font(.system(size: 13, weight: .medium))
+            .font(.footnote.weight(.medium))
             .foregroundStyle(TollColor.label2)
             .accessibilityHidden(true)
           Text(locked).tollType(.detail, TollColor.label2)
