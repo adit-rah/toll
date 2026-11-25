@@ -28,7 +28,13 @@ struct HomeView: View {
   var openBlock: (BlockID) -> Void = { _ in }
   /// Demo renders open the strip on this segment's snippet: a block, or "lastNight" (docs/renders.md).
   var snippet: String?
+  /// Demo renders open last night's card in the band.
+  var lastNightStartsOpen = false
+  /// Last night's card in the band, open or folded to its row. Never kept: folded each time Tonight
+  /// appears.
+  @State private var lastNightOpen = false
   @Environment(\.dynamicTypeSize) private var typeSize
+  @Environment(\.scenePhase) private var scenePhase
 
   private static let bottomMargin: CGFloat = 28
 
@@ -56,6 +62,11 @@ struct HomeView: View {
     .animation(Motion.stateChange, value: home.hero)
     // Design §2.5: a card fades in place; nothing else moves.
     .animation(Motion.stateChange, value: note)
+    .onAppear { lastNightOpen = lastNightStartsOpen }
+    .onDisappear { lastNightOpen = false }
+    .onChange(of: scenePhase) { _, phase in
+      if phase == .background { lastNightOpen = false }
+    }
   }
 
   /// Below accessibility sizes. The sort priorities read the bar, the state, the card, the strip.
@@ -72,6 +83,7 @@ struct HomeView: View {
         noteView(note)
           .accessibilityElement(children: .contain)
           .layoutValue(key: HomeRoleKey.self, value: .note)
+          .layoutValue(key: HomeNoteKeepsToStripKey.self, value: note == .lastNight)
           .accessibilitySortPriority(1)
           .transition(.opacity)
           .id(note)
@@ -159,7 +171,10 @@ struct HomeView: View {
       }
     case .lastNight:
       if let night = home.lastNight {
-        LastNightCard(night: night) { putAwayLastNight(night.night) }
+        LastNightBand(night: night, open: $lastNightOpen) {
+          lastNightOpen = false
+          putAwayLastNight(night.night)
+        }
       }
     case .card(let card):
       TonightCardView(

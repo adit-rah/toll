@@ -5,43 +5,29 @@ import TollUI
 /// Last night, to review (D65, #103): what the card is about, a sentence that says what the bar
 /// shows, the night as a moon → sun bar filled where apps were locked with a break where they were
 /// open, "You chose sleep over a locked app 3 times" when there were any, and the last seven nights
-/// as dots under their title. Each morning it floats in Tonight's band with "OK"; the strip's start
-/// opens the same content all day, without the card around it.
+/// as dots under their title. The strip's start opens it all day; each morning Tonight's band holds
+/// it folded to one row (`LastNightBand`), with the same details when it opens.
 struct LastNightCard: View {
   let night: Morning
-  /// In the band: "OK" puts it away for this morning. Nil in the strip's snippet.
-  var putAway: (() -> Void)?
 
   var body: some View {
-    if putAway != nil {
-      content
-        .padding(.vertical, TollSpacing.noteCardVertical)
-        .padding(.horizontal, TollSpacing.cardPadding)
-        .background(
-          TollColor.surface, in: RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
-        )
-    } else {
-      content
-    }
-  }
-
-  private var content: some View {
     VStack(alignment: .leading, spacing: 0) {
-      HStack(alignment: .firstTextBaseline) {
-        StateLine(night.eyebrow, symbol: .sleep)
-          .accessibilityElement(children: .combine)
-          .accessibilityAddTraits(.isHeader)
-        Spacer(minLength: 8)
-        if let putAway {
-          Button(Copy.Morning.ok, action: putAway)
-            .tollType(.action, TollColor.label2)
-            .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
-            .contentShape(Rectangle())
-            // A full-size target that doesn't make the row taller.
-            .padding(.vertical, -14)
-            .padding(.trailing, -8)
-        }
-      }
+      StateLine(night.eyebrow, symbol: .sleep)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
+      LastNightDetails(night: night).padding(.top, 8)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+  }
+}
+
+/// Everything under "Last night": the sentence, the bar and its breaks, the taps, a landmark, and
+/// the seven nights.
+struct LastNightDetails: View {
+  let night: Morning
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 0) {
       VStack(alignment: .leading, spacing: 0) {
         Text(night.headline)
           .tollType(.rowTitle, TollColor.label)
@@ -54,7 +40,6 @@ struct LastNightCard: View {
             .padding(.top, 8)
         }
       }
-      .padding(.top, 8)
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(night.spoken)
       if let putDown = night.putDown {

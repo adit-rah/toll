@@ -32,6 +32,9 @@
     case homeScreenTimeOff = "home-screen-time-off"
     case homeNoBlocks = "home-no-blocks"
     case homeMorning = "home-morning"
+    /// Last night's card open in the band (founder, 25 Nov), on an ordinary and a landmark morning.
+    case homeMorningOpen = "home-morning-open"
+    case homeMorningLandmarkOpen = "home-morning-landmark-open"
     case homeMorningGap = "home-morning-gap"
     case homeMorningAway = "home-morning-away"
     /// The morning after the first night with home not set: the morning card and Tonight's card
@@ -277,7 +280,8 @@
       ) {
         HomeView(
           home: home, price: Copy.fallbackPrice, openSettings: {}, openDoor: {},
-          openPurchase: { buying = true }, fixLocation: {}, snippet: scenario.snippet
+          openPurchase: { buying = true }, fixLocation: {}, snippet: scenario.snippet,
+          lastNightStartsOpen: [.homeMorningOpen, .homeMorningLandmarkOpen].contains(scenario)
         )
         .sheet(isPresented: $buying) { PurchaseSheet(model: app, home: home) }
       }

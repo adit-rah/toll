@@ -20,6 +20,12 @@ public enum Motion {
   public static var firstAppearance: Animation { .easeOut(duration: Duration.firstAppearance) }
   public static var progressFill: Animation { .easeOut(duration: Duration.progressFill) }
 
+  /// Last night's card opening (design §2.5): it grows over `movement`, and its content fades in
+  /// once the card has begun to grow, so the words never sit outside it.
+  public static var unfoldContent: Animation {
+    .easeOut(duration: Duration.stateChange).delay(Duration.movement - Duration.stateChange)
+  }
+
   /// The one spring: no overshoot past 2%.
   public static var spring: Animation { .spring(response: 0.35, dampingFraction: 0.85) }
 

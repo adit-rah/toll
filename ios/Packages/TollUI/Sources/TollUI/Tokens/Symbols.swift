@@ -99,6 +99,9 @@ public struct TollSymbol: Hashable, Sendable {
   public static let add = TollSymbol("plus")
   public static let delete = TollSymbol("trash")
   public static let forward = TollSymbol("chevron.right")
+  /// Last night's folded card on Tonight: it opens, and folds back to its row.
+  public static let unfold = TollSymbol("chevron.down")
+  public static let fold = TollSymbol("chevron.up")
   /// Sharing Your sky's picture, on a landmark morning only (D79).
   public static let share = TollSymbol("square.and.arrow.up")
 }
