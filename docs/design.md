@@ -92,7 +92,7 @@ Your sky (D79) is the same night in both appearances; only the land under it fol
 - **The newest star** is `newest` with a stronger halo until the next night starts.
 - **One renderer** (`SkyScene`) draws Your sleep, the landmark tile and the shared 1080 × 1920 poster (the evening light over dark land, the moon, named figures, "30 nights locked", the date small and a small wordmark).
 
-All text ≥ 4.5:1 in both; Increase Contrast takes text and the accent further. The sky keeps its own values, brighter than the page's softened text, so its names stay 4.5:1 on every light (D89). Appearance: Dark (default) · Light · Match iPhone, in Settings.
+All text ≥ 4.5:1 in both; Increase Contrast takes text and the accent further. The sky keeps its own values, brighter than the page's softened text, so its names stay 4.5:1 on every light (D89). Appearance: Dark (default) · Light · Match iPhone, in Settings. With Light or Match iPhone, a switch under the picker, "Dark in the evening" (on by default), takes the whole app dark from the hour Your sky's evening light starts until its morning (`TollConfig.sky`, 4 pm to 5 am), whatever the phone is set to; an open app changes at those hours with no motion of ours (`Appearance` in TollCore).
 
 ### 2.4 Shape and depth
 

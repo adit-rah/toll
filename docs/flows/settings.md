@@ -4,7 +4,7 @@
 
 **Implements:** D36 (dark first, switchable), #45 and D48 (Screen Time off is a button here), D68 and D72 (the heads-up switch, and iOS Settings after a denial), D71 and D84 (Only when I'm home, the one home picker; held changes say when they apply), D83 and D85 (Before bed holds the gap and the helpers), D84 ("Last night · Mon 10:30 pm – 7:00 am", "Purchase restored.", the version line), D62 (the night records can be shared from the activity log).
 
-**Code:** `TollFeatures/Settings/SettingsView.swift`, `SettingsParts.swift` (`HowItWorks`, `AppearancePicker`), `HeadsUpRow.swift`, `BeforeBedRow.swift`, `TransitionLogView.swift`; `App/Appearance.swift`; `RootView.HomeDestination`.
+**Code:** `TollFeatures/Settings/SettingsView.swift`, `SettingsParts.swift` (`HowItWorks`, `AppearancePicker`), `HeadsUpRow.swift`, `BeforeBedRow.swift`, `TransitionLogView.swift`; `App/Appearance.swift`, `TollCore/App/Appearance.swift` (the evening rule); `RootView.HomeDestination`.
 
 ```mermaid
 flowchart TD
@@ -31,6 +31,9 @@ flowchart TD
   settings --> lastNight(["Last night · Mon 10:30 pm – 7:00 am, or Not yet (reports only)"])
 
   settings -->|"Appearance: Dark, Light, Match phone"| appearance[("UserDefaults: appearance (this phone)")]
+  settings --> notDark{"Light or Match phone?"}
+  notDark -->|"yes"| evening["Dark in the evening switch: From 4 pm until 5 am<br/>render: settings-light"]
+  evening --> darkInEvening[("UserDefaults: darkInEvening (this phone)")]
   settings --> bought{"Bought?"}
   bought -->|"no"| freeNights["Free nights · Night 5 of 14, $9.99 once<br/>render: settings"]
   freeNights -->|"$9.99 once"| purchase["The purchase sheet, see purchase.md<br/>render: purchase"]

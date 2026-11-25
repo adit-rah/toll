@@ -46,6 +46,11 @@ extension Copy {
     public static let dark = "Dark"
     public static let light = "Light"
     public static let matchPhone = "Match iPhone"
+    /// Light and Match iPhone give way to dark from the sky's evening hour until its morning.
+    public static let darkInEvening = "Dark in the evening"
+    public static func darkInEveningDetail(from: String, until: String) -> String {
+      "From \(from) until \(until)"
+    }
 
     public static let help = "Help"
     public static let howItWorks = "How it works"

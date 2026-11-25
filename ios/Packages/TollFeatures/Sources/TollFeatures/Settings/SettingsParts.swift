@@ -79,7 +79,7 @@ struct AppearancePicker: View {
 
   var body: some View {
     HStack(spacing: 0) {
-      ForEach(Appearance.allCases) { option in
+      ForEach(Appearance.allCases, id: \.self) { option in
         let chosen = option == selection
         Button {
           selection = option
@@ -107,6 +107,26 @@ struct AppearancePicker: View {
     .fixedSize(horizontal: true, vertical: false)
     .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     .tollHaptic(.selection, trigger: selection)
+  }
+}
+
+/// "Dark in the evening", under the picker when Light or Match iPhone is chosen: dark from the sky's
+/// evening hour until its morning (`Appearance.isEvening`).
+struct EveningRow: View {
+  let config: TollConfig
+  @AppStorage(Appearance.eveningKey) private var on = Appearance.eveningStandard
+
+  var body: some View {
+    Toggle(isOn: $on) {
+      RowText(
+        title: Copy.Settings.darkInEvening,
+        detail: Copy.Settings.darkInEveningDetail(
+          from: Copy.time(ClockTime(hour: config.sky.eveningFromHour), short: true),
+          until: Copy.time(ClockTime(hour: config.sky.morningFromHour), short: true)))
+    }
+    .tint(TollColor.accent)
+    .padding(.vertical, 8)
+    .frame(minHeight: 54)
   }
 }
 

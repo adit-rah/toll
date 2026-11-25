@@ -8,25 +8,43 @@ public struct RootView: View {
   let model: AppModel
   @Environment(\.scenePhase) private var scenePhase
   @AppStorage(Appearance.key) private var appearance = Appearance.standard
+  @AppStorage(Appearance.eveningKey) private var darkInEvening = Appearance.eveningStandard
+  /// When the look was last worked out: on opening, and at each evening's start and end.
+  @State private var now = Date()
 
   public init(model: AppModel) {
     self.model = model
+    #if DEBUG
+      DemoScenario.current?.registerAppearance()
+    #endif
   }
 
   public var body: some View {
     content
       .preferredColorScheme(scheme)
       .onChange(of: scenePhase, initial: true) { _, phase in
-        if phase == .active { model.foreground() }
+        if phase == .active {
+          now = Date()
+          model.foreground()
+        }
+      }
+      .task(id: now) {
+        guard
+          let next = Appearance.nextChange(after: now, calendar: .current, config: model.config)
+        else { return }
+        try? await Task.sleep(for: .seconds(max(1, next.timeIntervalSinceNow)))
+        if !Task.isCancelled { now = Date() }
       }
   }
 
   /// Demo launches follow the simulator, so renders show both appearances (docs/renders.md).
   private var scheme: ColorScheme? {
     #if DEBUG
-      if DemoScenario.current != nil { return nil }
+      if let demo = DemoScenario.current { return demo.scheme?.colorScheme }
     #endif
-    return appearance.scheme
+    return appearance.scheme(
+      at: now, darkInEvening: darkInEvening, calendar: .current, config: model.config)?
+      .colorScheme
   }
 
   @ViewBuilder private var content: some View {
