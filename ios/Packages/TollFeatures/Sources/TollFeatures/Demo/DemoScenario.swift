@@ -34,8 +34,10 @@
     case homeMorning = "home-morning"
     case homeMorningGap = "home-morning-gap"
     case homeMorningAway = "home-morning-away"
-    /// The morning after the first night with home not set: the morning card and Tonight's card
-    /// together, so a card's place beside the morning card can be seen.
+    /// The morning after a night Screen Time was off for Dusk, so nothing blocked (#60).
+    case homeMorningScreenTime = "home-morning-screen-time"
+    /// The morning after the first night with home not set: the morning hero and Tonight's card
+    /// together, so a card's place beside the morning hero can be seen.
     case homeMorningCard = "home-morning-card"
     /// A weekday at 11 am with Study on: Tonight's one quiet line about it (D68, #89), and Study and
     /// Gym on the day's strip (D75).
@@ -49,7 +51,7 @@
     case sleepMonday = "sleep-monday"
     case sleepBest = "sleep-best"
     /// Your sky (D79) after 5, 7, 30 and 100 nights, the morning after the last; and Tonight's
-    /// morning card on the 30th, a landmark.
+    /// morning hero on the 30th, a landmark.
     case sleepSky5 = "sleep-sky-5"
     case sleepSky7 = "sleep-sky-7"
     case sleepSky30 = "sleep-sky-30"

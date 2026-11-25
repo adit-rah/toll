@@ -67,7 +67,7 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var gapCard: GapCard?
   /// The whole day as a strip, every block on it (D75).
   public var timeline: DayTimeline?
-  /// The last seven nights, as the morning card's dots draw them (#103).
+  /// The last seven nights, as the morning hero's dots draw them (#103).
   public var bars: [Bar]
   /// From the end of the night until noon, last night in place of the "starts at" hero (#103).
   public var morning: Morning?
@@ -129,7 +129,7 @@ public struct HomeSnapshot: Equatable, Sendable {
     bars = week.bars
     if case .tonight(let start, _) = hero {
       morning = Morning(state: state, log: log, now: now, calendar: calendar, config: config)
-      // The morning card is last night, so the strip under it names tonight (the audit).
+      // The morning hero is last night, so the strip under it names tonight (the audit).
       if morning != nil { day.label = Copy.Strip.tonightAt(Copy.time(start, in: calendar)) }
       if morning?.outcome == .ran {
         // Only a night that ran can be a landmark; the count reads the night log too (D79).

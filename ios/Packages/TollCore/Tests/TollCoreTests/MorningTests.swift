@@ -3,7 +3,7 @@ import Testing
 
 @testable import TollCore
 
-/// The morning card (D65, #103): exact facts about last night, shown from the end of the night until
+/// The morning hero (D65, #103): exact facts about last night, shown from the end of the night until
 /// noon, and nothing when there's nothing new.
 struct MorningTests {
   let sleep = BlockID("sleep")

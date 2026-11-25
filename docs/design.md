@@ -35,7 +35,7 @@ SF Pro at the boards' sizes, weights and line heights, with no extra letter spac
 | `display` | 40/47 | semibold | Welcome's title |
 | `setupTitle` · `screenTitle` | 32/38 · 30/35 | semibold | Setup titles · pushed screens' titles |
 | `sheetTitle` | 24/28 | semibold | Sheet titles |
-| `hero` · `heroSuffix` | 64/70 · 24 | semibold · medium | Home's big time and its am/pm; caps at AX2 |
+| `hero` · `heroSuffix` | 64/70 · 24 | semibold · medium | Home's big time and its am/pm, and the morning's "8 h 45 m" with its units; caps at AX2 |
 | `stat` | 22/28 | semibold | This week's numbers |
 | `lead` | 18/26 | regular | Welcome's line |
 | `button` · `bar` | 17 | semibold · regular | Buttons · the back button |
@@ -107,7 +107,7 @@ Motion explains where things came from and where they went. It never celebrates,
 | Countdown | `contentTransition(.numericText(countsDown: true))` each second; the colon never blinks. |
 | Regret line expires | Fades out 200 ms; nothing else moves. |
 | A card or note arrives or leaves (Tonight, the block editor) | Fades 200 ms in place; nothing else moves. |
-| Your sky's newest star (D79), the first time Your sleep shows it | The star brightens from nothing over 450 ms (`firstAppearance`); then each line it adds draws from the star it joins over 450 ms, a trimmed path. Once. Reduce Motion: the star and its lines crossfade in 200 ms. Nothing twinkles, pulses or loops; a landmark line arrives with the morning card. |
+| Your sky's newest star (D79), the first time Your sleep shows it | The star brightens from nothing over 450 ms (`firstAppearance`); then each line it adds draws from the star it joins over 450 ms, a trimmed path. Once. Reduce Motion: the star and its lines crossfade in 200 ms. Nothing twinkles, pulses or loops; a landmark line arrives with the morning hero. |
 | Your sky: a star's night opens or closes | System popover (a system sheet at accessibility sizes), as Tonight's strip. |
 | Your sleep's bar as the sky scrolls under it | None: it takes the page's colour at once. |
 | Settings | System list and pushes. |

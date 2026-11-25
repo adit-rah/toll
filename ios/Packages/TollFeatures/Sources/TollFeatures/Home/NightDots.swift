@@ -9,6 +9,9 @@ import TollUI
 /// after the trial are two weeks, drawn a week to a row (D78).
 struct NightDots: View {
   let bars: [HomeSnapshot.Bar]
+  /// Tonight's morning: a centred row in the hero, as the pauses' dots are, rather than a card's
+  /// full width.
+  var compact = false
 
   var body: some View {
     VStack(spacing: 14) {
@@ -16,12 +19,13 @@ struct NightDots: View {
         HStack(spacing: 0) {
           ForEach(first..<min(first + 7, bars.count), id: \.self) { index in
             let bar = bars[index]
-            VStack(spacing: 6) {
-              NightDot(dot: bar.dot)
+            VStack(spacing: compact ? 4 : 6) {
+              NightDot(dot: bar.dot, side: compact ? 18 : 24)
               Text(bar.day)
                 .tollType(.micro, bar.isLatest ? TollColor.label : TollColor.label2)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: compact ? nil : .infinity)
+            .frame(width: compact ? 34 : nil)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(NightSpoken.label(bar))
           }
@@ -34,30 +38,30 @@ struct NightDots: View {
 
 private struct NightDot: View {
   let dot: HomeSnapshot.Bar.Dot
-  private static let side: CGFloat = 24
+  let side: CGFloat
 
   var body: some View {
     switch dot {
     case .ran:
-      Circle().fill(TollColor.accent).frame(width: Self.side, height: Self.side)
+      Circle().fill(TollColor.accent).frame(width: side, height: side)
     case .hollow(let mark):
       Circle()
         .strokeBorder(TollColor.label3, lineWidth: 1.5)
         .overlay {
           if let mark {
             Image(symbol: symbol(mark)).unredacted()
-              .font(.system(size: 11, weight: .semibold))
+              .font(.system(size: side < 24 ? 9 : 11, weight: .semibold))
               .foregroundStyle(TollColor.label2)
           }
         }
-        .frame(width: Self.side, height: Self.side)
+        .frame(width: side, height: side)
     case .noNight:
       Circle().fill(TollColor.bar).frame(width: 5, height: 5).frame(
-        width: Self.side, height: Self.side)
+        width: side, height: side)
     case .ahead:
       Circle()
         .strokeBorder(TollColor.bar, style: StrokeStyle(lineWidth: 1.5, dash: [3, 3]))
-        .frame(width: Self.side, height: Self.side)
+        .frame(width: side, height: side)
     }
   }
 

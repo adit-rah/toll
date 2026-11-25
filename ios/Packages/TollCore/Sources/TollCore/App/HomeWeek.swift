@@ -1,7 +1,7 @@
 import Foundation
 
 extension HomeSnapshot {
-  /// One night of a week: a dot on the morning card and on Your sleep (#103), a bar in the free week.
+  /// One night of a week: a dot on the morning hero and on Your sleep (#103), a bar in the free week.
   public struct Bar: Equatable, Sendable {
     public enum Night: Equatable, Sendable {
       /// Sleep ran; "Never mind" was tapped this many times (0 is drawn as 0).

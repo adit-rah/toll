@@ -4,7 +4,7 @@
 
   /// The demo's "now", pinned so every render reads as a night whatever the machine's clock says
   /// (#73): 11:40 pm inside Sleep's 10:30 pm – 7:00 am for states during the night, 7:55 pm before it,
-  /// 8:10 am for the morning card (#103), 11 am on a weekday with Study on (#89), on a Monday or a
+  /// 8:10 am for the morning hero (#103), 11 am on a weekday with Study on (#89), on a Monday or a
   /// Sunday where the week matters.
   enum DemoClock {
     static func now(for scenario: DemoScenario, today: Date = Date()) -> Date {
@@ -47,10 +47,13 @@
   }
 
   extension DemoScenario {
-    /// Scenarios set the morning after a night: Tonight's morning card and Your sleep's weeks.
+    /// Scenarios set the morning after a night: Tonight's morning hero and Your sleep's weeks.
     var isMorning: Bool {
-      [.homeMorning, .homeMorningGap, .homeMorningAway, .homeMorningCard, .sleepMonday, .sleepBest]
-        .contains(self)
+      [
+        .homeMorning, .homeMorningGap, .homeMorningAway, .homeMorningScreenTime, .homeMorningCard,
+        .sleepMonday, .sleepBest,
+      ]
+      .contains(self)
         || (skyNights != nil && ![.sleepSkyEvening, .sleepSkyNight].contains(self))
     }
 
@@ -238,12 +241,15 @@
               at: morningAfter, cause: .windowEnd, blockOn: false, changed: true, home: true,
               inWindow: false, entitled: true))
         }
-        // A later week has one night away: named in the chart, and not counted.
-        if (later && back == 4) || (scenario == .homeMorningAway && back == 1) {
+        // A later week has one night away: named in the chart, and not counted. Two mornings follow
+        // a night that didn't block: away, or on with Screen Time off (#60).
+        let noScreenTime = scenario == .homeMorningScreenTime && back == 1
+        if (later && back == 4) || (scenario == .homeMorningAway && back == 1) || noScreenTime {
           log.append(
             Transition(
-              at: evening, cause: .windowStart, blockOn: false, changed: false, home: false,
-              inWindow: true, entitled: true))
+              at: evening, cause: .windowStart, blockOn: noScreenTime, changed: false,
+              home: noScreenTime, inWindow: true, entitled: true,
+              screenTime: noScreenTime ? false : nil))
           continue
         }
         log.append(

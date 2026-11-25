@@ -220,6 +220,32 @@ private struct HeroTimeBody: View {
   }
 }
 
+/// Home's big length, "8 h 45 m" set as `HeroTime` sets "10:30 pm": the numbers at the hero's size,
+/// the units small beside them, capped at AX2 the same way.
+public struct HeroLength: View {
+  let minutes: Int
+
+  public init(minutes: Int) {
+    self.minutes = minutes
+  }
+
+  public var body: some View {
+    HStack(alignment: .firstTextBaseline, spacing: 6) {
+      ForEach(Array(Copy.lengthParts(minutes: minutes).enumerated()), id: \.offset) { index, part in
+        Text(part.number)
+          .tollType(.hero, TollColor.label)
+          .padding(.leading, index == 0 ? 0 : 8)
+        Text(part.unit).tollType(.heroSuffix, TollColor.label2)
+      }
+    }
+    .lineLimit(1)
+    .minimumScaleFactor(0.6)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(Copy.lengthSpoken(minutes: minutes))
+    .dynamicTypeSize(...DynamicTypeSize.accessibility2)
+  }
+}
+
 /// The phone's own time ("10:30 pm" or "22:30", `Copy.time`), split into the numbers and the day
 /// period so the period can be set small. 24-hour phones get no suffix.
 struct HeroTimeParts {

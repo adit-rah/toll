@@ -172,7 +172,7 @@ struct BeforeBedTests {
     #expect(raw["helper"] is NSNull)
   }
 
-  /// Never counted: the week, the morning card and Your sleep read the same with or without it.
+  /// Never counted: the week, the morning hero and Your sleep read the same with or without it.
   @Test func nothingCountsAHelper() {
     let state = installed()
     let plain = [

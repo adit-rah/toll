@@ -99,9 +99,12 @@ struct HomeView: View {
   /// The state, and what belongs with it: the purchase card once Off, the line about another block.
   private var heroBlock: some View {
     VStack(spacing: 0) {
-      // From the end of the night until noon, last night takes the hero's place (#103).
+      // From the end of the night until noon, last night is the hero, in the same form (#103).
       if let morning = home.morning {
-        MorningCard(morning: morning, nights: home.bars)
+        MorningHero(morning: morning, nights: home.bars)
+        if let landmark = morning.landmark {
+          LandmarkLine(landmark: landmark).padding(.top, 14)
+        }
       } else {
         HomeHero(
           hero: home.hero, eyebrow: home.eyebrow, beforeBed: home.beforeBed,
