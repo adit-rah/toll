@@ -425,3 +425,11 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **VoiceOver:** the sky stays one element. Its hint is "Double-tap to show the names." ("Double-tap to fade the names." once they're shown); double-tap does what a tap on the open sky does.
 - **Names never sit on the land.**
 - **The rule** is `SkyFocus` in TollCore, tested.
+
+**D90. Every flow is charted in `docs/flows/`** (2026-11-25, founder, in chat).
+- **One Mermaid chart per flow, as built.** Each screen names its render scenario, each state check appears in the code's order, and iOS's own UI is drawn apart, so a UX audit can pair a chart with its renders.
+- **`docs/flows/data.md`** lists every store Dusk keeps on the phone, with its format, version, writers and readers, and what a format change does to it.
+- **A PR that changes a flow updates its chart.** The README's table says which source folders each chart covers. There is no CI check.
+- **Found while charting:**
+  - An unreadable state file resets the person to Welcome, and the next wake overwrites it (`data.md`, risk 1). This and the other storage risks are fixed in #140, before any new stored field or enum case.
+  - Flow doubts are in #141.
