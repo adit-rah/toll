@@ -59,8 +59,8 @@ public struct GapCard: Equatable, Sendable {
   init?(_ card: TonightCard, state: DuskState, now: Date, calendar: Calendar, config: TollConfig) {
     switch card {
     case .gapWeek:
-      guard let change = state.gap.change else { return nil }
-      title = Copy.Gap.weekCard(change.to)
+      guard let side = GapRules.changed(state), let change = state[side].change else { return nil }
+      title = side == .before ? Copy.Gap.weekCard(change.to) : Copy.Gap.afterWeekCard(change.to)
       detail = change.grew ? Copy.Gap.upFrom(change.from) : nil
       action = change.grew ? Copy.Gap.keep(change.from) : nil
       dismiss = Copy.Gap.okay

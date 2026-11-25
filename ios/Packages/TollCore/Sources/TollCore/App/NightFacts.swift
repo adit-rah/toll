@@ -7,13 +7,18 @@ import Foundation
 public struct NightFacts: Equatable, Sendable {
   /// The night's key: the day it starts, noon to noon (as This week keys it).
   public var night: Date
-  /// When the lock was planned to start: the gap before bed (D76).
+  /// When the lock was planned to start: the gap before sleep (D76).
   public var plannedStart: Date
+  /// When the lock was planned to end: the buffer after waking (#144).
   public var plannedEnd: Date
-  /// Bed, the night's start as set; the record's `planned_bedtime` (D76).
+  /// Bed, when the person planned to fall asleep; the record's `planned_bedtime` (D76, #144).
   public var bed: Date
+  /// Wake, the end of planned sleep; the record's `planned_wake` (#144).
+  public var wake: Date
   /// Minutes the lock started before bed that night.
   public var gap: Int
+  /// Minutes the lock stayed on after wake that night (#144).
+  public var after: Int = 0
   public var blockStart: Date?
   public var blockEnd: Date?
   /// The latest arrival home before the night ended.
@@ -42,10 +47,11 @@ public struct NightFacts: Equatable, Sendable {
   public var ran: Bool { blockStart != nil }
 
   /// Every Sleep night from setup that has ended by `now`, oldest first. `sleep` is the block as
-  /// stored, bed to wake; each night's lock starts the gap it had then before bed (D76).
+  /// stored, bed to wake; each night's lock starts the gap it had then before bed (D76) and ends the
+  /// buffer it had then after wake (#144).
   public static func ended(
-    log: [Transition], sleep: Block, gap: Gap = Gap(), since setup: Date?, now: Date,
-    calendar: Calendar, regret: TimeInterval = 120
+    log: [Transition], sleep: Block, gap: Gap = Gap(), after: Gap = Gap(), since setup: Date?,
+    now: Date, calendar: Calendar, regret: TimeInterval = 120
   ) -> [NightFacts] {
     func key(_ date: Date) -> Date { calendar.startOfDay(for: date.addingTimeInterval(-12 * 3600)) }
     func isSleep(_ line: Transition) -> Bool {
@@ -65,15 +71,17 @@ public struct NightFacts: Equatable, Sendable {
         let start = sleep.schedule.nextStart(
           after: noon.addingTimeInterval(-1), calendar: calendar),
         start < noon.addingTimeInterval(24 * 3600),
-        let occurrence = sleep.schedule.occurrence(containing: start, calendar: calendar),
-        occurrence.end <= now, occurrence.end > setup
+        let occurrence = sleep.schedule.occurrence(containing: start, calendar: calendar)
       else { continue }
-      let group = byNight[day] ?? []
       let minutes = gap.minutes(forNight: day)
+      let trail = after.minutes(forNight: day)
+      let end = occurrence.end.addingTimeInterval(TimeInterval(trail * 60))
+      guard end <= now, end > setup else { continue }
+      let group = byNight[day] ?? []
       var facts = NightFacts(
         night: day, plannedStart: occurrence.start.addingTimeInterval(-TimeInterval(minutes * 60)),
-        plannedEnd: occurrence.end, bed: occurrence.start, gap: minutes, away: false,
-        paused: false, screenTimeOff: false, stops: 0, doorAsks: 0, unlocksUsed: 0,
+        plannedEnd: end, bed: occurrence.start, wake: occurrence.end, gap: minutes, after: trail,
+        away: false, paused: false, screenTimeOff: false, stops: 0, doorAsks: 0, unlocksUsed: 0,
         unlocksReturned: 0,
         weekend: [6, 7].contains(calendar.component(.weekday, from: occurrence.start)))
       var lastSleeping: Date?
@@ -98,7 +106,7 @@ public struct NightFacts: Equatable, Sendable {
           facts.blockEnd = line.at
         }
         if let helper = line.cause.helper { facts.helper = helper }
-        if line.cause == .arrived, line.home == true, line.at < occurrence.end {
+        if line.cause == .arrived, line.home == true, line.at < end {
           facts.homeArrival = line.at
         }
         if !line.entitled { facts.paused = true }
@@ -123,7 +131,7 @@ public struct NightFacts: Equatable, Sendable {
         wasOpen = isOpen
       }
       // A missed end-of-night wake still stops counting at the night's end.
-      if let since = lockedSince { facts.locked += max(0, occurrence.end.timeIntervalSince(since)) }
+      if let since = lockedSince { facts.locked += max(0, end.timeIntervalSince(since)) }
       if facts.ran { facts.away = false }
       nights.append(facts)
     }

@@ -5,13 +5,14 @@ import Foundation
 /// `Migration` ("Data and its evolution" there).
 public struct DuskState: Codable, Hashable, Sendable {
   /// 1 was step 2's single-block file; 2 the blocks (D29); 3 added `minReader`, `writtenBy` and
-  /// `flows` (#140).
-  public static let schema = 3
+  /// `flows` (#140); 4 the buffer after sleep, each buffer's target and `health` (#144).
+  public static let schema = 4
   /// The oldest schema that may write over a file this build writes. A build below it reads the
   /// file and never writes it, so nothing it can't hold is lost. Raise it to `schema` when a build
   /// starts writing something an older one would misread, or drop to harm: a new enum case, or a
   /// field whose loss changes what happens.
-  public static let minReader = 2
+  /// 4: a build from before #144 would drop the buffer after sleep, and end the night at wake.
+  public static let minReader = 4
 
   public var schema = DuskState.schema
   public var minReader = DuskState.minReader
@@ -44,8 +45,15 @@ public struct DuskState: Codable, Hashable, Sendable {
   /// The heads-up before each night, as the user last set it in Settings (D68); iOS's permission
   /// decides separately whether it can arrive.
   public var headsUp = true
-  /// The gap before bed (D76). A file from before it keeps its night as it was (`Gap.existing`).
+  /// The buffer before sleep, D76's gap. A file from before it keeps its night as it was
+  /// (`Gap.existing`).
   public var gap = Gap()
+  /// The buffer after waking (#144): the lock ends this long after wake. A file from before it has
+  /// none, and is offered it once by the one-time flow "Fit Dusk to your sleep".
+  public var after = Gap.none(target: TollConfig.defaults.after.target)
+  /// The person chose to read their sleep from Apple Health (#144): the night log is corrected
+  /// with Health's sleep, and nothing is read from Health without it.
+  public var health = false
   /// Before bed's helpers in the gap (D80): on unless switched off, and the breath's length.
   public var helpers = Helpers()
   /// One-time flows (`Flows`) by id, as each last went: keyed by string, so an id a newer build
@@ -72,17 +80,28 @@ public struct DuskState: Codable, Hashable, Sendable {
     if case .save(let draft) = pending[sleep.id] { return draft.apps == nil }
     return true
   }
-  /// The night's block as it runs: locking the gap before bed (D76). Its stored hours are bed to
-  /// wake; every rule about when it's on reads these.
+  /// The night's block as it runs: the buffer before sleep, sleep, the buffer after (D76, #144).
+  /// Its stored hours are sleep, bed to wake; every rule about when it's on reads these.
   public var lockSleep: Block? { sleepBlock.map(locking) }
   /// Every block as it runs: the night's locks the gap before bed.
   public var lockBlocks: [Block] { blocks.map(locking) }
 
   public func locking(_ block: Block) -> Block {
-    guard block.isSleep, gap.minutes > 0 else { return block }
+    guard block.isSleep, gap.minutes > 0 || after.minutes > 0 else { return block }
     var lock = block
-    lock.schedule = block.schedule.locking(gap.minutes)
+    lock.schedule = block.schedule.locking(before: gap.minutes, after: after.minutes)
     return lock
+  }
+
+  /// One side's buffer.
+  public subscript(side: Gap.Side) -> Gap {
+    get { side == .before ? gap : after }
+    set {
+      switch side {
+      case .before: gap = newValue
+      case .after: after = newValue
+      }
+    }
   }
   public func block(_ id: BlockID) -> Block? { blocks.first { $0.id == id } }
   public func place(_ id: PlaceID?) -> Place? { id.flatMap { id in places.first { $0.id == id } } }

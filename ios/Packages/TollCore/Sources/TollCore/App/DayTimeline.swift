@@ -47,7 +47,9 @@ public struct DayTimeline: Equatable, Sendable {
     /// The night's bed, as a fraction of the day: the lock starts the gap before it (D76). Nil with
     /// no gap, and for other blocks.
     public var bed: Double?
-    /// "Bed at 10:30 pm", for the snippet.
+    /// The night's wake: the lock ends the buffer after it (#144). Nil with no buffer after.
+    public var wake: Double?
+    /// "Sleep 10:30 pm – 7:00 am", for the snippet, when the lock is longer than sleep.
     public var bedText: String?
     /// Last night, where it ended at the strip's start: its snippet is last night's card.
     public var lastNight: Morning?
@@ -178,6 +180,15 @@ public struct DayTimeline: Equatable, Sendable {
     let bed =
       block.isSleep && state.gap.minutes > 0
       ? occurrence.start.addingTimeInterval(TimeInterval(state.gap.minutes * 60)) : nil
+    let wake =
+      block.isSleep && state.after.minutes > 0
+      ? occurrence.end.addingTimeInterval(-TimeInterval(state.after.minutes * 60)) : nil
+    let sleepText =
+      bed == nil && wake == nil
+      ? nil
+      : Copy.Gap.sleepSpan(
+        Copy.time(bed ?? occurrence.start, in: calendar),
+        Copy.time(wake ?? occurrence.end, in: calendar))
     return Segment(
       id: "\(block.id.raw)@\(Int(occurrence.start.timeIntervalSinceReferenceDate))",
       block: block.id, kind: block.kind, start: fraction(occurrence.start),
@@ -190,8 +201,7 @@ public struct DayTimeline: Equatable, Sendable {
       place: placeText ?? Copy.Blocks.anywhere, placeKind: placeKind,
       stateText: Self.text(
         segmentState, block, occurrence, placeKind, now: now, calendar: calendar),
-      bed: bed.map(fraction), bedText: bed.map { Copy.Gap.bedAt(Copy.time($0, in: calendar)) }
-    )
+      bed: bed.map(fraction), wake: wake.map(fraction), bedText: sleepText)
   }
 
   static func state(

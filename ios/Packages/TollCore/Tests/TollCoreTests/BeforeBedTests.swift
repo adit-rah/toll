@@ -158,7 +158,8 @@ struct BeforeBedTests {
     ]
     let state = installed()
     let nights = NightFacts.ended(
-      log: log, sleep: sleepBlock(), gap: state.gap, since: date(2026, 11, 17, 12),
+      log: log, sleep: sleepBlock(), gap: state.gap, after: state.after,
+      since: date(2026, 11, 17, 12),
       now: date(2026, 11, 19, 9), calendar: london)
     #expect(nights.map(\.helper) == [.breathe, nil])
     // Nothing else about the night moves: the block screen wasn't touched.

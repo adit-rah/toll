@@ -9,7 +9,7 @@ extension DuskState {
   enum CodingKeys: String, CodingKey {
     case schema, minReader, writtenBy, blocks, places, presence, location, pending, pendingPlaces
     case door, doorAskedAt, unlocks, trial, setupFinishedAt, runtime, screenTimeAllowed
-    case dismissedCards, lastNightSeen, headsUp, gap, helpers, flows, recoveredAt
+    case dismissedCards, lastNightSeen, headsUp, gap, after, health, helpers, flows, recoveredAt
   }
 
   public init(from decoder: Decoder) throws {
@@ -35,6 +35,8 @@ extension DuskState {
     lastNightSeen = c.lossy(.lastNightSeen)
     headsUp = c.lossy(.headsUp, or: true)
     gap = c.lossy(.gap, or: Gap())
+    after = c.lossy(.after, or: Gap.none(target: TollConfig.defaults.after.target))
+    health = c.lossy(.health, or: false)
     helpers = c.lossy(.helpers, or: Helpers())
     flows = c.lossyMap(.flows)
     recoveredAt = c.lossy(.recoveredAt)
@@ -174,7 +176,8 @@ extension Door {
 
 extension Gap {
   enum CodingKeys: String, CodingKey {
-    case minutes, mode, pending, streak, eased, frozenThrough, tally, change, offered, history
+    case minutes, mode, target, pending, streak, eased, frozenThrough, tally, change, offered
+    case history
   }
 
   public init(from decoder: Decoder) throws {
@@ -182,6 +185,8 @@ extension Gap {
     self.init()
     minutes = c.lossy(.minutes, or: 0)
     mode = c.lossy(.mode, or: .fixed)
+    // A buffer from before #144 had D76's one target; schema 4's step writes it in.
+    target = c.lossy(.target, or: TollConfig.defaults.gap.cap)
     pending = c.lossy(.pending)
     streak = c.lossy(.streak, or: 0)
     eased = c.lossy(.eased, or: false)

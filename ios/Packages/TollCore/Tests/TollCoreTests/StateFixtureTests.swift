@@ -11,10 +11,10 @@ struct StateFixtureTests {
   static let past = [
     "v1", "v2-01-blocks", "v2-02-door-app", "v2-03-screen-time", "v2-04-only-at-place",
     "v2-05-pause", "v2-06-cards", "v2-07-heads-up", "v2-08-gap", "v2-09-helpers",
-    "v2-10-last-night",
+    "v2-10-last-night", "v3",
   ]
   /// The current format; a new schema adds its own and moves this one into `past`.
-  static let newest = "v3"
+  static let newest = "v4"
   /// A past shape under a newer label: a build from before #140 writes back the `schema` it read,
   /// so after a downgrade its own shape says 3. It has no `minReader`.
   static let relabelled = [
@@ -66,6 +66,20 @@ struct StateFixtureTests {
       #expect(state.gap.mode == .grows)
       #expect(!state.gap.offered)
     }
+    if name == Self.newest {
+      // Fitted to sleep (#144): the buffer after, both targets, and Health.
+      #expect(state.gap.target == 75)
+      #expect(state.after == Self.full().after)
+      #expect(state.health)
+    } else {
+      // From before #144: the night as it was, no buffer after, and the fit offered once.
+      #expect(state.gap.target == 60)
+      #expect(state.after.minutes == 0)
+      #expect(state.after.mode == .fixed)
+      #expect(state.after.offered)
+      #expect(!state.health)
+      #expect(state.lockSleep?.schedule.windows.first?.end == time(7))
+    }
     if name >= "v2-09" { #expect(state.helpers.breathMinutes == 5) }
     if name >= "v2-10" { #expect(state.lastNightSeen == date(2026, 11, 16, 0)) }
     let again = try DuskStore.encoder.encode(state)
@@ -110,7 +124,7 @@ struct StateFixtureTests {
     return []
   }
 
-  /// A state with every field set, as `v3.json` holds it.
+  /// A state with every field set, as `v4.json` holds it.
   static func full() -> DuskState {
     var state = setUp()
     state.places.append(libraryPlace)
@@ -140,6 +154,14 @@ struct StateFixtureTests {
     state.gap.frozenThrough = date(2026, 11, 16, 0)
     state.gap.tally = Gap.Tally(week: date(2026, 11, 16, 0))
     state.gap.tally.nights = [date(2026, 11, 16, 0)]
+    state.gap.target = 75
+    state.after = .growing(from: 10, to: 30)
+    state.after.history = [.init(night: date(2026, 11, 17, 0), minutes: 10)]
+    state.after.pending = .fixed(20)
+    state.after.change = Gap.Change(week: date(2026, 11, 16, 0), from: 10, to: 20)
+    state.after.tally = Gap.Tally(week: date(2026, 11, 16, 0))
+    state.after.tally.nights = [date(2026, 11, 16, 0)]
+    state.health = true
     state.helpers.breathMinutes = 5
     state.lastNightSeen = date(2026, 11, 16, 0)
     state.recoveredAt = date(2026, 11, 17, 9)

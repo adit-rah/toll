@@ -51,8 +51,16 @@ public struct FlowRecord: Codable, Hashable, Sendable {
 }
 
 public enum Flows {
-  /// Every flow this build can ask, in the order they'd show. None yet (#140).
-  public static let registry: [OneTimeFlow] = []
+  /// Every flow this build can ask, in the order they'd show.
+  public static let registry: [OneTimeFlow] = [fitSleep]
+
+  /// #1, "Fit Dusk to your sleep" (#144): people set up before the buffers around sleep are asked
+  /// for their sleep and both buffers once. Their night is as it was until they answer; put off
+  /// for good, it stays so, with no buffer after.
+  public static let fitSleep = OneTimeFlow(
+    id: "fit-sleep", version: 1,
+    applies: { $0.setupFinishedAt != nil && $0.after.offered },
+    defaults: { _ in [.buffer(.after, .fixed(0), target: nil)] })
 
   /// The flow to show now, if any: the app asks at each foreground. At most one a day, and only at
   /// a calm moment.

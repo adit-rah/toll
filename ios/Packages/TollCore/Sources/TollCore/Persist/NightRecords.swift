@@ -21,9 +21,10 @@ public struct ModelStamp: Sendable, Equatable {
 /// names and formats `datascience/` and `SleepModel.NightRecord` read, plus Dusk's own signals under
 /// `dusk`, which both ignore. Health's fields stay empty until the app reads sleep (#86).
 public enum NightRecordLine {
-  /// The line's own format. 1 had no `record` or `rev`; 2 added both (#140). A line without them is
-  /// format 1, revision 1.
-  public static let format = 2
+  /// The line's own format. 1 had no `record` or `rev`; 2 added both (#140); 3 the buffer after
+  /// waking, `after_min`, and Health's sleep in a correction (#144). A line without them is format
+  /// 1, revision 1.
+  public static let format = 3
 
   /// Who wrote a line, under `dusk.by`: the monitor at the night's sweep, or the app on opening.
   public enum Writer: String, Sendable {
@@ -41,11 +42,13 @@ public enum NightRecordLine {
       "record": format,
       "rev": rev,
       "night": key(facts.night, calendar: calendar),
-      // Bed, not the lock: sleep is measured from bed (D76). The lock is bed minus `gap_min`.
+      // Planned sleep, bed to wake, never the lock: sleep is measured from bed (D76). The lock is
+      // bed minus `gap_min` to wake plus `after_min` (#144).
       "planned_bedtime": time(facts.bed),
       "bed": time(facts.bed),
       "gap_min": facts.gap,
-      "planned_wake": time(facts.plannedEnd),
+      "after_min": facts.after,
+      "planned_wake": time(facts.wake),
       "block_start": time(facts.blockStart),
       "block_end": time(facts.blockStart == nil ? nil : facts.blockEnd ?? facts.plannedEnd),
       "action_offset_min": 0,

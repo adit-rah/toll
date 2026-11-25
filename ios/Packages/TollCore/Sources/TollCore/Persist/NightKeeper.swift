@@ -27,7 +27,7 @@ public struct NightKeeper: Sendable {
   ) -> Int? {
     guard let sleep = state.sleepBlock else { return 0 }
     let ended = NightFacts.ended(
-      log: transitions.read(limit: .max), sleep: sleep, gap: state.gap,
+      log: transitions.read(limit: .max), sleep: sleep, gap: state.gap, after: state.after,
       since: state.setupFinishedAt,
       now: now, calendar: calendar, regret: TimeInterval(config.door.regretSeconds))
     guard let added = nights.record(ended, calendar: calendar, model: model, by: .app) else {
@@ -50,7 +50,8 @@ public struct NightKeeper: Sendable {
     let reach = log.whole ? nil : log.lines.map(\.at).min()
     let since = max(setup, now.addingTimeInterval(-Self.recentHours * 3600))
     let ended = NightFacts.ended(
-      log: log.lines, sleep: sleep, gap: state.gap, since: since, now: now, calendar: calendar,
+      log: log.lines, sleep: sleep, gap: state.gap, after: state.after, since: since, now: now,
+      calendar: calendar,
       regret: TimeInterval(config.door.regretSeconds)
     ).filter { night in
       guard let reach else { return true }

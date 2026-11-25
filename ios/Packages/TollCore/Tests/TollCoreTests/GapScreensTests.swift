@@ -44,7 +44,7 @@ struct GapScreensTests {
     let home = snapshot(installed(), date(2026, 11, 17, 19))
     #expect(home.eyebrow == "Apps lock at")
     #expect(home.hero == .tonight(start: date(2026, 11, 17, 22, 15), detail: home.heroDetail))
-    #expect(home.beforeBed == "15 min before bed")
+    #expect(home.beforeBed == "15 min before sleep")
   }
 
   @Test func noGapNoLine() {
@@ -62,8 +62,8 @@ struct GapScreensTests {
     #expect(night.bed == 15.5 / 24)
     #expect(night.end == 1)
     #expect(plain(night.hours) == "10:15 pm – 7:00 am")
-    #expect(plain(night.bedText) == "Bed at 10:30 pm")
-    #expect(plain(night.spoken)?.contains("10:15 pm – 7:00 am, Bed at 10:30 pm") == true)
+    #expect(plain(night.bedText) == "Sleep 10:30 pm – 7:00 am")
+    #expect(plain(night.spoken)?.contains("10:15 pm – 7:00 am, Sleep 10:30 pm – 7:00 am") == true)
   }
 
   // MARK: Monday's card
@@ -73,7 +73,7 @@ struct GapScreensTests {
     let home = snapshot(state, date(2026, 11, 23, 14))
     #expect(home.card == .gapWeek)
     let card = try #require(home.gapCard)
-    #expect(card.title == "This week, apps lock 30 min before bed")
+    #expect(card.title == "This week, apps lock 30 min before sleep")
     #expect(card.detail == "Up from 15")
     #expect(card.action == "Keep 15")
     #expect(card.dismiss == "OK")
@@ -88,7 +88,7 @@ struct GapScreensTests {
     state.gap.tally.pausesInGap = 2
     run(&state, date(2026, 11, 23, 12))
     let card = try #require(snapshot(state, date(2026, 11, 23, 14)).gapCard)
-    #expect(card.title == "This week, apps lock 15 min before bed")
+    #expect(card.title == "This week, apps lock 15 min before sleep")
     #expect(card.detail == nil && card.action == nil)
   }
 
@@ -124,7 +124,7 @@ struct GapScreensTests {
     #expect(home.hero == .tonight(start: date(2026, 11, 17, 22, 30), detail: home.heroDetail))
     #expect(home.card == .gapOffer)
     let card = try #require(home.gapCard)
-    #expect(card.title == "Lock apps 15 min before bed?")
+    #expect(card.title == "Lock apps 15 min before sleep?")
     #expect(plain(card.detail) == "Apps lock at 10:15 pm. Your night still ends at 7:00 am.")
     #expect(card.action == "Turn on")
 
@@ -156,7 +156,7 @@ struct GapScreensTests {
     #expect(apply(.gap(.fixed(45)), &state, date(2026, 11, 17, 12)) == nil)
     #expect(BeforeBed(state: state).detail == "Fixed · 45 min")
     #expect(apply(.gap(.fixed(0)), &state, date(2026, 11, 17, 12)) == nil)
-    #expect(BeforeBed(state: state).detail == "None · apps lock at bed")
+    #expect(BeforeBed(state: state).detail == "None")
     var sheet = BeforeBed(state: state)
     #expect(sheet.choice(grows: true, fixed: 0) == .grows(15))
     #expect(sheet.choice(grows: true, fixed: 90) == .grows(60))
@@ -197,7 +197,9 @@ struct GapScreensTests {
     #expect(plain(picture.start) == "10:30 pm")
     #expect(picture.timeline.lock == 4.25 / 16)
     #expect(picture.timeline.start == 4.5 / 16)
-    #expect(plain(picture.timeline.label) == "Night, 10:30 pm to 7:00 am, apps lock at 10:15 pm")
+    #expect(
+      plain(picture.timeline.label)
+        == "Apps lock at 10:15 pm, asleep 10:30 pm to 7:00 am, apps open at 7:00 am")
     #expect(
       NightPicture(.everyDay(usual), now: date(2026, 11, 17, 15), calendar: london)?
         .timeline.lock == nil)
@@ -216,7 +218,8 @@ struct GapScreensTests {
         inWindow: false, entitled: true, active: []),
     ]
     let nights = NightFacts.ended(
-      log: log, sleep: sleepBlock(), gap: state.gap, since: date(2026, 11, 16, 15),
+      log: log, sleep: sleepBlock(), gap: state.gap, after: state.after,
+      since: date(2026, 11, 16, 15),
       now: date(2026, 11, 24, 9), calendar: london)
     // Last week's nights had 15; Monday's had 30.
     #expect(nights.first?.gap == 15)

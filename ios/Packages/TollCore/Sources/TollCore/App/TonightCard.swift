@@ -60,7 +60,7 @@ extension HomeSnapshot {
       $0 > finished
     }
     guard nightEnded == true else { return nil }
-    if let change = state.gap.change, !change.seen, change.week == nightKey(now, calendar) {
+    if let side = GapRules.changed(state), state[side].change?.week == nightKey(now, calendar) {
       return .gapWeek
     }
     if !state.homeIsSet, !state.dismissed(.home) { return .home }

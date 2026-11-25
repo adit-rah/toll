@@ -5,7 +5,7 @@ extension Copy {
   /// ends with the phone down. Never a task, never counted.
   public enum Helpers {
     /// Tonight's quiet capsule, beside the pauses, only in the gap.
-    public static let capsule = "Before bed"
+    public static let capsule = "Before sleep"
     public static let capsuleHint = "A list on paper, slow breathing or a word game"
 
     /// The one card that introduces the capsule; the minutes are those left until bed.
@@ -16,7 +16,7 @@ extension Copy {
     public static let showMe = "Show me"
 
     /// The sheet's choices.
-    public static let sheetTitle = "Before bed"
+    public static let sheetTitle = "Before sleep"
     public static let sheetBody = "Pick one. Each ends with the phone down."
     public static let list = "Write tomorrow's list"
     public static let listDetail = "On paper, about five minutes"
@@ -42,7 +42,7 @@ extension Copy {
     public static let somethingElse = "Something else"
 
     /// Settings › Before bed, under the gap.
-    public static let setting = "Something to do before bed"
+    public static let setting = "Something to do before sleep"
     public static let settingDetail =
       "On Tonight after apps lock: a list on paper, slow breathing or a word game."
     public static func breathLength(_ minutes: Int) -> String { "Breathing tone · \(minutes) min" }

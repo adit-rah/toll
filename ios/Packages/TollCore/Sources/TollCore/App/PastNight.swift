@@ -54,7 +54,8 @@ public struct PastNight: Equatable, Sendable {
       // Nights before the log's first line would all read as not run; they're in the history.
       let since = max(setup, lines.first.map { $0.at.addingTimeInterval(-86_400) } ?? setup)
       for facts in NightFacts.ended(
-        log: lines, sleep: sleep, since: since, now: now, calendar: calendar, regret: regret)
+        log: lines, sleep: sleep, gap: state.gap, after: state.after, since: since, now: now,
+        calendar: calendar, regret: regret)
       {
         guard var recorded = byNight[facts.night], recorded.ran || !facts.ran else {
           byNight[facts.night] = PastNight(facts)

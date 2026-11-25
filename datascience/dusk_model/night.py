@@ -6,6 +6,11 @@ Since the lock starts a gap before bed (decisions D76), `planned_bedtime` is bed
 records carry `bed` and `gap_min`: the lock was planned for bed minus `gap_min`. Records from before
 have neither; their gap was 0 and their `planned_bedtime` was bed.
 
+Since the buffers around sleep (#144), `bed` and `planned_wake` are the person's planned sleep, and
+records carry `after_min`: the lock was planned to end `after_min` after `planned_wake`, so the
+whole lock is bed minus `gap_min` to wake plus `after_min`. Health's sleep arrives a day later as a
+correction (a higher `rev`). Records from before have no `after_min`; their lock ended at wake.
+
 Since the helpers before bed (decisions D80), records carry `helper`: which one was last opened in
 the gap that night ("list", "breathe" or "words"), or null. It is private to the pilot: never shown
 to the person and never a model feature. Records from before have no `helper`; none was used.
@@ -44,6 +49,7 @@ RECORD_FIELDS = [
     "sleep_source",
     "bed",
     "gap_min",
+    "after_min",
     "helper",
 ]
 
@@ -107,6 +113,11 @@ def bed_of(record: dict) -> datetime:
 def gap_of(record: dict) -> int:
     """Minutes the lock was planned to start before bed."""
     return int(record.get("gap_min") or 0)
+
+
+def after_of(record: dict) -> int:
+    """Minutes the lock was planned to stay on after wake; 0 before the buffer after (#144)."""
+    return int(record.get("after_min") or 0)
 
 
 def helper_of(record: dict) -> str | None:
