@@ -135,7 +135,7 @@ struct InsightsSnapshotTests {
         log: log(16...16), sleep: sleepBlock(), since: date(2026, 11, 16, 12),
         now: date(2026, 11, 17, 9), calendar: london
       ).first)
-    let line = try #require(NightRecordLine.encode(facts, calendar: london))
+    let line = try #require(NightRecordLine.encode(facts, calendar: london, model: stamp))
     let past = try #require(NightRecordLine.past(line, calendar: london))
     #expect(past.locked == 8.5 * 3600)
     #expect(past.taps == [date(2026, 11, 16, 23)])

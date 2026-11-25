@@ -95,6 +95,11 @@ public enum Engine {
       state.doorAskedAt = nil
     case .askDoor(let at):
       state.doorAskedAt = at
+    case .flow(let id, let version, let outcome):
+      for next in Flows.record(id, version: version, outcome, in: &state, now: now, config: config)
+      {
+        _ = apply(next, to: &state, now: now, calendar: calendar, config: config)
+      }
     }
     return nil
   }

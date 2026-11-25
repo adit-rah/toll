@@ -8,6 +8,8 @@ public struct Coordinator: Sendable {
     public var effects: Effects
     /// The first command that was refused, if any; the others still applied and reconcile still ran.
     public var error: CommandError?
+    /// Nil when the state couldn't be read: nothing ran, and no effect was performed.
+    public var access: StateAccess?
   }
 
   let store: any StatePort
@@ -36,7 +38,7 @@ public struct Coordinator: Sendable {
     let now = clock.now
     let monotonic = clock.monotonic
     let config = config
-    let outcome = store.update { state -> Outcome in
+    let stored = store.update { state -> Outcome in
       var error: CommandError?
       for command in commands {
         if let refused = Engine.apply(
@@ -49,19 +51,29 @@ public struct Coordinator: Sendable {
         &state, wall: now, monotonic: monotonic, calendar: calendar, cause: cause, config: config)
       return Outcome(state: state, effects: effects, error: error)
     }
-    perform(outcome.effects)
+    // An empty state reconciled would lift the shield and stop every schedule: do nothing instead,
+    // and let the next wake that can read the file decide.
+    guard let stored else {
+      return Outcome(state: DuskState(), effects: Effects(shield: .off), error: nil, access: nil)
+    }
+    var outcome = stored.value
+    outcome.access = stored.access
+    perform(outcome.effects, saved: stored.access == .saved)
     return outcome
   }
 
-  private func perform(_ effects: Effects) {
+  /// Read only, the shield still follows the state, but schedules aren't touched: what they were
+  /// set to couldn't be saved, so every wake would set them again.
+  private func perform(_ effects: Effects, saved: Bool) {
     shield.apply(effects.shield)
     if let line = effects.log { log.append(line) }
+    guard saved else { return }
     if let windows = effects.windows {
       do {
         try schedule.monitor(windows: windows)
       } catch {
         // Forgotten, so the next wake tries again.
-        store.update { $0.runtime.scheduledWindows = nil }
+        _ = store.update { $0.runtime.scheduledWindows = nil }
       }
     }
     switch effects.door {

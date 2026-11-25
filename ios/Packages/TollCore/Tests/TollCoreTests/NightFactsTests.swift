@@ -57,7 +57,7 @@ struct NightFactsTests {
 
   @Test func theLineIsTheSleepModelsRecord() throws {
     let night = try #require(nights(now: date(2026, 11, 17, 9)).first)
-    let data = try #require(NightRecordLine.encode(night, calendar: london))
+    let data = try #require(NightRecordLine.encode(night, calendar: london, model: stamp))
     let record = try JSONDecoder().decode(NightRecord.self, from: data)
     #expect(record.night == "2026-11-16")
     #expect(record.plannedBedtime.hasPrefix("2026-11-16T22:30:00"))
@@ -73,8 +73,8 @@ struct NightFactsTests {
     let url = FileManager.default.temporaryDirectory.appendingPathComponent(
       "nights-\(UUID().uuidString).jsonl")
     let file = NightLog(url: url)
-    #expect(file.record(nights(now: date(2026, 11, 18, 9)), calendar: london) == 2)
-    #expect(file.record(nights(now: date(2026, 11, 18, 9)), calendar: london) == 0)
+    #expect(file.record(nights(now: date(2026, 11, 18, 9)), calendar: london, model: stamp) == 2)
+    #expect(file.record(nights(now: date(2026, 11, 18, 9)), calendar: london, model: stamp) == 0)
     #expect(file.lines().count == 2)
   }
 }

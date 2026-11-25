@@ -164,9 +164,10 @@ struct BeforeBedTests {
     // Nothing else about the night moves: the block screen wasn't touched.
     #expect(nights.first?.stops == 0 && nights.first?.doorAsks == 0)
     let used = try JSONDecoder().decode(
-      NightRecord.self, from: try #require(NightRecordLine.encode(nights[0], calendar: london)))
+      NightRecord.self,
+      from: try #require(NightRecordLine.encode(nights[0], calendar: london, model: stamp)))
     #expect(used.helper == "breathe")
-    let none = try #require(NightRecordLine.encode(nights[1], calendar: london))
+    let none = try #require(NightRecordLine.encode(nights[1], calendar: london, model: stamp))
     #expect(try JSONDecoder().decode(NightRecord.self, from: none).helper == nil)
     let raw = try #require(try JSONSerialization.jsonObject(with: none) as? [String: Any])
     #expect(raw["helper"] is NSNull)

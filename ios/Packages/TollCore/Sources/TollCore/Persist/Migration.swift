@@ -81,133 +81,30 @@ enum Migration {
   }
 }
 
-// Every stored type decodes missing keys as their defaults, so adding a field never makes an existing
-// file unreadable.
-
-extension DuskState {
-  enum CodingKeys: String, CodingKey {
-    case schema, blocks, places, presence, location, pending, pendingPlaces, door, doorAskedAt
-    case unlocks, trial, setupFinishedAt, runtime, screenTimeAllowed, dismissedCards, headsUp
-    case gap, helpers
+extension Migration {
+  /// One step from a schema to the next, on the file's JSON as it was written. A step never reads
+  /// today's types, so a later change to `Block` can't break reading an old file; the fixtures in
+  /// `Tests/TollCoreTests/Fixtures/state` are the frozen shapes each step starts from.
+  struct Step: Sendable {
+    let from: Int
+    let run: @Sendable ([String: Any]) -> [String: Any]
   }
 
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    self.init()
-    schema = try c.decode(Int.self, forKey: .schema)
-    blocks = try c.decodeIfPresent([Block].self, forKey: .blocks) ?? []
-    places = try c.decodeIfPresent([Place].self, forKey: .places) ?? []
-    presence = try c.decodeIfPresent([PlaceID: Presence].self, forKey: .presence) ?? [:]
-    location = try c.decodeIfPresent(LocationMode.self, forKey: .location) ?? .places
-    pending = try c.decodeIfPresent([BlockID: PendingEdit].self, forKey: .pending) ?? [:]
-    pendingPlaces = try c.decodeIfPresent([PlaceID: Place].self, forKey: .pendingPlaces) ?? [:]
-    door = try c.decodeIfPresent(Door.self, forKey: .door)
-    doorAskedAt = try c.decodeIfPresent(Date.self, forKey: .doorAskedAt)
-    unlocks = try c.decodeIfPresent(UnlockSupply.self, forKey: .unlocks) ?? UnlockSupply()
-    trial = try c.decodeIfPresent(TrialState.self, forKey: .trial) ?? TrialState()
-    setupFinishedAt = try c.decodeIfPresent(Date.self, forKey: .setupFinishedAt)
-    runtime = try c.decodeIfPresent(RuntimeState.self, forKey: .runtime) ?? RuntimeState()
-    screenTimeAllowed = try c.decodeIfPresent(Bool.self, forKey: .screenTimeAllowed)
-    dismissedCards = try c.decodeIfPresent(Set<String>.self, forKey: .dismissedCards) ?? []
-    headsUp = try c.decodeIfPresent(Bool.self, forKey: .headsUp) ?? true
-    gap = try c.decodeIfPresent(Gap.self, forKey: .gap) ?? .existing
-    helpers = (try? c.decodeIfPresent(Helpers.self, forKey: .helpers)) ?? Helpers()
-  }
-}
+  static let steps: [Step] = [Step(from: 2, run: v2to3)]
 
-extension TrialState {
-  enum CodingKeys: String, CodingKey { case start, purchased, entitled }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    self.init()
-    start = try c.decodeIfPresent(Date.self, forKey: .start)
-    purchased = try c.decodeIfPresent(Bool.self, forKey: .purchased) ?? false
-    entitled = try c.decodeIfPresent(Bool.self, forKey: .entitled) ?? true
-  }
-}
-
-extension RuntimeState {
-  enum CodingKeys: String, CodingKey {
-    case active, lastEnd, clockAnchor, scheduledWindows, scheduledDoor
+  /// Every step from `schema` to the current one, in order.
+  static func upgrade(_ object: [String: Any], from schema: Int) -> [String: Any] {
+    steps.filter { $0.from >= schema }.sorted { $0.from < $1.from }.reduce(object) { $1.run($0) }
   }
 
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    self.init()
-    active = try c.decodeIfPresent([BlockID: Date].self, forKey: .active) ?? [:]
-    lastEnd = try c.decodeIfPresent([BlockID: Date].self, forKey: .lastEnd) ?? [:]
-    clockAnchor = try c.decodeIfPresent(ClockAnchor.self, forKey: .clockAnchor)
-    scheduledWindows = try c.decodeIfPresent([TimeWindow].self, forKey: .scheduledWindows)
-    scheduledDoor = try c.decodeIfPresent(Date.self, forKey: .scheduledDoor)
-  }
-}
-
-extension UnlockSupply {
-  enum CodingKeys: String, CodingKey {
-    case spent, week, used
-  }
-
-  /// A supply from before D67 has no week, so it starts the current one full.
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    self.init()
-    spent = try c.decodeIfPresent(Int.self, forKey: .spent) ?? 0
-    week = try c.decodeIfPresent(Date.self, forKey: .week)
-    used = try c.decodeIfPresent(Int.self, forKey: .used) ?? 0
-  }
-}
-
-extension Block {
-  enum CodingKeys: String, CodingKey {
-    case id, name, kind, place, schedule, apps, appCount, categoryCount, isOn, onlyAtPlace
-  }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    self.init(
-      id: try c.decode(BlockID.self, forKey: .id),
-      name: try c.decodeIfPresent(String.self, forKey: .name) ?? "",
-      kind: try c.decodeIfPresent(Kind.self, forKey: .kind) ?? .other,
-      place: try c.decodeIfPresent(PlaceID.self, forKey: .place),
-      schedule: try c.decode(WeeklySchedule.self, forKey: .schedule),
-      apps: try c.decodeIfPresent(Data.self, forKey: .apps),
-      appCount: try c.decodeIfPresent(Int.self, forKey: .appCount) ?? 0,
-      categoryCount: try c.decodeIfPresent(Int.self, forKey: .categoryCount) ?? 0,
-      isOn: try c.decodeIfPresent(Bool.self, forKey: .isOn) ?? true,
-      onlyAtPlace: try c.decodeIfPresent(Bool.self, forKey: .onlyAtPlace) ?? false)
-  }
-}
-
-extension Gap {
-  enum CodingKeys: String, CodingKey {
-    case minutes, mode, pending, streak, eased, frozenThrough, tally, change, offered, history
-  }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    self.init()
-    minutes = try c.decodeIfPresent(Int.self, forKey: .minutes) ?? 0
-    mode = try c.decodeIfPresent(Mode.self, forKey: .mode) ?? .fixed
-    pending = try? c.decodeIfPresent(Setting.self, forKey: .pending)
-    streak = try c.decodeIfPresent(Int.self, forKey: .streak) ?? 0
-    eased = try c.decodeIfPresent(Bool.self, forKey: .eased) ?? false
-    frozenThrough = try c.decodeIfPresent(Date.self, forKey: .frozenThrough)
-    tally = (try? c.decodeIfPresent(Tally.self, forKey: .tally)) ?? Tally()
-    change = try? c.decodeIfPresent(Change.self, forKey: .change)
-    offered = try c.decodeIfPresent(Bool.self, forKey: .offered) ?? false
-    history = (try? c.decodeIfPresent([Entry].self, forKey: .history)) ?? []
-  }
-}
-
-extension Gap.Tally {
-  enum CodingKeys: String, CodingKey { case week, nights, pausesInGap, screenTimeOff }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    self.init(week: try c.decodeIfPresent(Date.self, forKey: .week))
-    nights = try c.decodeIfPresent(Set<Date>.self, forKey: .nights) ?? []
-    pausesInGap = try c.decodeIfPresent(Int.self, forKey: .pausesInGap) ?? 0
-    screenTimeOff = try c.decodeIfPresent(Bool.self, forKey: .screenTimeOff) ?? false
+  /// 2 to 3: a file without a gap is from before D76. It keeps its night as it was and is offered
+  /// the gap once. That was a decoder's default, and a default must never carry a decision.
+  @Sendable static func v2to3(_ old: [String: Any]) -> [String: Any] {
+    var new = old
+    if new["gap"] == nil { new["gap"] = ["offered": true] }
+    if new["flows"] == nil { new["flows"] = [String: Any]() }
+    new["schema"] = 3
+    new["minReader"] = 2
+    return new
   }
 }

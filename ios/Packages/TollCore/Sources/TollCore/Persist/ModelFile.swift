@@ -1,0 +1,20 @@
+import Foundation
+
+/// The person's sleep model state, `model.json` in the App Group: written by the app alone, which
+/// rebuilds it from the night records whenever the bundled artifact changes (`ModelStore` in
+/// TollData, decisions D52). The monitor reads only which artifact and policy it runs, to stamp the
+/// records it writes; it never links the model.
+public enum ModelFile {
+  public static var url: URL { AppGroup.file("model.json") }
+
+  /// Nil until the app has written the file once.
+  public static func stamp(_ url: URL = url) -> ModelStamp? {
+    guard let data = CoordinatedFile.read(url),
+      let file = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+      let artifact = file["artifact"] as? [String: Any],
+      let version = artifact["version"] as? String,
+      let policy = file["policy"] as? String
+    else { return nil }
+    return ModelStamp(version: version, policy: policy)
+  }
+}
