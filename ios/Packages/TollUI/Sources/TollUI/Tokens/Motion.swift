@@ -39,17 +39,6 @@ public enum Motion {
   }
 }
 
-extension AnyTransition {
-  /// Content inside a container that grows or shrinks (design §2.5, last night's card): in after
-  /// the first 100 ms, out at once. With Reduce Motion the container doesn't move, so the content
-  /// crossfades over `stateChange` from the start.
-  public static func content(reduceMotion: Bool) -> AnyTransition {
-    .asymmetric(
-      insertion: .opacity.animation(reduceMotion ? Motion.stateChange : Motion.contentIn),
-      removal: .opacity.animation(Motion.contentOut))
-  }
-}
-
 extension View {
   /// Applies `transition`, or a crossfade of the same timing when Reduce Motion is on.
   public func tollTransition(_ transition: AnyTransition) -> some View {

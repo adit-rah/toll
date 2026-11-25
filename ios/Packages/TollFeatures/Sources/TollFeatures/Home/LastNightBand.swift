@@ -17,32 +17,32 @@ struct LastNightBand: View {
     RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
   }
 
+  /// One surface whose height animates, with the header and the details laid out in it in both
+  /// states and clipped to it. Inserted, the details would land at once where the open card ends
+  /// and the header would slide up through their words; laid out all along, they ride the card's
+  /// top edge with the header and come into view from its bottom edge as it grows. The header
+  /// keeps one layout too: what differs between the row and the open card only fades.
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
+    FoldLayout(open: open) {
       header
-      if open {
-        LastNightDetails(night: night)
-          .padding(.top, 2)
-          .padding(.bottom, TollSpacing.noteCardVertical)
-          .transition(.content(reduceMotion: reduceMotion))
-      }
+      LastNightDetails(night: night)
+        .padding(.top, 2)
+        .padding(.bottom, TollSpacing.noteCardVertical)
+        .shown(open, reduceMotion: reduceMotion)
     }
     .padding(.horizontal, TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
-    // One surface whose height follows the content; nothing shows outside it while it grows or
-    // shrinks, so the card is seen to grow from the row rather than its words arriving first.
     .background(TollColor.surface, in: shape)
     .clipShape(shape)
   }
 
-  /// The row, and the open card's header: one button that opens or folds, with "OK" over the room
-  /// kept for it beside the chevron once open. The chevron is one view in both, so it turns with
-  /// the card instead of being swapped for another.
+  /// The row, and the open card's header: one button that opens or folds, with "OK" over it beside
+  /// the chevron once open. The chevron is one view in both, so it turns with the card instead of
+  /// being swapped for another.
   private var header: some View {
     Button(action: toggle) {
       HStack(spacing: 8) {
         summary.frame(maxWidth: .infinity, alignment: .leading)
-        if open { ok.hidden() }
         chevron
       }
       .padding(.vertical, 12)
@@ -53,28 +53,22 @@ struct LastNightBand: View {
     .accessibilityValue(open ? Copy.Morning.unfolded : Copy.Morning.folded)
     .accessibilityHint(open ? Copy.Morning.foldHint : Copy.Morning.unfoldHint)
     .accessibilityIdentifier("tonight.lastNight")
+    // Over the room the row's status leaves; the two are never shown together.
     .overlay(alignment: .trailing) {
-      if open {
-        Button(action: putAway) { ok }
-          .frame(minHeight: TollSpacing.minTapTarget)
-          .contentShape(Rectangle())
-          .padding(.trailing, Self.chevronWidth + 8)
-          .transition(.content(reduceMotion: reduceMotion))
-      }
+      Button(Copy.Morning.ok, action: putAway)
+        .tollType(.action, TollColor.label2)
+        .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
+        .contentShape(Rectangle())
+        .padding(.trailing, Self.chevronWidth + 8)
+        .shown(open, reduceMotion: reduceMotion)
     }
   }
 
   private static let chevronWidth: CGFloat = 14
 
-  private var ok: some View {
-    Text(Copy.Morning.ok)
-      .tollType(.action, TollColor.label2)
-      .frame(minWidth: TollSpacing.minTapTarget)
-  }
-
   /// `chevron.up` turned half a turn as the card opens, which is `chevron.down` (design §2.6); with
   /// Reduce Motion the two crossfade instead of turning.
-  @ViewBuilder private var chevron: some View {
+  private var chevron: some View {
     Group {
       if reduceMotion {
         glyph(open ? .fold : .unfold)
@@ -88,16 +82,17 @@ struct LastNightBand: View {
   }
 
   /// "☾ Last night  🔒 Locked 8 h 45 m" on one line when it fits, else the status under the title,
-  /// wrapping rather than truncating. Open, the card's own sentence says the rest.
+  /// wrapping rather than truncating. Open, the status fades and keeps its room, so the header
+  /// doesn't reflow; the card's own sentence says the rest.
   private var summary: some View {
     ViewThatFits(in: .horizontal) {
       HStack(alignment: .firstTextBaseline, spacing: 10) {
         title
-        if !open { status.fixedSize().transition(.content(reduceMotion: reduceMotion)) }
+        status.fixedSize().shown(!open, reduceMotion: reduceMotion)
       }
       VStack(alignment: .leading, spacing: 4) {
         title
-        if !open { status.transition(.content(reduceMotion: reduceMotion)) }
+        status.shown(!open, reduceMotion: reduceMotion)
       }
     }
   }
@@ -144,6 +139,47 @@ struct LastNightBand: View {
       open.toggle()
     } else {
       withAnimation(Motion.movement) { open.toggle() }
+    }
+  }
+}
+
+extension View {
+  /// A part of last night's card that comes or goes as it opens or folds (design §2.5): it fades
+  /// in after the first 100 ms and out at once, and while hidden it's neither tapped nor heard.
+  fileprivate func shown(_ shown: Bool, reduceMotion: Bool) -> some View {
+    opacity(shown ? 1 : 0)
+      .animation(
+        shown ? (reduceMotion ? Motion.stateChange : Motion.contentIn) : Motion.contentOut,
+        value: shown
+      )
+      .allowsHitTesting(shown)
+      .accessibilityHidden(!shown)
+  }
+}
+
+/// The header over the details, at the size of the header alone while folded: the details keep
+/// their place under it, past the card's clipped bottom edge, so opening only changes the height.
+/// A layout rather than a measured height, so the first frame is already right.
+private struct FoldLayout: Layout {
+  let open: Bool
+
+  func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+    let fit = ProposedViewSize(width: proposal.width, height: nil)
+    let heights = subviews.map { $0.sizeThatFits(fit).height }
+    let width = proposal.width ?? subviews.map { $0.sizeThatFits(fit).width }.max() ?? 0
+    return CGSize(width: width, height: open ? heights.reduce(0, +) : heights.first ?? 0)
+  }
+
+  func placeSubviews(
+    in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()
+  ) {
+    var y = bounds.minY
+    for subview in subviews {
+      let height = subview.sizeThatFits(ProposedViewSize(width: bounds.width, height: nil)).height
+      subview.place(
+        at: CGPoint(x: bounds.minX, y: y), anchor: .topLeading,
+        proposal: ProposedViewSize(width: bounds.width, height: height))
+      y += height
     }
   }
 }

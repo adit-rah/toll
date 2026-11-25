@@ -54,9 +54,12 @@ rm -rf "$OUT/scan"
 
 # From 100 ms before AT to 400 ms after the strip ends, at 60 fps whatever the video's own rate:
 # the simulator writes a frame only when the screen changes, so a repeated frame is a dead one.
-start=$(python3 -c "print(max(0, $AT - 0.1))")
+# Trimmed after the resampling, not seeked before it, so frame n is n/60 s from the same start as
+# the scan's.
+start=$(python3 -c "print(round(max(0, $AT - 0.1) * 60) / 60)")
 length=$(python3 -c "print($SPAN / 1000 + 0.5)")
-ffmpeg -v error -ss "$start" -i "$VIDEO" -t "$length" -vf "${crop}fps=60" "$OUT/frames/%04d.png"
+ffmpeg -v error -i "$VIDEO" \
+  -vf "${crop}fps=60,trim=start=$start:duration=$length,setpts=PTS-STARTPTS" "$OUT/frames/%04d.png"
 
 python3 - "$OUT" "$AT" "$start" "$SPAN" "$TILE" <<'PY'
 import os, sys
@@ -64,6 +67,8 @@ from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageStat
 out, at, start, span, tile = sys.argv[1], float(sys.argv[2]), float(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5])
 names = sorted(os.listdir(os.path.join(out, "frames")))
 frames = [Image.open(os.path.join(out, "frames", n)).convert("RGB") for n in names]
+if not any(0 <= round((start + i / 60 - at) * 1000) <= span for i in range(len(frames))):
+    sys.exit(f"Nothing in the video from {at:.2f} s: did the steps change the screen? See steps.txt.")
 ms = [round((start + i / 60 - at) * 1000) for i in range(len(frames))]
 change = [0.0] + [
     ImageStat.Stat(ImageChops.difference(a.convert("L"), b.convert("L"))).mean[0]

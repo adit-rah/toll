@@ -29,43 +29,50 @@ struct PurchaseSheet: View {
     case pending, failed, nothingToRestore
   }
 
+  /// The offer and its outcomes crossfade in place (design §2.5). The stack stays while they come
+  /// and go, so it carries the animation; on a Group it would land on each new page, which can't
+  /// animate its own arrival.
   var body: some View {
-    Group {
-      switch outcome {
-      case nil: offer
-      case .purchased:
-        OutcomeSheet(
-          symbol: .purchased, tint: TollColor.accent, title: Copy.Purchase.doneTitle,
-          nights: model.config.trial.nights, height: Self.height
-        ) {
-          PrimaryButton(Copy.Purchase.done) { dismiss() }
-        }
-      case .pending:
-        OutcomeSheet(
-          symbol: .askToBuy, tint: TollColor.accent, title: Copy.Purchase.pendingTitle,
-          line: model.state.trial.entitled
-            ? Copy.Purchase.pendingTrialBody : Copy.Purchase.pendingBody, height: Self.height
-        ) {
-          PrimaryButton(Copy.Purchase.ok) { dismiss() }
-        }
-      case .failed:
-        OutcomeSheet(
-          symbol: .failed, tint: TollColor.warn, title: Copy.Purchase.failedTitle,
-          line: Copy.Purchase.failedBody, height: Self.height, overhang: 16
-        ) {
-          PrimaryButton(Copy.Purchase.tryAgain) { Task { await buy() } }.disabled(working)
-          QuietButton(Copy.Purchase.notNow) { dismiss() }.frame(maxWidth: .infinity)
-        }
-      case .nothingToRestore:
-        OutcomeSheet(
-          symbol: .notFound, tint: TollColor.label2, title: Copy.Purchase.restoreNoneTitle,
-          line: Copy.Purchase.restoreNoneBody, height: Self.height
-        ) {
-          PrimaryButton(Copy.Purchase.ok) { outcome = nil }
-        }
-      }
+    ZStack {
+      Group { page }.transition(.opacity)
     }
     .animation(Motion.movement, value: outcome)
+  }
+
+  @ViewBuilder private var page: some View {
+    switch outcome {
+    case nil: offer
+    case .purchased:
+      OutcomeSheet(
+        symbol: .purchased, tint: TollColor.accent, title: Copy.Purchase.doneTitle,
+        nights: model.config.trial.nights, height: Self.height
+      ) {
+        PrimaryButton(Copy.Purchase.done) { dismiss() }
+      }
+    case .pending:
+      OutcomeSheet(
+        symbol: .askToBuy, tint: TollColor.accent, title: Copy.Purchase.pendingTitle,
+        line: model.state.trial.entitled
+          ? Copy.Purchase.pendingTrialBody : Copy.Purchase.pendingBody, height: Self.height
+      ) {
+        PrimaryButton(Copy.Purchase.ok) { dismiss() }
+      }
+    case .failed:
+      OutcomeSheet(
+        symbol: .failed, tint: TollColor.warn, title: Copy.Purchase.failedTitle,
+        line: Copy.Purchase.failedBody, height: Self.height, overhang: 16
+      ) {
+        PrimaryButton(Copy.Purchase.tryAgain) { Task { await buy() } }.disabled(working)
+        QuietButton(Copy.Purchase.notNow) { dismiss() }.frame(maxWidth: .infinity)
+      }
+    case .nothingToRestore:
+      OutcomeSheet(
+        symbol: .notFound, tint: TollColor.label2, title: Copy.Purchase.restoreNoneTitle,
+        line: Copy.Purchase.restoreNoneBody, height: Self.height
+      ) {
+        PrimaryButton(Copy.Purchase.ok) { outcome = nil }
+      }
+    }
   }
 
   private var offer: some View {

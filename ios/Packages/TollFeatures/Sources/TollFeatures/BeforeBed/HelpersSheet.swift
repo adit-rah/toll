@@ -28,12 +28,14 @@ struct HelpersSheet: View {
   }
 
   /// The pages crossfade inside the sheet, which doesn't move, as the pause's states do (design
-  /// §2.5); the tone's page swaps Stop for Done the same way when the tone ends.
+  /// §2.5); the tone's page swaps Stop for Done the same way when the tone ends. The stack stays
+  /// while the pages come and go, so it carries the animation.
   var body: some View {
-    Group { content }
-      .transition(.opacity)
-      .animation(Motion.movement, value: page)
-      .animation(Motion.stateChange, value: tone.playing)
+    ZStack {
+      Group { content }.transition(.opacity)
+    }
+    .animation(Motion.movement, value: page)
+    .animation(Motion.stateChange, value: tone.playing)
   }
 
   @ViewBuilder private var content: some View {
