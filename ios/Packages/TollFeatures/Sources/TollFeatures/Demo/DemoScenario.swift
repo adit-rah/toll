@@ -54,6 +54,14 @@
     case sleepSky7 = "sleep-sky-7"
     case sleepSky30 = "sleep-sky-30"
     case sleepSky100 = "sleep-sky-100"
+    /// The empty sky; 30 nights in each light (evening, night, morning); the second pass at 180
+    /// nights; and Betelgeuse's night open in its popover.
+    case sleepSky0 = "sleep-sky-0"
+    case sleepSky180 = "sleep-sky-180"
+    case sleepSkyStar = "sleep-sky-star"
+    case sleepSkyEvening = "sleep-sky-evening"
+    case sleepSkyNight = "sleep-sky-night"
+    case sleepSkyMorning = "sleep-sky-morning"
     case homeMorningLandmark = "home-morning-landmark"
     /// The picture a landmark shares, at 30 nights, as the share sheet would send it.
     case skyShare = "sky-share"
@@ -170,8 +178,7 @@
     /// The tab the screen is on (D63).
     var tab: DuskTab {
       switch self {
-      case .insights, .sleepMonday, .sleepBest, .sleepSky5, .sleepSky7, .sleepSky30, .sleepSky100:
-        .sleep
+      case _ where self == .insights || rawValue.hasPrefix("sleep-"): .sleep
       case .blocks, .blocksDay, .blockNew, .blockNewGym, .blockEdit, .blockEditOn, .blockNight:
         .blocks
       default: .tonight
@@ -192,7 +199,9 @@
     /// Screens pushed on the tab's stack, with the screens under them.
     var routes: [HomeRoute] {
       switch self {
-      case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing, .settingsBeforeBed: [.settings]
+      case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing,
+        .settingsBeforeBed:
+        [.settings]
       case .blockNew, .blockNewGym: [.block(nil)]
       case .blockEdit, .blockEditOn: [.block(BlockID("study"))]
       case .blockNight: [.block(BlockID("sleep"))]
@@ -218,10 +227,8 @@
       Group {
         if let path = scenario.setupPath {
           DemoSetup(app: app, path: path)
-        } else if scenario == .skyShare,
-          let landmark = Sky(nights: 30, newestIsNew: true).landmark
-        {
-          SkyPicture(sky: landmark.sky, number: landmark.number)
+        } else if scenario == .skyShare, let landmark = DemoClock.poster() {
+          SkyPoster(landmark: landmark)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black)
             .ignoresSafeArea()
@@ -270,6 +277,7 @@
         )
         .sheet(isPresented: $buying) { PurchaseSheet(model: app, home: home) }
       }
+      .environment(\.skyDemoStar, scenario.skyStar)
       .sheet(isPresented: .constant(scenario.presentsSheet)) {
         switch scenario {
         case .purchase: PurchaseSheet(model: app, home: home)

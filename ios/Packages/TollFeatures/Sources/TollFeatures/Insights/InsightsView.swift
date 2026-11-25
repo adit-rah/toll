@@ -2,57 +2,77 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Your sleep, the second tab (D63): the nights so far, this week as dots and a personal best when
-/// there is one (#103), then everything from the log on this phone. Being reframed around the user's
-/// improvement (#88); Apple's "Screen time after bedtime" card joins it with the report extension
-/// (#65).
+/// Your sleep, the second tab (D63): it opens onto Your sky (D79), then this week as dots and a
+/// personal best when there is one (#103), then everything from the log on this phone.
 struct InsightsView: View {
   let sleep: YourSleep
+  /// Demo renders open on this star's night (docs/renders.md).
+  @Environment(\.skyDemoStar) private var initialStar
   @State private var range = InsightsSnapshot.Range.month
+  /// Whether the sky has scrolled up under the bar; the bar takes the page's colour then.
+  @State private var skyGone = false
 
   var body: some View {
     let insights = InsightsSnapshot(
       nights: sleep.past, hours: sleep.hours, now: sleep.now, calendar: .current, range: range)
-    ScrollView {
-      VStack(alignment: .leading, spacing: 0) {
-        ScreenTitle(Copy.Tabs.sleep, kind: .pushed)
-        if let nights = sleep.nights {
-          NightsCard(nights: nights, sky: sleep.sky).padding(.top, 20)
-        }
-        SectionHeader(sleep.weekTitle).padding(.top, 28)
-        WeekDotsCard(sleep: sleep).padding(.top, TollSpacing.headerToCard)
-        if let best = sleep.best {
-          BestCard(best: best).padding(.top, 12)
-        }
-        SectionHeader(Copy.Insights.overTime).padding(.top, 28)
-        Picker(Copy.Insights.range, selection: $range) {
-          Text(Copy.Insights.week).tag(InsightsSnapshot.Range.week)
-          Text(Copy.Insights.month).tag(InsightsSnapshot.Range.month)
-          Text(Copy.Insights.all).tag(InsightsSnapshot.Range.all)
-        }
-        .pickerStyle(.segmented)
-        .padding(.top, TollSpacing.headerToCard)
-        if insights.isEmpty {
-          Footnote(Copy.Insights.empty).padding(.top, 20)
-        } else {
-          // The nights are counted once, at the top; this is the range's one number.
-          Stat(
-            value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel,
-            symbol: .blocked
-          )
-          .padding(.top, 20)
-          // No row of empty bars: a range without taps shows only its hours (D65).
-          if insights.taps > 0 {
-            HoursCard(insights: insights).padding(.top, 20)
+    GeometryReader { proxy in
+      let top = proxy.safeAreaInsets.top
+      // About the top 45% of the screen, at every text size: the text below it scales instead.
+      let sky = ((proxy.size.height + top + proxy.safeAreaInsets.bottom) * 0.45).rounded()
+      ScrollView {
+        VStack(alignment: .leading, spacing: 0) {
+          SkyHeader(sleep: sleep, height: sky, top: top, initialStar: initialStar)
+          VStack(alignment: .leading, spacing: 0) {
+            SectionHeader(sleep.weekTitle).padding(.top, 28)
+            WeekDotsCard(sleep: sleep).padding(.top, TollSpacing.headerToCard)
+            if let best = sleep.best {
+              BestCard(best: best).padding(.top, 12)
+            }
+            ranges(insights)
           }
+          .tollGutter()
+          .padding(.bottom, 32)
         }
       }
-      .tollGutter()
-      .padding(.bottom, 32)
+      .onScrollGeometryChange(for: Bool.self) { geometry in
+        geometry.contentOffset.y > sky - top
+      } action: { _, gone in
+        skyGone = gone
+      }
+      .ignoresSafeArea(.container, edges: .top)
     }
     .background(TollColor.bg)
     .animation(Motion.stateChange, value: range)
     .tollPushed(Copy.Tabs.sleep)
+    // The bar is see-through over the night, with light text over it in both appearances.
+    .toolbarBackground(skyGone ? TollColor.bg : Color.clear, for: .navigationBar)
+    .toolbarBackground(.visible, for: .navigationBar)
+    .toolbarColorScheme(skyGone ? nil : .dark, for: .navigationBar)
+  }
+
+  @ViewBuilder private func ranges(_ insights: InsightsSnapshot) -> some View {
+    SectionHeader(Copy.Insights.overTime).padding(.top, 28)
+    Picker(Copy.Insights.range, selection: $range) {
+      Text(Copy.Insights.week).tag(InsightsSnapshot.Range.week)
+      Text(Copy.Insights.month).tag(InsightsSnapshot.Range.month)
+      Text(Copy.Insights.all).tag(InsightsSnapshot.Range.all)
+    }
+    .pickerStyle(.segmented)
+    .padding(.top, TollSpacing.headerToCard)
+    if insights.isEmpty {
+      Footnote(Copy.Insights.empty).padding(.top, 20)
+    } else {
+      // The nights are counted once, at the top; this is the range's one number.
+      Stat(
+        value: Copy.Insights.hours(insights.hoursBlocked), label: Copy.Insights.hoursLabel,
+        symbol: .blocked
+      )
+      .padding(.top, 20)
+      // No row of empty bars: a range without taps shows only its hours (D65).
+      if insights.taps > 0 {
+        HoursCard(insights: insights).padding(.top, 20)
+      }
+    }
   }
 }
 
