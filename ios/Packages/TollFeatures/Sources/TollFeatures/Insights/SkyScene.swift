@@ -24,8 +24,9 @@ struct SkyScene: View {
   var newestStar: CGFloat = 1
   var newestLines: CGFloat = 1
   var newestLinesShown: CGFloat = 1
-  /// The lit star whose night is open, set by a tap near it; nil where the sky isn't tappable.
-  var selection: Binding<Int?>?
+  /// What a tap has opened and brought forward (`SkyFocus`): a tap near a lit star opens its night,
+  /// a tap on the open sky brightens or fades the names. Nil where the sky isn't tappable.
+  var focus: Binding<SkyFocus>?
   /// What a star's popover shows.
   var night: ((Int) -> AnyView)?
 
@@ -33,32 +34,32 @@ struct SkyScene: View {
     GeometryReader { proxy in
       let size = proxy.size
       let layout = Self.layout(drawing, size: size, field: field)
+      let bright = focus?.wrappedValue.figures(in: drawing) ?? []
       ZStack(alignment: .topLeading) {
         SkyBackdrop(light: light, atmosphere: atmosphere)
         if let moon {
           SkyMoon(moon: moon, radius: moonRadius)
             .position(x: size.width - moonInset.width, y: moonInset.height)
         }
-        SkyStarsLayer(drawing: drawing, layout: layout, names: names)
+        SkyStarsLayer(
+          drawing: drawing, layout: layout, names: names, bright: bright, ground: horizon)
         SkyNewest(
           drawing: drawing, layout: layout, star: newestStar, lines: newestLines,
-          linesShown: newestLinesShown)
+          linesShown: newestLinesShown, bright: bright)
         if horizon > 0 {
           SkyHorizon(land: land)
             .frame(width: size.width, height: horizon)
             .offset(y: size.height - horizon)
         }
-        if let selection, let night {
-          marker(selection, night: night, layout: layout)
+        if let focus, let night {
+          marker(focus, night: night, layout: layout)
         }
       }
       .contentShape(Rectangle())
-      .allowsHitTesting(selection != nil)
+      .allowsHitTesting(focus != nil)
       .onTapGesture(coordinateSpace: .local) { location in
-        guard let index = layout.nearest(drawing.stars, x: location.x, y: location.y) else {
-          return
-        }
-        selection?.wrappedValue = index
+        let star = layout.nearest(drawing.stars, x: location.x, y: location.y)
+        focus?.wrappedValue.tap(star: star, in: drawing)
       }
     }
     .clipped()
@@ -67,18 +68,19 @@ struct SkyScene: View {
   /// A point on the chosen star, placed by the same layout that drew it, so the popover's arrow
   /// lands on the star. Offset, as Tonight's strip places its targets.
   private func marker(
-    _ selection: Binding<Int?>, night: @escaping (Int) -> AnyView, layout: SkyLayout
+    _ focus: Binding<SkyFocus>, night: @escaping (Int) -> AnyView, layout: SkyLayout
   ) -> some View {
-    let chosen = selection.wrappedValue.flatMap {
+    let chosen = focus.wrappedValue.star.flatMap {
       drawing.stars.indices.contains($0) ? drawing.stars[$0] : nil
     }
     return Color.clear
       .frame(width: 12, height: 12)
       .popover(
         isPresented: Binding(
-          get: { selection.wrappedValue != nil }, set: { if !$0 { selection.wrappedValue = nil } })
+          get: { focus.wrappedValue.star != nil },
+          set: { if !$0 { focus.wrappedValue.star = nil } })
       ) {
-        if let index = selection.wrappedValue { night(index) }
+        if let index = focus.wrappedValue.star { night(index) }
       }
       .offset(
         x: (chosen.map { layout.x($0.x) } ?? 0) - 6, y: (chosen.map { layout.y($0.y) } ?? 0) - 6

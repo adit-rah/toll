@@ -20,6 +20,12 @@ extension Copy {
       return "\(title). \(Copy.YourSleep.nights(nights)).\(shapes)"
     }
 
+    /// VoiceOver's hint on the sky, whose label already says every name: double-tap brings the
+    /// names forward for anyone who also zooms, as a tap on the open sky does.
+    public static let showNames = "Double-tap to show the names."
+    /// The hint once they are shown.
+    public static let fadeNames = "Double-tap to fade the names."
+
     /// Under an empty sky, before the first night the lock runs.
     public static let empty = "Your first star comes with your first locked night."
 
