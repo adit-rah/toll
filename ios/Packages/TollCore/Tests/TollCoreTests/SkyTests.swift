@@ -113,7 +113,7 @@ struct SkyTests {
     let dipper = try #require(thirty.names.first)
     #expect(dipper.text == "Big Dipper")
     let stars = thirty.stars.prefix(7)
-    #expect(dipper.y == (dipper.above ? stars.map(\.y).min() : stars.map(\.y).max()))
+    #expect(dipper.top == stars.map(\.y).min() && dipper.bottom == stars.map(\.y).max())
     #expect(dipper.x > stars.map(\.x).min() ?? 0 && dipper.x < stars.map(\.x).max() ?? 1)
     #expect(Sky(nights: 150, newestIsNew: false).drawing.names.count == 23)
   }

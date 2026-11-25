@@ -24,8 +24,9 @@ struct SkyStarsLayer: View {
         style.draw(star, colour: SkyColor.star(bv: star.bv), in: &context)
       }
       guard names else { return }
+      var placed: [CGRect] = []
       for name in drawing.names {
-        drawName(name, style: style, in: &context, size: size)
+        drawName(name, style: style, placed: &placed, in: &context, size: size)
       }
     }
   }
@@ -34,10 +35,14 @@ struct SkyStarsLayer: View {
     line.from == drawing.newest || line.to == drawing.newest
   }
 
-  /// Small, spaced capitals in `label3`, 10 pt past the figure's edge star, kept inside the sky.
-  /// Wordless renders draw a bar the name's size instead (design §5).
+  /// Small, spaced capitals in `line`, 8 pt past the figure's edge star, kept inside the sky. A
+  /// name takes its clearer side, else the other; where both would cover a name already set or a
+  /// lit star, it is left off, as a chart declutters (VoiceOver still hears every name). Wordless
+  /// renders draw a bar the name's size instead (design §5).
   private func drawName(
-    _ name: Sky.Name, style: SkyStarStyle, in context: inout GraphicsContext, size: CGSize
+    _ name: Sky.Name, style: SkyStarStyle, placed: inout [CGRect],
+    in context: inout GraphicsContext,
+    size: CGSize
   ) {
     let text = Text(name.text.uppercased())
       .font(.system(size: 9, weight: .medium))
@@ -47,13 +52,28 @@ struct SkyStarsLayer: View {
     let measured = resolved.measure(in: CGSize(width: 300, height: 40))
     let x = min(
       max(layout.x(name.x), measured.width / 2 + 6), size.width - measured.width / 2 - 6)
-    let y = layout.y(name.y) + (name.above ? -1 : 1) * (8 + measured.height / 2)
+    func rect(above: Bool) -> CGRect {
+      let edge = layout.y(above ? name.top : name.bottom)
+      let y = edge + (above ? -1 : 1) * (8 + measured.height / 2)
+      return CGRect(
+        x: x - measured.width / 2, y: y - measured.height / 2, width: measured.width,
+        height: measured.height)
+    }
+    func clear(_ candidate: CGRect) -> Bool {
+      let room = candidate.insetBy(dx: -4, dy: -2)
+      return candidate.minY > 0 && candidate.maxY < size.height
+        && !placed.contains { $0.intersects(room) }
+        && !drawing.stars.contains { room.contains(style.point($0)) }
+    }
+    guard
+      let spot = [rect(above: name.above), rect(above: !name.above)].first(where: clear)
+    else { return }
+    placed.append(spot)
     if wordless {
-      let bar = CGRect(
-        x: x - measured.width / 2, y: y - 2.5, width: measured.width, height: 5)
+      let bar = CGRect(x: spot.minX, y: spot.midY - 2.5, width: spot.width, height: 5)
       context.fill(Path(roundedRect: bar, cornerRadius: 2.5), with: .color(SkyColor.line))
     } else {
-      context.draw(resolved, at: CGPoint(x: x, y: y), anchor: .center)
+      context.draw(resolved, at: CGPoint(x: spot.midX, y: spot.midY), anchor: .center)
     }
   }
 }

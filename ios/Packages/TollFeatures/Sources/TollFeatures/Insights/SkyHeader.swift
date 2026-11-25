@@ -47,7 +47,7 @@ struct SkyHeader: View {
   /// The stars keep clear of the title above and the land's crest below.
   private var field: EdgeInsets {
     EdgeInsets(
-      top: status + titleHeight + 16, leading: 28, bottom: Self.horizon * 0.55, trailing: 28)
+      top: status + titleHeight + 16, leading: 22, bottom: Self.horizon * 0.55, trailing: 22)
   }
 
   var body: some View {
@@ -79,7 +79,8 @@ struct SkyHeader: View {
                 .presentationBackground(TollColor.surface)
             }
           }
-          .position(x: anchor.midX, y: anchor.midY)
+          // Offset, as Tonight's strip places its targets: the popover follows it to the star.
+          .offset(x: anchor.minX, y: anchor.minY)
           .allowsHitTesting(false)
           .accessibilityHidden(true)
         ScreenTitle(Copy.Tabs.sleep, kind: .pushed)

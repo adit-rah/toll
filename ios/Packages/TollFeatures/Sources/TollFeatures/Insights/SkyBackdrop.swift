@@ -54,8 +54,8 @@ struct SkyBackdrop: View {
     let across = band.width * min(size.width, size.height)
     context.drawLayer { layer in
       layer.addFilter(.blur(radius: across * 0.45))
-      layer.stroke(path, with: .color(SkyColor.dust.opacity(0.075)), lineWidth: across)
-      layer.stroke(path, with: .color(SkyColor.dust.opacity(0.07)), lineWidth: across * 0.35)
+      layer.stroke(path, with: .color(SkyColor.dust.opacity(0.09)), lineWidth: across)
+      layer.stroke(path, with: .color(SkyColor.dust.opacity(0.08)), lineWidth: across * 0.35)
     }
   }
 }

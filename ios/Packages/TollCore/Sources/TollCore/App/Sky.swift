@@ -30,13 +30,15 @@ public struct Sky: Equatable, Sendable {
     public var height: Double
   }
 
-  /// A completed constellation's name, set beside it as a chart sets it: anchored at the middle of
-  /// the figure's lowest star (`above` false) or highest (`above` true), whichever side is clearer.
+  /// A completed constellation's name, set beside it as a chart sets it: centred on the figure,
+  /// under its lowest star (`bottom`) or over its highest (`top`). `above` says which side is
+  /// clearer of other lit stars; a view takes the other side when the first would cover a name.
   public struct Name: Equatable, Sendable {
     public var constellation: Constellation
     public var text: String
     public var x: Double
-    public var y: Double
+    public var top: Double
+    public var bottom: Double
     public var above: Bool
   }
 
@@ -168,7 +170,7 @@ public struct Sky: Equatable, Sendable {
     let over = ys.min() ?? 0
     let above = crowd(over, true) < crowd(below, false)
     return Name(
-      constellation: figure.constellation, text: text, x: x, y: above ? over : below,
+      constellation: figure.constellation, text: text, x: x, top: over, bottom: below,
       above: above)
   }
 
