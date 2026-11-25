@@ -36,6 +36,12 @@ enum SkyCatalogue {
   /// The sky's height, in widths.
   static let aspect = 0.52
 
+  /// The figure each star of the table belongs to, by index. The figures' ranges run in order and
+  /// cover the table (`SkyTests.catalogueHolds`), so this lines up with `stars`.
+  static let constellations: [Constellation] = figures.flatMap { figure in
+    figure.stars.map { _ in figure.constellation }
+  }
+
   static let figures: [SkyFigure] = [
     .init(
       .bigDipper, stars: 0..<7, lines: [(0, 1), (1, 2), (2, 3), (3, 0), (3, 4), (4, 5), (5, 6)]),

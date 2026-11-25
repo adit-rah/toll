@@ -142,6 +142,14 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 124 | Your sleep at AX5 | The sky keeps its height; the title is not truncated; the count sits on its own line; the cards below scale | | |
 | 125 | VoiceOver on the sky | One element: "Your sky. 30 nights locked. 4 constellations: the Big Dipper, Cassiopeia, the Little Dipper, Orion." | | |
 | 126 | Your sleep in light appearance, then scroll | The sky matches dark; only the land and page are pale; status text is white over the sky, and the bar takes the page colour once the sky has gone | | |
+| 127 | Your sleep with 30+ nights: tap an empty part of the sky | Every name and line brightens in a 200 ms crossfade; nothing else moves. Tap empty sky again: they fade back | | |
+| 128 | Names shown: switch to Tonight and back, then background the app and reopen | The names are faint again each time | | |
+| 129 | Names shown: leave the phone untouched for 2 minutes | The names stay bright; nothing dims or pulses | | |
+| 130 | Tap a star (e.g. Betelgeuse), then dismiss | Its popover opens and Orion's lines and name brighten; other figures stay faint. On dismiss, Orion fades back in 200 ms | | |
+| 131 | Tap a star of an incomplete figure | Its lit lines brighten; no name appears | | |
+| 132 | Before the first night (empty sky): tap the sky | Nothing changes | | |
+| 133 | VoiceOver: focus the sky, then double-tap | It reads the label, then "Double-tap to show the names."; double-tap brightens them and the hint becomes "Double-tap to fade the names." | | |
+| 134 | Show the names in the morning (from 5 am), evening (from 4 pm) and night (from 9 pm) | Every name is readable against the sky in each light, including any low near the hills | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
