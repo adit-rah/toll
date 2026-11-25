@@ -31,6 +31,8 @@ public struct Morning: Equatable, Sendable {
   /// Where the block was on; the room between two of them is a gap (a pause, or a time away).
   public var ran: [Span]
   public var gaps: [Span]
+  /// How long apps were locked, to the minute: the stretches added up, breaks left out.
+  public var lockedMinutes: Int
   /// What the bar says, in a sentence over it: "Apps locked from 10:15 pm to 7:00 am", or why
   /// nothing locked.
   public var headline: String
@@ -91,6 +93,8 @@ public struct Morning: Equatable, Sendable {
     ran = stretches.map { Span(start: fraction($0.start), end: fraction($0.end)) }
     let holes = zip(stretches, stretches.dropFirst()).map { (start: $0.end, end: $1.start) }
     gaps = holes.map { Span(start: fraction($0.start), end: fraction($0.end)) }
+    let locked = stretches.reduce(0) { $0 + $1.end.timeIntervalSince($1.start) }
+    lockedMinutes = Int((locked / 60).rounded())
     let first = stretches.first?.start ?? night.plannedStart
     let last = stretches.last?.end ?? night.plannedEnd
     from = Copy.time(first, in: calendar)
@@ -109,6 +113,31 @@ public struct Morning: Equatable, Sendable {
       headline = Copy.Morning.noScreenTime
       spoken = Copy.Morning.spokenNoScreenTime(from: from, to: to)
     }
+  }
+
+  /// The folded card's status, the night at a glance: "Locked 8 h 45 m" when it ran, even with a
+  /// break (the open card says the rest); "Away, nothing locked"; "Screen Time was off". On a
+  /// landmark morning, the landmark's line instead (D79).
+  public var status: String {
+    if let landmark { return landmark.line }
+    switch outcome {
+    case .ran:
+      return Copy.Morning.statusLocked(Copy.Home.duration(TimeInterval(lockedMinutes * 60)))
+    case .away: return Copy.Morning.statusAway
+    case .noScreenTime: return Copy.Morning.statusNoScreenTime
+    }
+  }
+
+  /// The folded card for VoiceOver: "Last night, apps locked 8 hours 45 minutes", and the landmark's
+  /// line after it on a landmark morning.
+  public var statusSpoken: String {
+    let night =
+      switch outcome {
+      case .ran: Copy.Morning.spokenLocked(minutes: lockedMinutes)
+      case .away: Copy.Morning.spokenStatusAway
+      case .noScreenTime: Copy.Morning.statusNoScreenTime
+      }
+    return Copy.Morning.spokenStatus(night, landmark: landmark?.line)
   }
 
   /// The stretches the night's block shielded: on, and not paused. A door that's open lifts the

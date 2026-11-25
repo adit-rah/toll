@@ -169,6 +169,14 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 151 | Restart the phone and leave it locked through a sweep, then unlock and open Dusk | No free-nights reset; the iCloud copy's start is unchanged on another phone | | |
 | 152 | Delete and reinstall Dusk after the free nights ended | Welcome offers the purchase, not new free nights | | |
 | 153 | Update the app without opening it, and let a night run | The monitor's line names this build's artifact | | |
+| 154 | Wake after a locked night and open Tonight before noon | A folded row above the strip: moon, "Last night", lock, "Locked 8 h 45 m" (the real length), chevron down; the hero is where it is in the evening | | |
+| 155 | Tap the row, then tap the open card's header | The card grows up from the row over about 300 ms and its content fades in, with the strip and hero still; the header folds it back | | |
+| 156 | Open it, switch to Your sleep and back; open it, lock the phone and come back | Folded both times | | |
+| 157 | Reduce Motion on: open and close it | A crossfade; nothing slides | | |
+| 158 | Open it and tap OK | It fades out and doesn't return that morning; the strip's start still opens the full card | | |
+| 159 | A morning after a night with a pause; after an away night; after Screen Time off | "Locked" with the length minus the pause; the walking figure with "Away, nothing locked"; the hourglass with "Screen Time was off" | | |
+| 160 | The 30th night's morning | The row shows the landmark's line; open, the card has the tile and Share, under the state with the screen scrolling if it doesn't fit; the hero stays put | | |
+| 161 | VoiceOver on the row, folded and open; then AX5 | "Last night, apps locked …", "Collapsed" or "Expanded", and the hint; double-tap opens and closes. At AX5 the row wraps and nothing is cut off | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

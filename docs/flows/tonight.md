@@ -4,7 +4,7 @@
 
 **Implements:** D63 and D64 (Tonight is a tab and a composition), D69 (last night's card, a review since the founder's call of 25 Nov), D73 (one quiet line for another block), D75 (eyebrows say what the time means; the strip is the whole day; only what's tappable looks tappable), D76 and D83 (the lock before bed), D80 and D85 (Before bed), D86 (the card floats and never moves the state), D33 (no selling at night), D48 (Screen Time off is said), D67 and D70 (the pause), D79 and D81 (landmark mornings).
 
-**Code:** `TollCore/App/HomeSnapshot.swift` (the hero, the pill, the eyebrow), `TonightCard.swift` (the slot), `Morning.swift` (last night), `DayTimeline*.swift`, `GapSnapshot.swift`; `TollFeatures/Home/` (`HomeView`, `HomeHero`, `LastNightCard`, `TonightCardView`, `DayStrip`, `StripSnippet`, `OtherBlockLine`, `PillView`, `HomeParts`); `App/RootView.swift` (`LiveHome`: what each tap opens; a 20-second refresh and a per-minute clock).
+**Code:** `TollCore/App/HomeSnapshot.swift` (the hero, the pill, the eyebrow), `TonightCard.swift` (the slot), `Morning.swift` (last night, and its folded row's status), `DayTimeline*.swift`, `GapSnapshot.swift`; `TollFeatures/Home/` (`HomeView`, `HomeHero`, `LastNightBand` (the row in the slot), `LastNightCard`, `TonightCardView`, `DayStrip`, `StripSnippet`, `OtherBlockLine`, `PillView`, `HomeParts`); `App/RootView.swift` (`LiveHome`: what each tap opens; a 20-second refresh and a per-minute clock).
 
 ## What the state shows
 
@@ -51,13 +51,20 @@ flowchart TD
   facts -->|"no"| none(["No card, no segment: Tonight looks ahead"])
   facts -->|"yes"| strip["Last night at the strip's start, until the next lock<br/>render: home-strip-last-night"]
   facts -->|"yes"| morningCheck{"Before noon, not put away for this night,<br/>no Screen Time or location note?"}
-  morningCheck -->|"yes"| card["The card in the slot: Last night; Apps locked from … to …;<br/>the bar; Apps open from … to …; You chose sleep over a locked app N times;<br/>Last 7 nights; OK<br/>render: home-morning, home-morning-gap, home-day"]
+  morningCheck -->|"yes"| row["Folded to one row in the slot, every time Tonight appears:<br/>moon, Last night, the outcome's glyph and words, chevron down<br/>render: home-morning, home-morning-gap, home-day"]
   morningCheck -->|"no"| strip
+  row --> status{"The row's status (Morning.status)"}
+  status -->|"a landmark: the 7th, 30th, 100th or 365th night that ran"| statusLandmark["30 nights. Orion is in your sky.<br/>render: home-morning-landmark"]
+  status -->|"it ran, with or without a break"| statusRan["lock: Locked 8 h 45 m"]
+  status -->|"away"| statusAway["figure.walk: Away, nothing locked"]
+  status -->|"Screen Time off"| statusOff["hourglass: Screen Time was off"]
+  row -->|"tap the row"| card["The card, grown up from its row: Last night, OK, chevron up;<br/>Apps locked from … to …; the bar; Apps open from … to …;<br/>You chose sleep over a locked app N times; Last 7 nights<br/>render: home-morning-open"]
+  card -->|"tap its header"| row
   card -->|"OK"| seen[("state.json: lastNightSeen = the night")]
   seen --> strip
-  strip -->|"tap"| popover["The same card in a popover<br/>render: home-strip-last-night"]
-  card --> landmark{"Last night ran and was the 7th, 30th, 100th or 365th?"}
-  landmark -->|"yes"| landmarkLine["Inside the card: the completed shape, 30 nights. Orion is in your sky., Share<br/>render: home-morning-landmark"]
+  strip -->|"tap"| popover["The same card, open, in a popover<br/>render: home-strip-last-night"]
+  card --> landmark{"A landmark?"}
+  landmark -->|"yes"| landmarkLine["Inside the card: the completed shape, 30 nights. Orion is in your sky., Share<br/>render: home-morning-landmark-open"]
   landmarkLine -->|"Share"| share{{"iOS share sheet: the sky poster<br/>render: sky-share"}}
 
   classDef system stroke-dasharray: 5 3
@@ -80,7 +87,7 @@ flowchart TD
   recovered -->|"no"| locNote{"The night has a place and location is short of Always?"}
   locNote -->|"yes"| locationNote["The location note: Change in Settings<br/>render: home-location"]
   locNote -->|"no"| lastNight{"Last night's card is due<br/>(before noon, not put away)?"}
-  lastNight -->|"yes"| lastNightCard["Last night's card, with OK<br/>render: home-morning, home-morning-card"]
+  lastNight -->|"yes"| lastNightCard["Last night's row, folded; open, its card with OK<br/>render: home-morning, home-morning-open, home-morning-card"]
   lastNight -->|"no"| entitled{"Free nights left, or bought?"}
   entitled -->|"no"| empty(["No card"])
   entitled -->|"yes"| blocking{"Any block on now?"}
@@ -124,7 +131,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-  wake(["The night ends at wake: the monitor's window end and sweep reconcile"]) --> morning["Apps lock at …, with last night's card in the slot until noon or OK<br/>render: home-morning"]
+  wake(["The night ends at wake: the monitor's window end and sweep reconcile"]) --> morning["Apps lock at …, with last night's row in the slot until noon or OK<br/>render: home-morning"]
   morning -.->|"noon, or OK"| afternoon["Apps lock at …; last night at the strip's start<br/>render: home-evening"]
   wake -.->|"last night was due and didn't run"| afternoon
   afternoon -.->|"a day block starts (e.g. Study 9–5 on weekdays)"| dayLine["Apps lock at … with Study on until 5:00 pm, Pause<br/>render: home-day"]
@@ -150,3 +157,5 @@ flowchart TD
 - **The pill and the card slot both hide for any block,** not only the night: `state.isBlocking` is true while Study is on, so on a weekday at 11 am there is no pill and no offer (D33 says "no selling at night"). Matches the code.
 - **A night with Screen Time off shows last night's card only if Screen Time is back on**; while it's still off, the Screen Time state replaces everything, so that night's facts aren't shown.
 - **The card floats only until noon,** as the morning card did; after that, and after OK, the strip's start is the way back to it until the next lock.
+- **The row is folded each time Tonight appears** (a tab switch, or the app coming back from the background), so an open card never greets the person. OK is only in the open card: the folded row stays until noon.
+- **Where the open card goes:** it grows up from its row while its bottom edge stays 20 pt above the strip. Where it no longer fits there, it goes under the state and the screen scrolls (D86's last place), never under the bar, so it never jumps away from its row.

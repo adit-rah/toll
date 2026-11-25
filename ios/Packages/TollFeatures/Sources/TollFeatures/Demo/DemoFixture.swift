@@ -50,7 +50,8 @@
     /// Scenarios set the morning after a night: Tonight's morning card and Your sleep's weeks.
     var isMorning: Bool {
       [
-        .homeMorning, .homeMorningGap, .homeMorningAway, .homeMorningCard, .homeStripLastNight,
+        .homeMorning, .homeMorningOpen, .homeMorningGap, .homeMorningAway, .homeMorningCard,
+        .homeStripLastNight,
         .sleepMonday, .sleepBest,
       ]
       .contains(self)
@@ -86,7 +87,8 @@
       case .sleepSky5: 5
       case .sleepSky7: 7
       case .sleepSky0: 0
-      case .sleepSky30, .homeMorningLandmark, .sleepSkyStar, .sleepSkyNames, .sleepSkyEvening,
+      case .sleepSky30, .homeMorningLandmark, .homeMorningLandmarkOpen, .sleepSkyStar,
+        .sleepSkyNames, .sleepSkyEvening,
         .sleepSkyNight, .sleepSkyMorning:
         30
       case .sleepSky100: 100
