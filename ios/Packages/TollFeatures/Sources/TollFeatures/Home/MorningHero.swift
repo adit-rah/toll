@@ -36,6 +36,8 @@ struct MorningHero: View {
             }
             Text(line.text).tollType(.heroLine, TollColor.label2)
           }
+          // When nothing blocked, the hours' spoken line already says why.
+          .accessibilityHidden(morning.outcome != .ran)
         }
       }
       .multilineTextAlignment(.center)
@@ -73,9 +75,11 @@ struct MorningHero: View {
   /// The taps when there were any; or why nothing blocked, whose glyph is already the big one.
   private var line: (symbol: TollSymbol?, text: String)? {
     switch morning.outcome {
-    case .ran: morning.putDown.map { (TollSymbol.phoneDown, $0) }
-    case .away: (nil, Copy.Morning.away)
-    case .noScreenTime: (nil, Copy.Morning.noScreenTime)
+    case .ran:
+      guard let putDown = morning.putDown else { return nil }
+      return (.phoneDown, putDown)
+    case .away: return (nil, Copy.Morning.away)
+    case .noScreenTime: return (nil, Copy.Morning.noScreenTime)
     }
   }
 }
