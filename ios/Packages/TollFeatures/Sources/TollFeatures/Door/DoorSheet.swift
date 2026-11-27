@@ -26,7 +26,7 @@ struct DoorSheet: View {
           case .open: DoorOpen(model: model, door: door, now: now)
           }
         } else if supply.left == 0 {
-          DoorNoneLeft(model: model, supply: supply)
+          DoorNoneLeft(model: model, supply: supply, now: now)
         } else {
           DoorChoose(model: model, supply: supply)
         }
@@ -170,7 +170,8 @@ private struct DoorOpen: View {
             .foregroundStyle(TollColor.accent)
             .frame(width: 18, height: 21)
             .accessibilityHidden(true)
-          Countdown(endsAt: regretEnd, text: Copy.Door.regretFor, spoken: Copy.Door.leftSpoken)
+          // A time, not a second countdown beside the big one: the bar's tick is the same moment.
+          Text(Copy.Door.regretBefore(Copy.time(regretEnd)))
             .tollType(.body, TollColor.label)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)

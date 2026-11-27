@@ -72,7 +72,9 @@ enum GapRules {
     let setting = Gap.clamped(setting, target: state[side].target, limits: limits)
     state[side].offered = false
     if let sleep = state.sleepBlock, state.runtime.active[sleep.id] != nil {
-      state[side].pending = setting
+      // What's already in force waits for nothing: Save with nothing changed, or choosing the
+      // current one again, holds no change, so Settings never says one is waiting (#141).
+      state[side].pending = setting == state[side].setting ? nil : setting
     } else {
       state[side].put(setting, now: now, calendar: calendar)
     }

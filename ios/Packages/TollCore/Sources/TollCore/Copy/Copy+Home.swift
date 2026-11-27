@@ -47,6 +47,10 @@ extension Copy {
     }
     /// Under "Apps locked until" at home. The pauses are said beside their dots, with their week.
     public static let youreHome = "You're home"
+    /// A change to "Only when I'm home" held until the night ends (B-3, #129).
+    public static func homeFromNextNight(_ on: Bool) -> String {
+      on ? "Only at home from the next night" : "Anywhere from the next night"
+    }
     public static let noUnlocksLeft = "No pauses left"
     /// Home not set (D68): the place line says where tonight runs, plainly.
     public static func anywhereStartsIn(_ duration: String) -> String {

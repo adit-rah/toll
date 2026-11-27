@@ -227,6 +227,19 @@ struct GapRuleTests {
     #expect(effects.windows == [TimeWindow(start: time(21, 45), end: time(7))])
   }
 
+  /// Save with nothing changed, during the night, holds nothing, so Settings says no change is
+  /// waiting; choosing the current one again takes back a held change (#141).
+  @Test func theSameGapDuringTheNightHoldsNothing() {
+    var state = installed()
+    run(&state, date(2026, 11, 16, 23))
+    let current = state.gap.setting
+    #expect(apply(.gap(current), &state, date(2026, 11, 16, 23)) == nil)
+    #expect(state.gap.pending == nil)
+    #expect(apply(.gap(.fixed(45)), &state, date(2026, 11, 16, 23, 5)) == nil)
+    #expect(apply(.gap(current), &state, date(2026, 11, 16, 23, 10)) == nil)
+    #expect(state.gap.pending == nil)
+  }
+
   @Test func aChangeOutsideTheNightAppliesAtOnce() {
     var state = installed()
     #expect(apply(.gap(.fixed(90)), &state, date(2026, 11, 17, 12)) == nil)

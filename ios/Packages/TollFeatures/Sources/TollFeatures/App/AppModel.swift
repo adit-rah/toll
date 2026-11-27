@@ -64,6 +64,7 @@ public final class AppModel {
           state = fixture.state
           log = fixture.log.reversed()
         }
+        state.trial.purchased = state.trial.purchased || demo == .welcomeBought
         return
       }
     #endif

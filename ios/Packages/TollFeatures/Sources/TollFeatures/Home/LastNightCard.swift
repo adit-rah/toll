@@ -72,9 +72,11 @@ struct LastNightDetails: View {
 
 /// The night from its planned start to its planned end: solid where apps were locked, the track
 /// showing through a break; an outline when nothing locked. The moon and the sun at its ends say
-/// which way the night runs; the sentence over it holds the times.
+/// which way the night runs; the sentence over it holds the times. A break that was a pause has the
+/// pause's glyph over it (#124), so it doesn't read as a glitch; a time away has none.
 private struct NightBar: View {
   let morning: Morning
+  private static let mark: CGFloat = 12
 
   var body: some View {
     HStack(spacing: 8) {
@@ -94,14 +96,29 @@ private struct NightBar: View {
             shape.strokeBorder(TollColor.label3, style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
           }
         }
+        .overlay(alignment: .topLeading) {
+          ForEach(Array(pauses.enumerated()), id: \.offset) { _, gap in
+            Image(symbol: .unlock).unredacted()
+              .font(.system(size: 9, weight: .bold))
+              .foregroundStyle(TollColor.label2)
+              .frame(width: Self.mark, height: Self.mark)
+              .offset(
+                x: width * (gap.start + gap.end) / 2 - Self.mark / 2, y: -(Self.mark + 2))
+          }
+          .accessibilityHidden(true)
+        }
       }
       .frame(height: 10)
       // The buffers around sleep striped (#144): three parts by texture, not colour.
       .overlay { BufferStripes(sleep: morning.sleep) }
       glyph(.sun)
     }
+    // Room over the bar for the pause's mark, only when there is one.
+    .padding(.top, pauses.isEmpty ? 0 : Self.mark)
     .tollChartTypeLimit()
   }
+
+  private var pauses: [Morning.Span] { morning.gaps.filter(\.paused) }
 
   private func glyph(_ symbol: TollSymbol) -> some View {
     Image(symbol: symbol).unredacted()
