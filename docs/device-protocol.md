@@ -202,6 +202,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 184 | Purchase: restore with nothing to restore, then OK; Before bed: open a page, then Something else | Pages swap in place with no snap | | |
 | 185 | Tonight's "Not now" on a card | It fades out over 200 ms in place; the state never animates | | |
 | 186 | Open Your sleep for the first time after a new night; watch any countdown | The newest star brightens over 450 ms, then its lines draw, once; countdown digits roll each second without stutter at 120 Hz | | |
+| 202 | Delete Dusk, reinstall, open it; go through setup to Set home | No iOS prompt of any kind until a screen asks: Welcome, the setup steps and Screen Time's own screen show first; location is asked only on Set home, after Dusk says why. Then grant Always, force-quit, walk out of the home circle: the block lifts as before (D10) | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

@@ -27,6 +27,8 @@ public final class AppModel {
   @ObservationIgnored let locationAccess = LocationAccess()
   @ObservationIgnored let coordinator = Coordinator.live()
   @ObservationIgnored private var started = false
+  /// The place watch is open (`watchPlaces`).
+  @ObservationIgnored private var watchingPlaces = false
   /// What was last handed to iOS, so only a change reschedules; nil reschedules on the next sync.
   @ObservationIgnored var scheduledHeadsUps: [HeadsUp]?
   /// The night log's last write, so the next waits for it.
@@ -66,11 +68,7 @@ public final class AppModel {
       }
     #endif
     clearTollLeftovers()
-    Task {
-      await PlaceMonitor.shared.watch { [weak self] place, presence in
-        await self?.send(presence.isInside ? .arrived : .left, [.presence(place, presence)])
-      }
-    }
+    watchPlaces()
     Task {
       await Purchase.watch { [weak self] purchased in await self?.setPurchased(purchased) }
     }
@@ -93,6 +91,7 @@ public final class AppModel {
     dueFlow = Flows.due(state, now: Date(), calendar: .current, config: config)?.id
     Task {
       setPurchased(await Purchase.isPurchased())
+      guard watchingPlaces else { return }
       // A region event can land while nothing was listening, such as before the first unlock after a
       // restart; the monitor's last word fills that in.
       for (place, presence) in await PlaceMonitor.shared.current()
@@ -139,8 +138,10 @@ public final class AppModel {
     lastError = outcome.error
     // The whole log: a week of Sleep nights must survive many windows and taps (#44).
     log = TransitionLog().read()
-    let places = outcome.effects.places
-    Task { await PlaceMonitor.shared.sync(places) }
+    if watchingPlaces {
+      let places = outcome.effects.places
+      Task { await PlaceMonitor.shared.sync(places) }
+    }
     // Every change that could move the night passes here: hours, a held edit applying, entitlement.
     syncHeadsUp()
     return outcome.error
@@ -173,10 +174,24 @@ public final class AppModel {
       send(.permission, [.screenTime(allowed)])
     }
     location = locationAccess.state
+    watchPlaces()
     if let mode = Self.locationMode(location), mode != state.location {
       send(.permission, [.location(mode)])
     }
     Task { await readNotifications() }
+  }
+
+  /// Opens the place watch once the person has given Always, the only grant that lets region events
+  /// reach a closed app (D10). Its location session and monitor, opened earlier, make iOS ask for
+  /// location at launch, before Set home has said why. Below Always, blocks run on their hours (D37).
+  func watchPlaces() {
+    guard !watchingPlaces, locationAccess.state == .always else { return }
+    watchingPlaces = true
+    Task {
+      await PlaceMonitor.shared.watch { [weak self] place, presence in
+        await self?.send(presence.isInside ? .arrived : .left, [.presence(place, presence)])
+      }
+    }
   }
 
   /// Region events reach a closed app only with Always and Precise (decisions D10); anything less and

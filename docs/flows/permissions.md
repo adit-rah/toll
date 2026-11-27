@@ -77,5 +77,6 @@ flowchart TD
 ## Doubts
 - **What iOS does to the shield and the DeviceActivity schedules when Screen Time is revoked** isn't in the code; the engine keeps its blocks "on" and the snapshot says nothing can block. `docs/device-protocol.md` is where the device answer belongs.
 - **Screen Time off with the free nights over:** the Off state wins over the Screen Time state, but the red note still shows (see [tonight.md](tonight.md)).
+- **Nothing asks for location at launch.** The place watch and its Always session open only once Dusk has Always (D98); opened earlier, iOS shows the location prompt over Welcome.
 - **Location changed while Dusk isn't running** is only seen at the next foreground; until then the monitor still decides with the stored mode. With Always gone, region events no longer relaunch Dusk, so presence goes stale rather than wrong.
 - **Precise off with Always on** reads as `approximate` (`LocationAccess.state`), which is `scheduleOnly`: places are ignored, as D8 says.
