@@ -16,6 +16,9 @@ struct PurchaseSheet: View {
   /// The offer's height, kept by its outcomes: buying or restoring swaps the content in place and the
   /// sheet doesn't move.
   static let height: CGFloat = 674
+  /// How far the link under the button reaches into the indicator's space (design §2.1). Every page
+  /// has a link or its room, so every page's button sits on "Keep it"'s line (#135).
+  static let linkOverhang: CGFloat = 14
 
   init(model: AppModel, home: HomeSnapshot, outcome: Outcome? = nil) {
     self.model = model
@@ -45,7 +48,8 @@ struct PurchaseSheet: View {
     case .purchased:
       OutcomeSheet(
         symbol: .purchased, tint: TollColor.accent, title: Copy.Purchase.doneTitle,
-        line: Copy.Purchase.doneLine, nights: model.config.trial.nights, height: Self.height
+        line: Copy.Purchase.doneLine, nights: model.config.trial.nights, height: Self.height,
+        overhang: Self.linkOverhang
       ) {
         PrimaryButton(Copy.Purchase.done) { dismiss() }
         LinkRoom(type: .smallQuiet)
@@ -54,7 +58,8 @@ struct PurchaseSheet: View {
       OutcomeSheet(
         symbol: .askToBuy, tint: TollColor.accent, title: Copy.Purchase.pendingTitle,
         line: model.state.trial.entitled
-          ? Copy.Purchase.pendingTrialBody : Copy.Purchase.pendingBody, height: Self.height
+          ? Copy.Purchase.pendingTrialBody : Copy.Purchase.pendingBody, height: Self.height,
+        overhang: Self.linkOverhang
       ) {
         PrimaryButton(Copy.Purchase.ok) { dismiss() }
         LinkRoom(type: .smallQuiet)
@@ -62,7 +67,7 @@ struct PurchaseSheet: View {
     case .failed:
       OutcomeSheet(
         symbol: .failed, tint: TollColor.warn, title: Copy.Purchase.failedTitle,
-        line: Copy.Purchase.failedBody, height: Self.height, overhang: 16
+        line: Copy.Purchase.failedBody, height: Self.height, overhang: Self.linkOverhang
       ) {
         PrimaryButton(Copy.Purchase.tryAgain) { Task { await buy() } }.disabled(working)
         QuietButton(Copy.Purchase.notNow, type: .smallQuiet) { dismiss() }
@@ -71,7 +76,8 @@ struct PurchaseSheet: View {
     case .nothingToRestore:
       OutcomeSheet(
         symbol: .notFound, tint: TollColor.label2, title: Copy.Purchase.restoreNoneTitle,
-        line: Copy.Purchase.restoreNoneBody, height: Self.height
+        line: Copy.Purchase.restoreNoneBody, height: Self.height,
+        overhang: Self.linkOverhang
       ) {
         PrimaryButton(Copy.Purchase.ok) { outcome = nil }
         LinkRoom(type: .smallQuiet)
@@ -80,7 +86,7 @@ struct PurchaseSheet: View {
   }
 
   private var offer: some View {
-    SheetPage(height: Self.height, overhang: 14) {
+    SheetPage(height: Self.height, overhang: Self.linkOverhang) {
       Text(Copy.Purchase.eyebrow).tollType(.eyebrow, TollColor.label2)
       // How much of the free nights is gone, as the pill draws it and says it (#77, the audit).
       if let free = home.freeWeek {

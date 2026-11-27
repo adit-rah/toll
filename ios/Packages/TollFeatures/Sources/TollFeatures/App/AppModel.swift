@@ -188,6 +188,10 @@ public final class AppModel {
   /// reach a closed app (D10). Its location session and monitor, opened earlier, make iOS ask for
   /// location at launch, before Set home has said why. Below Always, blocks run on their hours (D37).
   func watchPlaces() {
+    #if DEBUG
+      // A demo's Always is simulated; the real session would put iOS's prompt over its screen.
+      if DemoScenario.current != nil { return }
+    #endif
     guard !watchingPlaces, locationAccess.state == .always else { return }
     watchingPlaces = true
     Task {
