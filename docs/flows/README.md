@@ -9,8 +9,8 @@ Every user flow in Dusk, as built on `main`, drawn as a Mermaid flowchart. A UX 
 | [onboarding.md](onboarding.md) | First launch to the first locked night: Welcome, Fit Dusk to your sleep (Apple Health), your sleep, the time around it, Screen Time, the apps, Ready | D68, D71, D76, D78, D82, #144 |
 | [once-fit-sleep.md](once-fit-sleep.md) | One-time flow #1 for people set up before #144: Tonight's card and its sheet of sleep and both buffers | D86, D91, D92, #144 |
 | [set-home.md](set-home.md) | "Only when I'm home": the map, the location prompts, Always, and "Use anywhere" | D68, D71, D84 |
-| [heads-up.md](heads-up.md) | The heads-up before the night: Tonight's offer, iOS's prompt, Settings' switch | D68, D72 |
-| [before-bed.md](before-bed.md) | The gap before bed (Monday's card, the offer to older installs, Settings) and the helpers in the gap | D76, D80, D83, D85 |
+| [heads-up.md](heads-up.md) | The heads-up before the night: Tonight's offer, iOS's prompt, Settings' switch, the monitor's replan at Monday's turn | D68, D72, #127 |
+| [before-bed.md](before-bed.md) | The gap before bed (Monday's judgement, with Dusk closed too; Monday's card, the offer to older installs, Settings) and the helpers in the gap | D76, D80, D83, D85, #127 |
 | [tonight.md](tonight.md) | Tonight through a day: what the state shows and when, Tonight's band (its kinds, their times, one card and last night's row), the strip | D69, D73, D75, D86, D91, D93 |
 | [pause.md](pause.md) | The pause: from Tonight or the block screen, the wait, the open pause, Lock again | D67, D70, D84 |
 | [purchase.md](purchase.md) | The free nights, their end, buying, Ask to Buy, restore, refunds | D33, D78, D82, D84 |
@@ -65,12 +65,12 @@ There is no CI check. A pull request that changes a flow updates its chart, and 
 | `…/TollFeatures/Blocks/` | blocks |
 | `…/TollFeatures/App/` (`RootView`, `DuskTabs`, `AppModel*`) | every chart; read the one whose flow the change touches |
 | `…/TollFeatures/Demo/` | the `render:` ids in every chart |
-| `ios/Packages/TollCore/Sources/TollCore/App/` (`HomeSnapshot`, `TonightCard`, `Morning`, `HeadsUp`, `GapRules`, `GapSnapshot`, `DoorRules`, `Engine*`) | tonight, pause, heads-up, before-bed, set-home, purchase |
+| `ios/Packages/TollCore/Sources/TollCore/App/` (`HomeSnapshot`, `TonightCard`, `Morning`, `HeadsUp`, `GapRules`, `GapSnapshot`, `WeekTurn`, `DoorRules`, `Engine*`) | tonight, pause, heads-up, before-bed, set-home, purchase |
 | `…/TollCore/App/` (`YourSleep`, `InsightsSnapshot`, `Sky*`, `PastNight`, `NightFacts`) | your-sleep, data |
 | `…/TollCore/Domain/` (`Trial`, `TrialStart`, `Door`, `Gap`) | purchase, pause, before-bed |
 | `…/TollCore/Domain/` (`SleepNights`, `SleepEstimate`, `BufferSuggestion`, `BufferNight`), `…/TollCore/App/Fit.swift` | onboarding, once-fit-sleep |
 | `…/TollCore/Persist/`, `…/TollCore/App/DuskState.swift`, `…/TollCore/App/Flows.swift`, `…/TollCore/Domain/` (any `Codable` type) | data, and each `once-*` chart |
-| `ios/Packages/TollCore/Sources/TollScreenTime/`, `ios/Monitor/`, `ios/ShieldAction/`, `ios/ShieldConfig/` | pause, permissions, data |
+| `ios/Packages/TollCore/Sources/TollScreenTime/`, `ios/Monitor/`, `ios/ShieldAction/`, `ios/ShieldConfig/` | pause, permissions, data; the monitor's turn and `HeadsUpNotifications` also before-bed and heads-up |
 | `ios/Packages/TollData/` | purchase, set-home, heads-up, permissions, data; `Health/` onboarding, once-fit-sleep |
 | `ios/Packages/SleepModel/`, `datascience/export/` | data |
 

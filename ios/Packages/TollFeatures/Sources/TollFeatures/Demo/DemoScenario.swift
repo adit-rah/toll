@@ -131,6 +131,8 @@
     case settingsHeadsUpDenied = "settings-heads-up-denied"
     /// Home set, location While Using: the Location row leaves for iOS Settings (the audit).
     case settingsWhileUsing = "settings-while-using"
+    /// Settings' How it works sheet, its lines built from the config (#52, #127).
+    case settingsHowItWorks = "settings-how-it-works"
     case purchasePending = "purchase-pending"
     case purchaseFailed = "purchase-failed"
     case purchaseRestoreNone = "purchase-restore-none"
@@ -246,7 +248,8 @@
     /// Screens pushed on the tab's stack, with the screens under them.
     var routes: [HomeRoute] {
       switch self {
-      case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing:
+      case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing,
+        .settingsHowItWorks:
         [.settings]
       case .settingsSleep, .settingsSleepAfter: [.settings, .sleep]
       case .blockNew, .blockNewGym: [.block(nil)]
@@ -258,7 +261,7 @@
     /// The door and the purchase are sheets over Tonight.
     var presentsSheet: Bool {
       isDoor || rawValue.hasPrefix("purchase") || setHomePath != nil || helperSheet
-        || fitSheetPath != nil
+        || fitSheetPath != nil || self == .settingsHowItWorks
     }
     var isHome: Bool {
       rawValue.hasPrefix("home-") || rawValue.hasPrefix("sleep-") || rawValue.hasPrefix("block")

@@ -52,18 +52,47 @@ def start_effect(state: State, params: Params) -> tuple[np.ndarray, np.ndarray]:
     return params.theta[1] + mu[:, 1], sd
 
 
+def zero_test_level(nights: int, params: Params) -> float:
+    """The zero test's interval after `nights` usable nights.
+
+    It is `zero_test_interval` up to `zero_test_spend_after` nights. After that its miss chance,
+    1 − interval, shrinks as (spend_after / nights) ** spend_power: the insight is checked every night
+    for as long as Dusk is used, and with one fixed test the share of people ever told about an effect
+    that isn't there keeps growing past the 5% mark (#117, reports/longrun.md).
+    """
+    after = params.zero_test_spend_after
+    if after <= 0 or nights <= after:
+        return params.zero_test_interval
+    miss = (1.0 - params.zero_test_interval) * math.pow(after / nights, params.zero_test_spend_power)
+    return 1.0 - miss
+
+
+def zero_test_z(nights: np.ndarray, params: Params) -> np.ndarray:
+    """The zero test's z for each person, from their usable nights; scalar maths, as in Swift."""
+    out = np.empty(len(nights))
+    for n in np.unique(nights):
+        out[nights == n] = normal_quantile(0.5 + zero_test_level(int(n), params) / 2.0)
+    return out
+
+
 def shown(state: State, params: Params) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Whether each person sees the insight: enough nights, a narrow shown range, and a stricter
     range clear of zero. Checking every night is many looks; the stricter range keeps the share of
-    people told about an effect that isn't there under 5% (reports/tuning.md)."""
+    people told about an effect that isn't there under 5% (reports/tuning.md), and it tightens as the
+    nights add up (`zero_test_level`). An insight already showing stays while the untightened test
+    holds, so a person isn't told something and then has it taken away only because time passed;
+    it is withdrawn quietly when even that fails (#117)."""
     effect, sd = start_effect(state, params)
     z = normal_quantile(0.5 + params.interval / 2.0)
     low, high = effect - z * sd, effect + z * sd
-    zt = normal_quantile(0.5 + params.zero_test_interval / 2.0)
+    strict = zero_test_z(state.nights, params)
+    base = normal_quantile(0.5 + params.zero_test_interval / 2.0)
+    clear_strict = (effect - strict * sd > 0) | (effect + strict * sd < 0)
+    clear_base = (effect - base * sd > 0) | (effect + base * sd < 0)
     ok = (
         (state.nights >= params.min_nights)
         & (high - low < params.max_width_min)
-        & ((effect - zt * sd > 0) | (effect + zt * sd < 0))
+        & (clear_strict | (state.shown & clear_base))
     )
     return ok, effect, low, high
 

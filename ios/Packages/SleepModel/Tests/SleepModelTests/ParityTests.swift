@@ -13,8 +13,14 @@ struct ParityTests {
     var artifact: ModelArtifact
     var seed: UInt64
     var allowed: [Int]
+    var allowedNights: [[Int]]?
     var nights: [NightRecord]
     var steps: [ReplayStep]
+
+    enum CodingKeys: String, CodingKey {
+      case name, artifact, seed, allowed, nights, steps
+      case allowedNights = "allowed_nights"
+    }
   }
 
   struct RNGCase: Decodable {
@@ -43,7 +49,7 @@ struct ParityTests {
   }
 
   @Test func fixturesArePresent() throws {
-    #expect(try Self.cases().count >= 8)
+    #expect(try Self.cases().count >= 12)
   }
 
   @Test func generatorMatches() throws {
@@ -58,16 +64,21 @@ struct ParityTests {
 
   @Test(arguments: try cases())
   func replayMatchesReference(_ c: Case) {
-    let steps = Replay.run(artifact: c.artifact, nights: c.nights, seed: c.seed, allowed: c.allowed)
+    let steps = Replay.run(
+      artifact: c.artifact, nights: c.nights, seed: c.seed, allowed: c.allowed,
+      allowedNights: c.allowedNights)
     #expect(steps.count == c.steps.count)
     for (night, (got, want)) in zip(steps, c.steps).enumerated() {
       let at = "\(c.name) night \(night)"
       #expect(got.context == want.context, "\(at) context")
       #expect(got.choice.offset == want.choice.offset, "\(at) chosen start")
       #expect(Self.close(got.choice.prob, want.choice.prob), "\(at) prob")
+      #expect(got.choice.holdStart == want.choice.holdStart, "\(at) hold")
+      #expect(got.choice.settled == want.choice.settled, "\(at) settled")
       #expect(got.used == want.used && got.skip == want.skip, "\(at) skip")
       #expect(got.rngState == want.rngState, "\(at) generator")
       #expect(got.state.nights == want.state.nights, "\(at) nights")
+      #expect(got.state.shown == want.state.shown, "\(at) shown")
       for (g, w) in zip(got.state.precision + got.state.b, want.state.precision + want.state.b) {
         #expect(Self.close(g, w), "\(at) state \(g) vs \(w)")
       }
