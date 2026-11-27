@@ -17,6 +17,7 @@ from dusk_model import artifact
 from dusk_model.artifact import Params
 
 from dusk_model.night import latest
+from export.versions import SHIPPED
 
 from .evaluate import replay
 from .health import records
@@ -29,7 +30,7 @@ def main() -> None:
     src.add_argument("--records", type=Path, help="night records, one JSON object per line")
     ap.add_argument("--bedtime", default="23:00", help="planned bedtime on weeknights (Health only)")
     ap.add_argument("--weekend-bedtime", default=None, help="Friday and Saturday (default: --bedtime)")
-    ap.add_argument("--artifact", type=Path, default=Path("artifacts/sleep-model.v0.json"))
+    ap.add_argument("--artifact", type=Path, default=Path(f"artifacts/{SHIPPED.VERSION}.json"))
     ap.add_argument("--out", type=Path, default=None, help="write the full report here")
     args = ap.parse_args()
     params = Params.from_artifact(artifact.load(args.artifact))

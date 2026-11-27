@@ -11,7 +11,13 @@ struct Case: Decodable {
   var artifact: ModelArtifact
   var seed: UInt64
   var allowed: [Int]?
+  var allowedNights: [[Int]]?
   var nights: [NightRecord]
+
+  enum CodingKeys: String, CodingKey {
+    case name, artifact, seed, allowed, nights
+    case allowedNights = "allowed_nights"
+  }
 }
 
 struct Output: Encodable {
@@ -27,7 +33,9 @@ while let line = readLine(strippingNewline: true) {
   else {
     continue
   }
-  let steps = Replay.run(artifact: c.artifact, nights: c.nights, seed: c.seed, allowed: c.allowed)
+  let steps = Replay.run(
+    artifact: c.artifact, nights: c.nights, seed: c.seed, allowed: c.allowed,
+    allowedNights: c.allowedNights)
   let out = try encoder.encode(Output(name: c.name, steps: steps))
   print(String(decoding: out, as: UTF8.self))
 }

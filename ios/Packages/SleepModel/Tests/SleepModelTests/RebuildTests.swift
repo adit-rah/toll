@@ -12,6 +12,7 @@ struct RebuildTests {
     var artifact: ModelArtifact
     var lines: [Data]
     var state: PersonState
+    var hold: Hold?
   }
 
   static func fixture() throws -> Fixture {
@@ -26,11 +27,19 @@ struct RebuildTests {
     }
     let state = try JSONDecoder().decode(
       PersonState.self, from: JSONSerialization.data(withJSONObject: try #require(json["state"])))
-    return Fixture(artifact: artifact, lines: lines, state: state)
+    let hold = try (json["hold"] as? [String: Any]).map {
+      try JSONDecoder().decode(Hold.self, from: JSONSerialization.data(withJSONObject: $0))
+    }
+    return Fixture(artifact: artifact, lines: lines, state: state, hold: hold)
+  }
+
+  /// sleep-model.v0, as the parity fixtures carry it: what every cache on a phone was built with.
+  static func v0() throws -> ModelArtifact {
+    try #require(try ParityTests.cases().first { $0.name == "v0-artifact" }).artifact
   }
 
   static func same(_ a: PersonState, _ b: PersonState) -> Bool {
-    a.nights == b.nights
+    a.nights == b.nights && a.shown == b.shown
       && zip(a.precision + a.b, b.precision + b.b).allSatisfy { ParityTests.close($0, $1) }
   }
 
@@ -75,12 +84,45 @@ struct RebuildTests {
     let records = ModelCache.current(f.lines)
     let cache = ModelCache.refreshed(nil, artifact: f.artifact, policy: "fixed", records: records)
     var next = f.artifact
-    next.version = "sleep-model.v1"
+    next.version = "sleep-model.v2"
     next.forgetting = 0.97
     let after = ModelCache.refreshed(cache.cache, artifact: next, policy: "fixed", records: records)
     #expect(after.rebuilt)
-    #expect(after.cache.artifact.version == "sleep-model.v1")
+    #expect(after.cache.artifact.version == "sleep-model.v2")
     #expect(after.cache.state == SleepModel(artifact: next, nights: records).state)
+  }
+
+  /// D92's path for this release: a cache built with sleep-model.v0 is rebuilt from every night
+  /// under the artifact this package ships, and comes out as Python's rebuild.
+  @Test func aV0CacheIsRebuiltUnderTheShippedArtifact() throws {
+    let f = try Self.fixture()
+    let v0 = try Self.v0()
+    #expect(v0.version == "sleep-model.v0" && v0.schema == 1)
+    var shipped = ModelArtifact.bundled()
+    shipped.sha256 = f.artifact.sha256
+    #expect(shipped == f.artifact)
+    let records = ModelCache.current(f.lines)
+    let old = ModelCache.refreshed(nil, artifact: v0, policy: "fixed", records: records)
+    let after = ModelCache.refreshed(
+      old.cache, artifact: ModelArtifact.bundled(), policy: "fixed", records: records)
+    #expect(after.rebuilt)
+    #expect(after.cache.artifact.version == "sleep-model.v1")
+    #expect(Self.same(after.cache.state, f.state))
+  }
+
+  /// After a rebuild the week's start stays where the night log says it is.
+  @Test func theHoldComesBackFromTheLog() throws {
+    let f = try Self.fixture()
+    let records = ModelCache.current(f.lines)
+    let hold = try #require(f.hold)
+    #expect(Hold.latest(in: records) == hold)
+    let model = SleepModel(artifact: f.artifact, nights: records)
+    let last = try #require(records.last)
+    var rng = SeededRNG(seed: 1)
+    let tonight = model.chooseStart(
+      night: last.night, last.context(f.artifact), held: Hold.latest(in: records), rng: &rng)
+    #expect(tonight == hold && rng == SeededRNG(seed: 1))
+    #expect(records.filter { $0.policy != "held" }.allSatisfy { $0.hold == nil })
   }
 
   @Test func theCacheRoundTrips() throws {

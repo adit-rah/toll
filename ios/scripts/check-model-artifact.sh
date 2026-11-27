@@ -5,13 +5,14 @@
 #   ios/scripts/check-model-artifact.sh [artifact.json ...]
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
-schema=1
-[ $# -gt 0 ] || set -- "$root/ios/Packages/SleepModel/Sources/SleepModel/Resources/sleep-model.v0.json"
+# Schema 1 is sleep-model.v0's; 2 added the held start (D66) and the zero test's spending (#117).
+schemas="1|2"
+[ $# -gt 0 ] || set -- "$root/ios/Packages/SleepModel/Sources/SleepModel/Resources/sleep-model.v1.json"
 if command -v sha256sum >/dev/null; then sha=(sha256sum); else sha=(shasum -a 256); fi
 status=0
 for file in "$@"; do
-  if ! grep -Eq "^  \"schema\": $schema,\$" "$file"; then
-    echo "$file: schema is not $schema" >&2
+  if ! grep -Eq "^  \"schema\": ($schemas),\$" "$file"; then
+    echo "$file: schema is not one of $schemas" >&2
     status=1
     continue
   fi
@@ -21,7 +22,7 @@ for file in "$@"; do
     echo "$file: checksum does not match (stated ${stated:-none}, actual $actual)" >&2
     status=1
   else
-    echo "$file: schema $schema, checksum ok"
+    echo "$file: schema ok, checksum ok"
   fi
 done
 exit $status

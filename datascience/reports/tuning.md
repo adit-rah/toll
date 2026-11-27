@@ -34,3 +34,10 @@ Bold marks a value outside its pass mark.
 - **"Median person gets an insight by night 28" is out of reach for any setting.** Night-to-night noise in sleep onset is about 30 minutes. Even with every start chosen equally often (floor 0.33), 28 nights hold about 20 usable ones, and that only resolves effects larger than about 15 minutes. More exploration costs sleep without speeding learning (floor 0.33 gives up nearly all the benefit and is no faster). Who gets an insight is shown by effect size in `figures/insights-by-effect.png`. This needs the founders; see `docs/decisions.md` D53.
 - **The floor and the clip are fine where the spec put them.** A higher floor only gives up benefit. A tighter clip biases estimates when outliers are one-sided (illness and parties only make sleep later).
 - **The non-linear scenario costs little.** A linear model of a curved response still moves people toward the better side (−3.8 min a night). Its coverage is the lowest in the band (89%), as expected when the base is wrong.
+
+## sleep-model.v1 (D66, #98, #117)
+
+v1 keeps every number above. What changed, and why:
+- **The start policy** is D66's held, settling week, from `dampening.md`: `hold_nights` 7, settle at the insight (`settle_at_insight`), settle at the plan once the 90% range is inside ±15 (`settle_plan_within_min`), and about one settled week in 14 draws again (`settled_explore_share` 0.07).
+- **The zero test tightens after 30 usable nights** (`zero_test_spend_after` 30, `zero_test_spend_power` 2), from `longrun.md`. With the 98% test alone, D66's policy tells about 10% of null people about an effect within a year. Tightening keeps that at 3.8% on average over six runs, and the D66 learning mark at 52%.
+- **An insight already showing keeps the 98% test**, so it isn't withdrawn only because time passed (`longrun.md`, section 4).
