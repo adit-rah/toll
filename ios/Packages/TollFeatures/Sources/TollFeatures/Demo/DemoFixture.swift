@@ -70,10 +70,11 @@
       let library = Place(
         id: PlaceID("library"), name: "Robarts Library", latitude: 43.6644, longitude: -79.3995,
         radiusMeters: 150)
-      let pauseOpen = scenario == .doorOpen || scenario == .homePauseOpen
+      let pauseOpen = [.doorOpen, .homePauseOpen, .doorOpenUsed].contains(scenario)
+      let waiting = scenario == .doorWaiting || scenario == .homePauseWaiting
       let blocked =
         scenario == .homeBlocked || scenario == .homeScreenTimeOff || scenario.isDoor || pauseOpen
-        || scenario.inGap
+        || scenario.inGap || scenario.blockedToo
       let night = TimeWindow(start: ClockTime(hour: 22, minute: 30), end: ClockTime(hour: 7))
       state.places = scenario.homeNotSet ? [library] : [home, library]
       // "Nothing scheduled" is a night with no hours: the one block Dusk always has (D73).
@@ -98,6 +99,14 @@
         gym.appCount = 2
         state.blocks.append(gym)
       }
+      if [.blocksMany, .blocksManyDay].contains(scenario) {
+        for (kind, apps) in [(Block.Kind.work, 5), (.other, 1)] {
+          var block = BlockDraft.new(kind)
+          block.id = BlockID(Copy.Blocks.kindName(kind).lowercased())
+          block.appCount = apps
+          state.blocks.append(block)
+        }
+      }
       if scenario.isDay, let end = calendar.date(bySettingHour: 17, minute: 0, second: 0, of: now) {
         state.presence[library.id] = Presence(isInside: true, at: now)
         state.runtime.active[BlockID("study")] = end
@@ -107,7 +116,7 @@
       state.presence[home.id] = Presence(isInside: scenario != .homeAway, at: now)
       let firstWeek = scenario == .homeFirstWeek || scenario == .homePillPurchase
       let later = scenario == .homeWeek || scenario == .sleepMonday
-      let paused = scenario == .homePaused
+      let paused = scenario == .homePaused || scenario == .sleepAfterTrial
       let morning = scenario.isMorning
       // Home not set: set up this evening, or the evening before the card's first night ended.
       let nightsAgo =
@@ -122,7 +131,7 @@
             : later
               ? 20
               : paused
-                ? 8
+                ? (scenario == .sleepAfterTrial ? 15 : 8)
                 : scenario == .sleepBest
                   ? 6
                   : scenario.skyNights.map { min($0, 5) } ?? scenario.sleepNights.map { min($0, 9) }
@@ -161,7 +170,7 @@
           state.dismissedCards.insert(TonightCard.beforeBed.rawValue)
         }
       }
-      if scenario == .homePaused {
+      if paused {
         state.trial.start = calendar.date(byAdding: .day, value: -15, to: now)
         state.trial.entitled = false
       }
@@ -181,13 +190,14 @@
         state.unlocks.spent = scenario == .doorNone ? 3 : 1
         state.unlocks.week = UnlockSupply.week(
           containing: now, calendar: calendar, config: .defaults)
-        if scenario == .doorWaiting || pauseOpen {
+        if waiting || pauseOpen {
           // The pause's countdowns run on the real clock, so its times do too; Tonight's hero has
-          // no countdown, so it keeps the demo's.
+          // no countdown, so it keeps the demo's. A used pause opened past the regret time (D-4).
           let real = scenario == .homePauseOpen ? now : Date()
-          var door = Door(waitEndsAt: real.addingTimeInterval(scenario == .doorWaiting ? 54 : -48))
+          let opened: TimeInterval = scenario == .doorOpenUsed ? -200 : -48
+          var door = Door(waitEndsAt: real.addingTimeInterval(waiting ? 54 : opened))
           if pauseOpen {
-            door.openedAt = real.addingTimeInterval(-48)
+            door.openedAt = real.addingTimeInterval(opened)
             door.expiresAt = door.waitEndsAt.addingTimeInterval(
               TimeInterval(TollConfig.defaults.door.minutes * 60))
           }
@@ -262,6 +272,7 @@
               blockOn: true, changed: false, home: true, inWindow: true, entitled: true))
         }
       }
+      polish(scenario)
       log.sort { $0.at < $1.at }
       addSleep(scenario, now: now)
     }

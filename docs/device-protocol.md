@@ -225,6 +225,25 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 207 | Any day other than Monday | A `weekTurn` line around 12:01 each day; nothing else changes | | |
 | 208 | Settings › Sleep: both buffers Fixed | No `weekTurn` lines from the next day | | |
 | 209 | Restart the phone Monday morning; first unlock at 12:10 | Monday's judgement still happens, with a `weekTurn` line at about 12:16 | | |
+| 210 | Run a night; 10 minutes before sleep, ask for a pause and let it open; next morning share the night records | That night's line has `dusk.pauses_before` 1, `pauses_after` 0, `waits` 1, `waits_cancelled` 0 | | |
+| 211 | During a night, start a pause's wait and cancel it within the 60 s; share the records | `dusk.waits` 1, `waits_cancelled` 1, `unlocks_used` 0 | | |
+| 212 | Ask for a pause 5 minutes after waking, inside the buffer after waking | `dusk.pauses_after` 1 | | |
+| 213 | Ask for a pause between sleep and wake | `unlocks_used` 1; `pauses_before` and `pauses_after` both 0 | | |
+| 214 | Locked with 1 pause left, start a pause, then swipe the sheet down during the 60 s wait | Tonight still says apps are locked, with Pause and the dots unchanged; Pause reopens the sheet on the running wait; the dot empties only when the wait ends | | |
+| 215 | Open a pause and watch the sheet for 3 minutes | The bar steps once a second and never glides; the regret note names a time and fades at it; "This pause is used. Locking ends it early." appears over Lock again, which doesn't move | | |
+| 216 | With no pauses left, tap "Open Dusk to pause" on a stale block screen | The week shows as night dots from Monday, the nights to come dashed; VoiceOver reads each night by its day | | |
+| 217 | Choose a pause with VoiceOver on | The dots read "2 of 3 pauses left this week. This uses 1 of 2 left this week." | | |
+| 218 | The morning after a night with a pause, open last night's card | A pause glyph sits over the break; a night with a time away from home shows a break with no glyph | | |
+| 219 | During the night, Settings › Sleep › Save with nothing changed | Nothing says a change is waiting | | |
+| 220 | During the night, Only when I'm home › Use anywhere | The hero reads "You're home · Anywhere from the next night"; after the night ends the line is back to normal and the night runs anywhere | | |
+| 221 | Buy in the sandbox: success, a failed card, Ask to Buy | Done, Try again and OK each sit exactly where Keep it was | | |
+| 222 | Open Set home with location denied, then allowed | "Open Settings" and "This is home" sit at the same height | | |
+| 223 | Restore on Welcome | The card turns to Purchased and "Set up Dusk" doesn't move | | |
+| 224 | A landmark morning, at the default size and at AX5 | The tile shows last night's moon in its corner, clear of the shape | | |
+| 225 | Edit a block with 5 apps; pick one more in Apple's picker | Three icons show; a newly arrived icon fades in and rises; icons already there don't move | | |
+| 226 | With 4 other blocks, open Blocks and tap the group | Its rows fade in as the card grows; the chevron turns; New block and the limits stay put. With Reduce Motion, a crossfade | | |
+| 227 | Open Blocks while Study is on | The group is already open; a tap folds it to "Study on until 5:00 pm" with a lock | | |
+| 228 | Save an edit to a block that's on | Its row says "Changes apply at …" in amber with a clock until the block ends | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

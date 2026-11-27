@@ -35,12 +35,7 @@ struct BlocksView: View {
         .padding(.top, TollSpacing.titleToContent)
       }
       Card {
-        ForEach(snapshot.others) { row in
-          NavigationLink(value: HomeRoute.block(row.id)) {
-            OtherBlockRow(row: row)
-          }
-          .buttonStyle(.plain)
-        }
+        OtherBlocks(rows: snapshot.others, group: snapshot.group)
         NewBlockRow(limits: snapshot.limits)
       }
       .padding(.top, 12)
@@ -68,54 +63,13 @@ private struct NightCard: View {
       if let picture = night.picture {
         NightPictureView(picture: picture)
       }
-      Text(night.detail)
-        .tollType(.detail, TollColor.label2)
-        .fixedSize(horizontal: false, vertical: true)
+      FactLine(night.facts.lines)
     }
     .padding(.vertical, TollSpacing.statsCardVertical)
     .padding(.horizontal, TollSpacing.cardPadding)
     .tollSurface()
     .contentShape(Rectangle())
     .accessibilityElement(children: .combine)
-  }
-}
-
-/// A block other than the night: its kind's tile (amber while on), name and hours, and its state as a
-/// glyph and a word.
-private struct OtherBlockRow: View {
-  let row: BlocksSnapshot.Row
-
-  var body: some View {
-    CardRow(row.name, detail: row.detail, size: .list) {
-      IconTile(.block(row.kind), accent: row.state == .on)
-    } trailing: {
-      HStack(spacing: 10) {
-        BlockState(state: row.state, text: row.stateText)
-        Chevron()
-      }
-    }
-    .accessibilityElement(children: .combine)
-  }
-}
-
-/// A block's state: the glyph first, so it reads without the word (#72, design §2.6).
-struct BlockState: View {
-  let state: BlocksSnapshot.Row.State
-  let text: String
-
-  var body: some View {
-    if state != .unscheduled {
-      StatusValue(text, symbol: symbol, tone: state == .on ? .accent : .neutral)
-    }
-  }
-
-  private var symbol: TollSymbol {
-    switch state {
-    case .on: .blocked
-    case .later, .unscheduled: .later
-    case .off: .off
-    case .waiting: .waiting
-    }
   }
 }
 
@@ -142,7 +96,7 @@ private struct NewBlockRow: View {
             Text(
               limits.blocksUsed >= limits.blocksMax
                 ? Copy.Blocks.blocksFull(limits.blocksMax)
-                : Copy.Blocks.windowsFull(limits.windowsMax)
+                : Copy.Blocks.windowsFullHint(limits.windowsMax)
             )
             .tollType(.detail, TollColor.label2)
           }
@@ -158,7 +112,8 @@ private struct NewBlockRow: View {
   }
 }
 
-/// The two limits that bite (D39, D40), as a bar and as pips, with the counts in words (#78).
+/// The two limits that bite (D39, D40), each as a bar, with the counts in words (#78). Segments are
+/// kept for the free nights (#129).
 private struct LimitsCard: View {
   let limits: BlockLimits
 
@@ -175,11 +130,7 @@ private struct LimitsCard: View {
         value: Copy.Blocks.used(limits.windowsUsed, of: limits.windowsMax),
         full: limits.windowsFull
       ) {
-        Pips(
-          filled: limits.windowsUsed, total: limits.windowsMax, style: .segments,
-          spoken: Copy.Blocks.used(limits.windowsUsed, of: limits.windowsMax)
-        )
-        .accessibilityHidden(true)
+        CapacityBar(used: limits.windowsUsed, of: limits.windowsMax)
       }
     }
   }

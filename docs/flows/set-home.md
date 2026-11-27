@@ -70,6 +70,7 @@ The night's editor reads the saved place back when the sheet closes (`BlockEdito
 The home card is one of Tonight's offers ([tonight.md](tonight.md), Tonight's band): no problem showing, the free nights not over, nothing blocking, not in the hour before the lock, a night ended since setup, no gap card or flow due, home not set and the card not put away. Last night's row may sit under it in the morning.
 
 ## Doubts
-- **"Open Settings" on Choose Always saves home at once** and closes the sheet while the person is still in iOS Settings. That is the code (`AlwaysView` calls `openSystemSettings()` then `finish()`), and it means the result of the Settings visit is only seen as Tonight's location note or its absence.
+- **"Open Settings" on Choose Always saves home at once** and closes the sheet while the person is still in iOS Settings (`AlwaysView` calls `openSystemSettings()` then `finish()`). Intended (#141): home is saved short of Always anyway (D37), so nothing waits on the Settings visit, and Dusk never asks again about it; coming back, Tonight's location note says whether Always was given, or is gone because it was.
+- **The map's button keeps its line** (#135): the bar always has a link's room, empty where there's no link (`LinkRoom`), so "This is home" and "Open Settings" with "Not now" sit at the same height (`set-home`, `set-home-off`).
 - **No render shows the map without a fix** ("No exact location yet") or the Allow screen after While Using was given.
 - **"Not now" on the blocked map** shows only when home isn't set; with home set, the blocked map offers "Use anywhere" instead, so the only way out without changing anything is the toolbar's Cancel.

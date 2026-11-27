@@ -22,8 +22,8 @@ flowchart TD
   askedHere --> sheet
 
   sheet{"The sheet: a pause under way? pauses left?"}
-  sheet -->|"none under way, some left"| choosing["Pause blocking for 10 minutes? the dots, one dashed; the 60 s wait<br/>render: door-choosing"]
-  sheet -->|"none under way, none left"| noneLeft["No pauses left · back Monday<br/>render: door-none"]
+  sheet -->|"none under way, some left"| choosing["Pause blocking for 10 minutes? the dots, one dashed: This uses 1 of 2 left this week; the 60 s wait<br/>render: door-choosing"]
+  sheet -->|"none under way, none left"| noneLeft["No pauses left · back Monday; the week's nights as dots, those to come dashed<br/>render: door-none"]
   sheet -->|"waiting"| waiting
   sheet -->|"open"| openPause
   noneLeft -->|"OK"| closedAsk[("state.json: doorAskedAt cleared; the sheet closes")]
@@ -35,16 +35,17 @@ flowchart TD
   waiting -->|"Cancel"| cancelled[("state.json: the pause removed; nothing spent")]
   cancelled --> tonightLocked
   waiting -.->|"the wait ends: the monitor's 'door' start, or the sheet's own timer"| opens[("reconcile: one pause spent; shield off for every block;<br/>counted in the gap's week if asked before bed")]
-  opens --> openPause["10:00 left, a draining bar; Lock again keeps the pause for 2 min<br/>render: door-open"]
+  opens --> openPause["10:00 left, a draining bar with a tick; Lock again before 11:43 pm and you keep the pause<br/>render: door-open"]
   openPause -->|"Lock again, within 2 min"| returned[("state.json: the pause ends and is given back")]
-  openPause -->|"Lock again, after 2 min: This pause is used"| ended[("state.json: the pause ends")]
+  openPause -.->|"2 minutes pass"| usedPause["This pause is used. Locking ends it early. Lock again<br/>render: door-open-used"]
+  usedPause -->|"Lock again"| ended[("state.json: the pause ends")]
   openPause -.->|"10 minutes: the monitor's 'door' warning, or the sheet's own timer"| ended
   openPause -.->|"every block ends while paused"| ended
   returned --> relocked["Shield back on; Tonight: Apps locked until …<br/>render: home-blocked"]
   ended --> relocked
   openPause -->|"swipe down"| heroPaused["Tonight: Paused until …, then locked until 7:00 am; Lock again<br/>render: home-pause-open"]
   heroPaused -->|"Lock again"| returned
-  waiting -->|"swipe down"| tonightWaiting["Tonight: Apps locked until …; Pause reopens the sheet on the wait<br/>render: none"]
+  waiting -->|"swipe down"| tonightWaiting["Tonight: Apps locked until …; Pause reopens the sheet on the wait<br/>render: home-pause-waiting"]
   tonightWaiting -->|"Pause"| sheet
 
   monday(["Monday noon (the night key): spent goes back to 0"]) -.-> tonightLocked
@@ -56,7 +57,8 @@ flowchart TD
 The sheet closes by itself when nothing is pending any more: the block ends, or the pause ends with no new ask (`AppModel.doorPending`).
 
 ## Doubts
-- **When `door-none` is reached in practice:** Tonight hides Pause with none left and the block screen drops its button at 0, so the "No pauses left" sheet shows only when an ask arrives with none left, for example a block screen drawn before the last pause was spent. Worth a device check.
-- **Swiping the sheet away during the wait** leaves the wait running; Tonight's state shows "Apps locked until" (the pause isn't open yet), with Pause to reopen. No render shows this in-between state.
+- **When `door-none` is reached in practice** (intended, #141): Tonight hides Pause with none left and the block screen drops its button at 0 (D47), so the "No pauses left" sheet shows only when an ask arrives with none left, for example a block screen drawn before the last pause was spent. It stays as the answer to that stale ask. Worth a device check.
+- **Swiping the sheet away during the wait** leaves the wait running; Tonight's state shows "Apps locked until" (the pause isn't open yet), with Pause to reopen (`home-pause-waiting`). The pause is spent only when the wait ends (`DoorRules.advance`), so Pause stays while the wait runs, even if it is to spend the week's last (#124).
+- **Every bar of the sheet keeps one line** (#135): choosing's "Not now" has an empty room under Cancel and Lock again (`LinkRoom`, TollUI). The bar steps with its countdown once a second, with no motion of its own (design §2.5, #151).
 - **Two timers end a pause:** the monitor's DeviceActivity warning and the sheet's own `Task.sleep`. Each sends a reconcile, and reconcile reads the stored times, so both are safe; the transition log can show two lines for one end.
 - **The block screen can't be rendered** (Family Controls in the simulator), so its node has no scenario; its words are tested in `ShieldTextTests` and checked in `docs/device-protocol.md`.

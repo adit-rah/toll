@@ -196,9 +196,12 @@ public struct HomeSnapshot: Equatable, Sendable {
       if let door = state.door, door.phase == .open, let until = door.expiresAt {
         return .paused(until: min(until, end), nightEnd: end)
       }
+      let home = sleep.place != nil && state.location == .places ? Copy.Home.youreHome : nil
+      // A change to "Only when I'm home" made tonight waits for the night's end (B-3); the hero
+      // says so, as Settings' row does (#129).
+      let held = state.homeChangeAt.map { _ in Copy.Home.homeFromNextNight(state.homeIsSet) }
       return .blocked(
-        until: end,
-        detail: sleep.place != nil && state.location == .places ? Copy.Home.youreHome : "")
+        until: end, detail: [home, held].compactMap { $0 }.joined(separator: Copy.middleDot))
     }
     guard let sleep, let start = sleep.schedule.nextStart(after: now, calendar: calendar) else {
       return .noBlocks

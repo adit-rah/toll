@@ -41,4 +41,33 @@ extension NightLog {
   public func past(calendar: Calendar) -> [PastNight] {
     current().compactMap { NightRecordLine.past($0, calendar: calendar) }
   }
+
+  /// Every recorded night as the buffer suggestion reads it, oldest first, each at its highest
+  /// revision, so Health's correction brings its sleep (#145).
+  public func buffers(calendar: Calendar) -> [BufferNight] {
+    current().compactMap { NightRecordLine.buffers($0, calendar: calendar) }
+  }
+}
+
+extension NightRecordLine {
+  /// The night as the buffer suggestion reads it (#145), from one line; nil for a line it can't
+  /// read. Records from before pauses were kept by buffer read as unknown, not as none.
+  static func buffers(_ line: Data, calendar: Calendar) -> BufferNight? {
+    guard let record = try? JSONSerialization.jsonObject(with: line) as? [String: Any],
+      let past = past(line, calendar: calendar)
+    else { return nil }
+    let iso = ISO8601DateFormatter()
+    iso.formatOptions = [.withInternetDateTime]
+    func time(_ value: Any?) -> Date? { (value as? String).flatMap(iso.date(from:)) }
+    let dusk = record["dusk"] as? [String: Any]
+    let bed = time(record["bed"]) ?? time(record["planned_bedtime"])
+    let late = time(record["sleep_onset"]).flatMap { onset in
+      bed.map { Int((onset.timeIntervalSince($0) / 60).rounded()) }
+    }
+    return BufferNight(
+      night: past.night, ran: past.ran, before: record["gap_min"] as? Int ?? 0,
+      after: record["after_min"] as? Int ?? 0, pausesBefore: dusk?["pauses_before"] as? Int,
+      pausesAfter: dusk?["pauses_after"] as? Int,
+      screenTimeOff: dusk?["screen_time_off"] as? Bool ?? false, late: late)
+  }
 }

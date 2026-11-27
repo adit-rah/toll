@@ -23,6 +23,8 @@ final class FitDraft {
   private(set) var estimate: SleepEstimate?
   /// Waiting for iOS's sheet and Health's nights.
   var reading = false
+  /// The buffers' targets were fitted from the person's own weeks (#145), not the baseline.
+  var fitted = false
 
   init(
     config: TollConfig, schedule: WeeklySchedule?, before: Fit.Buffer, after: Fit.Buffer,
@@ -51,12 +53,17 @@ final class FitDraft {
       config: config, schedule: nil, before: fit.before, after: fit.after, health: false)
   }
 
-  /// Someone already using Dusk: their night and gap as they are (`Fit.existing`).
-  static func existing(_ state: DuskState, config: TollConfig) -> FitDraft {
-    let fit = Fit.existing(state, config: config)
-    return FitDraft(
+  /// Someone already using Dusk: their night and gap as they are, and targets fitted from their
+  /// weeks where they have enough (`Fit.existing`, #145).
+  static func existing(
+    _ state: DuskState, suggestion: BufferSuggestion? = nil, config: TollConfig
+  ) -> FitDraft {
+    let fit = Fit.existing(state, suggestion: suggestion, config: config)
+    let draft = FitDraft(
       config: config, schedule: fit.sleep, before: fit.before, after: fit.after,
       health: fit.health)
+    draft.fitted = !(suggestion?.fitted.isEmpty ?? true)
+    return draft
   }
 
   /// Health answered: its usual times, weekends apart when they differ. Nil leaves the times to

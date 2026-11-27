@@ -21,7 +21,9 @@ struct FitFlowSheet: View {
   ) {
     self.app = app
     self.close = close
-    _draft = State(initialValue: draft ?? .existing(app.state, config: app.config))
+    _draft = State(
+      initialValue: draft
+        ?? .existing(app.state, suggestion: app.bufferSuggestion(), config: app.config))
     _path = State(initialValue: path)
   }
 

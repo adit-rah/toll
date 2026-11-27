@@ -33,6 +33,24 @@ public struct AppRowLabelStyle: LabelStyle {
   }
 }
 
+/// Just the icon iOS draws for a chosen app, category or site, small enough for a row's trailing
+/// side: the editor's Apps row shows up to three (#110).
+public struct AppIconLabelStyle: LabelStyle {
+  public static let side: CGFloat = 24
+  public static let radius: CGFloat = 6
+
+  public init() {}
+
+  public func makeBody(configuration: Configuration) -> some View {
+    configuration.icon
+      .font(.system(size: 19))
+      .frame(width: Self.side, height: Self.side)
+      .background(TollColor.surfaceRaised)
+      .clipShape(RoundedRectangle(cornerRadius: Self.radius, style: .continuous))
+      .accessibilityHidden(true)
+  }
+}
+
 /// "Choose more": a plus in the tile's column, the words in the accent.
 public struct ChooseMoreRow: View {
   let title: String

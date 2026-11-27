@@ -576,3 +576,43 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Assumed, for the founders:** the App Store subtitle is "Your nights, phone-free", matching Welcome (the alternative is "Buy back your sleep"). The review notes' Apple guideline numbers are to be checked before submitting.
 - **Amends D98:** a demo launch never opens the place watch; its simulated Always opened the real one, and iOS prompted over the renders.
 
+**D101. Buffer targets fitted from the person's own weeks** (2026-11-27, #145, #61; follows D76, D97).
+- **The rule** (`BufferSuggestion`, TollCore, with a Python reference and 323 parity cases in `datascience/economy/`). Each side reads its last 12 weeks from the night records, judged as Monday judges them (Screen Time off counts as hard). With fewer than 4 judged weeks the target is the baseline (60 before sleep, 30 after waking), so onboarding always offers the baseline. Otherwise the target is one step below the lowest level the person found hard at least as often as smooth (above their comfortable level), never below that level and never above the baseline.
+- **Past 60, only on Health's sign.** Before sleep can go one step past the person's level only after 3 smooth weeks there with no pause in the buffer, and when Health shows sleep starting 20 minutes or more after planned sleep (median of 14 or more lock nights). Bounds: 30–90 before, 15–30 after. Personal timing must not try −30 while the buffer is above 60 (#155).
+- **Where it shows.** Only one-time flow #1 offers it, with "Fitted to your nights so far." Monday's growth rule and Settings › Sleep are unchanged.
+- **Records.** Night records gain `dusk.pauses_before`, `dusk.pauses_after`, `dusk.waits` and `dusk.waits_cancelled`, without a format raise; older records don't count.
+- **In the simulator** (`datascience/reports/buffers.md`), every D66 mark matches D97's baseline. Dropout falls from 17.1% to 16.1% at 8 weeks and from 22.1% to 19.7% at 12. The D66 learning mark is 47.1%, below 50% because of D97's start of 30 (49.8% with a start of 15), not the fit.
+- **#61, the pause numbers: no change until real records exist** (`datascience/reports/pauses.md`). Pause length barely matters, and a cap of one a night is worse. Whether more pauses would help depends on whether more on offer creates more wants, which is unmeasured. About 75 people for 12 weeks pins the share of weeks that run out to ±5 points. Telling whether running out leads to Screen Time going off needs a randomised 3-against-4 test.
+- **Assumed, for the founders:** fitted targets only through the flow (refitting every Monday is safe in the simulator); the raise past 60 is kept, gated on Health; the buffer after waking never exceeds 30.
+
+**D102. Polish after D84–D101** (2026-11-27, #124, #129, #135, #137, #141, #151, #66).
+- **Steady bars (#135, amends D87's "Not changed").** `LinkRoom` moves to TollUI and is the rule wherever a bottom bar can gain or lose a quiet link: the room stays, empty. Purchase's terms leave the bar for the scrolling content, so Keep it, Done, OK and Try again share one line, with one 14 pt overhang on every page. The home map always ends with a link's room. Welcome keeps "Buy it now"'s room once bought.
+- **Pause bar (#151).** It steps with its countdown once a second and has no motion of its own; a continuous fill would move the whole time the sheet is open (§2.5's "Never"). The same with Reduce Motion. "Keep it" has no spinner, because a spinner loops.
+- **Segments are the free nights only (#129).** "No pauses left" draws the pauses' week as night dots, Monday's first, nights to come dashed (the sheet grows from 390 to 430 pt). Blocks' sets of hours is a `CapacityBar`.
+- **Words (#129).**
+  - Choosing a pause says "This uses 1 of 2 left this week".
+  - The regret line names a time ("Lock again before 11:43 pm and you keep the pause").
+  - Ready says "3 pauses a week, 10 min each" and "…or Dusk stops locking".
+  - Purchase's done page adds "Dusk keeps locking your apps every night."
+  - `usedLabel` is removed.
+- **Tonight (#124, #129).** A break in last night's bar that was a pause carries the `pause` glyph; a time away carries none. A held "Only when I'm home" change is said on the hero ("You're home · Anywhere from the next night").
+- **Ready (#66):** on a fresh start, tonight's free segment is ringed.
+- **Buffers (#141):** saving an unchanged buffer during the night holds nothing, and choosing the one in force takes a held change back.
+- **Your sky (#137):** the landmark tile carries last night's moon, clear of the shape; the poster's wordmark goes through `tollType`, so wordless draws it as a bar.
+- **Intended, recorded in the charts (#141).** Screen Time off's note stays after the free nights. Offers and the pill wait while any block is on. "Open Settings" on Choose Always saves home at once. Ask to Buy approvals and refunds reach the extensions at the next app run (only the app asks StoreKit, spec §9). `door-none` answers a stale ask.
+- **Assumed, for the founders:**
+  - Purchase's terms move into the content (rather than an empty band under Done).
+  - The landmark tile carries the moon.
+  - "No pauses left" draws the week (rather than dropping it).
+- **Left:** #160, #161, #162.
+
+**D103. Blocks, round two** (2026-11-27, #78, #110, #129, #141; details of D73).
+- **A block's line is facts, each led by its glyph** (`FactLine`): house, pin or globe for where; an hourglass while waiting for Always; the clock for hours, with the days riding on it; the grid for apps; the calendar when weekends differ. VoiceOver's text is unchanged.
+- **Held changes (B-3).** A held change is amber with its clock ("Changes apply at 5:00 pm"); a held delete is `warn` with the trash.
+- **App icons.** The editor's Apps row shows up to three of the apps' own icons. New ones arrive as from the picker (D73's motion); those already there don't move.
+- **Folding.** Past `blocks.foldAbove` (3) other blocks, they fold into one row: "N other blocks" with the kinds' glyphs, or the one on now with its lock. It opens on a tap, and by itself while one is on; a tap isn't kept. The chevron turns half a turn (§2.5).
+- **Lengths.** The hours show their length; the night's says its sleep and the minutes locked before and after it.
+- **Full sets of hours.** New block says what frees one ("Give two blocks the same hours to free one").
+- **Demos** use the fixture's app counts with stand-in tiles.
+- **Assumed, for the founders:** the fold threshold of 3, and no apps-count fact on other blocks' rows.
+

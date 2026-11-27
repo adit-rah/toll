@@ -79,6 +79,10 @@ public enum NightRecordLine {
         "screen_time_off": facts.screenTimeOff,
         "locked_min": Int((facts.locked / 60).rounded()),
         "taps": facts.taps.map(iso.string(from:)),
+        "pauses_before": facts.pausesBefore,
+        "pauses_after": facts.pausesAfter,
+        "waits": facts.waits,
+        "waits_cancelled": facts.waitsCancelled,
       ] as [String: Any],
     ]
     return try? JSONSerialization.data(withJSONObject: record, options: [.sortedKeys])
