@@ -15,6 +15,9 @@ extension Copy {
     public static func spends(_ left: Int) -> String {
       left == 1 ? "This uses the last one this week" : "This uses 1 of \(left) left this week"
     }
+    public static func spendsSpoken(_ left: Int, of max: Int) -> String {
+      "\(pausesLeft(left, of: max)). \(spends(left))."
+    }
     /// The day the week's pauses come back: "Monday", or "today" on the morning of it.
     public static func refillDay(_ refill: Date, now: Date, in calendar: Calendar = .current)
       -> String

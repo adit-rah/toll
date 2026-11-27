@@ -147,6 +147,17 @@
     case doorWaiting = "door-waiting"
     case doorOpen = "door-open"
     case doorNone = "door-none"
+    /// States no scenario showed (#129, #141); `DemoPolish.swift` builds them.
+    case doorOpenUsed = "door-open-used"
+    case homePauseWaiting = "home-pause-waiting"
+    case homeHeldHome = "home-held-home"
+    case homeBlockedAnywhere = "home-blocked-anywhere"
+    case sleepAfterTrial = "sleep-after-trial"
+    case settingsScreenTimeOff = "settings-screen-time-off"
+    case settingsLog = "settings-log"
+    case welcomeRunning = "welcome-running"
+    case welcomeUsed = "welcome-used"
+    case welcomeBought = "welcome-bought"
 
     static var current: DemoScenario? {
       UserDefaults.standard.string(forKey: "TollDemo").flatMap(Self.init(rawValue:))
@@ -158,7 +169,7 @@
     var setupPath: [SetupModel.Step]? {
       let around: [SetupModel.Step] = [.fit, .sleep, .around]
       switch self {
-      case .welcome: return []
+      case .welcome, .welcomeRunning, .welcomeUsed, .welcomeBought: return []
       case .fit: return [.fit]
       case .sleepFound, .sleepFoundWeekends, .sleepAsk, .sleepNone: return [.fit, .sleep]
       case .around, .aroundOff, .aroundBefore: return around
@@ -183,8 +194,11 @@
     /// Home not set yet (D68): onboarding's Sleep block has no place.
     var homeNotSet: Bool {
       (setHomePath != nil && self != .setHomeSet)
-        || [.homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere]
-          .contains(self)
+        || [
+          .homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere,
+          .homeBlockedAnywhere,
+        ]
+        .contains(self)
     }
 
     /// The simulator cannot grant Family Controls or answer the location prompt; each screen past
@@ -192,7 +206,7 @@
     var screenTime: ScreenTimeAuthorization.State? {
       switch self {
       case .blocklist, .ready, .readyHealth, .screenTimeAllowed: .approved
-      case .screenTimeDenied, .homeScreenTimeOff: .denied
+      case .screenTimeDenied, .homeScreenTimeOff, .settingsScreenTimeOff: .denied
       // Every screen after setup assumes what its board shows: everything working.
       default: isHome ? .approved : nil
       }
@@ -205,7 +219,8 @@
         .whileUsing
       case .setHomeOff: .denied
       case .setHomeLocationOff: .approximate
-      case .homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere:
+      case .homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere,
+        .homeBlockedAnywhere:
         .notDetermined
       default: isHome ? .always : nil
       }
@@ -244,9 +259,11 @@
     /// Screens pushed on the tab's stack, with the screens under them.
     var routes: [HomeRoute] {
       switch self {
-      case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing:
+      case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing,
+        .settingsScreenTimeOff:
         [.settings]
       case .settingsSleep, .settingsSleepAfter: [.settings, .sleep]
+      case .settingsLog: [.settings, .log]
       case .blockNew, .blockNewGym: [.block(nil)]
       case .blockEdit, .blockEditOn: [.block(BlockID("study"))]
       case .blockNight: [.block(BlockID("sleep"))]

@@ -10,6 +10,9 @@ struct SkyPoster: View {
   let landmark: Sky.Landmark
 
   static let size = CGSize(width: 360, height: 640)
+  /// The small wordmark: 13 pt semibold capitals, spaced wide.
+  static let wordmark = TollType(
+    size: 13, lineHeight: 16, weight: .semibold, style: .footnote, tracking: 2.6, uppercase: true)
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -29,11 +32,8 @@ struct SkyPoster: View {
           Text(date).tollType(.detail, TollColor.label2)
         }
         Spacer(minLength: 0)
-        Text(Copy.Sky.wordmark)
-          .font(.system(size: 13, weight: .semibold))
-          .tracking(2.6)
-          .textCase(.uppercase)
-          .foregroundStyle(TollColor.label2)
+        // Through the type system like every line, so the wordless test draws it as a bar (#137).
+        Text(Copy.Sky.wordmark).tollType(Self.wordmark, TollColor.label2)
       }
       .padding(.horizontal, 28)
       .padding(.top, 4)

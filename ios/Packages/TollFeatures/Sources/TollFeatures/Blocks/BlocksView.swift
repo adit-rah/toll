@@ -158,7 +158,8 @@ private struct NewBlockRow: View {
   }
 }
 
-/// The two limits that bite (D39, D40), as a bar and as pips, with the counts in words (#78).
+/// The two limits that bite (D39, D40), each as a bar, with the counts in words (#78). Segments are
+/// kept for the free nights (#129).
 private struct LimitsCard: View {
   let limits: BlockLimits
 
@@ -175,11 +176,7 @@ private struct LimitsCard: View {
         value: Copy.Blocks.used(limits.windowsUsed, of: limits.windowsMax),
         full: limits.windowsFull
       ) {
-        Pips(
-          filled: limits.windowsUsed, total: limits.windowsMax, style: .segments,
-          spoken: Copy.Blocks.used(limits.windowsUsed, of: limits.windowsMax)
-        )
-        .accessibilityHidden(true)
+        CapacityBar(used: limits.windowsUsed, of: limits.windowsMax)
       }
     }
   }

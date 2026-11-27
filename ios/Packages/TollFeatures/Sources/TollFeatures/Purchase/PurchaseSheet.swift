@@ -45,9 +45,10 @@ struct PurchaseSheet: View {
     case .purchased:
       OutcomeSheet(
         symbol: .purchased, tint: TollColor.accent, title: Copy.Purchase.doneTitle,
-        nights: model.config.trial.nights, height: Self.height
+        line: Copy.Purchase.doneLine, nights: model.config.trial.nights, height: Self.height
       ) {
         PrimaryButton(Copy.Purchase.done) { dismiss() }
+        LinkRoom(type: .smallQuiet)
       }
     case .pending:
       OutcomeSheet(
@@ -56,6 +57,7 @@ struct PurchaseSheet: View {
           ? Copy.Purchase.pendingTrialBody : Copy.Purchase.pendingBody, height: Self.height
       ) {
         PrimaryButton(Copy.Purchase.ok) { dismiss() }
+        LinkRoom(type: .smallQuiet)
       }
     case .failed:
       OutcomeSheet(
@@ -63,7 +65,8 @@ struct PurchaseSheet: View {
         line: Copy.Purchase.failedBody, height: Self.height, overhang: 16
       ) {
         PrimaryButton(Copy.Purchase.tryAgain) { Task { await buy() } }.disabled(working)
-        QuietButton(Copy.Purchase.notNow) { dismiss() }.frame(maxWidth: .infinity)
+        QuietButton(Copy.Purchase.notNow, type: .smallQuiet) { dismiss() }
+          .frame(maxWidth: .infinity)
       }
     case .nothingToRestore:
       OutcomeSheet(
@@ -71,6 +74,7 @@ struct PurchaseSheet: View {
         line: Copy.Purchase.restoreNoneBody, height: Self.height
       ) {
         PrimaryButton(Copy.Purchase.ok) { outcome = nil }
+        LinkRoom(type: .smallQuiet)
       }
     }
   }
@@ -130,18 +134,17 @@ struct PurchaseSheet: View {
         }
       }
       .padding(.top, 22)
-      // At accessibility sizes the price and its terms scroll, so "Keep it" stays pinned (§2.1).
-      if typeSize.isAccessibilitySize {
-        price.padding(.top, 22)
-        footnote.padding(.top, 8)
-      }
+      // At accessibility sizes the price scrolls, so "Keep it" stays pinned (§2.1). The terms
+      // scroll at every size: out of the bar, "Keep it" and the outcomes' buttons share one line,
+      // each over a link's room (#135).
+      if typeSize.isAccessibilitySize { price.padding(.top, 22) }
+      footnote.padding(.top, typeSize.isAccessibilitySize ? 8 : 22)
     } actions: {
       if !typeSize.isAccessibilitySize { price.padding(.bottom, 14) }
       PrimaryButton(Copy.Purchase.keep) { Task { await buy() } }.disabled(working)
       QuietButton(Copy.Purchase.restore, type: .smallQuiet) { Task { await restore() } }
         .frame(maxWidth: .infinity)
         .disabled(working)
-      if !typeSize.isAccessibilitySize { footnote }
     }
   }
 

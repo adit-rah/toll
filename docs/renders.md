@@ -53,6 +53,11 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `sleep-sky-5` · `sleep-sky-7` · `sleep-sky-30` · `sleep-sky-100` · `home-morning-landmark` · `sky-share` | Your sky (D79) at 8:10 am after 5, 7, 30 and 100 nights, and Tonight's morning on the 30th, a landmark, its row saying the landmark's line; `sky-share`: the picture a landmark shares |
 | `door-choosing` · `door-waiting` · `door-open` · `door-none` | The pause sheet (D67) over a blocked Tonight |
 | `sleep-sky-0` · `sleep-sky-180` · `sleep-sky-star` · `sleep-sky-evening` · `sleep-sky-night` · `sleep-sky-morning` | Your sky: empty (no nights yet); the second pass at 180 nights; Betelgeuse's night open in its popover, with Orion brought forward (30 nights, 8:10 am); and 30 nights in each light by the demo clock: evening 7:55 pm, night 11:40 pm, morning 8:10 am |
+| `welcome-running` · `welcome-used` · `welcome-bought` | Welcome's other offers (#141): a trial started on this phone 3 days ago, one that ended (30 days ago), and bought |
+| `home-pause-waiting` · `door-open-used` | Tonight with the pause's wait running and its sheet swiped away (Pause brings it back); the pause open past its 2 minutes, "This pause is used" over Lock again (#129, #141) |
+| `home-held-home` · `home-blocked-anywhere` | The night locked with "Use anywhere" chosen during it, held until it ends (B-3, #129); and locked with home not set (#141) |
+| `sleep-after-trial` | Your sleep after the free nights ended, not bought: the free nights' dots, two rows of seven (#129) |
+| `settings-screen-time-off` · `settings-log` | Settings with Screen Time off for Dusk, and the activity log (#141) |
 | `sleep-sky-names` | Your sky at 30 nights, 8:10 am, with every name and line brought forward, as a tap on the open sky does. A tap reaches it in any light: `sleep-sky-evening: tap -x 340 -y 270` (open sky at 30 nights) |
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):
