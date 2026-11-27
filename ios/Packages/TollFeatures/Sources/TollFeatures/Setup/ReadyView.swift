@@ -45,7 +45,12 @@ struct ReadyView: View {
       AdaptiveStack(spacing: 14) {
         fact(.anywhere, Copy.Setup.anywhere)
         fact(.apps, apps.isEmpty ? Copy.Setup.blocked : apps)
-        fact(.unlock, Copy.Setup.unlocks(unlocks))
+        // The week's pauses as dots, as everywhere they're shown (design §2.6).
+        HStack(spacing: 6) {
+          fact(.unlock, Copy.Setup.unlocks(unlocks))
+          Pips(filled: unlocks, total: unlocks, spoken: Copy.Setup.unlocks(unlocks))
+            .accessibilityHidden(true)
+        }
       }
       .padding(.vertical, 12)
       .padding(.horizontal, TollSpacing.cardPadding)

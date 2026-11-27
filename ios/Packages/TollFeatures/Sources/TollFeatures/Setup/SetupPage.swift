@@ -34,9 +34,13 @@ struct SetupPage<Content: View, Actions: View>: View {
       VStack(alignment: .leading, spacing: 0) {
         if let eyebrow {
           Group {
-            // A state's glyph before its eyebrow, as on Tonight (#72): Ready's "done" reads wordless.
+            // A state's glyph over its eyebrow, as on Tonight (#72, #76): Ready's "done" reads
+            // wordless.
             if let eyebrowSymbol {
-              StateLine(eyebrow, symbol: eyebrowSymbol, tone: .accent)
+              VStack(alignment: .leading, spacing: 4) {
+                StateMark(eyebrowSymbol, tone: .accent).padding(.leading, -8)
+                Text(eyebrow).tollType(.eyebrow, TollColor.label2)
+              }
             } else {
               Text(eyebrow).tollType(.eyebrow, TollColor.label2)
             }

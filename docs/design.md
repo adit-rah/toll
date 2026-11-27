@@ -153,6 +153,7 @@ SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbo
 | Screen Time · weekends differ · wake time | `hourglass` · `calendar` · `alarm` |
 | Done (also a block's hours that have ended today, on the strip's snippet, D75) · purchased · failed · waiting for approval · nothing found | `checkmark` · `checkmark.seal` · `xmark` · `person.badge.clock` · `magnifyingglass` |
 | Leaves for iOS Settings · privacy | `arrow.up.forward.app` · `hand.raised` |
+| Changes can't be saved (an older build read the file, #140) | `pencil.slash` |
 | Insights · Settings · add · delete · forward | `chart.bar` · `gearshape` · `plus` · `trash` · `chevron.right` |
 | Last night's folded row opens (upward) · the open card folds back (down to its row) | `chevron.up` · `chevron.down` |
 | Share Your sky's picture (landmark mornings only, D79) | `square.and.arrow.up` |

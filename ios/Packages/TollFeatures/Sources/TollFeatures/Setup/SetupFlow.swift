@@ -57,7 +57,7 @@ struct WelcomeView: View {
       if typeSize.isAccessibilitySize {
         ScrollView {
           VStack(alignment: .leading, spacing: 0) {
-            promise
+            promise()
             OfferCard(offer: offer, price: model.app.price, nights: model.app.config.trial.nights)
               .padding(.top, 24)
           }
@@ -71,7 +71,11 @@ struct WelcomeView: View {
       } else {
         VStack(alignment: .leading, spacing: 0) {
           Spacer(minLength: 24)
-          promise
+          // A small phone keeps the words and drops the picture before anything would clip.
+          ViewThatFits(in: .vertical) {
+            promise()
+            promise(picture: false)
+          }
           Spacer(minLength: 24)
         }
         .tollGutter()
@@ -91,8 +95,9 @@ struct WelcomeView: View {
     .sheet(isPresented: $nothingToRestore) { RestoreNoneSheet() }
   }
 
-  private var promise: some View {
+  private func promise(picture: Bool = true) -> some View {
     VStack(alignment: .leading, spacing: 0) {
+      if picture { WelcomePicture().padding(.bottom, 28) }
       Text(Copy.Setup.welcomeTitle)
         .tollType(.display, TollColor.label)
         .fixedSize(horizontal: false, vertical: true)
@@ -128,6 +133,28 @@ struct WelcomeView: View {
       .disabled(restoring || offer == .purchased)
       .opacity(offer == .purchased ? 0 : 1)
     }
+  }
+}
+
+/// What Dusk does, before a word is read (#76): the night's moon with a lock on it, the two
+/// symbols Tonight and the strip use for sleep and locked apps.
+private struct WelcomePicture: View {
+  var body: some View {
+    Image(symbol: .sleep).unredacted()
+      .font(.system(size: 34, weight: .medium))
+      .foregroundStyle(TollColor.accent)
+      .frame(width: 80, height: 80)
+      .background(TollColor.accentSoft, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+      .overlay(alignment: .bottomTrailing) {
+        Image(symbol: .blocked).unredacted()
+          .font(.system(size: 14, weight: .bold))
+          .foregroundStyle(TollColor.accent)
+          .frame(width: 30, height: 30)
+          .background(TollColor.surface, in: Circle())
+          .overlay(Circle().strokeBorder(TollColor.bg, lineWidth: 3))
+          .offset(x: 8, y: 8)
+      }
+      .accessibilityHidden(true)
   }
 }
 

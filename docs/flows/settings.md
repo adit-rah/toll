@@ -1,6 +1,6 @@
 # Settings
 
-**What it's for:** is everything working, the few choices Dusk has, and help. Pushed from Tonight's gear; Back returns to Tonight. Rows that leave the app carry the leave glyph; rows that only report have no chevron.
+**What it's for:** is everything working, the few choices Dusk has, and help. Pushed from Tonight's gear; Back returns to Tonight. Rows that leave the app carry the leave glyph; rows that only report have no chevron. Each check under "Is everything working?" leads with the tile of what it checks (Screen Time's hourglass, location, home or anywhere, sleep's moon, the heads-up's bell, last night's lock), and its state is a glyph and a word, so the card reads without its words (#79).
 
 **Implements:** D36 (dark first, switchable), #45 and D48 (Screen Time off is a button here), D68 and D72 (the heads-up switch, and iOS Settings after a denial), D71 and D84 (Only when I'm home, the one home picker; held changes say when they apply), D83 and D85 (Before bed held the gap and the helpers; #144 makes it Settings › Sleep, with sleep and both buffers), D84 ("Last night · Mon 10:30 pm – 7:00 am", "Purchase restored.", the version line), D62 (the night records can be shared from the activity log).
 

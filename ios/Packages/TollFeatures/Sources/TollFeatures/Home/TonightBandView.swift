@@ -70,9 +70,11 @@ struct TonightBandView: View {
         SettingsLink(Copy.Home.turnOn, action: actions.turnOnScreenTime)
       }
     case .readOnly:
-      NoteCard(Copy.Home.readOnlyCard, severity: .degraded)
+      // Each note its own glyph, so neither reads as the location note (#70, one concept per
+      // symbol): changes that can't be saved, and a night that came back without its apps.
+      NoteCard(Copy.Home.readOnlyCard, symbol: .readOnly, severity: .degraded)
     case .recovered:
-      NoteCard(Copy.Home.recoveredCard, severity: .degraded) {
+      NoteCard(Copy.Home.recoveredCard, symbol: .apps, severity: .degraded) {
         SettingsLink(Copy.Home.chooseApps, action: actions.chooseNightApps)
       }
     case .location:

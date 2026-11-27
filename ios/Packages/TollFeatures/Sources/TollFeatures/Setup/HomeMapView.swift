@@ -17,7 +17,8 @@ struct HomeMapView: View {
     ) {
       map.padding(.top, 24)
       if blocked {
-        SetupLine(Copy.Setup.homeWithoutLocation).padding(.top, 16)
+        // Location is off: the note's glyph says it, where the map would have placed home (#76).
+        NoteCard(Copy.Setup.homeWithoutLocation, severity: .degraded).padding(.top, 16)
       } else {
         Card {
           CardRow(
