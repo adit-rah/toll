@@ -217,6 +217,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 199 | VoiceOver through onboarding's new screens | Fit: "Fit Dusk to your sleep", the line, "Sleep only. Nothing is written to Health.", "Use Apple Health". Your sleep: each time is read "Fall asleep, 11:20 PM" etc. The time around: two rows, "Before sleep, 30 min tonight, growing to 60" with a hint; in its sheet each stepper reads its title and minutes, and None its state. The picture reads "Apps lock at 10:50 pm, asleep 11:20 pm to 7:10 am, apps open at 7:25 am" | | |
 | 200 | Look at the night picture, Ready, Tonight's strip and last night's card at arm's length | Before · sleep · after read as three parts: two striped ends of the same height either side of the solid bar with the moon, and the lock's start and end marked with their times | | |
 | 201 | With flow #1 due, open Dusk 45 minutes before the lock, then again the next afternoon | No card inside the hour before the lock (the band's hour); the card is back the next afternoon | | |
+| 202 | Delete Dusk, reinstall, open it; go through setup to Set home | No iOS prompt of any kind until a screen asks: Welcome, the setup steps and Screen Time's own screen show first; location is asked only on Set home, after Dusk says why. Then grant Always, force-quit, walk out of the home circle: the block lifts as before (D10) | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

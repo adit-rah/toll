@@ -556,3 +556,6 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Trade-off, accepted:** a TestFlight build from before this one can't save over a schema 4 file (D92's read-only), so a downgrade keeps the night but freezes edits until updated.
 - **Setup's progress** sits in one fixed bar over each flow's navigation stack (onboarding, flow #1's sheet, set-home), so pages slide under it; a pushed step fills once the push has landed (D96, design §2.5's "Setup step push").
 - **Open:** HealthKit must be enabled on the App ID before this merges, or Xcode Cloud can't sign the release (#86).
+
+**D98. Nothing asks for a permission before its screen** (2026-11-27, founder's TestFlight report: "the app instantly asked for permissions rather than waiting for the specific scene"). Every launch opened the place watch, with a `CLServiceSession` asking for Always and the `CLMonitor` (D10), before any screen. On a fresh install iOS takes that session as a request, so the location prompt appeared over Welcome. The watch now opens only once Dusk has Always, at launch or the moment it is given, and the monitor is synced only while it is open. Below Always, region events can't reach a closed app and blocks run on their hours (D37), so nothing is lost. Screen Time, notifications and Health were already asked only from their own screens. Device row 202.
+
