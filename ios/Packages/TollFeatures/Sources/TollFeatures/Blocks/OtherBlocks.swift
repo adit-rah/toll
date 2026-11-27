@@ -175,7 +175,7 @@ extension [BlocksSnapshot.Fact] {
     for (index, fact) in enumerated() {
       if fact.kind == .days, index > 0, self[index - 1].kind == .hours, let hours = lines.popLast()
       {
-        lines.append(FactLine.Fact(.hours, hours.text + Copy.middleDot + fact.text))
+        lines.append(FactLine.Fact(.hours, Copy.Blocks.hoursOn(hours.text, days: fact.text)))
       } else {
         lines.append(fact.line)
       }

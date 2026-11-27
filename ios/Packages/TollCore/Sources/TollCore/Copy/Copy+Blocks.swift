@@ -13,6 +13,8 @@ extension Copy {
     public static func otherBlocks(_ count: Int) -> String { "\(count) other blocks" }
     public static let showBlocksHint = "Double-tap to show each block."
     public static let hideBlocksHint = "Double-tap to fold them into one row."
+    /// A row's hours and days under one clock: "6 pm – 7 pm, Weekdays", which wraps after the comma.
+    public static func hoursOn(_ hours: String, days: String) -> String { "\(hours), \(days)" }
     public static let wholeCategory = "Whole category"
     public static let website = "Website"
     public static let appsAndSites = "Apps and sites"
