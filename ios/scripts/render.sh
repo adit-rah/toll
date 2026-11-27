@@ -13,6 +13,7 @@
 #   XCODEBUILD_ARGS  extra xcodebuild arguments (CI passes its package cache)
 #   BUILD_ONLY=1     build and stop
 #   SETTLE     most seconds to wait for a screen to stop changing (default 12)
+#   FULL_SIZE=1  keep screen.png at the device's resolution instead of 600 px wide (App Store Connect)
 set -Eeuo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 OUT=${1:-$ROOT/build/renders}
@@ -171,7 +172,7 @@ capture() {
     done
   fi
   xcrun simctl io "$UDID" screenshot "$dir/screen.png" >/dev/null 2>&1
-  sips --resampleWidth 600 "$dir/screen.png" >/dev/null
+  [ -n "${FULL_SIZE:-}" ] || sips --resampleWidth 600 "$dir/screen.png" >/dev/null
   axe describe-ui --udid "$UDID" >"$dir/ui.json" 2>&1 || true
   sed -n "${first},\$p" "$APPLOG" >"$dir/log.txt"
   find "$HOME/Library/Logs/DiagnosticReports" -name 'Toll*' -newer "$marker" -exec cp {} "$dir/" \; 2>/dev/null || true

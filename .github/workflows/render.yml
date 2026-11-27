@@ -15,6 +15,11 @@ on:
         description: "Any of: light dark ax5 dark-ax5"
         required: false
         default: "light"
+      full_size:
+        description: "Keep screenshots at the device's full resolution (for App Store Connect)"
+        type: boolean
+        required: false
+        default: false
   push:
     branches-ignore: ["main", "renders/**"]
     paths: ["ios/**", ".github/workflows/render.yml"]
@@ -76,6 +81,7 @@ jobs:
         env:
           SCENARIOS: ${{ inputs.scenarios }}
           VARIANTS: ${{ inputs.variants || env.PUSH_VARIANTS || 'light' }}
+          FULL_SIZE: ${{ inputs.full_size && '1' || '' }}
         run: ios/scripts/render.sh build/renders
       - name: Publish to renders/${{ github.ref_name }}
         if: always()

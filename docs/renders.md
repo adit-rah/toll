@@ -13,7 +13,7 @@ Expect 7–8 minutes for one or two screens, most of it the runner setting up. `
 | File | What it is |
 |---|---|
 | `README.md` | Index: commit, Xcode, device, and every screenshot in a table. A build failure or a run that stopped early says so here |
-| `<variant>/<scenario>/screen.png` | Screenshot, half size (600 px wide) |
+| `<variant>/<scenario>/screen.png` | Screenshot, half size (600 px wide); full resolution with the `full_size` input (`FULL_SIZE=1`), for App Store Connect |
 | `<variant>/<scenario>/ui.json` | Accessibility tree from `axe describe-ui`: label, value, traits and frame of every element. Read it for VoiceOver labels (design §5), truncated text, and what is actually on screen |
 | `<variant>/<scenario>/log.txt` | The app's OSLog lines for that launch (subsystem `com.advan.toll`) |
 | `<variant>/<scenario>/launch.txt` | What `simctl` said when installing and opening the app; read it when a screenshot shows the home screen |
