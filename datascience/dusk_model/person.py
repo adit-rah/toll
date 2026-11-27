@@ -10,6 +10,7 @@ from .model import State, predict, prior_state, update
 from .night import Context, features, latest, phi
 from .policy import choose_one
 from .rng import SplitMix64Batch
+from .timing import Holds, choose, day_number, hold_of, period
 
 
 class SeededRNG:
@@ -58,6 +59,42 @@ class PersonModel:
         allowed = list(self.params.actions) if allowed is None else allowed
         return choose_one(self._state, context, allowed, rng.batch, self.params)
 
+    def choose_start(
+        self,
+        night: str,
+        context: Context,
+        rng: SeededRNG,
+        allowed: list[int] | None = None,
+        held: dict | None = None,
+    ) -> dict:
+        """Tonight's hold under the artifact's policy (D66). `held` is last night's: kept while
+        tonight is in its period and its start is allowed. Returns {"start": the hold's first night,
+        "offset", "prob": its exact chance, "settled"}."""
+        allowed = list(self.params.actions) if allowed is None else allowed
+        mask = np.array([[a in allowed for a in self.params.actions]])
+        if not mask.any():
+            mask = np.array([[a == 0 for a in self.params.actions]])
+        holds = Holds.none(1)
+        if held is not None:
+            holds.period[0] = period(held["start"], self.params)
+            holds.start[0] = day_number(held["start"])
+            holds.offset[0] = held["offset"]
+            holds.prob[0] = held["prob"]
+            holds.settled[0] = held["settled"]
+        tonight = day_number(night)
+        got = choose(
+            self._state, holds, tonight, np.array([context.weekend]), np.array([context.late]),
+            mask, rng.batch, self.params,
+        )
+        if held is not None and int(got.start[0]) != tonight:
+            return dict(held)
+        return {
+            "start": night,
+            "offset": int(got.offset[0]),
+            "prob": float(got.prob[0]),
+            "settled": bool(got.settled[0]),
+        }
+
     def insights(self) -> list[dict]:
         return insight_rules.insights(self._state, self.params)
 
@@ -69,3 +106,10 @@ def rebuild(params: Params, records: list[dict]) -> PersonModel:
     for record in latest(records):
         person.update(record)
     return person
+
+
+def held(records: list[dict]) -> dict | None:
+    """The hold to keep tonight, from the night log: the latest night's, if a held policy chose it.
+    `choose_start` keeps it while tonight is in its period, so a rebuild never moves a week's start."""
+    nights = latest(records)
+    return hold_of(nights[-1]) if nights else None

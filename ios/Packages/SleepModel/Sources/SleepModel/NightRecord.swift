@@ -38,9 +38,15 @@ public struct NightRecord: Codable, Sendable, Equatable {
   /// correction is a later line for the same night with a higher `rev`.
   public var record: Int?
   public var rev: Int?
+  /// Personal timing's hold (D66), when `policy` is "held": the hold's first night, and whether the
+  /// person was settled when it was chosen. `actionOffsetMin` and `actionProb` are the hold's on
+  /// every one of its nights, including nights the lock didn't run. Nil in other records.
+  public var holdStart: String?
+  public var settled: Bool?
 
   enum CodingKeys: String, CodingKey {
-    case night, policy, weekend, wake, bed, helper, record, rev
+    case night, policy, weekend, wake, bed, helper, record, rev, settled
+    case holdStart = "hold_start"
     case gapMin = "gap_min"
     case plannedBedtime = "planned_bedtime"
     case plannedWake = "planned_wake"

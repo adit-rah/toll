@@ -15,9 +15,9 @@ from pathlib import Path
 
 from dusk_model import artifact
 
-from . import v0
 from .fixtures import all_cases, rng_case
 from .rebuild import case as rebuild_case
+from .versions import VERSIONS
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -42,9 +42,10 @@ def same(a, b, path: str, problems: list[str]) -> None:
 
 def main() -> None:
     problems: list[str] = []
-    committed = (ROOT / "artifacts" / f"{v0.VERSION}.json").read_text()
-    if committed != artifact.dumps(v0.artifact()):
-        problems.append(f"artifacts/{v0.VERSION}.json is not what export/v0.py writes")
+    for version in VERSIONS:
+        committed = (ROOT / "artifacts" / f"{version.VERSION}.json").read_text()
+        if committed != artifact.dumps(version.artifact()):
+            problems.append(f"artifacts/{version.VERSION}.json is not what {version.__name__} writes")
     lines = (ROOT / "artifacts" / "fixtures.jsonl").read_text().splitlines()
     fresh = [rng_case()] + all_cases()
     same([json.loads(line) for line in lines], json.loads(json.dumps(fresh)), "fixtures", problems)

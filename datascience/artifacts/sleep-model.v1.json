@@ -1,6 +1,6 @@
 {
-  "schema": 1,
-  "version": "sleep-model.v0",
+  "schema": 2,
+  "version": "sleep-model.v1",
   "features": [
     "intercept",
     "offset_per_30",
@@ -38,7 +38,11 @@
   ],
   "policy": {
     "min_prob": 0.1,
-    "prob_draws": 1000
+    "prob_draws": 1000,
+    "hold_nights": 7,
+    "settle_at_insight": true,
+    "settle_plan_within_min": 15.0,
+    "settled_explore_share": 0.07
   },
   "context": {
     "late_home_within_min": 60.0
@@ -51,7 +55,9 @@
     "interval": 0.9,
     "zero_test_interval": 0.98,
     "max_width_min": 30.0,
-    "min_nights": 14
+    "min_nights": 14,
+    "zero_test_spend_after": 40,
+    "zero_test_spend_power": 1.5
   },
-  "sha256": "e5ac487c9e27e81f1f3e5662f784646aa5f944f331243f76337e357f2ca95f84"
+  "sha256": "0290ffb749aaf870796a115f9c93691eaacc1f3e136d6784acf6e6c573632214"
 }
