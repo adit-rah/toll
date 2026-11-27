@@ -2,9 +2,9 @@
 
 **What it's for:** the apps lock a little before sleep and, since #144, stay locked a little after waking. Each buffer grows with the person toward its own target, week by week, unless they fix it. During the buffer before sleep Tonight offers three small helpers for the minutes until sleep. This chart covers how the buffers are set (onboarding, the one offer to an install from before D76, Monday's card, Settings › Sleep) and the helpers. People set up before #144 are offered the buffer after by [once-fit-sleep.md](once-fit-sleep.md).
 
-**Implements:** D76, D77 and D83 (the gap, its weekly rule, Monday's card, the offer to older installs), #144 (the buffer after waking, each side's target, the same rule on both sides, a pause counting against the side it was asked in), D80 and D85 (the helpers, their card and capsule, Settings' switch), B-3 (a buffer changed during the night waits until it ends; targets and the helpers' switch apply at once).
+**Implements:** D76, D77 and D83 (the gap, its weekly rule, Monday's card, the offer to older installs), #127 (Monday's judgement runs with Dusk closed), #144 (the buffer after waking, each side's target, the same rule on both sides, a pause counting against the side it was asked in), D80 and D85 (the helpers, their card and capsule, Settings' switch), B-3 (a buffer changed during the night waits until it ends; targets and the helpers' switch apply at once).
 
-**Code:** `TollCore/App/GapRules.swift`, `GapSnapshot.swift`, `Domain/Gap.swift`, `TonightCard` (`gapWeek`, `gapOffer`, `beforeBed`), `HomeSnapshot.untilBed`; `TollFeatures/App/AppModel+Gap.swift`, `AppModel+Helpers.swift`, `Settings/BeforeBedRow.swift`, `BeforeBed/HelpersSheet.swift`, `TollData/Audio/BreathTone.swift`.
+**Code:** `TollCore/App/GapRules.swift`, `WeekTurn.swift`, `GapSnapshot.swift`, `Domain/Gap.swift`, `TonightCard` (`gapWeek`, `gapOffer`, `beforeBed`), `HomeSnapshot.untilBed`; `TollFeatures/App/AppModel+Gap.swift`, `AppModel+Helpers.swift`, `Settings/BeforeBedRow.swift`, `BeforeBed/HelpersSheet.swift`, `TollData/Audio/BreathTone.swift`.
 
 ## The gap
 
@@ -17,10 +17,11 @@ flowchart TD
   offerCard -->|"Turn on"| setGap
   offerCard -->|"Not now"| offerGone[("state.json: offered off; the card never returns")]
 
-  monday(["The first wake on or after Monday noon:<br/>the app, the monitor or the block screen"]) --> judge{"Each side: grows, and last week's tally for that side says?"}
+  monday(["The first wake on or after Monday noon: the monitor's daily wake at 12:01 (#127),<br/>or before it the app, another monitor wake or the block screen"]) --> judge{"Each side: grows, and last week's tally for that side says?"}
   judge -->|"smooth week: a step of 15, up to its target"| changed[("state.json: gap.change or after.change for this week")]
   judge -->|"hard week (2 pauses asked inside that buffer), or Screen Time switched off: a step down"| changed
   judge -->|"anything else, or a fixed gap"| hold(["No change; no card"])
+  changed -.->|"the same wake, Dusk open or not"| moved{{"DeviceActivity: the lock's schedule moves to tonight's new start;<br/>from the monitor, the heads-ups go to iOS again at their new times (heads-up.md)"}}
   changed --> weekCard{"Still Monday's night (until Tuesday noon),<br/>nothing blocking, no warning, free nights not over?"}
   weekCard -->|"yes"| gapWeek["Tonight: This week, apps lock 30 min before sleep · Up from 15<br/>(when both sides changed, one line names both: … before sleep and stay locked 30 min after you wake · Up from 30 and 15 · Keep last week's)<br/>render: home-gap-week"]
   gapWeek -->|"Keep 15 (only after a rise)"| setGap
@@ -37,7 +38,12 @@ flowchart TD
   setGap -->|"yes"| held[("state.json: gap.pending; applied when the night ends (B-3)")]
   applyNow --> lockMoves["Tonight: Apps lock at … · N min before sleep;<br/>the strip's lower steps either side of the moon; heads-up moves<br/>render: home-evening"]
   held -.->|"the night ends: the monitor or the app reconciles"| applyNow
+
+  classDef system stroke-dasharray: 5 3
+  class moved system
 ```
+
+The monitor's turn is a daily DeviceActivity interval from 12:01 to 12:16, `t.1201-1216`, set by every saved reconcile while either buffer grows (`WeekTurn`). Its start and its end both reconcile, so a start before the first unlock after a restart still gets a second chance. On days other than Monday it changes nothing.
 
 ## The helpers in the gap
 

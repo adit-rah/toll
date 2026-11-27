@@ -218,6 +218,13 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 200 | Look at the night picture, Ready, Tonight's strip and last night's card at arm's length | Before · sleep · after read as three parts: two striped ends of the same height either side of the solid bar with the moon, and the lock's start and end marked with their times | | |
 | 201 | With flow #1 due, open Dusk 45 minutes before the lock, then again the next afternoon | No card inside the hour before the lock (the band's hour); the card is back the next afternoon | | |
 | 202 | Delete Dusk, reinstall, open it; go through setup to Set home | No iOS prompt of any kind until a screen asks: Welcome, the setup steps and Screen Time's own screen show first; location is asked only on Set home, after Dusk says why. Then grant Always, force-quit, walk out of the home circle: the block lifts as before (D10) | | |
+| 203 | Buffers growing: a week with at least 4 locked nights and at most 1 pause before sleep; don't open Dusk from Monday morning until after Monday's lock | The lock starts 15 min earlier than last week on Monday night; the activity log, opened Tuesday, shows `weekTurn` at about 12:01 Monday | | |
+| 204 | As row 203, with the heads-up on | Monday's heads-up arrives once, 20 min before the new lock, not at last week's time | | |
+| 205 | A week with 2 pauses before sleep, Dusk closed on Monday | Nothing blocks at last week's lock time; the lock and heads-up come 15 min later | | |
+| 206 | As row 203, with notifications off in iOS Settings | No heads-up arrives; the lock still moves | | |
+| 207 | Any day other than Monday | A `weekTurn` line around 12:01 each day; nothing else changes | | |
+| 208 | Settings › Sleep: both buffers Fixed | No `weekTurn` lines from the next day | | |
+| 209 | Restart the phone Monday morning; first unlock at 12:10 | Monday's judgement still happens, with a `weekTurn` line at about 12:16 | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

@@ -15,14 +15,14 @@ Where each number comes from:
 
 from __future__ import annotations
 
-from dusk_model.artifact import FEATURES, SCHEMA
+from dusk_model.artifact import FEATURES
 
 VERSION = "sleep-model.v0"
 
 
 def artifact() -> dict:
     return {
-        "schema": SCHEMA,
+        "schema": 1,
         "version": VERSION,
         "features": FEATURES,
         "base": {"theta": [15.0, 0.0, 30.0, 20.0]},

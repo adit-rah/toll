@@ -10,6 +10,7 @@ struct CoordinatorTests {
     var shields: [ShieldPlan] = []
     var windows: [[TimeWindow]] = []
     var doors: [String] = []
+    var turns: [TimeWindow?] = []
     var lines: [Transition] = []
     var failWindows = false
 
@@ -20,6 +21,7 @@ struct CoordinatorTests {
     }
     func startDoor(_ door: Door, config: TollConfig) throws { doors.append("start") }
     func stopDoor() { doors.append("stop") }
+    func monitor(turn: TimeWindow?) { turns.append(turn) }
     func append(_ line: Transition) { lines.append(line) }
   }
 
@@ -48,6 +50,8 @@ struct CoordinatorTests {
     #expect(setup.error == nil)
     // A new install locks 30 minutes before sleep (D76, #144): the schedule starts at 10 pm.
     #expect(fakes.windows == [[TimeWindow(start: time(22), end: time(7))]])
+    // The buffers grow, so the monitor wakes at the week's turn (#127).
+    #expect(fakes.turns == [TimeWindow(start: time(12, 1), end: time(12, 16))])
     #expect(setup.effects.places == [homePlace])
     coordinator.run(
       .arrived, [.presence(homePlace.id, Presence(isInside: true, at: date(2026, 11, 17, 23)))],

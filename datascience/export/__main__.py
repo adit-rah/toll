@@ -12,24 +12,25 @@ from pathlib import Path
 
 from dusk_model import artifact
 
-from . import v0
 from .fixtures import all_cases, check_nonempty, rng_case
 from .rebuild import case as rebuild_case
+from .versions import VERSIONS
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / "artifacts"
 
 
 def main() -> None:
-    text = artifact.dumps(v0.artifact())
-    path = ARTIFACTS / f"{v0.VERSION}.json"
-    path.write_text(text)
+    for version in VERSIONS:
+        path = ARTIFACTS / f"{version.VERSION}.json"
+        path.write_text(artifact.dumps(version.artifact()))
     cases = all_cases()
     check_nonempty(cases)
     lines = [json.dumps(rng_case())] + [json.dumps(c) for c in cases]
     (ARTIFACTS / "fixtures.jsonl").write_text("\n".join(lines) + "\n")
     (ARTIFACTS / "rebuild.json").write_text(json.dumps(rebuild_case()) + "\n")
-    print(f"wrote {path.name}, {len(lines)} fixture cases and the rebuild fixture")
+    names = ", ".join(f"{v.VERSION}.json" for v in VERSIONS)
+    print(f"wrote {names}, {len(lines)} fixture cases and the rebuild fixture")
 
 
 if __name__ == "__main__":

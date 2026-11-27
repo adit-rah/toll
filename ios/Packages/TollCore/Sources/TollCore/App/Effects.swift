@@ -8,17 +8,21 @@ public struct Effects: Hashable, Sendable {
   /// Set only when the windows to monitor changed.
   public var windows: [TimeWindow]?
   public var door: DoorSchedulePlan?
+  /// The monitor's daily wake at the week's turn (#127), or nil to have none. Decided every time,
+  /// like the shield: the adapter compares it with what DeviceActivity has.
+  public var turn: TimeWindow?
   /// The places the app should be watching; the region adapter compares and changes only what differs.
   public var places: [Place]
   public var log: Transition?
 
   public init(
     shield: ShieldPlan, windows: [TimeWindow]? = nil, door: DoorSchedulePlan? = nil,
-    places: [Place] = [], log: Transition? = nil
+    turn: TimeWindow? = nil, places: [Place] = [], log: Transition? = nil
   ) {
     self.shield = shield
     self.windows = windows
     self.door = door
+    self.turn = turn
     self.places = places
     self.log = log
   }

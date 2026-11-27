@@ -124,7 +124,7 @@ struct SettingsView: View {
     }
     .background(TollColor.bg)
     .tollPushed(Copy.Settings.title)
-    .sheet(isPresented: $explaining) { HowItWorks() }
+    .sheet(isPresented: $explaining) { HowItWorks(config: model.config) }
     .sheet(isPresented: $nothingToRestore) { RestoreNoneSheet() }
     .sheet(isPresented: $settingHome) { SetHomeFlow(app: model) { settingHome = false } }
   }

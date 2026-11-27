@@ -188,7 +188,7 @@ public final class AppModel {
   /// location at launch, before Set home has said why. Below Always, blocks run on their hours (D37).
   func watchPlaces() {
     #if DEBUG
-      // A demo's Always is simulated; the real session would put iOS's prompt over the screen.
+      // A demo's simulated Always would open the real watch, and iOS would prompt over the screen.
       if DemoScenario.current != nil { return }
     #endif
     guard !watchingPlaces, locationAccess.state == .always else { return }

@@ -24,21 +24,47 @@ extension SleepModel {
   }
 
   /// Shown only with enough nights, a shown range narrower than `maxWidthMin`, and a stricter
-  /// `zeroTestInterval` range clear of zero: checking every night is many looks, and the stricter
-  /// range keeps false insights under 5% (datascience/reports/tuning.md).
+  /// zero test clear of zero: checking every night is many looks, and the stricter range keeps
+  /// false insights under 5% (datascience/reports/tuning.md), for as long as Dusk is used
+  /// (`zeroTestLevel`). An insight already showing (`PersonState.shown`) stays while the
+  /// untightened test holds, and is no longer returned when even that fails.
   public func insights() -> [Insight] {
+    let check = insightCheck()
+    guard check.shown else { return [] }
+    return [
+      Insight(
+        kind: .start30Earlier, minutes: check.effect, low: check.low, high: check.high,
+        nights: state.nights)
+    ]
+  }
+
+  /// The insight rule's numbers whether or not it shows; personal timing settles on them (`Hold`).
+  func insightCheck() -> (shown: Bool, effect: Double, low: Double, high: Double) {
     let (effect, sd) = startEffect()
     let rule = artifact.insight
     let z = normalQuantile(0.5 + rule.interval / 2.0)
     let low = effect - z * sd
     let high = effect + z * sd
-    let zt = normalQuantile(0.5 + rule.zeroTestInterval / 2.0)
-    guard state.nights >= rule.minNights, high - low < rule.maxWidthMin,
-      effect - zt * sd > 0 || effect + zt * sd < 0
-    else { return [] }
-    return [
-      Insight(kind: .start30Earlier, minutes: effect, low: low, high: high, nights: state.nights)
-    ]
+    let strict = normalQuantile(0.5 + rule.zeroTestLevel(nights: state.nights) / 2.0)
+    let base = normalQuantile(0.5 + rule.zeroTestInterval / 2.0)
+    func clear(_ z: Double) -> Bool { effect - z * sd > 0 || effect + z * sd < 0 }
+    let shown =
+      state.nights >= rule.minNights && high - low < rule.maxWidthMin
+      && (clear(strict) || (state.shown && clear(base)))
+    return (shown, effect, low, high)
+  }
+}
+
+extension ModelArtifact.InsightRule {
+  /// The zero test's interval after `nights` usable nights, as `dusk_model/insights.py`. Past
+  /// `zeroTestSpendAfter` nights its miss chance shrinks as (after / nights) ^ power: the insight is
+  /// checked every night for as long as Dusk is used, and one fixed test lets false insights grow
+  /// past 5% (#117, datascience/reports/longrun.md).
+  public func zeroTestLevel(nights: Int) -> Double {
+    let after = zeroTestSpendAfter ?? 0
+    guard after > 0, nights > after else { return zeroTestInterval }
+    let shrink = pow(Double(after) / Double(nights), zeroTestSpendPower ?? 0)
+    return 1.0 - (1.0 - zeroTestInterval) * shrink
   }
 }
 
