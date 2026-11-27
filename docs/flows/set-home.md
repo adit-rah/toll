@@ -51,9 +51,9 @@ flowchart TD
   locOff -->|"Continue"| saveHome
 
   saveHome[("Command.setHome: Home place and the night's place<br/>state.json; held until the night ends if it is on (B-3)")]
-  saveHome --> watch[("CLMonitor 'places' watches Home")]
-  watch --> mode{"Always and Precise?"}
-  mode -->|"yes"| homeNight["Tonight: At home · starts in …, or Night ends at … while away<br/>render: home-evening, home-away"]
+  saveHome --> mode{"Always and Precise?"}
+  mode -->|"yes"| watch[("CLMonitor 'places' watches Home<br/>opened only once Dusk has Always, never before (D98)")]
+  watch --> homeNight["Tonight: At home · starts in …, or Night ends at … while away<br/>render: home-evening, home-away"]
   mode -->|"no"| locNote["Tonight: the location note, Change in Settings<br/>render: home-location"]
 
   mapSet -->|"Use anywhere"| anywhere[("Command.useAnywhere: the night's place cleared; Home kept<br/>held until the night ends if it is on")]
