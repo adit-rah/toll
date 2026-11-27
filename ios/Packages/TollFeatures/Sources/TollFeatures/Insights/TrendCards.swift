@@ -49,7 +49,9 @@ struct TrendCard: View {
       head {
         IconTile(Self.symbol(measure.kind), size: .row, accent: !measure.standIn)
         VStack(alignment: .leading, spacing: 1) {
-          Text(Copy.Trends.name(measure.kind)).tollType(.rowTitle, TollColor.label)
+          Text(Copy.Trends.name(measure.kind))
+            .tollType(.rowTitle, TollColor.label)
+            .fixedSize(horizontal: false, vertical: true)
           Text(measure.value)
             .tollType(.stat, TollColor.label)
             .contentTransition(.numericText())

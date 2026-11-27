@@ -127,9 +127,9 @@ struct LastNightBand: View {
   private var statusSymbol: TollSymbol {
     if night.asleep != nil, night.landmark == nil { return .asleep }
     switch night.outcome {
-    case .ran: .blocked
-    case .away: .away
-    case .noScreenTime: .screenTime
+    case .ran: return .blocked
+    case .away: return .away
+    case .noScreenTime: return .screenTime
     }
   }
 
