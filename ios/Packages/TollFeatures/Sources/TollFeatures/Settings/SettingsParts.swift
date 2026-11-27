@@ -116,7 +116,8 @@ struct HowItWorks: View {
   @Environment(\.dismiss) private var dismiss
 
   var body: some View {
-    SheetPage(height: 540) {
+    // Five paragraphs since the buffers' line (#127): tall enough that the last isn't under Done.
+    SheetPage(height: 610) {
       SheetTitle(Copy.Settings.howItWorks)
       ForEach(Copy.Settings.howItWorksLines(config), id: \.self) { line in
         Text(line)
