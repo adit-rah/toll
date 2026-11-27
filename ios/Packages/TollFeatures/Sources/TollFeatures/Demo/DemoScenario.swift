@@ -103,6 +103,16 @@
     case sleepSkyNight = "sleep-sky-night"
     case sleepSkyMorning = "sleep-sky-morning"
     case homeMorningLandmark = "home-morning-landmark"
+    /// Your sleep's measures (#88, `DemoSleep`), and last night's card with Health's sleep and with
+    /// the first morning's ask (#86).
+    case sleepHealthImproving = "sleep-health-improving"
+    case sleepHealthFlat = "sleep-health-flat"
+    case sleepHealthNoisy = "sleep-health-noisy"
+    case sleepDusk = "sleep-dusk"
+    case sleepFew = "sleep-few"
+    case homeMorningAsleep = "home-morning-asleep"
+    case homeMorningAsleepOpen = "home-morning-asleep-open"
+    case homeMorningAskOpen = "home-morning-ask-open"
     /// The picture a landmark shares, at 30 nights, as the share sheet would send it.
     case skyShare = "sky-share"
     /// Home not set (D68): the first evening, then the card the morning after the first night.

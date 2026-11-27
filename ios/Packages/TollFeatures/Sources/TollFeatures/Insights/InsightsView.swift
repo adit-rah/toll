@@ -2,8 +2,9 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Your sleep, the second tab (D63): it opens onto Your sky (D79), then this week as dots and a
-/// personal best when there is one (#103), then everything from the log on this phone.
+/// Your sleep, the second tab (D63): it opens onto Your sky (D79), then how the person's nights
+/// are changing (#88), then this week as dots and a personal best when there is one (#103), then
+/// everything from the log on this phone.
 struct InsightsView: View {
   let sleep: YourSleep
   /// Demo renders open with the names shown or on a star's night (docs/renders.md).
@@ -23,6 +24,8 @@ struct InsightsView: View {
         VStack(alignment: .leading, spacing: 0) {
           SkyHeader(sleep: sleep, height: sky, initialFocus: initialFocus)
           VStack(alignment: .leading, spacing: 0) {
+            // The person's improvement leads (#85, #88); what Dusk did follows as context.
+            SleepTrendsSection(trends: sleep.trends).padding(.top, 28)
             SectionHeader(sleep.weekTitle).padding(.top, 28)
             WeekDotsCard(sleep: sleep).padding(.top, TollSpacing.headerToCard)
             if let best = sleep.best {

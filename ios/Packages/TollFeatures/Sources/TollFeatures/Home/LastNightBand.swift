@@ -125,6 +125,7 @@ struct LastNightBand: View {
   /// The night's outcome in a glyph, so the row reads without its words (design §5): locked hours,
   /// away, or Screen Time.
   private var statusSymbol: TollSymbol {
+    if night.asleep != nil, night.landmark == nil { return .asleep }
     switch night.outcome {
     case .ran: .blocked
     case .away: .away

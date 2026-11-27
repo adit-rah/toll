@@ -37,12 +37,17 @@
           home: home, price: Copy.fallbackPrice,
           openSettings: {}, openDoor: {},
           openPurchase: { buying = true }, fixLocation: {}, snippet: scenario.snippet,
-          lastNightStartsOpen: [.homeMorningOpen, .homeMorningLandmarkOpen, .homeMorningCardOpen]
-            .contains(scenario)
+          lastNightStartsOpen: [
+            .homeMorningOpen, .homeMorningLandmarkOpen, .homeMorningCardOpen,
+            .homeMorningAsleepOpen, .homeMorningAskOpen,
+          ]
+          .contains(scenario)
         )
         .sheet(isPresented: $buying) { PurchaseSheet(model: app, home: home) }
       }
       .environment(\.skyDemoFocus, scenario.skyFocus)
+      // Health's ask shows as it would; in a demo it does nothing.
+      .environment(\.askHealth, {})
       .sheet(isPresented: .constant(scenario.presentsSheet)) {
         switch scenario {
         case .purchase: PurchaseSheet(model: app, home: home)

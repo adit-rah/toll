@@ -16,6 +16,17 @@ extension AppModel {
     return SleepEstimate(nights, now: now, calendar: .current, config: config)
   }
 
+  /// "See how you slept" (#86), for someone who skipped Health at setup: iOS's sheet, then
+  /// Health's sleep for the nights recorded. Health counts as chosen whatever iOS answers, since a
+  /// refusal reads as no nights; Your sleep then says a watch adds real sleep times.
+  func askHealth() async {
+    let source = SleepSource()
+    guard source.available else { return }
+    await source.requestRead()
+    send(.foreground, [.health(true)])
+    await correctNightsFromHealth()
+  }
+
   /// The day after a night, its record gets Health's sleep as a correction (D92's `rev`). Only for
   /// people who chose Health, and only for the last `health.correctDays`.
   func correctNightsFromHealth() async {

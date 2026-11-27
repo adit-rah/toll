@@ -257,9 +257,10 @@ struct Reader {
 
   /// "2 pauses in the last 7 nights", from records that kept them.
   func pausesLine() -> String? {
-    let recent = past.filter { isRecent($0.night) && $0.ran }.compactMap(\.pauses)
+    let nights = past.filter { isRecent($0.night) }
+    let recent = nights.filter(\.ran).compactMap(\.pauses)
     guard !recent.isEmpty else { return nil }
-    return Copy.Trends.pauses(recent.reduce(0, +), nights: rules.recentNights)
+    return Copy.Trends.pauses(recent.reduce(0, +), nights: nights.count)
   }
 
   func chart(
