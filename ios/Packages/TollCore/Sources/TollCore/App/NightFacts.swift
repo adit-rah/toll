@@ -43,6 +43,14 @@ public struct NightFacts: Equatable, Sendable {
   public var locked: TimeInterval = 0
   /// When each "Never mind" tap was, for Your sleep's hours of the night.
   public var taps: [Date] = []
+  /// Pauses opened that night by where they were asked, as Monday's rule counts them (D97): in the
+  /// buffer before sleep or in the one after waking; one asked while asleep counts against neither.
+  /// The buffer suggestion reads them back (#145).
+  public var pausesBefore = 0
+  public var pausesAfter = 0
+  /// Pause waits started and cancelled (D-3), for tuning the pause's numbers (#61).
+  public var waits = 0
+  public var waitsCancelled = 0
 
   public var ran: Bool { blockStart != nil }
 
@@ -88,6 +96,7 @@ public struct NightFacts: Equatable, Sendable {
       var lockedSince: Date?
       var wasOpen = false
       var opened: Date?
+      var asked: Date?
       for line in group {
         let sleeping = isSleep(line)
         if sleeping {
@@ -119,9 +128,21 @@ public struct NightFacts: Equatable, Sendable {
           facts.locked += line.at.timeIntervalSince(since)
           lockedSince = nil
         }
+        if sleeping, line.cause == .doorChosen {
+          facts.waits += 1
+          asked = line.at
+        }
+        if sleeping, line.cause == .doorCancelled { facts.waitsCancelled += 1 }
         if isOpen, !wasOpen, sleeping {
           facts.unlocksUsed += 1
           opened = line.at
+          let at = asked ?? line.at
+          if at < occurrence.start {
+            facts.pausesBefore += 1
+          } else if at >= occurrence.end {
+            facts.pausesAfter += 1
+          }
+          asked = nil
         }
         if line.cause == .doorLocked, let at = opened, line.at.timeIntervalSince(at) <= regret {
           facts.unlocksUsed -= 1

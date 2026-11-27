@@ -26,6 +26,8 @@
     case fitSheet = "fit-sheet"
     case fitSheetSleep = "fit-sheet-sleep"
     case fitSheetAround = "fit-sheet-around"
+    /// The same step for someone whose weeks fitted their targets (#145).
+    case fitSheetFitted = "fit-sheet-around-fitted"
     case settingsSleep = "settings-sleep"
     /// Each side's small sheet: before sleep from onboarding, after waking from Settings › Sleep.
     case aroundBefore = "setup-around-before"
