@@ -111,7 +111,10 @@ def build() -> dict:
 
 
 def text() -> str:
-    return json.dumps(build(), indent=1, sort_keys=True) + "\n"
+    """One case a line, so a change to the rule reads as a short diff."""
+    built = build()
+    cases = ",\n".join(json.dumps(case, sort_keys=True) for case in built["cases"])
+    return '{"rule": ' + json.dumps(built["rule"], sort_keys=True) + ',\n"cases": [\n' + cases + "\n]}\n"
 
 
 def main() -> None:
