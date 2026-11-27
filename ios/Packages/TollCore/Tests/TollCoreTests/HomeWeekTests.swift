@@ -110,6 +110,19 @@ struct HomeWeekTests {
     #expect(week(state(), date(2026, 11, 17, 15), []).supply.refillDay == nil)
   }
 
+  /// "No pauses left" draws the pauses' week as nights, from Monday's: the nights gone, tonight and
+  /// the nights still to come before they're back (#129).
+  @Test func thePausesWeekIsSevenNightsFromMonday() {
+    // Wednesday 18th, 11:40 pm: Monday's and Tuesday's nights ran, tonight's is on.
+    let now = date(2026, 11, 18, 23, 40)
+    let bars = HomeSnapshot.Supply.nights(
+      state: state(), log: nights([16, 17, 18]), now: now, calendar: london)
+    #expect(bars.count == 7)
+    #expect(bars.first?.day == "Mon")
+    #expect(bars.prefix(3).allSatisfy { $0.night == .stopped(0) })
+    #expect(bars.dropFirst(3).allSatisfy { $0.night == .ahead })
+  }
+
   /// With Screen Time off nothing blocked, whatever the engine thought: the night is named, not a
   /// blocked night and not a miss, and it still counts toward the free week (#60).
   @Test func screenTimeOffNightsAreLoggedAsSuch() {

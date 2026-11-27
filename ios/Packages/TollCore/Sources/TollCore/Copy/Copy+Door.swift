@@ -11,6 +11,13 @@ extension Copy {
       "\(left) of \(max) left this week"
     }
     public static func noneOf(_ max: Int) -> String { "0 of \(max)" }
+    /// Choosing, beside the dot it would spend, so the words count what the picture shows (#129).
+    public static func spends(_ left: Int) -> String {
+      left == 1 ? "This uses the last one this week" : "This uses 1 of \(left) left this week"
+    }
+    public static func spendsSpoken(_ left: Int, of max: Int) -> String {
+      "\(pausesLeft(left, of: max)). \(spends(left))."
+    }
     /// The day the week's pauses come back: "Monday", or "today" on the morning of it.
     public static func refillDay(_ refill: Date, now: Date, in calendar: Calendar = .current)
       -> String
@@ -57,9 +64,10 @@ extension Copy {
       case (let m, let s): "\(m) minute\(m == 1 ? "" : "s") \(s) seconds left"
       }
     }
-    /// D-4: said here and nowhere else.
-    public static func regretFor(_ clock: String) -> String {
-      "Lock again in the next \(clock) and you keep the pause."
+    /// D-4: said here and nowhere else. A time, not a second countdown beside the big one; the
+    /// bar's tick marks the same moment (#129).
+    public static func regretBefore(_ time: String) -> String {
+      "Lock again before \(time) and you keep the pause."
     }
     public static let lockAgain = "Lock again"
     /// Over "Lock again" once the regret window is over: the button now ends a pause that's spent.

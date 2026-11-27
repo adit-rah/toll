@@ -17,7 +17,8 @@ flowchart TD
   entitled -->|"yes"| nightOn{"The night's block on now?"}
   nightOn -->|"yes"| pauseOpen{"A pause open?"}
   pauseOpen -->|"yes"| paused["Paused until …, then locked until 7:00 am; Lock again<br/>render: home-pause-open"]
-  pauseOpen -->|"no"| locked["Apps locked until …; the pauses as dots; Pause<br/>render: home-blocked"]
+  pauseOpen -->|"no"| locked["Apps locked until …; You're home (or nothing with home not set); the pauses as dots; Pause<br/>render: home-blocked, home-blocked-anywhere, home-pause-waiting"]
+  locked -.->|"Only when I'm home changed tonight (held, B-3)"| lockedHeld["… · Anywhere from the next night (or Only at home from the next night)<br/>render: home-held-home"]
   nightOn -->|"no"| hasNight{"A night block with a next start?"}
   hasNight -->|"no"| noNight["Your night: Set your night<br/>render: home-no-blocks"]
   hasNight -->|"yes"| awayCheck{"Home set, location Always,<br/>inside the lock's hours, not home?"}
@@ -58,7 +59,7 @@ flowchart TD
   status -->|"it ran, with or without a break"| statusRan["lock: Locked 8 h 45 m"]
   status -->|"away"| statusAway["figure.walk: Away, nothing locked"]
   status -->|"Screen Time off"| statusOff["hourglass: Screen Time was off"]
-  row -->|"tap the row"| card["The card, grown up from its row: Last night, OK, chevron down;<br/>Apps locked from … to …; the bar; Apps open from … to …;<br/>You chose sleep over a locked app N times; Last 7 nights<br/>render: home-morning-open"]
+  row -->|"tap the row"| card["The card, grown up from its row: Last night, OK, chevron down;<br/>Apps locked from … to …; the bar, a pause's break marked with the pause glyph; Apps open from … to …;<br/>You chose sleep over a locked app N times; Last 7 nights<br/>render: home-morning-open"]
   card -->|"tap its header"| row
   card -->|"OK"| seen[("state.json: lastNightSeen = the night")]
   seen --> strip
@@ -176,10 +177,10 @@ flowchart TD
 ```
 
 ## Doubts
-- **"Your night" with Set your night** (`home-no-blocks`) is reachable only when the night's block has no rule that starts again; onboarding can't produce that, and the editor refuses an empty schedule, so it may be unreachable outside a damaged state file.
-- **Screen Time off replaces the state, but not while the free nights are over:** the Off state wins then (`if screenTimeOff, state.trial.entitled`). The note still shows (the note checks only `screenTimeOff`). Intended by #45 as far as the code says.
+- **"Your night" with Set your night** (`home-no-blocks`) is reachable only when the night's block has no rule that starts again; onboarding can't produce that, and the editor refuses an empty schedule, so it may be unreachable outside a damaged state file. With no night block at all, the button isn't drawn (`setNight` is nil): state files always hold one (`DuskState`, D73), and a lost file comes back from the night record (#140), so that state isn't reached (#124).
+- **Screen Time off replaces the state, but not while the free nights are over:** the Off state wins then (`if screenTimeOff, state.trial.entitled`). The note still shows (the note checks only `screenTimeOff`). Intended (#141): the state says the larger fact (nothing blocks until it's bought), and the note is a problem that holds until fixed (the band's rule), since after buying nothing could block with Screen Time still off.
 - **Last night's card beside another block:** the card is a review, not an offer, so it floats while Study is on in the morning, with Study's line under the state (`render: home-day`). Offers still wait while any block is on.
-- **The pill and the band's offers both hide for any block,** not only the night: `state.isBlocking` is true while Study is on, so on a weekday at 11 am there is no pill and no offer (D33 says "no selling at night"). Matches the code.
+- **The pill and the band's offers both hide for any block,** not only the night: `state.isBlocking` is true while Study is on, so on a weekday at 11 am there is no pill and no offer. Intended (#141): the band's calm times say "nothing is locked", and D85 keeps every offer away while apps are locked.
 - **A night with Screen Time off shows last night's card only if Screen Time is back on**; while it's still off, the Screen Time state replaces everything, so that night's facts aren't shown.
 - **The card floats only until noon,** as the morning card did; after that, and after OK, the strip's start is the way back to it until the next lock.
 - **The row is folded each time Tonight appears** (a tab switch, or the app coming back from the background), so an open card never greets the person. OK is only in the open card: the folded row stays until noon.

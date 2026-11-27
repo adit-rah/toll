@@ -11,10 +11,9 @@ struct HomeMapView: View {
   @State private var camera = MapCameraPosition.userLocation(fallback: .automatic)
 
   var body: some View {
-    SetupPage(
-      title: Copy.Setup.homeTitle,
-      endsWithLink: blocked || model.offersAnywhere
-    ) {
+    // Always a link's room under the button, kept empty when there's no link, so the button
+    // stays on one line when location is denied and "Not now" appears (#135).
+    SetupPage(title: Copy.Setup.homeTitle, endsWithLink: true) {
       map.padding(.top, 24)
       if blocked {
         SetupLine(Copy.Setup.homeWithoutLocation).padding(.top, 16)
@@ -63,6 +62,8 @@ struct HomeMapView: View {
         // Home set: the way back to anywhere is here, under the map (the audit).
         if model.offersAnywhere {
           QuietButton(Copy.Blocks.useAnywhere, type: .smallQuiet) { model.useAnywhere() }
+        } else {
+          LinkRoom(type: .smallQuiet)
         }
       }
     }

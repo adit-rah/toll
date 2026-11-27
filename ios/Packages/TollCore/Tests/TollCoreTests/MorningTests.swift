@@ -144,6 +144,19 @@ struct MorningTests {
     #expect(abs((morning.gaps.first?.end ?? 0) - 140.0 / 510) < 0.0001)
     #expect(
       morning.spoken.contains("open from 12:40") || morning.spoken.contains("open from 00:40"))
+    // Marked as a pause on the bar, so the break doesn't read as a glitch (#124).
+    #expect(morning.gaps.first?.paused == true)
+  }
+
+  /// A time away is a gap too, but not a pause: the bar draws no pause glyph over it (#124).
+  @Test func aTimeAwayIsAGapWithoutThePauseMark() throws {
+    let log = night(extra: [
+      line(date(2026, 11, 17, 0, 40), .left, active: [], home: false),
+      line(date(2026, 11, 17, 1, 40), .arrived, active: [sleep]),
+    ])
+    let morning = try #require(home(date(2026, 11, 17, 9), log).lastNight)
+    #expect(morning.gaps.count == 1)
+    #expect(morning.gaps.first?.paused == false)
   }
 
   /// An away night is named, never "missed" (D65).
