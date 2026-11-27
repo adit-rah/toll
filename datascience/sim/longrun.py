@@ -1,7 +1,10 @@
 """False insights and learning over a year of nights, for v1 and the variants tuned for #117.
 
     uv run python -m sim.longrun --people 1000 --out reports/longrun-sweep.json
-    uv run python -m sim.longrun --people 2000 --seed 20261127 --only v1 --out reports/longrun-v1.json
+    uv run python -m sim.longrun --people 2000 --seed 20261127 --only v0,d66,v1 --out reports/longrun-final.json
+    for s in 101 202 303 404 505 606; do uv run python -m sim.longrun --people 2000 --seed $s --only v1 \
+      --scenarios null,differ --out seed$s.json; done
+    uv run python -m sim.longrun --pool seed*.json --out reports/longrun-seeds.json
 
 The 5% mark on false insights was set at night 56, but the insight is checked every night for as long
 as Dusk is used. Each variant is an artifact (`export/v1.py` with some numbers changed) run through the
@@ -113,8 +116,32 @@ def job(args: tuple) -> tuple[str, str, dict]:
     return name, scenario, out
 
 
+KEPT = ("ever_shown_by_week_8", "ever_shown_by_week_52", "big_effect_by_56", "coverage_night_56", "benefit")
+
+
+def pool_runs(paths: list[str]) -> dict:
+    """The main numbers of several runs side by side, and their mean, per variant and scenario."""
+    runs = [json.loads(Path(p).read_text()) for p in paths]
+    out: dict = {"runs": [{"seed": r["seed"], "people": r["people"], "nights": r["nights"]} for r in runs], "variants": {}}
+    for run_ in runs:
+        for name, variant in run_["variants"].items():
+            for scenario, numbers in variant.items():
+                if scenario == "artifact":
+                    continue
+                cell = out["variants"].setdefault(name, {}).setdefault(scenario, {k: [] for k in KEPT})
+                for k in KEPT:
+                    cell[k].append(numbers.get(k))
+    for variant in out["variants"].values():
+        for cell in variant.values():
+            for k in KEPT:
+                values = [v for v in cell[k] if v is not None]
+                cell[f"{k}_mean"] = float(np.mean(values)) if values else None
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--pool", nargs="+", help="runs to put side by side, instead of running")
     ap.add_argument("--people", type=int, default=1000)
     ap.add_argument("--nights", type=int, default=YEAR)
     ap.add_argument("--seed", type=int, default=7)
@@ -123,6 +150,9 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--out", default="reports/longrun-sweep.json")
     args = ap.parse_args()
+    if args.pool:
+        Path(args.out).write_text(json.dumps(pool_runs(args.pool), indent=1) + "\n")
+        return
     names, scenarios = args.only.split(","), args.scenarios.split(",")
     started = time.time()
     jobs = [(n, s, args.people, args.seed + i, args.nights) for n in names for i, s in enumerate(scenarios)]

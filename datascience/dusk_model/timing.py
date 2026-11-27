@@ -160,7 +160,7 @@ def choose(
     idx = np.flatnonzero(new)
     if len(idx) == 0:
         return out
-    sub = State(state.precision[idx], state.b[idx], state.nights[idx])
+    sub = state.rows(idx)
     sub_rng = SplitMix64Batch(rng.state[idx])
     offset, prob, settled = draw(sub, weekend[idx], late[idx], allowed[idx], sub_rng, params)
     rng.state[idx] = sub_rng.state

@@ -246,7 +246,7 @@ def long_run() -> None:
     ax.set_xlabel("Week")
     ax.set_ylabel("Ever shown an insight, start does nothing (%)")
     ax.set_title("False insights over a year")
-    ax.legend(loc="upper left", ncols=1)
+    ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1.0))
     save(fig, "false-insights-year")
 
 

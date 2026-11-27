@@ -78,7 +78,8 @@ struct ArtifactTests {
     let limited = model.chooseStart(
       night: "2026-12-02", NightContext(allowedOffsets: other), held: next, rng: &rng)
     #expect(limited.start == "2026-12-02" && other.contains(limited.offset))
-    #expect(Day.number("2001-01-01") == 0 && Day.period(-1, 7) == -1 && Day.number("2026-1-5") == nil)
+    #expect(
+      Day.number("2001-01-01") == 0 && Day.period(-1, 7) == -1 && Day.number("2026-1-5") == nil)
   }
 
   @Test func localTimesParse() throws {

@@ -78,6 +78,7 @@ struct ParityTests {
       #expect(got.used == want.used && got.skip == want.skip, "\(at) skip")
       #expect(got.rngState == want.rngState, "\(at) generator")
       #expect(got.state.nights == want.state.nights, "\(at) nights")
+      #expect(got.state.shown == want.state.shown, "\(at) shown")
       for (g, w) in zip(got.state.precision + got.state.b, want.state.precision + want.state.b) {
         #expect(Self.close(g, w), "\(at) state \(g) vs \(w)")
       }

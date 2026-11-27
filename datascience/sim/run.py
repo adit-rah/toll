@@ -114,7 +114,7 @@ def run(w: World, params: Params, policy: str, seed: int = 0) -> Run:
         if policy == "thompson":
             for lo in range(0, count, CHUNK):
                 part = slice(lo, lo + CHUNK)
-                sub = type(state)(state.precision[part], state.b[part], state.nights[part])
+                sub = state.rows(part)
                 sub_holds = Holds(*(getattr(holds, f)[part] for f in ("period", "start", "offset", "prob", "settled")))
                 sub_rng = SplitMix64Batch(rng.state[part])
                 got = choose(

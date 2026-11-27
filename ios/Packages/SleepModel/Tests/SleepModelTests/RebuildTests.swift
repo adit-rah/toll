@@ -39,7 +39,7 @@ struct RebuildTests {
   }
 
   static func same(_ a: PersonState, _ b: PersonState) -> Bool {
-    a.nights == b.nights
+    a.nights == b.nights && a.shown == b.shown
       && zip(a.precision + a.b, b.precision + b.b).allSatisfy { ParityTests.close($0, $1) }
   }
 

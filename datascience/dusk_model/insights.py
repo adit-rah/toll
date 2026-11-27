@@ -79,15 +79,20 @@ def shown(state: State, params: Params) -> tuple[np.ndarray, np.ndarray, np.ndar
     """Whether each person sees the insight: enough nights, a narrow shown range, and a stricter
     range clear of zero. Checking every night is many looks; the stricter range keeps the share of
     people told about an effect that isn't there under 5% (reports/tuning.md), and it tightens as the
-    nights add up (`zero_test_miss`)."""
+    nights add up (`zero_test_level`). An insight already showing stays while the untightened test
+    holds, so a person isn't told something and then has it taken away only because time passed;
+    it is withdrawn quietly when even that fails (#117)."""
     effect, sd = start_effect(state, params)
     z = normal_quantile(0.5 + params.interval / 2.0)
     low, high = effect - z * sd, effect + z * sd
-    zt = zero_test_z(state.nights, params)
+    strict = zero_test_z(state.nights, params)
+    base = normal_quantile(0.5 + params.zero_test_interval / 2.0)
+    clear_strict = (effect - strict * sd > 0) | (effect + strict * sd < 0)
+    clear_base = (effect - base * sd > 0) | (effect + base * sd < 0)
     ok = (
         (state.nights >= params.min_nights)
         & (high - low < params.max_width_min)
-        & ((effect - zt * sd > 0) | (effect + zt * sd < 0))
+        & (clear_strict | (state.shown & clear_base))
     )
     return ok, effect, low, high
 

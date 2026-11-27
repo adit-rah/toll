@@ -154,6 +154,19 @@ def test_the_zero_test_tightens_only_after_its_nights():
     assert all(a < b < 1 for a, b in zip(levels, levels[1:]))
 
 
+def test_a_shown_insight_keeps_the_untightened_test():
+    """Past the spending nights a new insight needs the stricter test; one already showing stays
+    while the 98% test holds, and goes quietly when that fails too."""
+    nights_ = 4 * V1.zero_test_spend_after
+    state = confident(10.0, 3.7, nights_=nights_)  # clears 98% (z 2.33), not the tightened test
+    assert not shown(state, V1)[0][0]
+    state.shown[:] = True
+    assert shown(state, V1)[0][0]
+    weak = confident(7.0, 3.7, nights_=nights_)  # fails 98% too
+    weak.shown[:] = True
+    assert not shown(weak, V1)[0][0]
+
+
 def ever_shown_in_null(params: Params, people: int, nights_: int, seed: int) -> np.ndarray:
     w = world("null", people, seed, nights=nights_)
     r = run(w, params, "thompson", seed)

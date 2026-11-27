@@ -32,6 +32,7 @@ class PersonModel:
             self._state.precision[0] = np.array(state["precision"], dtype=float).reshape(4, 4)
             self._state.b[0] = np.array(state["b"], dtype=float)
             self._state.nights[0] = int(state["nights"])
+            self._state.shown[0] = bool(state.get("shown", False))
 
     @property
     def state(self) -> dict:

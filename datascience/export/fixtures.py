@@ -136,7 +136,7 @@ def all_cases() -> list[dict]:
         case("edges", a, edge_nights(), seed=4),
         case("never-later", a, simulated_nights("differ", 14, person=2), seed=5, allowed=[-30, 0]),
         case("only-plan", a, simulated_nights("same", 15)[:10], seed=6, allowed=[0]),
-        case("quick-settling", quick, simulated_nights("differ", 16, fade=True), seed=7),
+        case("quick-settling", quick, simulated_nights("differ", 16, fade=True, nights=112), seed=7),
         case("quick-null", quick, simulated_nights("null", 19, person=2), seed=9),
         case("five-actions", five, simulated_nights("differ", 17)[:21], seed=8),
         case("limits-change", a, simulated_nights("differ", 20)[:35], seed=10, allowed_nights=changing_limits(35)),
@@ -164,6 +164,9 @@ def check_nonempty(cases: list[dict]) -> None:
         raise AssertionError("no fixture settles at the plan")
     if not any(c["settled"] and c["prob"] < 0.5 for c in choices):
         raise AssertionError("no settled person explores")
+    pairs = [(a, b) for c in cases for a, b in zip(c["steps"], c["steps"][1:])]
+    if not any(a["state"]["shown"] and not b["state"]["shown"] for a, b in pairs):
+        raise AssertionError("no fixture withdraws an insight")
     limits = next(c for c in cases if c["name"] == "limits-change")
     starts = [s["choice"]["hold_start"] for s in limits["steps"]]
     if not any(datetime.fromisoformat(s).weekday() != 0 for s in starts):
