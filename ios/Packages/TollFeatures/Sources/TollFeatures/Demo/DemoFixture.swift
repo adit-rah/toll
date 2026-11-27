@@ -122,7 +122,7 @@
             : later
               ? 20
               : paused
-                ? 8
+                ? (scenario == .sleepAfterTrial ? 15 : 8)
                 : scenario == .sleepBest
                   ? 6 : scenario.skyNights.map { min($0, 5) } ?? (morning ? 9 : 4)
       // A personal best and a long sky need nights before these, which only the night log holds.
