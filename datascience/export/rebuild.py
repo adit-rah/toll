@@ -24,7 +24,7 @@ def as_written(record: dict, shape: int) -> dict:
     """The line the app wrote that night, before Health: no sleep fields, in the shape of its day.
 
     0: the first record (D62). 1: with bed and the gap (D83). 2: with the helper (D85).
-    3: with its own format and revision (#140).
+    3: with its own format and revision (#140). 4: format 3, with the buffer after waking (#144).
     """
     line = copy.deepcopy(record)
     for key in SLEEP:
@@ -40,6 +40,10 @@ def as_written(record: dict, shape: int) -> dict:
         line["record"] = 2
         line["rev"] = 1
         line["dusk"]["by"] = "app"
+    if shape >= 4:
+        line["record"] = 3
+        line["gap_min"] = 30
+        line["after_min"] = 15
     return line
 
 
@@ -48,14 +52,15 @@ def correction(record: dict, written: dict, rev: int | None = None) -> dict:
     line = copy.deepcopy(written)
     for key in SLEEP:
         line[key] = record[key]
-    line["record"] = 2
+    # A correction keeps its night's format: format 3 since #144, else 2 (#140).
+    line["record"] = 3 if written.get("record") == 3 else 2
     line["rev"] = rev if rev is not None else int(written.get("rev") or 1) + 1
     return line
 
 
 def lines() -> list[dict]:
     nights = simulated_nights("differ", 21)[:28]
-    written = [as_written(r, shape=i * 4 // len(nights)) for i, r in enumerate(nights)]
+    written = [as_written(r, shape=i * 5 // len(nights)) for i, r in enumerate(nights)]
     out = list(written)
     # The monitor and the app both wrote night 25: equal revisions, the first stands.
     monitor = copy.deepcopy(written[25])

@@ -19,8 +19,14 @@ public struct TollSymbol: Hashable, Sendable {
   public static let phoneDown = TollSymbol("iphone.slash")
   /// A personal best, against the person's own past (D65).
   public static let best = TollSymbol("arrow.up.to.line")
-  /// The gap before bed, when apps lock before the moon (D76): Tonight's gap cards and Ready.
+  /// The buffer before sleep, when apps lock before the moon (D76): Tonight's gap cards and Ready.
   public static let beforeBed = TollSymbol("moon.haze")
+  /// The buffer after waking, when apps stay locked after the sun (#144).
+  public static let afterWake = TollSymbol("sun.haze")
+  /// Apps open again, where the night's lock ends (#144).
+  public static let open = TollSymbol("lock.open")
+  /// Apple Health, where Dusk can read past sleep (#144).
+  public static let health = TollSymbol("heart.text.square")
   /// Before bed's helpers in the gap (D80): tomorrow's list on paper, the breathing tone, the word
   /// game with eyes closed. The capsule that opens them is the gap's own `beforeBed`.
   public static let list = TollSymbol("pencil")

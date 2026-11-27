@@ -82,10 +82,13 @@ public struct TollConfig: Codable, Sendable, Equatable {
   /// numbers are `datascience/sim/gap_rule.py`'s, so the app does what the simulator measured.
   public struct Gap: Codable, Sendable, Equatable {
     public init() {}
-    /// A new install's gap; installs from before D76 keep 0 and are offered this once.
-    public var start = 15
+    /// A new install's gap, the founders' choice: long enough to wind down from the first night,
+    /// half the target. A person may start lower. Installs from before D76 keep 0 and are offered
+    /// this once.
+    public var start = 30
     public var step = 15
-    /// The weekly rule never grows it past this; a person may choose more by hand.
+    /// The target everyone grows toward: the weekly rule never grows it past this; a person may
+    /// choose more by hand.
     public var cap = 60
     public var manualMax = 90
     /// Settings' fixed gap moves in these steps, 0 to `manualMax`.
@@ -100,6 +103,52 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var offFreezeWeeks = 2
     /// After an ease, smooth weeks in a row before it grows again.
     public var smoothAfterEase = 2
+  }
+
+  /// The buffer after sleep (#144): apps stay locked this long after waking, growing by the same
+  /// weekly rule as the gap before sleep, toward its own target.
+  public struct After: Codable, Sendable, Equatable {
+    public init() {}
+    /// A new install's, the founders' choice: on from the first night, for a calmer start to the
+    /// morning, and smaller than the gap before. 0 switches it off.
+    public var start = 15
+    /// One smooth week reaches the target, with D76's step.
+    public var step = 15
+    /// What it grows toward.
+    public var target = 30
+    public var manualMax = 60
+    public var manualStep = 15
+  }
+
+  /// Reading past sleep from Apple Health (#144): the usual time asleep and awake, from the
+  /// circular median of recent nights.
+  public struct Health: Codable, Sendable, Equatable {
+    public init() {}
+    /// How far back the estimate reads: four weeks hold both kinds of night several times.
+    public var lookbackDays = 28
+    /// Fewer nights than this and Dusk asks instead: a week is the least that says "usually".
+    public var minNights = 7
+    /// Weekends are shown apart when either median differs by this much; less is noise.
+    public var weekendSplitMinutes = 45
+    /// Each kind of night needs this many for its own median.
+    public var minWeekendNights = 3
+    /// The usual times are rounded to this, as people say them ("around 11:20 pm").
+    public var roundMinutes = 5
+    /// A night's samples run from this hour of the evening to this hour the next day.
+    public var nightStartHour = 18
+    public var nightEndHour = 14
+    /// Night records this recent are corrected with Health's sleep (D92's `rev`).
+    public var correctDays = 7
+  }
+
+  /// The buffers' targets at onboarding (#144): the same recommended baseline for everyone. Health
+  /// can't say how long a person takes to fall asleep, and how much their nights vary needs weeks
+  /// more than onboarding has, so nothing personal moves it yet; #145 personalises it later from
+  /// Dusk's own nights.
+  public struct Suggestion: Codable, Sendable, Equatable {
+    public init() {}
+    public var before = 60
+    public var after = 30
   }
 
   public struct Sky: Codable, Sendable, Equatable {
@@ -138,11 +187,11 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var breathRange: ClosedRange<Int> { breathMinMinutes...breathMaxMinutes }
   }
 
-  /// One-time flows for people already using Dusk (#140, `Flows`).
+  /// One-time flows for people already using Dusk (#140, `Flows`). None in the hour before the
+  /// lock: that's `band.nightMinutes`, the band's own, so a flow is never due when the band can't
+  /// show it.
   public struct OneTimeFlows: Codable, Sendable, Equatable {
     public init() {}
-    /// None this close to the lock: the heads-up's 20 minutes (D68) belong to the night.
-    public var quietBeforeLockMinutes = 20
     /// Offered at most this many times; "Not now" on the last applies its defaults.
     public var offers = 3
   }
@@ -163,6 +212,9 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public var blocks = Blocks()
   public var headsUp = HeadsUp()
   public var gap = Gap()
+  public var after = After()
+  public var health = Health()
+  public var suggestion = Suggestion()
   public var sky = Sky()
   public var helpers = Helpers()
   public var flows = OneTimeFlows()
@@ -171,4 +223,18 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public init() {}
 
   public static let defaults = TollConfig()
+
+  /// One side's numbers: before sleep is D76's gap; after waking its own (#144).
+  public func limits(_ side: TollCore.Gap.Side) -> TollCore.Gap.Limits {
+    switch side {
+    case .before:
+      .init(
+        start: gap.start, step: gap.step, target: gap.cap, manualMax: gap.manualMax,
+        manualStep: gap.manualStep)
+    case .after:
+      .init(
+        start: after.start, step: after.step, target: after.target,
+        manualMax: after.manualMax, manualStep: after.manualStep)
+    }
+  }
 }

@@ -4,7 +4,9 @@ import Foundation
 /// (docs/architecture.md). `Engine.apply` performs it; reconcile then decides what must be true.
 public enum Command: Sendable {
   /// Setup's answers: the Sleep block, Home if location is in use, and the trial's start (P-2, P-4).
-  case finishSetup(sleep: Block, home: Place?, trialStart: Date)
+  /// `fit` carries the buffers and Health's answer (#144); without it, a new install has D76's gap
+  /// and no buffer after.
+  case finishSetup(sleep: Block, home: Place?, trialStart: Date, fit: Fit? = nil)
   /// Add a block, or change one; held while it is active (B-3).
   case saveBlock(Block)
   /// Remove a block; held while it is active. The Sleep block cannot be removed.
@@ -26,6 +28,11 @@ public enum Command: Sendable {
   case gap(Gap.Setting)
   /// Monday's card: keep last week's gap.
   case keepGap
+  /// Settings: one side's buffer, growing or fixed, and the target it grows toward (#144). The
+  /// minutes are held while the night is on (B-3).
+  case buffer(Gap.Side, Gap.Setting, target: Int?)
+  /// The one-time flow or Settings: sleep and both buffers at once (#144).
+  case fit(Fit)
   /// Settings › Before bed's helpers: on or off, and the breath's length (D80). Applies at once:
   /// nothing about the night's hours changes.
   case helpers(Helpers)

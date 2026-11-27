@@ -21,8 +21,9 @@ struct FlowTests {
     Flows.due(state, now: now, calendar: london, registry: [sample])?.id
   }
 
-  @Test func noneAreRegisteredYet() {
-    #expect(Flows.registry.isEmpty)
+  @Test func theRegistryHoldsFitSleepAlone() {
+    #expect(Flows.registry.map(\.id) == ["fit-sleep"])
+    // Set up after #144: nothing to ask.
     #expect(Flows.due(state, now: date(2026, 11, 17, 15), calendar: london) == nil)
   }
 
@@ -46,8 +47,9 @@ struct FlowTests {
   }
 
   @Test func neverInTheMinutesBeforeTheLock() {
-    #expect(due(state, date(2026, 11, 17, 22, 15)) == nil)
-    #expect(due(state, date(2026, 11, 17, 22, 5)) == "example")
+    // The band's hour before the lock (`band.nightMinutes`): 10:30 pm, so from 9:30.
+    #expect(due(state, date(2026, 11, 17, 21, 35)) == nil)
+    #expect(due(state, date(2026, 11, 17, 21, 25)) == "example")
     var gap = state
     gap.gap.minutes = 30
     #expect(due(gap, date(2026, 11, 17, 21, 45)) == nil)
@@ -73,11 +75,31 @@ struct FlowTests {
         == "example")
   }
 
-  @Test func atMostOneADayAndShownComesBackLater() {
+  /// One flow a day: the one offered today stays offered all day, until answered or put off, and
+  /// comes back on a later day; no other flow joins it that day.
+  @Test func theFlowOfferedTodayStaysAllDay() {
+    let other = OneTimeFlow(
+      id: "other", version: 1, applies: { $0.setupFinishedAt != nil }, defaults: { _ in [] })
     var shown = state
     _ = Flows.record("example", version: 1, .shown, in: &shown, now: date(2026, 11, 17, 9))
-    #expect(due(shown, date(2026, 11, 17, 15)) == nil)
+    #expect(due(shown, date(2026, 11, 17, 15)) == "example")
+    // Still never at a moment that isn't calm.
+    #expect(due(shown, date(2026, 11, 17, 23)) == nil)
     #expect(due(shown, date(2026, 11, 18, 15)) == "example")
+    // A second flow waits for another day.
+    var answered = shown
+    _ = Flows.record("example", version: 1, .answered, in: &answered, now: date(2026, 11, 17, 16))
+    let both = [sample, other]
+    #expect(
+      Flows.due(answered, now: date(2026, 11, 17, 17), calendar: london, registry: both) == nil)
+    #expect(
+      Flows.due(answered, now: date(2026, 11, 18, 15), calendar: london, registry: both)?.id
+        == "other")
+    // "Not now" puts it away for the rest of the day.
+    var notNow = shown
+    _ = Flows.record("example", version: 1, .notNow, in: &notNow, now: date(2026, 11, 17, 10))
+    #expect(due(notNow, date(2026, 11, 17, 15)) == nil)
+    #expect(due(notNow, date(2026, 11, 18, 15)) == "example")
   }
 
   @Test func theLastNotNowAppliesItsDefaults() {

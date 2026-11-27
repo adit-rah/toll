@@ -1,5 +1,6 @@
 #if DEBUG
   import Foundation
+  import TollCore
 
   /// Tonight's band's scenarios (`TonightBand`, docs/renders.md): each pair it allows, and the hour
   /// before the lock.
@@ -29,7 +30,7 @@
       }
     }
 
-    /// The one-time flow the band shows (D92): a stub until a flow is registered.
-    var flow: String? { self == .homeMorningFlow ? "demo" : nil }
+    /// The one-time flow the band shows (D92): #1, "Fit Dusk to your sleep" (#144).
+    var flow: String? { fitOffered ? Flows.fitSleep.id : nil }
   }
 #endif

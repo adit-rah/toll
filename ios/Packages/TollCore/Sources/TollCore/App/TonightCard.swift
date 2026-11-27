@@ -59,7 +59,8 @@ extension HomeSnapshot {
       facts.nightEnded =
         sleep.schedule.lastEnd(atOrBefore: now, calendar: calendar).map { $0 > finished } == true
     }
-    if let change = state.gap.change, !change.seen, change.week == nightKey(now, calendar) {
+    // Either buffer's change, before sleep first (#144).
+    if let side = GapRules.changed(state), state[side].change?.week == nightKey(now, calendar) {
       facts.gapWeek = true
     }
     facts.setup = setupOffer(state, notifications: notifications)

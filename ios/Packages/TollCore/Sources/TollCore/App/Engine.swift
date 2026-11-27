@@ -17,15 +17,21 @@ public enum Engine {
     config: TollConfig = .defaults
   ) -> CommandError? {
     switch command {
-    case .finishSetup(let sleep, let home, let trialStart):
+    case .finishSetup(let sleep, let home, let trialStart, let fit):
       guard sleep.isSleep else { return .noSleepBlock }
       guard sleep.schedule.isValid else { return .invalidSchedule }
       if let home { upsert(home, in: &state.places) }
       state.blocks.removeAll(where: \.isSleep)
       state.blocks.insert(sleep, at: 0)
       state.trial.start = state.trial.start ?? trialStart
-      // A new install locks a gap before bed from its first night (D76).
-      if state.setupFinishedAt == nil { state.gap = .newInstall(config) }
+      // A new install locks a gap before sleep from its first night (D76), and the buffer after
+      // waking it chose (#144).
+      if state.setupFinishedAt == nil {
+        (state.gap, state.after) =
+          fit.map { Fit.install($0, config: config) }
+          ?? (.newInstall(config), .none(target: config.after.target))
+        state.health = fit?.health ?? false
+      }
       state.setupFinishedAt = now
     case .saveBlock(let block):
       if let error = validate(block, in: state, config: config) { return error }
@@ -57,7 +63,7 @@ public enum Engine {
     case .dismissCard(let card):
       switch card {
       // Monday's card is this week's; next week's change shows again.
-      case .gapWeek: state.gap.change?.seen = true
+      case .gapWeek: GapRules.seen(&state)
       case .gapOffer: state.gap.offered = false
       default: state.dismissedCards.insert(card.rawValue)
       }
@@ -67,6 +73,11 @@ public enum Engine {
       GapRules.set(setting, &state, now: now, calendar: calendar, config: config)
     case .keepGap:
       GapRules.keep(&state, now: now, calendar: calendar, config: config)
+    case .buffer(let side, let setting, let target):
+      GapRules.set(
+        side, setting, target: target, &state, now: now, calendar: calendar, config: config)
+    case .fit(let fit):
+      return Fit.apply(fit, to: &state, now: now, calendar: calendar, config: config)
     case .helpers(let helpers):
       state.helpers = helpers
       state.helpers.breathMinutes = helpers.breath(config)
@@ -78,7 +89,10 @@ public enum Engine {
       state.location = mode
     case .screenTime(let allowed):
       state.screenTimeAllowed = allowed
-      if !allowed, state.setupFinishedAt != nil { state.gap.tally.screenTimeOff = true }
+      if !allowed, state.setupFinishedAt != nil {
+        state.gap.tally.screenTimeOff = true
+        state.after.tally.screenTimeOff = true
+      }
     case .trialStart(let start):
       state.trial.start = state.trial.start.map { min($0, start) } ?? start
     case .purchased(let purchased):

@@ -28,6 +28,15 @@ struct InsightsView: View {
             if let best = sleep.best {
               BestCard(best: best).padding(.top, 12)
             }
+            // The night as it's planned, three parts: before sleep, sleep, after waking (#144).
+            if let plan = sleep.plan {
+              SectionHeader(Copy.Fit.aroundTitle).padding(.top, 28)
+              NightPictureView(picture: plan)
+                .padding(.vertical, TollSpacing.statsCardVertical)
+                .padding(.horizontal, TollSpacing.cardPadding)
+                .tollSurface()
+                .padding(.top, TollSpacing.headerToCard)
+            }
             // Design §2.5: a new range changes only its own numbers and chart, never the sky.
             VStack(alignment: .leading, spacing: 0) { ranges(insights) }
               .animation(Motion.stateChange, value: range)

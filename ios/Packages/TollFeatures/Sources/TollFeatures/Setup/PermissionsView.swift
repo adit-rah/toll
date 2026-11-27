@@ -12,7 +12,6 @@ struct LocationView: View {
 
   var body: some View {
     SetupPage(
-      step: SetHomeModel.locationStep, of: SetHomeModel.questions,
       title: Copy.Setup.locationTitle, subtitle: Copy.Setup.locationLine
     ) {
       Card {
@@ -65,7 +64,7 @@ struct AlwaysView: View {
 
   var body: some View {
     SetupPage(
-      step: SetHomeModel.locationStep, of: SetHomeModel.questions, title: Copy.Setup.alwaysTitle,
+      title: Copy.Setup.alwaysTitle,
       subtitle: Copy.Setup.alwaysLine, endsWithLink: true
     ) {
       // The setting it names, by its glyph: wordless, this is a location screen (#76).
@@ -128,7 +127,6 @@ struct LocationOffView: View {
 
   var body: some View {
     SetupPage(
-      step: SetHomeModel.locationStep, of: SetHomeModel.questions,
       title: Copy.Setup.locationOffTitle
     ) {
       Card {

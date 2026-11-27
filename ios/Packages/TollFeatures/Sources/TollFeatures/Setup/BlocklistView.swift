@@ -13,7 +13,7 @@ struct BlocklistView: View {
 
   var body: some View {
     SetupPage(
-      step: SetupModel.Step.blocklist.number, title: Copy.Setup.blockTitle,
+      title: Copy.Setup.blockTitle,
       subtitle: Copy.Setup.blockLine
     ) {
       Card {

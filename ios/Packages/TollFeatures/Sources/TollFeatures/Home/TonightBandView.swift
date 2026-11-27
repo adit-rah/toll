@@ -84,8 +84,13 @@ struct TonightBandView: View {
         card: card, headsUp: home.headsUp, gap: home.gapCard, untilBed: home.untilBed,
         open: { actions.openCard(card) }, dismiss: { actions.dismissCard(card) })
     case .flow:
-      FlowCardView(open: actions.openFlow, notNow: actions.notNowFlow)
-        .onAppear(perform: actions.flowShown)
+      // One-time flow #1, the one registered (#144): its own words, the offers' quiet card.
+      BandCard(
+        symbol: .sleep, title: Copy.Fit.cardTitle, detail: Copy.Fit.cardDetail,
+        action: Copy.Fit.cardAction, dismiss: Copy.Home.notNow, open: actions.openFlow,
+        putAway: actions.notNowFlow
+      )
+      .onAppear(perform: actions.flowShown)
     case .lastNight:
       EmptyView()
     }
@@ -103,46 +108,4 @@ struct TonightBandActions {
   var openFlow: () -> Void = {}
   var notNowFlow: () -> Void = {}
   var flowShown: () -> Void = {}
-}
-
-/// A one-time flow's card (D92), as quiet as an offer, until the flow brings its own words.
-struct FlowCardView: View {
-  let open: () -> Void
-  let notNow: () -> Void
-  @Environment(\.dynamicTypeSize) private var typeSize
-
-  var body: some View {
-    HStack(alignment: .top, spacing: TollSpacing.rowGap) {
-      IconTile(.sleep, accent: false)
-      VStack(alignment: .leading, spacing: 0) {
-        RowText(title: Copy.Band.flowTitle, detail: Copy.Band.flowDetail)
-          .accessibilityElement(children: .combine)
-        let actions =
-          typeSize.isAccessibilitySize
-          ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0))
-          : AnyLayout(HStackLayout(spacing: 20))
-        actions {
-          Button(action: open) {
-            HStack(spacing: 4) {
-              Text(Copy.Band.flowAction)
-              Image(symbol: .forward).unredacted()
-                .font(.system(size: 12, weight: .bold))
-                .accessibilityHidden(true)
-            }
-          }
-          .tollType(.action, TollColor.accent)
-          .frame(minHeight: TollSpacing.minTapTarget)
-          Button(Copy.Home.notNow, action: notNow)
-            .tollType(.action, TollColor.label2)
-            .frame(minHeight: TollSpacing.minTapTarget)
-        }
-        .padding(.top, 2)
-      }
-    }
-    .padding(.top, TollSpacing.noteCardVertical)
-    .padding(.bottom, 2)
-    .padding(.horizontal, TollSpacing.cardPadding)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .tollSurface()
-  }
 }

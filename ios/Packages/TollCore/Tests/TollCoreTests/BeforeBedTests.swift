@@ -17,7 +17,7 @@ struct BeforeBedTests {
       apply(
         .finishSetup(
           sleep: sleepBlock(place: home ? homePlace.id : nil), home: home ? homePlace : nil,
-          trialStart: date(2026, 11, 16, 15)), &state, date(2026, 11, 16, 15)) == nil)
+          trialStart: date(2026, 11, 16, 15), fit: d76), &state, date(2026, 11, 16, 15)) == nil)
     state.trial.purchased = true
     state.dismissedCards = [TonightCard.headsUp.rawValue]
     run(&state, date(2026, 11, 16, 15))
@@ -158,7 +158,8 @@ struct BeforeBedTests {
     ]
     let state = installed()
     let nights = NightFacts.ended(
-      log: log, sleep: sleepBlock(), gap: state.gap, since: date(2026, 11, 17, 12),
+      log: log, sleep: sleepBlock(), gap: state.gap, after: state.after,
+      since: date(2026, 11, 17, 12),
       now: date(2026, 11, 19, 9), calendar: london)
     #expect(nights.map(\.helper) == [.breathe, nil])
     // Nothing else about the night moves: the block screen wasn't touched.

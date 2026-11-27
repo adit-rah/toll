@@ -16,9 +16,31 @@ extension AppModel {
 
   // MARK: Setup and blocks
 
-  func finishSetup(sleep: Block, home: Place?) {
+  func finishSetup(sleep: Block, home: Place?, fit: Fit? = nil) {
     let trialStart = TrialClock().begin(now: Date())
-    send(.edit, [.finishSetup(sleep: Blocklist.counted(sleep), home: home, trialStart: trialStart)])
+    send(
+      .edit,
+      [.finishSetup(sleep: Blocklist.counted(sleep), home: home, trialStart: trialStart, fit: fit)])
+  }
+
+  /// Sleep and both buffers, from the one-time flow or Settings › Sleep (#144). Held while the
+  /// night is on (B-3).
+  @discardableResult
+  func fit(_ fit: Fit) -> CommandError? {
+    send(.edit, [.fit(fit)])
+  }
+
+  /// One side's buffer from Settings › Sleep: growing toward a target, or fixed.
+  func setBuffer(_ side: Gap.Side, _ setting: Gap.Setting, target: Int?) {
+    send(.edit, [.buffer(side, setting, target: target)])
+  }
+
+  /// How the one-time flow went (`Flows`): shown, answered with the person's fit, or not now.
+  func flow(_ id: String, _ outcome: FlowRecord.Outcome, fit: Fit? = nil) {
+    guard let flow = Flows.registry.first(where: { $0.id == id }) else { return }
+    let answer: [Command] = fit.map { [.fit($0)] } ?? []
+    send(.edit, answer + [.flow(id: id, version: flow.version, outcome)])
+    if outcome != .shown { dueFlow = nil }
   }
 
   /// "Only when I'm home" (D68): Home saved and the night waiting for it, held while a night is on.

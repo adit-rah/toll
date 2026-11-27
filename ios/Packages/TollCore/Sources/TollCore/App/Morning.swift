@@ -31,6 +31,9 @@ public struct Morning: Equatable, Sendable {
   /// Where the block was on; the room between two of them is a gap (a pause, or a time away).
   public var ran: [Span]
   public var gaps: [Span]
+  /// Sleep inside the night's planned hours (#144): bed to wake as fractions, so the bar draws the
+  /// buffer before, sleep and the buffer after as three parts.
+  public var sleep = Span(start: 0, end: 1)
   /// How long apps were locked, to the minute: the stretches added up, breaks left out.
   public var lockedMinutes: Int
   /// What the bar says, in a sentence over it: "Apps locked from 10:15 pm to 7:00 am", or why
@@ -65,7 +68,7 @@ public struct Morning: Equatable, Sendable {
     // Only last night matters, so the search starts a day and a half back rather than at setup.
     guard
       let night = NightFacts.ended(
-        log: lines, sleep: sleep, gap: state.gap,
+        log: lines, sleep: sleep, gap: state.gap, after: state.after,
         since: max(setup, now.addingTimeInterval(-36 * 3600)),
         now: now, calendar: calendar, regret: TimeInterval(config.door.regretSeconds)
       ).last,
@@ -91,6 +94,7 @@ public struct Morning: Equatable, Sendable {
       min(1, max(0, date.timeIntervalSince(night.plannedStart) / length))
     }
     ran = stretches.map { Span(start: fraction($0.start), end: fraction($0.end)) }
+    self.sleep = Span(start: fraction(night.bed), end: fraction(night.wake))
     let holes = zip(stretches, stretches.dropFirst()).map { (start: $0.end, end: $1.start) }
     gaps = holes.map { Span(start: fraction($0.start), end: fraction($0.end)) }
     let locked = stretches.reduce(0) { $0 + $1.end.timeIntervalSince($1.start) }

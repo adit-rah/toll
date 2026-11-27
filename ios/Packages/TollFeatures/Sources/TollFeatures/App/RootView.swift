@@ -66,6 +66,8 @@ struct LiveHome: View {
   @State private var settingHome = false
   /// Before bed's helpers, from the capsule or its card (D80).
   @State private var helpersUp = false
+  /// One-time flow #1, "Fit Dusk to your sleep", from its card (#144).
+  @State private var fitting = false
 
   var body: some View {
     DuskTabs(
@@ -110,9 +112,13 @@ struct LiveHome: View {
           },
           putAwayLastNight: { model.putAwayLastNight($0) },
           // Pushed on Tonight, so Back returns to the strip it came from (D75).
-          openBlock: { path.append(.block($0)) }
+          openBlock: { path.append(.block($0)) },
+          openFlow: { fitting = true },
+          notNowFlow: { if let id = dueFlow(Date()) { model.flow(id, .notNow) } },
+          flowShown: { if let id = dueFlow(Date()) { model.flow(id, .shown) } }
         )
         .sheet(isPresented: $settingHome) { SetHomeFlow(app: model) { settingHome = false } }
+        .sheet(isPresented: $fitting) { FitFlowSheet(app: model) { fitting = false } }
         .sheet(isPresented: $helpersUp) { HelpersSheet(model: model) { helpersUp = false } }
       }
     }
@@ -142,7 +148,13 @@ struct LiveHome: View {
       screenTime: model.screenTime == .approved,
       // Not read yet: no offer, rather than one that vanishes a moment later.
       notifications: model.notifications ?? .allowed, history: model.history,
-      readOnly: model.readOnly)
+      readOnly: model.readOnly, flow: dueFlow(now))
+  }
+
+  /// The one-time flow due now (`Flows.due`), read with the clock so the band follows the day:
+  /// none in the hour before the lock or during the night.
+  private func dueFlow(_ now: Date) -> String? {
+    Flows.due(model.state, now: now, calendar: .current, config: model.config)?.id
   }
 
   private var doorShown: Binding<Bool> {
@@ -167,6 +179,7 @@ struct HomeDestination: View {
     case .block(let id): BlockEditorView(app: model, editing: id)
     case .nightApps(let id): BlockEditorView(app: model, editing: id, pickingApps: true)
     case .log: TransitionLogView(model: model)
+    case .sleep: SleepSettingsView(model: model)
     }
   }
 }
@@ -175,6 +188,8 @@ struct HomeDestination: View {
 /// place).
 enum HomeRoute: Hashable {
   case settings, log
+  /// Settings › Sleep: sleep and both buffers (#144).
+  case sleep
   /// A block to edit, or nil for a new one; pushed over Blocks, or over Tonight from the strip's
   /// snippet (D75), so Back returns where it came from.
   case block(BlockID?)

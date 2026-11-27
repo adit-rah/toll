@@ -1,11 +1,31 @@
 import Foundation
 
-/// The gap before bed (D76): the night's block locks this many minutes before bed, and wake never
-/// moves. Growing, it follows the weekly rule (`judge`, as `datascience/sim/gap_rule.py` simulated
-/// it); fixed, it stays where the person put it. The code calls the stored night start bed.
+/// A buffer around the person's sleep (D76, #144). The night's block stores sleep, bed (when they
+/// fall asleep) to wake; the lock adds the buffer before (`DuskState.gap`) and the one after
+/// (`DuskState.after`). Growing, a buffer follows the weekly rule (`judge`, as
+/// `datascience/sim/gap_rule.py` simulated it) toward its own target; fixed, it stays where the
+/// person put it.
 public struct Gap: Codable, Hashable, Sendable {
   public enum Mode: String, Codable, Hashable, Sendable {
     case grows, fixed
+  }
+
+  /// Which side of sleep a buffer is on.
+  public enum Side: String, Hashable, Sendable, CaseIterable {
+    /// Apps lock this long before sleep.
+    case before
+    /// Apps stay locked this long after waking.
+    case after
+  }
+
+  /// A side's numbers from `TollConfig`: where a new one starts, its step, the target it grows
+  /// toward unless the person or the suggestion chose another, and what a person may choose.
+  public struct Limits: Equatable, Sendable {
+    public var start: Int
+    public var step: Int
+    public var target: Int
+    public var manualMax: Int
+    public var manualStep: Int
   }
 
   /// What the person chose in Settings, or on a Tonight card.
@@ -55,6 +75,9 @@ public struct Gap: Codable, Hashable, Sendable {
   /// In force tonight.
   public var minutes = 0
   public var mode = Mode.fixed
+  /// Growing never takes it past this (#144): the suggestion's, or the person's. D76's 60 for a
+  /// gap from before it.
+  public var target = TollConfig.defaults.gap.cap
   /// A change made while the night's block is on; it applies when that night ends (B-3).
   public var pending: Setting?
   /// Smooth weeks in a row since the last growth or ease.
@@ -74,9 +97,22 @@ public struct Gap: Codable, Hashable, Sendable {
 
   /// A new install's gap: it starts at `start` and grows.
   public static func newInstall(_ config: TollConfig = .defaults) -> Gap {
+    growing(from: config.gap.start, to: config.gap.cap)
+  }
+
+  /// A buffer that starts at `start` and grows toward `target` (#144).
+  public static func growing(from start: Int, to target: Int) -> Gap {
     var gap = Gap()
-    gap.minutes = config.gap.start
+    gap.minutes = min(max(start, 0), max(target, 0))
+    gap.target = max(target, 0)
     gap.mode = .grows
+    return gap
+  }
+
+  /// No buffer: what a night without one has, and the after side before it was offered (#144).
+  public static func none(target: Int) -> Gap {
+    var gap = Gap()
+    gap.target = target
     return gap
   }
 
@@ -103,18 +139,29 @@ public struct Gap: Codable, Hashable, Sendable {
     return history.last { $0.night <= night }?.minutes ?? 0
   }
 
-  /// The next number the weekly rule would grow it to; nil when fixed or at the cap.
-  public func next(_ config: TollConfig) -> Int? {
-    guard mode == .grows, minutes < config.gap.cap else { return nil }
-    return min(minutes + config.gap.step, config.gap.cap)
+  /// The next number the weekly rule would grow it to; nil when fixed or at its target.
+  public func next(_ step: Int) -> Int? {
+    guard mode == .grows, minutes < target else { return nil }
+    return min(minutes + step, target)
   }
 
-  /// A setting held inside its bounds: growing, at most the cap; fixed, 0 to the manual most.
+  public func next(_ config: TollConfig) -> Int? { next(config.gap.step) }
+
+  /// A setting held inside its bounds: growing, at most its target; fixed, 0 to the manual most.
   public static func clamped(_ setting: Setting, _ config: TollConfig) -> Setting {
+    clamped(setting, target: config.gap.cap, limits: config.limits(.before))
+  }
+
+  public static func clamped(_ setting: Setting, target: Int, limits: Limits) -> Setting {
     switch setting {
-    case .grows(let minutes): .grows(min(max(minutes, 0), config.gap.cap))
-    case .fixed(let minutes): .fixed(min(max(minutes, 0), config.gap.manualMax))
+    case .grows(let minutes): .grows(min(max(minutes, 0), target))
+    case .fixed(let minutes): .fixed(min(max(minutes, 0), limits.manualMax))
     }
+  }
+
+  /// A target a person or the suggestion chose, inside what a person may choose.
+  public static func clamped(target: Int, limits: Limits) -> Int {
+    min(max(target, 0), limits.manualMax)
   }
 
   /// Puts a setting in force from the next night to start, keyed by today. A gap that starts
@@ -140,67 +187,4 @@ public struct Gap: Codable, Hashable, Sendable {
     history.append(Entry(night: night, minutes: minutes))
     if history.count > 12 { history.removeFirst(history.count - 12) }
   }
-
-  // MARK: The weekly rule
-
-  public enum Verdict: Equatable, Sendable {
-    case smooth, hard, screenTimeOff, hold
-  }
-
-  public static func verdict(_ tally: Tally, _ config: TollConfig) -> Verdict {
-    if tally.screenTimeOff { return .screenTimeOff }
-    if tally.pausesInGap >= config.gap.hardPauses { return .hard }
-    if tally.nights.count >= config.gap.smoothMinNights,
-      tally.pausesInGap <= config.gap.smoothMaxPauses
-    {
-      return .smooth
-    }
-    return .hold
-  }
-
-  /// Monday `week`'s judgement of the week before it (D76): smooth grows by a step, up to the cap,
-  /// unless frozen or still owed smooth weeks after an ease; hard or Screen Time off eases by a
-  /// step; Screen Time off also freezes growth for the next Mondays. Anything else holds. Returns
-  /// the new number.
-  mutating func judge(_ tally: Tally, week: Date, calendar: Calendar, config: TollConfig) -> Int {
-    guard mode == .grows else { return minutes }
-    let verdict = Self.verdict(tally, config)
-    let ease = verdict == .hard || verdict == .screenTimeOff
-    if verdict == .screenTimeOff {
-      frozenThrough = calendar.date(
-        byAdding: .day, value: 7 * config.gap.offFreezeWeeks, to: week)
-    }
-    streak = verdict == .smooth ? streak + 1 : 0
-    let needed = eased ? config.gap.smoothAfterEase : 1
-    let frozen = frozenThrough.map { week <= $0 } ?? false
-    let grow = verdict == .smooth && streak >= needed && !frozen && minutes < config.gap.cap
-    var next = minutes
-    if grow { next += config.gap.step }
-    if ease { next -= config.gap.step }
-    if grow { streak = 0 }
-    eased = (eased && !grow) || ease
-    return min(max(next, 0), config.gap.cap)
-  }
-}
-
-extension WeeklySchedule {
-  /// The lock's hours: each rule's start moved `minutes` earlier, wake unchanged (D76). A start
-  /// moved back past midnight starts the day before. Never longer than a day can hold.
-  public func locking(_ minutes: Int) -> WeeklySchedule {
-    guard minutes > 0 else { return self }
-    return WeeklySchedule(
-      rules: rules.map { rule in
-        let room = 1440 - TimeWindow.minimumMinutes - rule.window.minutes
-        let lead = max(0, min(minutes, room))
-        let start = rule.window.start.adding(minutes: -lead)
-        let days =
-          start.minuteOfDay > rule.window.start.minuteOfDay
-          ? Set(rule.days.map(\.previous)) : rule.days
-        return Rule(days: days, window: TimeWindow(start: start, end: rule.window.end))
-      })
-  }
-}
-
-extension Weekday {
-  var previous: Weekday { Weekday(rawValue: (rawValue + 5) % 7 + 1) ?? .sunday }
 }

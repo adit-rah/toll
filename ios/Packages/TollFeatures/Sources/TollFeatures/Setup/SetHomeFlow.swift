@@ -35,6 +35,10 @@ struct SetHomeFlowContent: View {
           }
         }
     }
+    .setupProgress(
+      step: model.path.isEmpty ? SetHomeModel.mapStep : SetHomeModel.locationStep,
+      of: SetHomeModel.questions, inset: 72
+    )
     .tint(TollColor.accent)
   }
 }

@@ -5,7 +5,7 @@ from dusk_model import artifact
 from dusk_model.artifact import Params
 from dusk_model.insights import normal_quantile, shown
 from dusk_model.model import cholesky, mean, predict, prior_state, update
-from dusk_model.night import Context, bed_of, features, gap_of, helper_of
+from dusk_model.night import Context, after_of, bed_of, features, gap_of, helper_of
 from dusk_model.person import PersonModel, SeededRNG
 from dusk_model.policy import choose
 from dusk_model.rng import SplitMix64, SplitMix64Batch
@@ -179,6 +179,14 @@ def test_records_with_a_gap_measure_sleep_from_bed():
     assert gap_of(old) == 0 and bed_of(old) == bed_of(record(bed=old["planned_bedtime"]))
     new = record(bed="2026-11-20T23:00:00-05:00", gap_min=30)
     assert gap_of(new) == 30
+    assert features(new, PARAMS).y == features(old, PARAMS).y == 20.0
+
+
+def test_records_with_a_buffer_after_keep_measuring_sleep_from_bed():
+    old = record()
+    assert "after_min" not in old and after_of(old) == 0
+    new = record(bed="2026-11-20T23:00:00-05:00", gap_min=15, after_min=10)
+    assert after_of(new) == 10
     assert features(new, PARAMS).y == features(old, PARAMS).y == 20.0
 
 

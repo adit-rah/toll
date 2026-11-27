@@ -98,7 +98,7 @@ flowchart TD
   monday -->|"no"| calm{"A calm time: nothing locked, not the night,<br/>more than 60 min before the lock?"}
   calm -->|"no"| noCard
   calm -->|"yes"| flow{"A one-time flow due today?"}
-  flow -->|"yes"| flowCard["The flow's card<br/>render: home-morning-flow"]
+  flow -->|"yes"| flowCard["The flow's card: Fit Dusk to your sleep, see once-fit-sleep.md<br/>render: home-morning-flow, home-fit-card"]
   flow -->|"no"| setup{"A night ended since setup, and an offer due:<br/>home, then the heads-up, then the gap offer?"}
   setup -->|"yes"| setupCard["Only when I'm home? · A heads-up before your night? · Lock apps 15 min before bed?<br/>render: home-card, home-heads-up, home-gap-offer"]
   setup -->|"no"| noCard

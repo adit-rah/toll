@@ -8,8 +8,28 @@
   /// Debug builds open straight into a screen with `-TollDemo <scenario>` (docs/renders.md). Release
   /// builds contain none of this.
   enum DemoScenario: String, CaseIterable {
-    case empty, welcome, wake, blocklist, ready
-    case wakeWeekends = "wake-weekends"
+    case empty, welcome, blocklist, ready
+    /// Onboarding fitted to sleep (#144): Fit Dusk to your sleep; your sleep found in Health, with
+    /// weekends apart, asked, and asked after Health had too few nights; the time around it, as
+    /// recommended and with the side after switched off; and Ready after Health.
+    case fit
+    case sleepFound = "setup-sleep-found"
+    case sleepFoundWeekends = "setup-sleep-weekends"
+    case sleepAsk = "setup-sleep-ask"
+    case around = "setup-around"
+    case aroundOff = "setup-around-off"
+    case sleepNone = "setup-sleep-none"
+    case readyHealth = "ready-health"
+    /// One-time flow #1 for people already using Dusk (#144): its card on Tonight, and its sheet on
+    /// each step. Settings › Sleep, where sleep and both buffers change later.
+    case homeFitCard = "home-fit-card"
+    case fitSheet = "fit-sheet"
+    case fitSheetSleep = "fit-sheet-sleep"
+    case fitSheetAround = "fit-sheet-around"
+    case settingsSleep = "settings-sleep"
+    /// Each side's small sheet: before sleep from onboarding, after waking from Settings › Sleep.
+    case aroundBefore = "setup-around-before"
+    case settingsSleepAfter = "settings-sleep-after"
     case screenTime = "screen-time"
     case screenTimeAllowed = "screen-time-allowed"
     case screenTimeDenied = "screen-time-denied"
@@ -103,7 +123,6 @@
     case beforeBedList = "before-bed-list"
     case beforeBedBreathe = "before-bed-breathe"
     case beforeBedWords = "before-bed-words"
-    case settingsBeforeBed = "settings-before-bed"
     case purchase, settings, insights
     case settingsAnywhere = "settings-anywhere"
     /// Settings with notifications denied: the heads-up row leaves for iOS Settings (#104).
@@ -137,13 +156,16 @@
     static var wordless: Bool { UserDefaults.standard.bool(forKey: "TollWordless") }
 
     var setupPath: [SetupModel.Step]? {
+      let around: [SetupModel.Step] = [.fit, .sleep, .around]
       switch self {
-      case .welcome: []
-      case .wake, .wakeWeekends: [.wake]
-      case .screenTime, .screenTimeAllowed, .screenTimeDenied: [.wake, .screenTime]
-      case .blocklist: [.wake, .screenTime, .blocklist]
-      case .ready: [.wake, .screenTime, .blocklist, .ready]
-      default: nil
+      case .welcome: return []
+      case .fit: return [.fit]
+      case .sleepFound, .sleepFoundWeekends, .sleepAsk, .sleepNone: return [.fit, .sleep]
+      case .around, .aroundOff, .aroundBefore: return around
+      case .screenTime, .screenTimeAllowed, .screenTimeDenied: return around + [.screenTime]
+      case .blocklist: return around + [.screenTime, .blocklist]
+      case .ready, .readyHealth: return around + [.screenTime, .blocklist, .ready]
+      default: return nil
       }
     }
 
@@ -162,14 +184,14 @@
     var homeNotSet: Bool {
       (setHomePath != nil && self != .setHomeSet)
         || [.homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere]
-        .contains(self)
+          .contains(self)
     }
 
     /// The simulator cannot grant Family Controls or answer the location prompt; each screen past
     /// them assumes the answers its board shows. Onboarding never asks for location (D68).
     var screenTime: ScreenTimeAuthorization.State? {
       switch self {
-      case .blocklist, .ready, .screenTimeAllowed: .approved
+      case .blocklist, .ready, .readyHealth, .screenTimeAllowed: .approved
       case .screenTimeDenied, .homeScreenTimeOff: .denied
       // Every screen after setup assumes what its board shows: everything working.
       default: isHome ? .approved : nil
@@ -222,9 +244,9 @@
     /// Screens pushed on the tab's stack, with the screens under them.
     var routes: [HomeRoute] {
       switch self {
-      case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing,
-        .settingsBeforeBed:
+      case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing:
         [.settings]
+      case .settingsSleep, .settingsSleepAfter: [.settings, .sleep]
       case .blockNew, .blockNewGym: [.block(nil)]
       case .blockEdit, .blockEditOn: [.block(BlockID("study"))]
       case .blockNight: [.block(BlockID("sleep"))]
@@ -234,11 +256,12 @@
     /// The door and the purchase are sheets over Tonight.
     var presentsSheet: Bool {
       isDoor || rawValue.hasPrefix("purchase") || setHomePath != nil || helperSheet
+        || fitSheetPath != nil
     }
     var isHome: Bool {
       rawValue.hasPrefix("home-") || rawValue.hasPrefix("sleep-") || rawValue.hasPrefix("block")
         || isDoor || rawValue.hasPrefix("purchase") || rawValue.hasPrefix("settings")
-        || setHomePath != nil || self == .insights || helperSheet
+        || setHomePath != nil || self == .insights || helperSheet || fitSheetPath != nil
     }
   }
 
@@ -262,69 +285,6 @@
         }
       }
       .environment(\.tollWordless, DemoScenario.wordless)
-    }
-  }
-
-  /// Home in one of its states, with the door or the purchase sheet over it where the scenario says.
-  private struct DemoHome: View {
-    let app: AppModel
-    let scenario: DemoScenario
-    /// The purchase sheet from the pill, so a scripted tap on it opens what the app's does (D75).
-    @State private var buying: Bool
-
-    init(app: AppModel, scenario: DemoScenario) {
-      self.app = app
-      self.scenario = scenario
-      _buying = State(initialValue: scenario == .homePillPurchase)
-    }
-
-    var body: some View {
-      let now = DemoClock.now(for: scenario)
-      let fixture = DemoFixture(scenario: scenario, now: now)
-      let home = HomeSnapshot(
-        state: fixture.state, log: fixture.log, now: now, calendar: .current,
-        screenTime: scenario != .homeScreenTimeOff,
-        notifications: scenario.notifications ?? .allowed, history: fixture.history,
-        readOnly: scenario == .homeReadOnly, flow: scenario.flow)
-      DuskTabs(
-        tab: .constant(scenario.tab),
-        tonightPath: .constant(scenario.tab == .tonight ? scenario.routes : []),
-        blocksPath: .constant(scenario.tab == .blocks ? scenario.routes : []), model: app,
-        sleep: YourSleep(
-          state: fixture.state, log: fixture.log, history: fixture.history, now: now,
-          calendar: .current),
-        openPurchase: {}
-      ) {
-        HomeView(
-          home: home, price: Copy.fallbackPrice,
-          openSettings: {}, openDoor: {},
-          openPurchase: { buying = true }, fixLocation: {}, snippet: scenario.snippet,
-          lastNightStartsOpen: [.homeMorningOpen, .homeMorningLandmarkOpen, .homeMorningCardOpen]
-            .contains(scenario)
-        )
-        .sheet(isPresented: $buying) { PurchaseSheet(model: app, home: home) }
-      }
-      .environment(\.skyDemoFocus, scenario.skyFocus)
-      .sheet(isPresented: .constant(scenario.presentsSheet)) {
-        switch scenario {
-        case .purchase: PurchaseSheet(model: app, home: home)
-        case .purchasePending: PurchaseSheet(model: app, home: home, outcome: .pending)
-        case .purchaseFailed: PurchaseSheet(model: app, home: home, outcome: .failed)
-        case .purchaseRestoreNone:
-          PurchaseSheet(model: app, home: home, outcome: .nothingToRestore)
-        case .purchaseDone: PurchaseSheet(model: app, home: home, outcome: .purchased)
-        case _ where scenario.setHomePath != nil:
-          DemoSetHome(app: app, path: scenario.setHomePath ?? [])
-        case _ where scenario.helperSheet:
-          HelpersSheet(
-            model: app, page: scenario.helperPage,
-            demoUntil: scenario == .beforeBedBreathe ? now.addingTimeInterval(150) : nil
-          ) {}
-        default:
-          TimelineView(.periodic(from: .now, by: 1)) { tick in DoorSheet(model: app, now: tick.date)
-          }
-        }
-      }
     }
   }
 #endif

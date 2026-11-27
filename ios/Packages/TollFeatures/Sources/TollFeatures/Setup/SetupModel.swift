@@ -5,65 +5,48 @@ import TollCore
 import TollData
 import TollScreenTime
 
-/// Onboarding's draft (D68): the shortest path to a first locked night. When you get up, Screen Time,
-/// the apps, then Ready; home comes later, from Tonight or Settings (`SetHomeModel`). Nothing reaches
-/// the shared state until Ready is done, so leaving halfway arms nothing.
+/// Onboarding's draft (D68, #144): the shortest path to a first locked night, fitted to the
+/// person's sleep. Fit Dusk to your sleep (Health or not), your sleep, the time around it, Screen
+/// Time, the apps, then Ready; home comes later, from Tonight or Settings (`SetHomeModel`). Nothing
+/// reaches the shared state until Ready is done, so leaving halfway arms nothing.
 @MainActor
 @Observable
 final class SetupModel {
   enum Step: Hashable, CaseIterable {
-    case wake, screenTime, blocklist, ready
+    case fit, sleep, around, screenTime, blocklist, ready
 
-    /// The progress bar counts the three questions; Ready is not one.
+    /// The progress bar counts the five questions; Ready is not one.
     var number: Int? {
       switch self {
-      case .wake: 1
-      case .screenTime: 2
-      case .blocklist: 3
+      case .fit: 1
+      case .sleep: 2
+      case .around: 3
+      case .screenTime: 4
+      case .blocklist: 5
       case .ready: nil
       }
     }
 
-    static let questions = 3
+    static let questions = 5
   }
 
   let app: AppModel
   var path: [Step]
-  private(set) var wake = ClockTime(hour: 7)
-  private(set) var start: ClockTime
-  private var startMoved = false
-  /// Friday and Saturday nights end later (the canvas's "Different on weekends").
-  var weekendsDiffer = false
-  private(set) var weekendWake = ClockTime(hour: 9)
+  let draft: FitDraft
   var selection = FamilyActivitySelection()
+  /// Welcome's "Buy it now": waiting for the App Store sheet.
+  var buying = false
 
-  init(app: AppModel, path: [Step] = []) {
+  init(app: AppModel, path: [Step] = [], draft: FitDraft? = nil) {
     self.app = app
     self.path = path
-    start = TimeWindow(wake: ClockTime(hour: 7), leadHours: app.config.window.leadHours).start
+    self.draft = draft ?? .fresh(app.config)
   }
 
-  var window: TimeWindow { TimeWindow(start: start, end: wake) }
-
-  var weekendWindow: TimeWindow {
-    TimeWindow(wake: weekendWake, leadHours: app.config.window.leadHours)
+  /// The lock's hours, which Ready names: sleep with tonight's buffers around it.
+  var lockSchedule: WeeklySchedule {
+    draft.schedule.locking(before: draft.before.start, after: draft.after.start)
   }
-
-  var schedule: WeeklySchedule {
-    guard weekendsDiffer else { return .everyDay(window) }
-    return WeeklySchedule(rules: [
-      .init(days: Weekday.schoolNights, window: window),
-      .init(days: Weekday.weekendNights, window: weekendWindow),
-    ])
-  }
-
-  func setWeekendWake(_ time: ClockTime) { weekendWake = time }
-
-  /// A new install's gap before bed (D76): the first night locks this long before it.
-  var gap: Int { app.config.gap.start }
-
-  /// The lock's hours, which Ready names: bed minus the gap to wake.
-  var lockSchedule: WeeklySchedule { schedule.locking(gap) }
 
   /// The trial's start from the Keychain: a reinstall keeps it (P-4).
   let trialStart = TrialClock().start
@@ -71,21 +54,39 @@ final class SetupModel {
   /// What Welcome and Ready can promise this phone (#46).
   func offer(now: Date, calendar: Calendar = .current) -> Trial.Offer {
     Trial.offer(
-      start: trialStart, purchased: app.state.trial.purchased, now: now, sleep: schedule,
+      start: trialStart, purchased: app.state.trial.purchased, now: now, sleep: draft.schedule,
       calendar: calendar, config: app.config)
   }
 
-  func setWake(_ time: ClockTime) {
-    wake = time
-    if !startMoved { start = TimeWindow(wake: time, leadHours: app.config.window.leadHours).start }
-  }
-
-  func setStart(_ time: ClockTime) {
-    start = time
-    startMoved = true
-  }
-
   func go(_ step: Step) { path.append(step) }
+
+  // MARK: Welcome
+
+  /// "Buy it now": the App Store's sheet; bought or not, setup goes on (#144).
+  func buyNow() async {
+    buying = true
+    _ = await app.buy()
+    buying = false
+    go(.fit)
+  }
+
+  // MARK: Fit Dusk to your sleep
+
+  /// "Use Apple Health": iOS's sheet, then the usual times if there are enough nights; otherwise
+  /// the same step asks.
+  func useHealth() async {
+    draft.reading = true
+    draft.health = true
+    draft.found(await app.readSleep())
+    draft.reading = false
+    go(.sleep)
+  }
+
+  func setMyself() {
+    draft.health = false
+    draft.found(nil)
+    go(.sleep)
+  }
 
   // MARK: Screen Time
 
@@ -109,9 +110,9 @@ final class SetupModel {
   /// (D68, the engine's D37 path). Built here, sent once at the end.
   var sleepBlock: Block {
     Block(
-      name: Copy.Setup.nightName, kind: .sleep, place: nil, schedule: schedule,
+      name: Copy.Setup.nightName, kind: .sleep, place: nil, schedule: draft.schedule,
       apps: Blocklist.encode(selection))
   }
 
-  func finish() { app.finishSetup(sleep: sleepBlock, home: nil) }
+  func finish() { app.finishSetup(sleep: sleepBlock, home: nil, fit: draft.fit) }
 }

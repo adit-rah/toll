@@ -77,6 +77,7 @@ enum Migration {
     state.unlocks = old.unlocks ?? UnlockSupply()
     state.doorAskedAt = old.doorAskedAt
     state.gap = .existing
+    state.after.offered = true
     return state
   }
 }
@@ -90,7 +91,7 @@ extension Migration {
     let run: @Sendable ([String: Any]) -> [String: Any]
   }
 
-  static let steps: [Step] = [Step(from: 2, run: v2to3)]
+  static let steps: [Step] = [Step(from: 2, run: v2to3), Step(from: 3, run: v3to4)]
 
   /// Every step from `schema` to the current one, in order.
   static func upgrade(_ object: [String: Any], from schema: Int) -> [String: Any] {
@@ -105,6 +106,28 @@ extension Migration {
     if new["flows"] == nil { new["flows"] = [String: Any]() }
     new["schema"] = 3
     new["minReader"] = 2
+    return new
+  }
+
+  /// 3 to 4 (#144): the stored night is now the person's sleep, and the lock adds a buffer each
+  /// side. Their night stays as it was: sleep is the hours they set, the buffer before is their
+  /// gap, growing toward D76's 60 as it did, and there's no buffer after. The one-time flow "Fit
+  /// Dusk to your sleep" offers it once (`offered`).
+  @Sendable static func v3to4(_ old: [String: Any]) -> [String: Any] {
+    var new = old
+    var gap = new["gap"] as? [String: Any] ?? [:]
+    if gap["target"] == nil { gap["target"] = TollConfig.defaults.gap.cap }
+    new["gap"] = gap
+    if new["after"] == nil {
+      new["after"] =
+        [
+          "minutes": 0, "mode": Gap.Mode.fixed.rawValue,
+          "target": TollConfig.defaults.after.target, "offered": true,
+        ] as [String: Any]
+    }
+    if new["health"] == nil { new["health"] = false }
+    new["schema"] = 4
+    new["minReader"] = 4
     return new
   }
 }

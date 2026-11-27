@@ -51,8 +51,16 @@ public struct FlowRecord: Codable, Hashable, Sendable {
 }
 
 public enum Flows {
-  /// Every flow this build can ask, in the order they'd show. None yet (#140).
-  public static let registry: [OneTimeFlow] = []
+  /// Every flow this build can ask, in the order they'd show.
+  public static let registry: [OneTimeFlow] = [fitSleep]
+
+  /// #1, "Fit Dusk to your sleep" (#144): people set up before the buffers around sleep are asked
+  /// for their sleep and both buffers once. Their night is as it was until they answer; put off
+  /// for good, it stays so, with no buffer after.
+  public static let fitSleep = OneTimeFlow(
+    id: "fit-sleep", version: 1,
+    applies: { $0.setupFinishedAt != nil && $0.after.offered },
+    defaults: { _ in [.buffer(.after, .fixed(0), target: nil)] })
 
   /// The flow to show now, if any: the app asks at each foreground. At most one a day, and only at
   /// a calm moment.
@@ -60,6 +68,12 @@ public enum Flows {
     _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig = .defaults,
     registry: [OneTimeFlow] = registry
   ) -> OneTimeFlow? {
+    // "One a day" is one flow a day: the one offered today stays offered all day, until it's
+    // answered or put off, and no other flow joins it.
+    if let today = registry.first(where: { shownToday($0, state, now: now, calendar: calendar) }) {
+      let calm = calm(state, now: now, calendar: calendar, config: config, besides: today.id)
+      return calm && today.applies(state) ? today : nil
+    }
     guard calm(state, now: now, calendar: calendar, config: config) else { return nil }
     return registry.first { flow in
       guard flow.applies(state) else { return false }
@@ -68,22 +82,34 @@ public enum Flows {
     }
   }
 
-  /// Never during a night (its gap included) or a pause, nor in the last minutes before the lock,
-  /// nor before setup is done; and not twice on one day.
+  /// Never during a night (its gap included) or a pause, nor in the hour before the lock (the
+  /// band's, `band.nightMinutes`), nor before setup is done; and not twice on one day.
   public static func calm(
-    _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig = .defaults
+    _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig = .defaults,
+    besides id: String? = nil
   ) -> Bool {
     guard state.setupFinishedAt != nil, !state.isBlocking, state.door == nil,
       state.doorAskedAt == nil, let lock = state.lockSleep
     else { return false }
     if lock.schedule.occurrence(containing: now, calendar: calendar) != nil { return false }
-    let quiet = TimeInterval(config.flows.quietBeforeLockMinutes * 60)
+    let quiet = TimeInterval(config.band.nightMinutes * 60)
     if let next = lock.schedule.nextStart(after: now, calendar: calendar),
       next.timeIntervalSince(now) < quiet
     {
       return false
     }
-    return !state.flows.values.contains { calendar.isDate($0.at, inSameDayAs: now) }
+    return !state.flows.contains { key, record in
+      key != id && calendar.isDate(record.at, inSameDayAs: now)
+    }
+  }
+
+  /// On screen today and not answered or put off yet, at this version.
+  static func shownToday(
+    _ flow: OneTimeFlow, _ state: DuskState, now: Date, calendar: Calendar
+  ) -> Bool {
+    guard let record = state.flows[flow.id] else { return false }
+    return record.version == flow.version && record.outcome == .shown
+      && calendar.isDate(record.at, inSameDayAs: now)
   }
 
   /// Records how a flow went; "Not now" on its last offer puts it off for good, and the commands

@@ -41,7 +41,7 @@ extension Copy {
     public static func offerDetail(price: String) -> String {
       "Then \(price) once. No subscription. No account."
     }
-    public static let start = "Start my free nights"
+
     /// When this phone's or Apple ID's free nights are used, or bought (#46, D78).
     public static let setUp = "Set up \(name)"
     public static let offerUsedTitle = "Free nights used"
@@ -52,19 +52,9 @@ extension Copy {
     public static let offerPurchasedDetail = "Every night is yours. No subscription."
     public static let restore = "Already bought it? Restore"
 
-    public static let wakeTitle = "When do you need to be up?"
-    public static let weekendWakeTitle = "On weekends?"
-    public static let yourNights = "Your nights"
     public static let weeknights = "Weeknights"
     public static let weekendNights = "Fri and Sat nights"
-    /// What each row's link changes (the audit): "Change" didn't say, and the wheel sets the wake.
-    public static let changeStart = "Start"
-    public static let changeWake = "Wake"
-    public static let nightsStart = "Nights start at"
     public static let differentOnWeekends = "Different on weekends"
-    public static let weekendWake = "Weekend wake time"
-    /// No population norm (D65): the night's length is on the row above.
-    public static let sleepAdvice = "You can change this later in Blocks."
     /// Between the moon and the sun (D68): "10:30 pm – 7:00 am".
     public static func nightSpan(start: String, end: String) -> String { "\(start) – \(end)" }
     /// The night drawn as moon start – end sun (D68), read out in one line.
@@ -144,9 +134,6 @@ extension Copy {
     public static func readyNow(_ end: String) -> String { "From now until \(end)." }
     public static let anywhere = "Anywhere"
     public static let anywhereDetail = "At its set times, wherever you are"
-    /// Ready, before home is set (D68): where tonight runs, and that home comes later.
-    public static let anywhereUntilHome =
-      "Wherever you are. You can add home after the first night."
     public static let blocked = "Blocked"
     /// "2 categories · 2 apps": counts, because iOS never tells the app the names (D41).
     public static func blockedCount(categories: Int, apps: Int, sites: Int = 0) -> String {
@@ -160,9 +147,6 @@ extension Copy {
     }
     public static func unlocks(_ n: Int) -> String {
       n == 1 ? "1 pause a week" : "\(n) pauses a week"
-    }
-    public static func unlocksDetail(minutes: Int) -> String {
-      "Every app opens for \(minutes) minutes"
     }
     public static func freeNightsEnded(_ day: String, price: String) -> String {
       "Your free nights ended \(day). Nothing is blocked until the \(price) purchase."

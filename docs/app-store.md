@@ -24,7 +24,7 @@ Dusk stands for the product name, not chosen yet (spec header). Copy rules from 
 - **Keywords (100):** sleep,bedtime,night,screen time,app blocker,focus,phone,limit,block apps,home,wind down
 - **Category:** Health & Fitness (secondary: Productivity)
 - **Age rating:** 4+
-- **Privacy label:** Data Not Collected. The trial start date in iCloud Keychain (decisions D78) doesn't change it: Apple holds it end-to-end encrypted on the person's behalf, and the developer never receives it.
+- **Privacy label:** Data Not Collected. The trial start date in iCloud Keychain (decisions D78) doesn't change it: Apple holds it end-to-end encrypted on the person's behalf, and the developer never receives it. Sleep read from Apple Health (#144) doesn't change it either: it stays on the device.
 - **In-app purchase:** `com.advan.toll.full`, non-consumable, $9.99. Display name "Keep it". Description: "Keeps the nightly block running after the free nights."
 
 ## Review notes
@@ -37,12 +37,14 @@ Dusk stands for the product name, not chosen yet (spec header). Copy rules from 
 >
 > **Location (5.1.1, 5.1.5, 2.5.4).** Location is used for one thing: whether the user is inside one circle around the home they confirmed, so the block can start and stop with the app closed. That is why the app asks for Always. It keeps a single yes or no, never a history, and stores no coordinates but the home point. Location is optional, and the paid function does not depend on it: without it, the block runs every night in the sleep window wherever the user is.
 >
-> **Background audio (2.5.4).** The app declares the audio background mode for one thing: Before bed's breathing tone. In the minutes before bed, the person can choose "Breathe for 3 minutes"; the app makes a soft tone on the phone (no file, no network), rising and falling about six times a minute, and asks them to lock the phone and put it down. The tone keeps playing with the screen locked for the length they set (1 to 10 minutes), then fades and stops, and the audio session is released. Nothing else plays in the background, and nothing starts without the person tapping it. To hear it: once apps lock for the night (15 minutes before bed for a new install), tap "Before bed" on Tonight, then "Breathe for 3 minutes", and lock the phone. Settings → Before bed turns the helpers off.
+> **HealthKit (2.5.1, 5.1.1, 5.1.3).** Dusk reads one type from Health, Sleep Analysis, and only after the person taps "Use Apple Health" on the onboarding screen "Fit Dusk to your sleep" (or the same screen later, for people already using Dusk). It requests no write access and writes nothing to Health. It uses the sleep to suggest when the person usually falls asleep and wakes, and how long apps stay locked before and after, and it adds each night's sleep to the person's own night log on the device. Nothing read from Health leaves the iPhone: there is no server, no analytics and no third-party code, and the data is never used for advertising. The person can choose "Set my hours myself" instead, and every feature works without Health. The purpose string says: "Dusk reads your sleep from Health to suggest your hours and show how your nights go. It never writes to Health or sends it anywhere." To see it: on a fresh install, tap "Start my 14 free nights", then "Use Apple Health"; with at least 7 nights of sleep in Health, the next screen shows the usual times.
+>
+> **Background audio (2.5.4).** The app declares the audio background mode for one thing: Before bed's breathing tone. In the minutes before bed, the person can choose "Breathe for 3 minutes"; the app makes a soft tone on the phone (no file, no network), rising and falling about six times a minute, and asks them to lock the phone and put it down. The tone keeps playing with the screen locked for the length they set (1 to 10 minutes), then fades and stops, and the audio session is released. Nothing else plays in the background, and nothing starts without the person tapping it. To hear it: once apps lock for the night (30 minutes before sleep for a new install), tap "Before bed" on Tonight, then "Breathe for 3 minutes", and lock the phone. Settings → Before bed turns the helpers off.
 >
 > **How to see it work.**
-> 1. Finish setup; on the wake-time screen, tap Change and set the night to start a minute from now.
+> 1. Finish setup; on "Your sleep", choose "Set my hours myself" and set falling asleep a little over a minute from now plus the time before sleep (30 minutes by default), or lower the time before sleep on the next screen.
 > 2. Allow Screen Time and location, and block any app.
 > 3. Once the night starts, any other app shows the block screen. "Open Dusk" leads to the door: choose one app, wait 90 seconds, and it opens for 5 minutes. "Lock again" within 2 minutes returns the unlock.
-> 4. Settings → Sleep window changes the night; changes made during a block apply when it ends.
+> 4. Settings → Sleep changes the night and the time around it; changes made during a block apply when it ends.
 >
 > The block lifts at the end of the sleep window, when the user leaves home, or after the free nights without the purchase.

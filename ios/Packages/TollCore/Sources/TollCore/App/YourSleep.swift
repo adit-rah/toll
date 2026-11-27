@@ -53,6 +53,9 @@ public struct YourSleep: Equatable, Sendable {
   /// Every ended night, for the ranges below the week (InsightsSnapshot), and the night's hours.
   public var past: [PastNight]
   public var hours: InsightsSnapshot.NightHours
+  /// The next night as planned (#144): the lock before sleep, sleep, the lock after waking, as
+  /// three parts. Nil with no night.
+  public var plan: NightPicture?
   /// The moment this was read, so the ranges end where the rest of the tab does.
   public var now: Date
 
@@ -66,6 +69,11 @@ public struct YourSleep: Equatable, Sendable {
       history: history, state: state, log: lines, now: now, calendar: calendar,
       regret: TimeInterval(config.door.regretSeconds))
     hours = InsightsSnapshot.NightHours(sleep?.schedule)
+    plan = sleep.flatMap {
+      NightPicture(
+        $0.schedule, gap: state.gap.upcoming, after: state.after.upcoming, now: now,
+        calendar: calendar)
+    }
     self.now = now
     let ran = Set(past.filter(\.ran).map(\.night))
     let total = ran.count

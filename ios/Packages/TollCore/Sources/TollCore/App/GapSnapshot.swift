@@ -1,10 +1,13 @@
 import Foundation
 
-/// Settings › Before bed (D76): the gap as the person last chose it, a change held through tonight
-/// included (B-3).
+/// Settings › Sleep (D76, #144): one buffer as the person last chose it, a change held through
+/// tonight included (B-3).
 public struct BeforeBed: Equatable, Sendable {
+  public var side: Gap.Side
   /// What the sheet opens on.
   public var setting: Gap.Setting
+  /// What growing aims for.
+  public var target: Int
   /// "Grows with you · now 30 min · next 45", or "Fixed · 30 min".
   public var detail: String
   /// A change waits for tonight's night to end.
@@ -12,16 +15,19 @@ public struct BeforeBed: Equatable, Sendable {
   /// The night's block is on: a change now applies from tomorrow night (B-3).
   public var nightOn: Bool
 
-  public init(state: DuskState, config: TollConfig = .defaults) {
-    held = state.gap.pending != nil
+  public init(state: DuskState, side: Gap.Side = .before, config: TollConfig = .defaults) {
+    self.side = side
+    let gap = state[side]
+    held = gap.pending != nil
     nightOn = state.sleepBlock.map { state.runtime.active[$0.id] != nil } ?? false
-    setting = state.gap.pending ?? state.gap.setting
+    setting = gap.pending ?? gap.setting
+    target = gap.target
     switch setting {
     case .grows(let minutes):
-      var gap = state.gap
+      var gap = gap
       gap.minutes = minutes
       gap.mode = .grows
-      detail = Copy.Gap.growsDetail(minutes, next: gap.next(config))
+      detail = Copy.Gap.growsDetail(minutes, next: gap.next(config.limits(side).step))
     case .fixed(let minutes):
       detail = Copy.Gap.fixedDetail(minutes)
     }
@@ -35,7 +41,19 @@ public struct BeforeBed: Equatable, Sendable {
   {
     guard grows else { return .fixed(minutes) }
     if case .grows(let now) = setting { return .grows(now) }
-    return Gap.clamped(.grows(max(minutes, config.gap.start)), config)
+    return Gap.clamped(
+      .grows(max(minutes, config.limits(side).start)), target: target,
+      limits: config.limits(side))
+  }
+
+  /// Settings › Sleep's row: "10:30 pm – 7:00 am · 15 min before · 10 min after", as chosen, a
+  /// change held through tonight included (B-3). Weeknights' hours when weekends differ.
+  public static func sleepRow(_ state: DuskState) -> String {
+    var sleep = state.sleepBlock
+    if let id = sleep?.id, case .save(let held) = state.pending[id] { sleep = held }
+    let hours = sleep?.schedule.windows.first.map { Copy.span($0, short: true) } ?? ""
+    return Copy.Fit.rowDetail(
+      sleep: hours, before: state.gap.upcoming, after: state.after.upcoming)
   }
 
   /// The minutes the sheet's fixed gap opens on.
@@ -59,10 +77,23 @@ public struct GapCard: Equatable, Sendable {
   init?(_ card: TonightCard, state: DuskState, now: Date, calendar: Calendar, config: TollConfig) {
     switch card {
     case .gapWeek:
-      guard let change = state.gap.change else { return nil }
-      title = Copy.Gap.weekCard(change.to)
-      detail = change.grew ? Copy.Gap.upFrom(change.from) : nil
-      action = change.grew ? Copy.Gap.keep(change.from) : nil
+      let changes = GapRules.changes(state).compactMap { side in
+        state[side].change.map { (side, $0) }
+      }
+      guard let (side, change) = changes.first else { return nil }
+      let grew = changes.filter { $0.1.grew }.map(\.1)
+      if changes.count > 1, let after = changes.last?.1 {
+        title = Copy.Gap.bothWeekCard(before: change.to, after: after.to)
+      } else {
+        title = side == .before ? Copy.Gap.weekCard(change.to) : Copy.Gap.afterWeekCard(change.to)
+      }
+      // An ease says only the new numbers (D65); a rise says what it was, and offers it back.
+      switch grew.count {
+      case 0: (detail, action) = (nil, nil)
+      case 1: (detail, action) = (Copy.Gap.upFrom(grew[0].from), Copy.Gap.keep(grew[0].from))
+      default:
+        (detail, action) = (Copy.Gap.upFromBoth(grew[0].from, grew[1].from), Copy.Gap.keepBoth)
+      }
       dismiss = Copy.Gap.okay
     case .gapOffer:
       guard

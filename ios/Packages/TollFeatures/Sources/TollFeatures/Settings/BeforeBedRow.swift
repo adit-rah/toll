@@ -2,138 +2,219 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Settings › Before bed (D76): how long before bed apps lock, growing with the person or fixed,
-/// and the helpers Tonight offers in that time (D80). The row says now and next; a tap opens the
-/// sheet. One row for both: they're the same minutes.
-struct BeforeBedRow: View {
+/// Settings › Sleep (#144, was "Before bed", D76): sleep and the time either side of it in one
+/// place, and the helpers Tonight offers before sleep (D80). The row says the hours and both
+/// buffers; a tap pushes the screen that changes them.
+struct SleepRow: View {
   let model: AppModel
-  @State private var editing = false
+
+  var body: some View {
+    NavigationLink(value: HomeRoute.sleep) {
+      SettingsRow(Copy.Fit.row, detail: BeforeBed.sleepRow(model.state)) { Chevron() }
+    }
+    .buttonStyle(.plain)
+  }
+}
+
+/// Sleep, the buffer before and the one after, each growing toward a target or fixed, and the
+/// helpers. Save applies it all; Back leaves things as they were. A change while the night is on
+/// applies from tomorrow night (B-3), and the screen says so.
+struct SleepSettingsView: View {
+  let model: AppModel
+  @Environment(\.dismiss) private var dismiss
+  @State private var draft: FitDraft
+  @State private var before: BufferChoice
+  @State private var after: BufferChoice
+  @State private var helpers: Bool
+  @State private var breath: Int
+  @State private var editing: Gap.Side?
+  private let nightOn: Bool
 
   init(model: AppModel) {
     self.model = model
+    // The hours as last chosen, a change held through tonight included (B-3); the buffers are
+    // edited apart, growing or fixed.
+    let none = Fit.Buffer(start: 0, target: 0)
+    _draft = State(
+      initialValue: FitDraft(
+        config: model.config, schedule: model.sleepDraft?.schedule, before: none, after: none,
+        health: model.state.health))
+    let snapshot = BeforeBed(state: model.state, side: .before, config: model.config)
+    _before = State(initialValue: BufferChoice(snapshot))
+    _after = State(
+      initialValue: BufferChoice(BeforeBed(state: model.state, side: .after, config: model.config)))
     #if DEBUG
-      // The sheet's own render (docs/renders.md).
-      _editing = State(initialValue: DemoScenario.current == .settingsBeforeBed)
+      _editing = State(initialValue: DemoScenario.current?.bufferSheet)
     #endif
+    _helpers = State(initialValue: model.state.helpers.on)
+    _breath = State(initialValue: model.breathMinutes)
+    nightOn = snapshot.nightOn
   }
 
   var body: some View {
-    Button {
-      editing = true
-    } label: {
-      SettingsRow(Copy.Gap.row, detail: BeforeBed(state: model.state, config: model.config).detail)
-      {
-        Chevron()
+    ScrollView {
+      VStack(alignment: .leading, spacing: 0) {
+        ScreenTitle(Copy.Fit.sheetTitle, kind: .pushed)
+        SetupLine(Copy.Fit.sheetBody).padding(.top, TollSpacing.titleToLine)
+        if let picture = NightPicture(
+          .everyDay(draft.window), gap: before.tonight, after: after.tonight, now: Date(),
+          calendar: .current)
+        {
+          NightPictureView(picture: picture).padding(.top, 20)
+        }
+        SleepTimesCard(draft: draft).padding(.top, 20)
+        // One row a side, as onboarding draws them; each opens its own small sheet.
+        Card {
+          BufferRow(side: .before, detail: before.summary) { editing = .before }
+          BufferRow(side: .after, detail: after.summary) { editing = .after }
+        }
+        .padding(.top, 12)
+        if nightOn {
+          Footnote(Copy.Gap.tonightStays).padding(.top, TollSpacing.underCard)
+        }
+        helpersCard.padding(.top, 12)
+      }
+      .tollGutter()
+      .padding(.bottom, 24)
+    }
+    .background(TollColor.bg)
+    .sheet(
+      isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })
+    ) {
+      if let side = editing {
+        BufferChoiceSheet(
+          side: side, choice: side == .before ? $before : $after, config: model.config
+        ) { editing = nil }
       }
     }
-    .buttonStyle(.plain)
-    .sheet(isPresented: $editing) {
-      BeforeBedSheet(model: model) { editing = false }
+    .tollPushed(Copy.Fit.sheetTitle)
+    .tollBottomBar {
+      PrimaryButton(Copy.Fit.save) {
+        save()
+        dismiss()
+      }
+      .disabled(!draft.schedule.isValid)
+    }
+  }
+
+  private var helpersCard: some View {
+    Card {
+      Toggle(isOn: $helpers) {
+        RowText(title: Copy.Helpers.setting, detail: Copy.Helpers.settingDetail)
+      }
+      .tint(TollColor.accent)
+      .padding(.vertical, 8)
+      .frame(minHeight: 54)
+      if helpers {
+        Stepper(value: $breath, in: model.config.helpers.breathRange) {
+          HStack(spacing: 8) {
+            Image(symbol: .breathe).unredacted()
+              .font(.system(size: 15, weight: .medium))
+              .foregroundStyle(TollColor.label2)
+              .accessibilityHidden(true)
+            Text(Copy.Helpers.breathLength(breath)).tollType(.rowTitle, TollColor.label)
+          }
+        }
+        .padding(.vertical, 8)
+        .frame(minHeight: 54)
+      }
+    }
+  }
+
+  private func save() {
+    var sleep = model.sleepDraft
+    if sleep?.schedule == draft.schedule { sleep = nil }
+    sleep?.schedule = draft.schedule
+    model.saveSleep(
+      sleep, before: (before.setting, before.target), after: (after.setting, after.target),
+      helpers: Helpers(on: helpers, breathMinutes: breath))
+  }
+}
+
+/// One side as Settings edits it: growing from tonight's minutes toward a target, or fixed.
+struct BufferChoice: Equatable {
+  enum Mode: Equatable { case grows, fixed, none }
+
+  var mode: Mode
+  var minutes: Int
+  var target: Int
+
+  init(_ snapshot: BeforeBed) {
+    mode = snapshot.grows ? .grows : snapshot.minutes == 0 ? .none : .fixed
+    minutes = snapshot.minutes
+    target = max(snapshot.target, snapshot.minutes)
+  }
+
+  var setting: Gap.Setting {
+    switch mode {
+    case .grows: .grows(minutes)
+    case .fixed: .fixed(minutes)
+    case .none: .fixed(0)
+    }
+  }
+
+  /// Tonight's minutes as the picture draws them.
+  var tonight: Int { mode == .none ? 0 : minutes }
+
+  /// The row's line: what it does tonight and grows to, fixed, or none.
+  var summary: String {
+    switch mode {
+    case .grows: Copy.Fit.grows(minutes, to: target)
+    case .fixed: Copy.Gap.fixedDetail(minutes)
+    case .none: Copy.Fit.off
     }
   }
 }
 
-/// Two choices, each with what it does, and the fixed gap's minutes in steps. A change while the
-/// night is on applies from tomorrow night (B-3), and the sheet says so. Under them, the helpers'
-/// switch and the breathing tone's length (D80), which apply at once.
-struct BeforeBedSheet: View {
-  let model: AppModel
+/// One side in its own small sheet: growing from tonight's minutes toward a target, fixed, or none,
+/// each with a tick (never colour alone), and only the numbers the choice needs.
+struct BufferChoiceSheet: View {
+  let side: Gap.Side
+  @Binding var choice: BufferChoice
+  let config: TollConfig
   let close: () -> Void
-  private let now: BeforeBed
-  @State private var grows: Bool
-  @State private var minutes: Int
-  @State private var helpers: Bool
-  @State private var breath: Int
-
-  init(model: AppModel, close: @escaping () -> Void) {
-    self.model = model
-    self.close = close
-    now = BeforeBed(state: model.state, config: model.config)
-    _grows = State(initialValue: now.grows)
-    _minutes = State(initialValue: now.minutes)
-    _helpers = State(initialValue: model.state.helpers.on)
-    _breath = State(initialValue: model.breathMinutes)
-  }
 
   var body: some View {
-    let gap = model.config.gap
-    SheetPage(height: 640) {
-      SheetTitle(Copy.Gap.sheetTitle)
-      SheetBody(Copy.Gap.sheetBody)
-      // Rows on the sheet itself: a card would vanish into the sheet's own surface.
+    let limits = config.limits(side)
+    SheetPage(height: 520) {
+      SheetTitle(side == .before ? Copy.Fit.before : Copy.Fit.after)
+      SheetBody(side == .before ? Copy.Fit.beforeSheet : Copy.Fit.afterSheet)
       VStack(spacing: 0) {
-        option(
-          Copy.Gap.grows, detail: Copy.Gap.growsOption(step: gap.step, cap: gap.cap),
-          chosen: grows
-        ) { grows = true }
+        TickRow(title: Copy.Gap.grows, chosen: choice.mode == .grows) {
+          choice.mode = .grows
+          // Growing from nothing would stay at nothing until a smooth week: start where a new
+          // install does.
+          if choice.minutes == 0 { choice.minutes = min(limits.start, choice.target) }
+        }
         Hairline()
-        option(Copy.Gap.fixed, detail: Copy.Gap.fixedOption, chosen: !grows) { grows = false }
-        if !grows {
+        TickRow(title: Copy.Gap.fixed, chosen: choice.mode == .fixed) { choice.mode = .fixed }
+        Hairline()
+        TickRow(title: Copy.Fit.off, chosen: choice.mode == .none) { choice.mode = .none }
+        switch choice.mode {
+        case .grows:
           Hairline()
-          Stepper(value: $minutes, in: 0...gap.manualMax, step: gap.manualStep) {
-            Text(Copy.Gap.beforeBed(minutes)).tollType(.rowTitle, TollColor.label)
-          }
-          .padding(.vertical, 8)
-          .frame(minHeight: 54)
-        }
-      }
-      .padding(.top, 20)
-      if now.nightOn {
-        Footnote(Copy.Gap.tonightStays).padding(.top, 12)
-      }
-      VStack(spacing: 0) {
-        Toggle(isOn: $helpers) {
-          RowText(title: Copy.Helpers.setting, detail: Copy.Helpers.settingDetail)
-        }
-        .tint(TollColor.accent)
-        .padding(.vertical, 8)
-        .frame(minHeight: 54)
-        if helpers {
+          MinutesRow(
+            title: Copy.Fit.tonight, minutes: choice.minutes, range: 0...choice.target, step: 5
+          ) { choice.minutes = $0 }
           Hairline()
-          Stepper(value: $breath, in: model.config.helpers.breathRange) {
-            HStack(spacing: 8) {
-              Image(symbol: .breathe).unredacted()
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(TollColor.label2)
-                .accessibilityHidden(true)
-              Text(Copy.Helpers.breathLength(breath)).tollType(.rowTitle, TollColor.label)
-            }
-          }
-          .padding(.vertical, 8)
-          .frame(minHeight: 54)
+          MinutesRow(
+            title: Copy.Fit.growsTo, minutes: choice.target, range: 0...limits.manualMax,
+            step: limits.manualStep
+          ) { choice.target = max($0, choice.minutes) }
+        case .fixed:
+          Hairline()
+          MinutesRow(
+            title: Copy.Gap.fixedOption, minutes: choice.minutes, range: 0...limits.manualMax,
+            step: limits.manualStep
+          ) { choice.minutes = $0 }
+        case .none:
+          EmptyView()
         }
       }
-      .padding(.top, 24)
+      .padding(.top, 16)
     } actions: {
-      PrimaryButton(Copy.Gap.done) {
-        model.setBeforeBed(
-          now.choice(grows: grows, fixed: minutes, config: model.config),
-          helpers: Helpers(on: helpers, breathMinutes: breath))
-        close()
-      }
+      PrimaryButton(Copy.Fit.done, action: close)
     }
-    .tollHaptic(.selection, trigger: grows)
-  }
-
-  /// A choice as a row, its tick saying which is chosen, never colour alone.
-  private func option(
-    _ title: String, detail: String, chosen: Bool, pick: @escaping () -> Void
-  ) -> some View {
-    Button(action: pick) {
-      AdaptiveStack(spacing: TollSpacing.rowGap) {
-        RowText(title: title, detail: detail)
-        Image(symbol: .done).unredacted()
-          .font(.system(size: 15, weight: .semibold))
-          .foregroundStyle(TollColor.accent)
-          .opacity(chosen ? 1 : 0)
-          .accessibilityHidden(true)
-      }
-      .padding(.vertical, 8)
-      .frame(minHeight: 54)
-      .contentShape(Rectangle())
-    }
-    .buttonStyle(.plain)
-    .accessibilityElement(children: .combine)
-    .accessibilityAddTraits(chosen ? .isSelected : [])
+    .tollHaptic(.selection, trigger: choice.mode)
   }
 }

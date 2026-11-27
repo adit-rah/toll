@@ -2,10 +2,11 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// The night as a picture (D68, #76): moon, start – end, sun, over a strip of the night alone. Turning
-/// the wake wheel slides the night along the strip, so the change shows without words. It changes
-/// with no motion: design §2.5 has no row for it. Tonight's strip is the whole day (D75); setup and
-/// Blocks' night card stay on the night, which is all they're about.
+/// The night as a picture (D68, #76, #144): moon, asleep – wake, sun, over a strip of the night
+/// alone; with buffers, the lock's two ends marked on it, a lock where apps lock and an open lock
+/// where they open. Changing a time slides the night along the strip, so the change shows without words. It
+/// changes with no motion: design §2.5 has no row for it. Tonight's strip is the whole day (D75);
+/// setup and Blocks' night card stay on the night, which is all they're about.
 struct NightPictureView: View {
   let picture: NightPicture
 
@@ -21,7 +22,8 @@ struct NightPictureView: View {
         glyph(.sun)
       }
       .frame(maxWidth: .infinity)
-      NightStrip(strip: picture.timeline)
+      NightStrip(
+        strip: picture.timeline, lockTime: picture.lockTime, openTime: picture.openTime)
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(picture.timeline.label)
@@ -34,48 +36,98 @@ struct NightPictureView: View {
   }
 }
 
-/// The night on the boards' 6 pm → 10 am strip (or one fitted to it, #82): an 8 pt track, the night
-/// solid while on, outlined before, dashed when nothing will block. Ready draws the gap before bed
-/// (D76) as a thinner step before the night, split from it by a notch.
+/// The night on the boards' 6 pm → 10 am strip (or one fitted to it, #82), at true scale. Sleep is
+/// the solid bar with its moon; the buffers around it (D76, #144) are the same height, striped, each
+/// split from sleep by a notch, so before · sleep · after read apart by texture and place, never
+/// colour alone. The lock's two ends are marked over the bar with their times and lock glyphs.
+/// Dashed when nothing will block.
 struct NightStrip: View {
   let strip: NightPicture.Strip
+  var lockTime: String?
+  var openTime: String?
+
+  static let height: CGFloat = 14
+  static let notch: CGFloat = 2
 
   var body: some View {
-    VStack(spacing: 10) {
+    VStack(spacing: 8) {
       GeometryReader { proxy in
         let width = proxy.size.width
+        let x = { (fraction: Double) in width * fraction }
         ZStack(alignment: .topLeading) {
-          RoundedRectangle(cornerRadius: 4).fill(TollColor.surfaceRaised).frame(height: 8)
+          RoundedRectangle(cornerRadius: 5).fill(TollColor.surfaceRaised)
+            .frame(height: Self.height)
           if let lock = strip.lock, lock < strip.start {
-            // 15 minutes is a few points: drawn at least 8 wide, ending 2 pt before the night.
-            let step = max(8, width * (strip.start - lock) - 2)
-            gap
-              .frame(width: step, height: 4)
-              .offset(x: width * strip.start - 2 - step, y: 2)
+            buffer
+              .frame(width: max(3, x(strip.start - lock) - Self.notch), height: Self.height)
+              .offset(x: x(lock))
           }
-          night
-            .frame(width: max(8, width * (strip.end - strip.start)), height: 8)
-            .offset(x: width * strip.start)
+          if let open = strip.open, open > strip.end {
+            buffer
+              .frame(width: max(3, x(open - strip.end) - Self.notch), height: Self.height)
+              .offset(x: x(strip.end) + Self.notch)
+          }
+          night(width: max(8, x(strip.end - strip.start)))
+            .frame(width: max(8, x(strip.end - strip.start)), height: Self.height)
+            .offset(x: x(strip.start))
+          if let lockTime {
+            marker(lockTime, symbol: .blocked, at: x(strip.lock ?? strip.start), width: width)
+          }
+          if let openTime {
+            marker(openTime, symbol: .open, at: x(strip.open ?? strip.end), width: width)
+          }
         }
       }
-      .frame(height: 8)
+      .frame(height: Self.height)
       .padding(.top, 26)
       EvenHourLabels(hours: strip.hours)
     }
     .tollChartTypeLimit()
   }
 
-  private var gap: some View {
-    RoundedRectangle(cornerRadius: 2).fill(TollColor.accent)
+  /// A buffer: the night's colour, striped.
+  @ViewBuilder private var buffer: some View {
+    switch strip.phase {
+    case .off:
+      RoundedRectangle(cornerRadius: 3)
+        .stroke(TollColor.label3, style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+    case .on, .upcoming:
+      HatchedBar(fill: TollColor.accent, stripes: TollColor.surface, radius: 3)
+    }
   }
 
-  @ViewBuilder private var night: some View {
-    let shape = RoundedRectangle(cornerRadius: 4)
+  @ViewBuilder private func night(width: CGFloat) -> some View {
+    let shape = RoundedRectangle(cornerRadius: 5)
     switch strip.phase {
-    case .on: shape.fill(TollColor.accent)
-    case .upcoming: shape.fill(TollColor.accentSoft).overlay(shape.stroke(TollColor.accent))
+    case .on, .upcoming:
+      shape.fill(TollColor.accent)
+        .overlay {
+          if width >= 22 {
+            Image(symbol: .sleep).unredacted()
+              .font(.system(size: 9, weight: .bold))
+              .foregroundStyle(TollColor.onAccent)
+          }
+        }
     case .off:
       shape.stroke(TollColor.label3, style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+    }
+  }
+
+  /// A tick at one of the lock's ends, its time and glyph over it, kept inside the strip.
+  private func marker(_ time: String, symbol: TollSymbol, at x: CGFloat, width: CGFloat)
+    -> some View
+  {
+    ZStack(alignment: .topLeading) {
+      Rectangle().fill(TollColor.label2)
+        .frame(width: 1, height: Self.height + 8)
+        .offset(x: x - 0.5, y: -6)
+      HStack(spacing: 3) {
+        Image(symbol: symbol).unredacted().font(.system(size: 9, weight: .semibold))
+        Text(time).monospacedDigit()
+      }
+      .tollType(.micro, TollColor.label2)
+      .fixedSize()
+      .position(x: min(max(x, 34), width - 34), y: -14)
     }
   }
 }
