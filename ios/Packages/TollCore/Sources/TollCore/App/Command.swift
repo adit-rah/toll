@@ -33,6 +33,9 @@ public enum Command: Sendable {
   case buffer(Gap.Side, Gap.Setting, target: Int?)
   /// The one-time flow or Settings: sleep and both buffers at once (#144).
   case fit(Fit)
+  /// "See how you slept" (#86): the person chose Health after setup; its sleep corrects the night
+  /// records from now on. Nothing about the night changes.
+  case health(Bool)
   /// Settings › Before bed's helpers: on or off, and the breath's length (D80). Applies at once:
   /// nothing about the night's hours changes.
   case helpers(Helpers)

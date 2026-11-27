@@ -114,6 +114,21 @@ public struct TollSymbol: Hashable, Sendable {
   public static let fold = TollSymbol("chevron.down")
   /// Sharing Your sky's picture, on a landmark morning only (D79).
   public static let share = TollSymbol("square.and.arrow.up")
+
+  // Your sleep's measures (#87, #88)
+  /// Asleep, as Health measured it: falling asleep, and last night's sleep on its card.
+  public static let asleep = TollSymbol("zzz")
+  /// How long the night's sleep lasted.
+  public static let timeAsleep = TollSymbol("bed.double")
+  /// How steady a time is from night to night.
+  public static let steady = TollSymbol("metronome")
+  /// Reaching for a locked app after the lock.
+  public static let reach = TollSymbol("hand.tap")
+  /// A change against the person's own first nights: the way this measure improves, the other
+  /// way, or about the same. With `ok` for the first, never colour alone.
+  public static let trendToward = TollSymbol("arrow.up.right")
+  public static let trendAway = TollSymbol("arrow.down.right")
+  public static let trendSame = TollSymbol("equal")
 }
 
 extension Image {

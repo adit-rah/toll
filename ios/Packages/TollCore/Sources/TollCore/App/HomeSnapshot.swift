@@ -154,6 +154,8 @@ public struct HomeSnapshot: Equatable, Sendable {
           state: state, log: log, history: history, now: now, calendar: calendar)
         night.landmark =
           NightsRan.sky(ran, state: state, now: now, calendar: calendar, config: config).landmark
+        night.read(
+          history: history, health: state.health, first: ran.count == 1, calendar: calendar)
       }
       if let sleep { day.add(lastNight: night, sleep: sleep.id) }
       facts.lastNight = true

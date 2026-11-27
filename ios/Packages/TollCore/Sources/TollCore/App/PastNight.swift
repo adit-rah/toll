@@ -12,10 +12,33 @@ public struct PastNight: Equatable, Sendable {
   public var locked: TimeInterval?
   /// When each "Never mind" tap was; nil in records written before the record kept them.
   public var taps: [Date]?
+  /// Health's sleep for the night, from the record's correction (#144); nil without one.
+  public var slept: Slept?
+  /// The last reach for a locked app while the night was on: the stand-in for falling asleep
+  /// without Health (#87). Nil on a night with none.
+  public var lastReach: Date?
+  /// Every reach for a locked app while the night was on ("Never mind" and "Pause in Dusk"), and
+  /// the pauses taken; nil in records written before the record kept them.
+  public var reaches: Int?
+  public var pauses: Int?
+
+  /// One night's sleep as Health measured it: when it began and ended, and the minutes asleep.
+  public struct Slept: Equatable, Sendable {
+    public var onset: Date
+    public var wake: Date
+    public var minutes: Int
+
+    public init(onset: Date, wake: Date, minutes: Int) {
+      self.onset = onset
+      self.wake = wake
+      self.minutes = minutes
+    }
+  }
 
   public init(
     night: Date, ran: Bool, start: Date? = nil, end: Date? = nil, locked: TimeInterval? = nil,
-    taps: [Date]? = nil
+    taps: [Date]? = nil, slept: Slept? = nil, lastReach: Date? = nil, reaches: Int? = nil,
+    pauses: Int? = nil
   ) {
     self.night = night
     self.ran = ran
@@ -23,13 +46,18 @@ public struct PastNight: Equatable, Sendable {
     self.end = end
     self.locked = locked
     self.taps = taps
+    self.slept = slept
+    self.lastReach = lastReach
+    self.reaches = reaches
+    self.pauses = pauses
   }
 
   init(_ facts: NightFacts) {
     self.init(
       night: facts.night, ran: facts.ran, start: facts.blockStart,
       end: facts.ran ? facts.blockEnd ?? facts.plannedEnd : nil, locked: facts.locked,
-      taps: facts.taps)
+      taps: facts.taps, lastReach: facts.lastReach, reaches: facts.stops + facts.doorAsks,
+      pauses: facts.unlocksUsed)
   }
 
   /// How long the block kept the night's apps locked.

@@ -123,6 +123,8 @@ struct LiveHome: View {
       }
     }
     .sheet(isPresented: $buying) { PurchaseSheet(model: model, home: snapshot(Date())) }
+    // "See how you slept" on last night's card and Your sleep's link to Health (#86).
+    .environment(\.askHealth, { [model] in Task { await model.askHealth() } })
     .onChange(of: model.showsDoor, initial: true) { _, shows in
       if shows { doorUp = true }
     }

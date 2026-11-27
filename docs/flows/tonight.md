@@ -56,11 +56,20 @@ flowchart TD
   morningCheck -->|"no"| strip
   row --> status{"The row's status (Morning.status)"}
   status -->|"a landmark: the 7th, 30th, 100th or 365th night that ran"| statusLandmark["30 nights. Orion is in your sky.<br/>render: home-morning-landmark"]
+  status -->|"the night log has Health's sleep for it (a rev correction)"| statusAsleep["zzz: Asleep 7 h 35 m<br/>render: home-morning-asleep"]
   status -->|"it ran, with or without a break"| statusRan["lock: Locked 8 h 45 m"]
   status -->|"away"| statusAway["figure.walk: Away, nothing locked"]
   status -->|"Screen Time off"| statusOff["hourglass: Screen Time was off"]
   row -->|"tap the row"| card["The card, grown up from its row: Last night, OK, chevron down;<br/>Apps locked from … to …; the bar, a pause's break marked with the pause glyph; Apps open from … to …;<br/>You chose sleep over a locked app N times; Last 7 nights<br/>render: home-morning-open"]
   card -->|"tap its header"| row
+  card --> sleepCheck{"Health's sleep for the night?"}
+  sleepCheck -->|"yes"| asleepCard["Led by Asleep 11:20 pm – 6:55 am · 7 h 35 m, drawn as a line under the lock;<br/>Apps locked from … to … under the bar<br/>render: home-morning-asleep-open"]
+  card --> firstCheck{"The first night the lock ran, and Health not chosen?"}
+  firstCheck -->|"yes"| askHealth["See how you slept, once: only this night's card<br/>render: home-morning-ask-open"]
+  askHealth -->|"See how you slept"| healthSheet{{"iOS: Health's read access, sleep only"}}
+  healthSheet -.->|"whatever iOS answers"| chosen[("state.json: health = true; the recent records corrected with Health's sleep")]
+  chosen --> sleepCheck
+  firstCheck -->|"Health chosen, nothing for the night"| healthEmpty["Health has no sleep for last night. A watch adds it.<br/>render: none"]
   card -->|"OK"| seen[("state.json: lastNightSeen = the night")]
   seen --> strip
   strip -->|"tap"| popover["The same card, open, in a popover<br/>render: home-strip-last-night"]
@@ -69,7 +78,7 @@ flowchart TD
   landmarkLine -->|"Share"| share{{"iOS share sheet: the sky poster<br/>render: sky-share"}}
 
   classDef system stroke-dasharray: 5 3
-  class share system
+  class share,healthSheet system
 ```
 
 ## Tonight's band

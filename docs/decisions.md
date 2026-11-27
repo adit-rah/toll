@@ -616,3 +616,14 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Demos** use the fixture's app counts with stand-in tiles.
 - **Assumed, for the founders:** the fold threshold of 3, and no apps-count fact on other blocks' rows.
 
+**D104. Your sleep leads with the person's improvement** (2026-11-27, #85, #86, #87, #88; founder: "sleep is the hero").
+- **The measures** (`SleepTrends`, TollCore): Asleep by, Time asleep, How steady (of falling asleep), and Reaching for your phone (every tap on a locked app after the lock).
+- **Without Health's sleep** on at least 3 of the last 7 nights, Dusk's own stand-ins show instead, named as what they are: Phone down by (the last reach for a locked app), Nights locked, How steady (of the last reach), and Reaching. Under them: "From Dusk's own nights, not measured sleep. A watch adds real sleep times." The stand-in is unvalidated, so it is never called sleep.
+- **The trend rule.** The first 7 nights with a value are compared with the last 7; at least 5 recent nights are needed, all after the first 7. A change is said only past a floor (15 min; 0.5 reaches a night; 2 nights locked) and 2.2 Welch standard errors of the person's own nights. How steady is the average distance from the middle night, first 14 against last 14 (at least 10 recent), floor 10 min. A measure shows from 3 values (7 for How steady); before that nothing is said. In simulation, with no real change and heavy-tailed nights, it claims a change about 4% of the time (1–3% for How steady) and catches a real 30-minute shift about 45% of the time. The thresholds are to be validated against real exports (#165).
+- **Words and shapes.** Facts against the person's own first nights, both ways (founder, 27 Nov: "state it as a fact"): "25 min earlier than your first 7 nights", "40 min later than your first 7 nights". The glyphs are up-right (with `ok`), down-right and equal, never colour alone. Each chart shows 14 nights, the first level dashed and the last week solid.
+- **Layout** (founder: "under the sky"). "Night by night" sits under the sky (D88) and before the week.
+- **Last night's card** leads with Health's sleep when the night's record has the correction ("Asleep 11:20 pm – 6:55 am · 7 h 35 m"; folded, "Asleep 7 h 35 m"), and with the lock otherwise.
+- **The ask (#86).** For someone who skipped Health, the open card offers "See how you slept" once, the morning after the first night that ran. It's worked out from the nights, with nothing stored. Your sleep keeps "Add your sleep from Apple Health" while Health isn't chosen. Health counts as chosen whatever iOS answers, since a refusal reads as no nights.
+- **Not shown yet:** the sleep model's insight beside the measures, which waits for personal timing (#155).
+- **Assumed, for the founders:** without Health, Time asleep becomes Nights locked; the first nights are the first 7 since setup, not Health's history from before Dusk.
+
