@@ -13,7 +13,7 @@ Last updated: 25 November 2026.
 
 ## Apple Health
 
-If you choose "Use Apple Health", Dusk asks iOS to read one thing: your sleep (Sleep Analysis). It never asks to write, and it never writes to Health.
+If you choose "Use Apple Health" when you set Dusk up, or later "See how you slept" (the morning after your first night) or "Add your sleep from Apple Health" (on Your sleep), Dusk asks iOS to read one thing: your sleep (Sleep Analysis). It never asks to write, and it never writes to Health.
 
 - **What it reads:** the sleep your Apple Watch or another sleep app saved in Health over the last four weeks, and later each night's sleep as it arrives.
 - **What it does with it:** works out when you usually fall asleep and wake up, to suggest your hours and the time around them, and adds each night's sleep (when you fell asleep and woke, minutes asleep and awake, and whether a watch measured it) to the night log on your iPhone, so Your sleep can show how your nights go.

@@ -244,6 +244,12 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 226 | With 4 other blocks, open Blocks and tap the group | Its rows fade in as the card grows; the chevron turns; New block and the limits stay put. With Reduce Motion, a crossfade | | |
 | 227 | Open Blocks while Study is on | The group is already open; a tap folds it to "Study on until 5:00 pm" with a lock | | |
 | 228 | Save an edit to a block that's on | Its row says "Changes apply at …" in amber with a clock until the block ends | | |
+| 229 | With a watch and Health chosen, open Dusk the morning after a night, after the watch has synced | The row reads "Asleep … h … m" matching Health's sleep; the open card's times match Health's first and last asleep | | |
+| 230 | Health chosen, no watch | The row reads "Locked …"; Your sleep shows Phone down by and the others, with "Health has no sleep for these nights…" | | |
+| 231 | Skip Health at setup; the morning after the first locked night, open last night's card | "See how you slept" shows; it opens iOS's Health sheet (sleep only); after Allow, the card leads with sleep if the watch has it, and the link is gone. The next morning there is no link | | |
+| 232 | Tap "See how you slept" and choose Don't Allow | Nothing breaks; Your sleep shows the Health-empty note; turning access on later in Health › Sharing › Apps › Dusk takes effect at the next foreground | | |
+| 233 | VoiceOver on each card under Night by night | One sentence each: the name, the value, what it is, and the change | | |
+| 234 | AX5 on Your sleep | Each card's tile sits above its text; nothing is cut off | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

@@ -16,7 +16,7 @@ Every user flow in Dusk, as built on `main`, drawn as a Mermaid flowchart. A UX 
 | [purchase.md](purchase.md) | The free nights, their end, buying, Ask to Buy, restore, refunds | D33, D78, D82, D84 |
 | [settings.md](settings.md) | Settings and every sheet or screen it opens, Settings › Sleep included | D72, D83, D84, D85, #144 |
 | [permissions.md](permissions.md) | Losing and getting back Screen Time, location and notifications | D8, D10, D37, D48, D72 |
-| [your-sleep.md](your-sleep.md) | Your sleep: the sky, a star's night, the week, the ranges, landmarks and sharing | D69, D79, D81, D84, D88 |
+| [your-sleep.md](your-sleep.md) | Your sleep: the sky, the measures and their trends, a star's night, the week, the ranges, landmarks and sharing | D69, D79, D81, D84, D88, #87, #88 |
 | [blocks.md](blocks.md) | The Blocks tab and the block editor: new, edit, delete, the night's editor | D29, D45, D73, D84, D87 |
 | [data.md](data.md) | Every piece of data that persists: where, its format, who writes and reads it, what a format change does | D11, D62, D78, #140 |
 

@@ -42,15 +42,37 @@ extension Copy {
       return landmark.map { "\(line). \($0)" } ?? line
     }
     public static func spokenLocked(minutes: Int) -> String {
+      "apps locked " + spokenLength(minutes)
+    }
+    /// "8 hours 45 minutes".
+    static func spokenLength(_ minutes: Int) -> String {
       let hours = minutes / 60
       let rest = minutes % 60
       let parts = [
         hours > 0 ? (hours == 1 ? "1 hour" : "\(hours) hours") : nil,
         rest > 0 || hours == 0 ? (rest == 1 ? "1 minute" : "\(rest) minutes") : nil,
       ]
-      return "apps locked " + parts.compactMap { $0 }.joined(separator: " ")
+      return parts.compactMap { $0 }.joined(separator: " ")
     }
     public static let spokenStatusAway = "away from home, nothing locked"
+
+    /// Health's sleep leads the card when there is some (#88): "Asleep 11:20 pm – 6:55 am · 7 h
+    /// 35 m", and on the folded row "Asleep 7 h 35 m".
+    public static func asleep(from: String, to: String, length: String) -> String {
+      "Asleep \(from) – \(to) · \(length)"
+    }
+    public static func statusAsleep(_ length: String) -> String { "Asleep \(length)" }
+    public static func spokenAsleep(from: String, to: String, minutes: Int) -> String {
+      "Asleep from \(from) to \(to), \(spokenLength(minutes))"
+    }
+    public static func spokenStatusAsleep(minutes: Int) -> String {
+      "asleep \(spokenLength(minutes))"
+    }
+    /// The morning after the first night that locked, for someone who didn't choose Health (#86).
+    public static let seeHowYouSlept = "See how you slept"
+    public static let fromHealth = "From Apple Health, on this phone"
+    /// The same morning, when Health had nothing for the night.
+    public static let healthEmpty = "Health has no sleep for last night. A watch adds it."
     /// The folded card's state and what a double-tap does.
     public static let folded = "Collapsed"
     public static let unfolded = "Expanded"

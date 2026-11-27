@@ -28,6 +28,16 @@ public struct Morning: Equatable, Sendable {
   public var night: Date
   /// When the night was planned to end: where the strip starts, and where last night sits on it.
   public var ended: Date
+  /// When the lock was planned to start: the bar's left end.
+  var started: Date
+  /// Health's sleep last night (#88): the card leads with it when Health has some.
+  public var asleep: Asleep?
+  /// The morning after the first night that locked, for someone who didn't choose Health at
+  /// setup: the card offers "See how you slept" (#86). Only that morning, so it asks once.
+  public var asksHealth = false
+  /// That same morning, once Health was chosen and had nothing for the night: a quiet line, so the
+  /// answer visibly landed.
+  public var healthEmpty = false
   /// When the block first came on and last went off; the planned hours when it didn't run.
   public var from: String
   public var to: String
@@ -88,6 +98,7 @@ public struct Morning: Equatable, Sendable {
     }
     self.night = night.night
     ended = night.plannedEnd
+    started = night.plannedStart
 
     let stretches = Self.stretches(
       lines.filter { nightKey($0.at, calendar) == night.night }, sleep: sleep,
@@ -129,6 +140,7 @@ public struct Morning: Equatable, Sendable {
   /// landmark morning, the landmark's line instead (D79).
   public var status: String {
     if let landmark { return landmark.line }
+    if let asleep { return asleep.status }
     switch outcome {
     case .ran:
       return Copy.Morning.statusLocked(Copy.Home.duration(TimeInterval(lockedMinutes * 60)))
@@ -142,6 +154,7 @@ public struct Morning: Equatable, Sendable {
   public var statusSpoken: String {
     let night =
       switch outcome {
+      case _ where asleep != nil: asleep?.statusSpoken ?? ""
       case .ran: Copy.Morning.spokenLocked(minutes: lockedMinutes)
       case .away: Copy.Morning.spokenStatusAway
       case .noScreenTime: Copy.Morning.statusNoScreenTime

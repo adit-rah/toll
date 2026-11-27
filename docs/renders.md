@@ -60,6 +60,8 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `home-held-home` · `home-blocked-anywhere` | The night locked with "Use anywhere" chosen during it, held until it ends (B-3, #129); and locked with home not set (#141) |
 | `sleep-after-trial` | Your sleep after the free nights ended, not bought: the free nights' dots, two rows of seven (#129) |
 | `settings-screen-time-off` · `settings-log` | Settings with Screen Time off for Dusk, and the activity log (#141) |
+| `sleep-health-improving` · `sleep-health-flat` · `sleep-health-noisy` · `sleep-dusk` · `sleep-few` | Your sleep's measures (#88) at 8:10 am, after four weeks of a watch's nights falling asleep earlier, staying about the same, and too noisy to say; the same improving weeks from Dusk's own nights alone (Health not chosen: the stand-ins and "Add your sleep from Apple Health"); and three nights with Health (values, no comparisons). Scroll to them: `sleep-health-improving: gesture scroll-down` |
+| `home-morning-asleep` · `home-morning-asleep-open` · `home-morning-ask-open` | Last night's row and open card led by Health's sleep ("Asleep 11:20 pm – 6:55 am · 7 h 35 m"); and the morning after the first night for someone who skipped Health, open on "See how you slept" (#86) |
 | `sleep-sky-names` | Your sky at 30 nights, 8:10 am, with every name and line brought forward, as a tap on the open sky does. A tap reaches it in any light: `sleep-sky-evening: tap -x 340 -y 270` (open sky at 30 nights) |
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):
