@@ -128,7 +128,7 @@ struct NightKeeperTests {
   }
 
   /// Every shape the night log has had (D62, D83's gap, D84's hours, D85's helper, #140's record
-  /// and rev, #144's buffer after and Health's correction), with two copies of one night and
+  /// and rev, #144's buffer after and Health's correction, #145's pauses by buffer), with two copies of one night and
   /// corrections: one night each, the highest revision.
   @Test func everyPastShapeReadsAndTheHighestRevisionWins() throws {
     let url = try #require(
@@ -136,11 +136,12 @@ struct NightKeeperTests {
         forResource: "past", withExtension: "jsonl", subdirectory: "Fixtures/nights"))
     let log = NightLog(url: url)
     let current = log.current()
-    #expect(current.count == 6)
+    #expect(current.count == 7)
     let records = try current.map { try JSONDecoder().decode(NightRecord.self, from: $0) }
     #expect(
       records.map(\.night) == [
         "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15",
+        "2026-11-16",
       ])
     #expect(records[2].sleepOnset == "2026-11-12T23:20:00Z")
     #expect(records[5].sleepSource == "watch")
@@ -149,7 +150,7 @@ struct NightKeeperTests {
     let shared = try #require(try JSONSerialization.jsonObject(with: current[4]) as? [String: Any])
     #expect((shared["dusk"] as? [String: Any])?["by"] as? String == "monitor")
     let past = log.past(calendar: london)
-    #expect(past.count == 6)
+    #expect(past.count == 7)
     #expect(past.allSatisfy { $0.ran })
     #expect(past[2].taps == [date(2026, 11, 12, 23, 5)])
   }

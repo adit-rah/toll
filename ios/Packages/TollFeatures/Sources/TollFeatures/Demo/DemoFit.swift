@@ -10,7 +10,7 @@
       switch self {
       case .fitSheet: []
       case .fitSheetSleep: [.sleep]
-      case .fitSheetAround: [.sleep, .around]
+      case .fitSheetAround, .fitSheetFitted: [.sleep, .around]
       default: nil
       }
     }
@@ -22,6 +22,15 @@
       case .settingsSleepAfter: .after
       default: nil
       }
+    }
+
+    /// The targets the one-time flow offers: four weeks hard at 60 make 45 (#145).
+    func bufferSuggestion(_ config: TollConfig) -> BufferSuggestion {
+      guard self == .fitSheetFitted else { return BufferSuggestion(config: config) }
+      let calm = BufferWeek(minutes: 45, verdict: .smooth, pauses: 0)
+      let hard = BufferWeek(minutes: 60, verdict: .hard, pauses: 2)
+      return BufferSuggestion(
+        before: [calm, hard, calm, calm, hard], after: [], lateOnset: false, config: config)
     }
 
     /// Someone set up before #144: no buffer after yet, and the flow due.

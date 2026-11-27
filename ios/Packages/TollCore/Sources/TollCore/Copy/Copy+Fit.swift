@@ -45,6 +45,8 @@ extension Copy {
     public static let after = "After waking"
     /// The buffers are the same recommended start for everyone; only the hours come from Health.
     public static let suggested = "Recommended to start. Tap either to change it."
+    /// Someone with weeks of their own nights: what each side grows to is fitted from them (#145).
+    public static let fitted = "Fitted to your nights so far. Tap either to change it."
     public static let changeHint = "Changes how long, tonight and as it grows"
     /// Each side's sheet: what it does, and for after waking what it's for, claimed no more
     /// strongly than that.
