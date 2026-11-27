@@ -227,7 +227,8 @@
     var tab: DuskTab {
       switch self {
       case _ where self == .insights || rawValue.hasPrefix("sleep-"): .sleep
-      case .blocks, .blocksDay, .blocksMany, .blocksManyDay, .blockNew, .blockNewGym, .blockEdit, .blockEditOn, .blockNight:
+      case .blocks, .blocksDay, .blocksMany, .blocksManyDay, .blockNew, .blockNewGym, .blockEdit,
+        .blockEditOn, .blockNight:
         .blocks
       default: .tonight
       }

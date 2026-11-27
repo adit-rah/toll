@@ -68,7 +68,9 @@ public struct BlocksSnapshot: Equatable, Sendable {
       Fact(.apps, Copy.Blocks.summary(categories: block.categoryCount, apps: block.appCount)),
       placeFact(block, state: state) ?? Fact(.anywhere, Copy.Blocks.anywhere),
     ]
-    if block.schedule.rules.count > 1 { facts.append(Fact(.weekendsDiffer, Copy.Home.weekendsDiffer)) }
+    if block.schedule.rules.count > 1 {
+      facts.append(Fact(.weekendsDiffer, Copy.Home.weekendsDiffer))
+    }
     if let held = state.runtime.active[block.id].flatMap({
       Self.heldFact(block, state: state, at: Copy.time($0, in: calendar))
     }) {
