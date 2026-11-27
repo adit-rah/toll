@@ -8,7 +8,7 @@
 
 ```mermaid
 flowchart TD
-  tab["Blocks: the night's card, other blocks as rows, New block, the limits pinned<br/>render: blocks, blocks-day"]
+  tab["Blocks: the night's card, other blocks as rows, New block, the limits pinned as two bars (apps and sites, sets of hours)<br/>render: blocks, blocks-day"]
   tonightStrip["Tonight: a strip segment's Edit, or Set your night<br/>render: home-strip-day"]
   tab -->|"the night's card"| nightEditor
   tab --> many{"More than 3 other blocks?"}

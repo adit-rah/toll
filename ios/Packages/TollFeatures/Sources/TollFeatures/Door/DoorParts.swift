@@ -2,23 +2,24 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Pause · none left (D67): the empty dots, the week as seven segments with the nights gone filled
-/// (how long until they come back, without words), when they come back, and that nothing else is
-/// blocked.
+/// Pause · none left (D67): the empty dots, the pauses' week as its nights (Your sleep's dots, the
+/// nights still to come dashed: how long until they come back, without words; #129), when they come
+/// back, and that nothing else is blocked. Segments are kept for the free nights.
 struct DoorNoneLeft: View {
   let model: AppModel
   let supply: HomeSnapshot.Supply
+  let now: Date
 
   var body: some View {
-    SheetPage(height: 390) {
+    SheetPage(height: 430) {
       IconTile(.unlock, size: .sheet, accent: false)
       SheetTitle(Copy.Door.noneTitle).padding(.top, 18)
       UnlockPips(left: 0, max: supply.max, back: supply.refillDay).padding(.top, 14)
-      Pips(
-        filled: supply.nightOfWeek - 1, total: 7, style: .segments,
-        spoken: Copy.Door.weekly(supply.max, refill: supply.refill)
+      NightDots(
+        bars: HomeSnapshot.Supply.nights(
+          state: model.state, log: model.log, now: now, calendar: .current, config: model.config)
       )
-      .padding(.top, 14)
+      .padding(.top, 18)
       Text(Copy.Door.weekly(supply.max, refill: supply.refill))
         .tollType(.sheetBody, TollColor.label)
         .fixedSize(horizontal: false, vertical: true)
@@ -31,17 +32,6 @@ struct DoorNoneLeft: View {
     } actions: {
       PrimaryButton(Copy.Door.ok) { model.dismissDoor() }
     }
-  }
-}
-
-/// The room choosing's "Not now" takes under its button, kept empty while waiting and open, so the
-/// main button stays on one line through the pause and only its words change (design §2.1).
-struct LinkRoom: View {
-  var body: some View {
-    QuietButton(Copy.Door.notNow) {}
-      .frame(maxWidth: .infinity)
-      .hidden()
-      .accessibilityHidden(true)
   }
 }
 
@@ -98,11 +88,13 @@ struct UnlockPips: View {
 
   private var words: String {
     if left == 0 { return back.map(Copy.Door.back) ?? Copy.Door.noneOf(max) }
-    return Copy.Door.pausesOf(left, max)
+    // Beside the dashed dot, the words count what it shows: the one this pause would use (#129).
+    return spending ? Copy.Door.spends(left) : Copy.Door.pausesOf(left, max)
   }
 
   private var spoken: String {
     if left == 0, let back { return Copy.Door.noneLeftBack(back) }
+    if spending { return Copy.Door.spendsSpoken(left, of: max) }
     return Copy.Door.pausesLeft(left, of: max)
   }
 }

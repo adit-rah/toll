@@ -18,6 +18,9 @@ public struct Morning: Equatable, Sendable {
   public struct Span: Equatable, Sendable {
     public var start: Double
     public var end: Double
+    /// A gap where a pause was open, rather than a time away: the bar marks it with the pause's
+    /// glyph, so the break doesn't read as a glitch (#124).
+    public var paused = false
   }
 
   public var outcome: Outcome
@@ -96,7 +99,9 @@ public struct Morning: Equatable, Sendable {
     ran = stretches.map { Span(start: fraction($0.start), end: fraction($0.end)) }
     self.sleep = Span(start: fraction(night.bed), end: fraction(night.wake))
     let holes = zip(stretches, stretches.dropFirst()).map { (start: $0.end, end: $1.start) }
-    gaps = holes.map { Span(start: fraction($0.start), end: fraction($0.end)) }
+    gaps = zip(holes, stretches).map { hole, before in
+      Span(start: fraction(hole.start), end: fraction(hole.end), paused: before.paused)
+    }
     let locked = stretches.reduce(0) { $0 + $1.end.timeIntervalSince($1.start) }
     lockedMinutes = Int((locked / 60).rounded())
     let first = stretches.first?.start ?? night.plannedStart
@@ -145,22 +150,22 @@ public struct Morning: Equatable, Sendable {
   }
 
   /// The stretches the night's block shielded: on, and not paused. A door that's open lifts the
-  /// shield (D67), so it is a gap like a time away. A stretch still open when the log stops runs to
-  /// the planned end.
+  /// shield (D67), so it is a gap like a time away; `paused` says a pause ended the stretch. A
+  /// stretch still open when the log stops runs to the planned end.
   static func stretches(_ lines: [Transition], sleep: Block, until end: Date) -> [(
-    start: Date, end: Date
+    start: Date, end: Date, paused: Bool
   )] {
-    var stretches: [(start: Date, end: Date)] = []
+    var stretches: [(start: Date, end: Date, paused: Bool)] = []
     var since: Date?
     for line in lines {
       let on = line.runs(sleep) && line.door != .open
       if on, since == nil { since = line.at }
       if !on, let start = since {
-        stretches.append((start, line.at))
+        stretches.append((start, line.at, line.door == .open))
         since = nil
       }
     }
-    if let start = since { stretches.append((start, max(start, end))) }
+    if let start = since { stretches.append((start, max(start, end), false)) }
     return stretches
   }
 }

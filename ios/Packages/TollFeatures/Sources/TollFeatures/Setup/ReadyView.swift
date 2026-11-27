@@ -45,7 +45,7 @@ struct ReadyView: View {
       AdaptiveStack(spacing: 14) {
         fact(.anywhere, Copy.Setup.anywhere)
         fact(.apps, apps.isEmpty ? Copy.Setup.blocked : apps)
-        fact(.unlock, Copy.Setup.unlocks(unlocks))
+        fact(.unlock, Copy.Setup.unlocks(unlocks, minutes: model.app.config.door.minutes))
       }
       .padding(.vertical, 12)
       .padding(.horizontal, TollSpacing.cardPadding)
@@ -55,11 +55,15 @@ struct ReadyView: View {
       .padding(.top, 12)
     } actions: {
       if let footnote {
-        // The free nights as segments, none used yet (#77), over the words.
+        // The free nights as segments, none used yet (#77), over the words; on a fresh start,
+        // tonight's ringed as on the pill: tonight is the first (#66).
         if model.offer(now: Date()).isFree {
-          FreeNights(used: 0, total: model.app.config.trial.nights, spoken: footnote)
-            .accessibilityHidden(true)
-            .padding(.bottom, 8)
+          FreeNights(
+            used: 0, total: model.app.config.trial.nights, tonight: freshStart ? 0 : nil,
+            spoken: footnote
+          )
+          .accessibilityHidden(true)
+          .padding(.bottom, 8)
         }
         Footnote(footnote, alignment: .center)
           .padding(.horizontal, 12)
@@ -71,6 +75,11 @@ struct ReadyView: View {
   }
 
   private var unlocks: Int { model.app.config.unlocks.max }
+
+  private var freshStart: Bool {
+    if case .fresh = model.offer(now: Date()) { return true }
+    return false
+  }
 
   /// "2 categories · 2 apps"; the simulator has no tokens to count.
   private var apps: String {
