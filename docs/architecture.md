@@ -54,15 +54,16 @@ DuskState (schema 3, one coordinated JSON file in the App Group)
 
 - **Active block (B-1):** entitled, on, inside one of its schedule's occurrences, at its place (or it has none, or location is `.scheduleOnly`), and that occurrence started after the block's last end (B-4).
 - **Shield:** the union of active blocks' apps, sites and categories, or nothing while a pause is open (D67). One ManagedSettings store, so a pause lifts every block at once.
-- **The gap before bed (D76):** the night's stored hours are bed to wake; it runs, and is scheduled, from bed minus the gap. Each Monday at noon (the pauses' week) the week before is judged from a tally kept as it happens: nights the lock ran, pauses started before bed, Screen Time off. A change while the night is on waits until it ends, like an edit.
+- **The gap before bed (D76):** the night's stored hours are bed to wake; it runs, and is scheduled, from bed minus the gap. Each Monday at noon (the pauses' week) the week before is judged from a tally kept as it happens, at the monitor's daily noon wake if nothing reconciled earlier, so the new lock and heads-up apply that night with Dusk closed (#127): nights the lock ran, pauses started before bed, Screen Time off. A change while the night is on waits until it ends, like an edit.
 - **Edits (B-3):** edits to an active block, or to a place an active block uses, wait until that block ends. Everything else applies at once.
 - **Door, shown as "Pause" (D67):** every block's shield. 60 s wait, then 10 minutes on the clock (D31). It ends when its time is up, on "Lock again", or when no block is active. 3 a week, shared by all blocks, back to 3 when Monday's night starts (noon), none carried over.
-- **Limits:** iOS shields at most 50 apps and sites by name, so at most `blocks.maxApps` (40) across all blocks, as designed. At most 20 places (CLMonitor's limit). At most `schedule.maxWindows` distinct time windows, so window, sweep and door schedules stay under DeviceActivity's 20 activities.
+- **Limits:** iOS shields at most 50 apps and sites by name, so at most `blocks.maxApps` (40) across all blocks, as designed. At most 20 places (CLMonitor's limit). At most `schedule.maxWindows` distinct time windows, so window, sweep, door and turn schedules stay under DeviceActivity's 20 activities (8 × 2 + 2).
 
 ## Scheduling
 
 DeviceActivity only wakes the monitor; reconcile decides.
 - **Window schedules:** one repeating daily schedule per distinct time window across all blocks, plus a sweep after each. On days a rule does not cover, its wakes change nothing.
+- **Turn schedule (#127):** one repeating daily interval from 12:01, while either buffer grows, so Monday's judgement runs at noon even with Dusk closed; the monitor then hands iOS the heads-ups at the new lock. Other days' wakes change nothing.
 - **Door schedule:** one 15-minute interval from the end of the wait, with its warning set so it fires at the door's minutes. That is the closest thing iOS offers to a timer that runs while the app is closed.
 
 ## Migration
