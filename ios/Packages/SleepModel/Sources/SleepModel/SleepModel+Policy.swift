@@ -1,5 +1,6 @@
 extension SleepModel {
-  /// Tonight's start for someone who opted in: Thompson sampling with a floor (model spec, section 3).
+  /// A start drawn by Thompson sampling with a floor (model spec, section 3), for one night: v0's
+  /// policy. `chooseStart` holds a draw for a week (D66); both draw the same way.
   ///
   /// The chance each allowed start wins is estimated from `probDraws` draws of w ~ N(μ, Σ), then mixed
   /// with a uniform choice so every allowed start keeps at least `minProb`. One more uniform picks the
@@ -8,9 +9,22 @@ extension SleepModel {
   public func chooseOffset(_ context: NightContext, rng: inout SeededRNG) -> (
     offset: Int, prob: Double
   ) {
+    let allowed = allowedStarts(context)
+    let mixed = floored(context, allowed: allowed, rng: &rng)
+    let k = Self.pick(mixed, allowed: allowed, u: rng.uniform())
+    return (artifact.actions[k], mixed[k])
+  }
+
+  /// Which of the artifact's starts the person allows tonight; the plan alone if none.
+  func allowedStarts(_ context: NightContext) -> [Bool] {
     let actions = artifact.actions
-    var allowed = actions.map { context.allowedOffsets?.contains($0) ?? true }
-    if !allowed.contains(true) { allowed = actions.map { $0 == 0 } }
+    let allowed = actions.map { context.allowedOffsets?.contains($0) ?? true }
+    return allowed.contains(true) ? allowed : actions.map { $0 == 0 }
+  }
+
+  /// p' = (1 − K·floor)·p + floor over the K allowed starts, from `probDraws` posterior draws.
+  func floored(_ context: NightContext, allowed: [Bool], rng: inout SeededRNG) -> [Double] {
+    let actions = artifact.actions
     let phis = actions.map { Self.phi(offset: $0, context) }
     let bases = phis.map(base)
     let l = factor
@@ -34,19 +48,21 @@ extension SleepModel {
     }
     let count = Double(allowed.filter { $0 }.count)
     let floor = artifact.policy.minProb
-    let mixed = actions.indices.map { k -> Double in
+    return actions.indices.map { k -> Double in
       guard allowed[k] else { return 0 }
       if count == 1 { return 1 }
       let p = Double(wins[k]) / Double(draws)
       return (1.0 - count * floor) * p + floor
     }
-    let u = rng.uniform()
+  }
+
+  /// The index `u` lands on; the last allowed start if rounding leaves none.
+  static func pick(_ mixed: [Double], allowed: [Bool], u: Double) -> Int {
     var cumulative = 0.0
-    for k in actions.indices {
+    for k in mixed.indices {
       cumulative = cumulative + mixed[k]
-      if allowed[k], u < cumulative { return (actions[k], mixed[k]) }
+      if allowed[k], u < cumulative { return k }
     }
-    let last = allowed.lastIndex(of: true) ?? 0
-    return (actions[last], mixed[last])
+    return allowed.lastIndex(of: true) ?? 0
   }
 }

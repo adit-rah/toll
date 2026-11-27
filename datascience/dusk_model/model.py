@@ -3,7 +3,8 @@
 Every operation is written out in a fixed order (no LAPACK), so the Swift package, which does the same
 steps one person at a time, gives the same numbers to rounding.
 
-State per person: the precision matrix Λ (4×4), the vector b (4) and the count of usable nights.
+State per person: the precision matrix Λ (4×4), the vector b (4), the count of usable nights, and
+whether the insight showed after the last night (`insights.shown` keeps a shown insight on a laxer test).
 μ = Λ⁻¹ b and Σ = Λ⁻¹ come from the Cholesky factor L of Λ.
 """
 
@@ -23,10 +24,18 @@ class State:
     precision: np.ndarray  # (P, 4, 4)
     b: np.ndarray  # (P, 4)
     nights: np.ndarray  # (P,)
+    shown: np.ndarray | None = None  # (P,) bool: the insight showed after the last usable night
+
+    def __post_init__(self) -> None:
+        if self.shown is None:
+            self.shown = np.zeros(len(self.nights), dtype=bool)
 
     @property
     def people(self) -> int:
         return len(self.nights)
+
+    def rows(self, which) -> "State":
+        return State(self.precision[which], self.b[which], self.nights[which], self.shown[which])
 
     def person(self, i: int) -> dict:
         """One person's state as the app stores it: Λ row by row."""
@@ -34,6 +43,7 @@ class State:
             "precision": [float(v) for v in self.precision[i].reshape(-1)],
             "b": [float(v) for v in self.b[i]],
             "nights": int(self.nights[i]),
+            "shown": bool(self.shown[i]),
         }
 
 
@@ -131,6 +141,9 @@ def update(state: State, phi: np.ndarray, y: np.ndarray, usable: np.ndarray, par
     state.precision = np.where(usable[:, None, None], lam, state.precision)
     state.b = np.where(usable[:, None], b, state.b)
     state.nights = state.nights + usable.astype(np.int64)
+    from .insights import shown  # insights reads this module
+
+    state.shown = np.where(usable, shown(state, params)[0], state.shown)
 
 
 def predict(state: State, phi: np.ndarray, params: Params) -> tuple[np.ndarray, np.ndarray]:
