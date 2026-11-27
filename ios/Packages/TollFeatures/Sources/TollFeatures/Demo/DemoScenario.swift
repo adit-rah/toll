@@ -136,6 +136,10 @@
     case blocks
     /// Blocks on a weekday at 11 am, Study on (#89).
     case blocksDay = "blocks-day"
+    /// Four other blocks fold into one row (#110): in the evening, and at 11 am with Study on,
+    /// when the row opens by itself.
+    case blocksMany = "blocks-many"
+    case blocksManyDay = "blocks-many-day"
     /// New block: the kinds, then (`-gym`) Gym picked with its hours and no apps yet (#89).
     case blockNew = "block-new"
     case blockNewGym = "block-new-gym"
@@ -223,7 +227,7 @@
     var tab: DuskTab {
       switch self {
       case _ where self == .insights || rawValue.hasPrefix("sleep-"): .sleep
-      case .blocks, .blocksDay, .blockNew, .blockNewGym, .blockEdit, .blockEditOn, .blockNight:
+      case .blocks, .blocksDay, .blocksMany, .blocksManyDay, .blockNew, .blockNewGym, .blockEdit, .blockEditOn, .blockNight:
         .blocks
       default: .tonight
       }
@@ -231,7 +235,9 @@
     /// The kind a new-block scenario shows already picked.
     var newBlockKind: Block.Kind? { self == .blockNewGym ? .gym : nil }
     /// Weekday scenarios at 11 am, with Study on.
-    var isDay: Bool { [.homeDay, .homeStripDay, .blocksDay, .blockEditOn].contains(self) }
+    var isDay: Bool {
+      [.homeDay, .homeStripDay, .blocksDay, .blocksManyDay, .blockEditOn].contains(self)
+    }
     /// The segment whose snippet the strip opens on (D75): a block, or last night.
     var snippet: String? {
       switch self {

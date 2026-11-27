@@ -18,11 +18,15 @@ struct BlockEditorView: View {
   @State private var askingAlways = false
   /// The night's place is home, set with the same map as Tonight and Settings (the audit).
   @State private var settingHome = false
+  /// What was chosen when the editor opened: the Apps row animates only what arrives after.
+  @State private var appsAtOpen: FamilyActivitySelection
 
   /// `pickingApps` opens Apple's picker straight away: Tonight's note for a night that came back
   /// without its apps (#140).
   init(app: AppModel, editing id: BlockID?, pickingApps: Bool = false) {
-    _model = State(initialValue: BlockEditorModel(app: app, editing: id))
+    let model = BlockEditorModel(app: app, editing: id)
+    _model = State(initialValue: model)
+    _appsAtOpen = State(initialValue: model.selection)
     _picking = State(initialValue: pickingApps)
   }
 
@@ -89,12 +93,7 @@ struct BlockEditorView: View {
       Button {
         if model.hasApps { showingApps = true } else { picking = true }
       } label: {
-        CardRow(Copy.Blocks.apps, detail: model.appsSummary) {
-          // The row Save is waiting for is drawn as a slot to fill (#78).
-          if model.hasApps { IconTile(.apps, accent: false) } else { EmptyTile(.apps) }
-        } trailing: {
-          Chevron()
-        }
+        AppsRow(model: model, atOpen: appsAtOpen)
       }
       .buttonStyle(.plain)
       ForEach(model.block.schedule.rules.indices, id: \.self) { index in

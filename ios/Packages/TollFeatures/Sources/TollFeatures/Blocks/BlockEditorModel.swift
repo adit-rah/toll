@@ -82,11 +82,25 @@ final class BlockEditorModel {
   /// "2 categories · 2 apps", counted, since iOS never gives the app the names (D41).
   var appsSummary: String {
     guard hasApps else { return Copy.Blocks.chooseAppsToSave }
-    return Copy.Blocks.summary(
-      categories: selection.categoryTokens.count, apps: Blocklist.items(selection))
+    return Copy.Blocks.summary(categories: counts.categories, apps: counts.apps)
   }
 
-  var hasApps: Bool { !Blocklist.isEmpty(selection) }
+  var hasApps: Bool { counts.apps + counts.categories > 0 }
+
+  /// What the selection holds. Demo renders have no app tokens (docs/renders.md), so there a
+  /// block keeps the counts its fixture gave it, and the Apps row draws stand-ins (#110).
+  var counts: (apps: Int, categories: Int) {
+    #if DEBUG
+      if let demo = demoApps { return demo }
+    #endif
+    return (Blocklist.items(selection), selection.categoryTokens.count)
+  }
+
+  #if DEBUG
+    var demoApps: (apps: Int, categories: Int)? {
+      DemoScenario.current == nil ? nil : (block.appCount, block.categoryCount)
+    }
+  #endif
 
   /// The name field, cut at the longest name the block screen holds (#62).
   var name: String {
@@ -97,8 +111,7 @@ final class BlockEditorModel {
   /// The limits with this draft in place.
   func limits() -> BlockLimits {
     var draft = block
-    draft.appCount = Blocklist.items(selection)
-    draft.categoryCount = selection.categoryTokens.count
+    (draft.appCount, draft.categoryCount) = counts
     return BlockLimits(state: app.state, draft: draft, config: app.config)
   }
 
