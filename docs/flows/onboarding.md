@@ -79,7 +79,7 @@ flowchart TD
 Going Back from any step keeps what was chosen; leaving the app before Ready's Done saves nothing, so the next launch starts at Welcome again. Health's answer, the times and both buffers live in `FitDraft` until Done.
 
 ## Doubts
-- **Welcome's restore and "Buy it now" outcomes have no render.** Its other offers are `welcome-running`, `welcome-used` and `welcome-bought` (#141).
+- **Welcome's restore and "Buy it now" outcomes have no render.** Its other offers are `welcome-running`, `welcome-used` and `welcome-bought` (#141). A restore found here moves nothing: "Buy it now" and the restore link keep their rooms once bought (#135).
 - **Health refused looks like Health with no nights.** iOS doesn't say which; both lead to the asking screen, which is what #144 asks for. A person who refused can't be told how to allow it without guessing.
 - **"Use Apple Health" waits on iOS's sheet and the read, with the button disabled and nothing moving** (design §2.5 has no spinner). On a phone with years of sleep the read is a few hundred samples, so the wait should be short; it isn't measured.
 - **The buffers are a baseline, not fitted.** Everyone is offered 30 before sleep growing to 60, and 15 after waking growing to 30 (`BufferSuggestion`, TollConfig `suggestion`). Health fits the hours only: it can't say how long a person takes to fall asleep, and how much nights vary needs weeks more data. #145 personalises the buffers later from Dusk's own nights.
