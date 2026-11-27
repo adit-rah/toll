@@ -58,6 +58,9 @@ public struct YourSleep: Equatable, Sendable {
   public var plan: NightPicture?
   /// The moment this was read, so the ranges end where the rest of the tab does.
   public var now: Date
+  /// The person's improvement, the tab's lead under the sky (#87, #88): the four measures, each
+  /// against their own first nights.
+  public var trends: SleepTrends
 
   public init(
     state: DuskState, log: [Transition], history: [PastNight], now: Date, calendar: Calendar,
@@ -75,6 +78,8 @@ public struct YourSleep: Equatable, Sendable {
         calendar: calendar)
     }
     self.now = now
+    trends = SleepTrends(
+      nights: past, health: state.health, now: now, calendar: calendar, config: config)
     let ran = Set(past.filter(\.ran).map(\.night))
     let total = ran.count
     nights = total > 0 ? Copy.YourSleep.nights(total) : nil

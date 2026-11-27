@@ -78,6 +78,8 @@ public enum Engine {
         side, setting, target: target, &state, now: now, calendar: calendar, config: config)
     case .fit(let fit):
       return Fit.apply(fit, to: &state, now: now, calendar: calendar, config: config)
+    case .health(let health):
+      state.health = health
     case .helpers(let helpers):
       state.helpers = helpers
       state.helpers.breathMinutes = helpers.breath(config)
