@@ -68,7 +68,7 @@ There is no CI check. A pull request that changes a flow updates its chart, and 
 | `ios/Packages/TollCore/Sources/TollCore/App/` (`HomeSnapshot`, `TonightCard`, `Morning`, `HeadsUp`, `GapRules`, `GapSnapshot`, `DoorRules`, `Engine*`) | tonight, pause, heads-up, before-bed, set-home, purchase |
 | `…/TollCore/App/` (`YourSleep`, `InsightsSnapshot`, `Sky*`, `PastNight`, `NightFacts`) | your-sleep, data |
 | `…/TollCore/Domain/` (`Trial`, `TrialStart`, `Door`, `Gap`) | purchase, pause, before-bed |
-| `…/TollCore/Domain/` (`SleepNights`, `SleepEstimate`), `…/TollCore/App/Fit.swift` | onboarding, once-fit-sleep |
+| `…/TollCore/Domain/` (`SleepNights`, `SleepEstimate`, `BufferSuggestion`, `BufferNight`), `…/TollCore/App/Fit.swift` | onboarding, once-fit-sleep |
 | `…/TollCore/Persist/`, `…/TollCore/App/DuskState.swift`, `…/TollCore/App/Flows.swift`, `…/TollCore/Domain/` (any `Codable` type) | data, and each `once-*` chart |
 | `ios/Packages/TollCore/Sources/TollScreenTime/`, `ios/Monitor/`, `ios/ShieldAction/`, `ios/ShieldConfig/` | pause, permissions, data |
 | `ios/Packages/TollData/` | purchase, set-home, heads-up, permissions, data; `Health/` onboarding, once-fit-sleep |
