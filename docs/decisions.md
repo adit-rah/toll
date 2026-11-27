@@ -585,3 +585,24 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **#61, the pause numbers: no change until real records exist** (`datascience/reports/pauses.md`). Pause length barely matters, and a cap of one a night is worse. Whether more pauses would help depends on whether more on offer creates more wants, which is unmeasured. About 75 people for 12 weeks pins the share of weeks that run out to ±5 points. Telling whether running out leads to Screen Time going off needs a randomised 3-against-4 test.
 - **Assumed, for the founders:** fitted targets only through the flow (refitting every Monday is safe in the simulator); the raise past 60 is kept, gated on Health; the buffer after waking never exceeds 30.
 
+**D102. Polish after D84–D101** (2026-11-27, #124, #129, #135, #137, #141, #151, #66).
+- **Steady bars (#135, amends D87's "Not changed").** `LinkRoom` moves to TollUI and is the rule wherever a bottom bar can gain or lose a quiet link: the room stays, empty. Purchase's terms leave the bar for the scrolling content, so Keep it, Done, OK and Try again share one line, with one 14 pt overhang on every page. The home map always ends with a link's room. Welcome keeps "Buy it now"'s room once bought.
+- **Pause bar (#151).** It steps with its countdown once a second and has no motion of its own; a continuous fill would move the whole time the sheet is open (§2.5's "Never"). The same with Reduce Motion. "Keep it" has no spinner, because a spinner loops.
+- **Segments are the free nights only (#129).** "No pauses left" draws the pauses' week as night dots, Monday's first, nights to come dashed (the sheet grows from 390 to 430 pt). Blocks' sets of hours is a `CapacityBar`.
+- **Words (#129).**
+  - Choosing a pause says "This uses 1 of 2 left this week".
+  - The regret line names a time ("Lock again before 11:43 pm and you keep the pause").
+  - Ready says "3 pauses a week, 10 min each" and "…or Dusk stops locking".
+  - Purchase's done page adds "Dusk keeps locking your apps every night."
+  - `usedLabel` is removed.
+- **Tonight (#124, #129).** A break in last night's bar that was a pause carries the `pause` glyph; a time away carries none. A held "Only when I'm home" change is said on the hero ("You're home · Anywhere from the next night").
+- **Ready (#66):** on a fresh start, tonight's free segment is ringed.
+- **Buffers (#141):** saving an unchanged buffer during the night holds nothing, and choosing the one in force takes a held change back.
+- **Your sky (#137):** the landmark tile carries last night's moon, clear of the shape; the poster's wordmark goes through `tollType`, so wordless draws it as a bar.
+- **Intended, recorded in the charts (#141).** Screen Time off's note stays after the free nights. Offers and the pill wait while any block is on. "Open Settings" on Choose Always saves home at once. Ask to Buy approvals and refunds reach the extensions at the next app run (only the app asks StoreKit, spec §9). `door-none` answers a stale ask.
+- **Assumed, for the founders:**
+  - Purchase's terms move into the content (rather than an empty band under Done).
+  - The landmark tile carries the moon.
+  - "No pauses left" draws the week (rather than dropping it).
+- **Left:** #160, #161, #162.
+
