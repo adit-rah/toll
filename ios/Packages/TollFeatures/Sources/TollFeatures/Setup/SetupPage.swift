@@ -103,7 +103,7 @@ struct PermissionState: View {
   var body: some View {
     // Every tone has a glyph, so the colour never carries the meaning alone (#72, C4).
     HStack(spacing: 5) {
-      Image(symbol: symbol).unredacted().font(.system(size: 12, weight: .bold))
+      Image(symbol: symbol).unredacted().tollGlyph(12, weight: .bold)
         .accessibilityHidden(true)
       Text(text)
     }

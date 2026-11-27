@@ -56,6 +56,7 @@ struct HomeHero: View {
                 .accessibilityHidden(true)
             }
             Text(detail).tollType(.heroLine, TollColor.label2)
+              .fixedSize(horizontal: false, vertical: true)
           }
         }
       }

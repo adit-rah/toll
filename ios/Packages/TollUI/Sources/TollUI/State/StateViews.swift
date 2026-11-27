@@ -47,7 +47,8 @@ public struct StateMark: View {
   let tone: StateLine.Tone
   let large: Bool
   let spoken: String?
-  /// Grows with the words around it (#124), to twice its size: past that it would crowd the time.
+  /// Grows with the words around it (#124), to twice its size (half again when large): past that
+  /// it would crowd the time.
   @ScaledMetric(relativeTo: .body) private var scale: CGFloat = 1
 
   /// `spoken` names the mark to VoiceOver when nothing else on screen says the state.
@@ -62,7 +63,8 @@ public struct StateMark: View {
   }
 
   public var body: some View {
-    let grow = min(scale, 2)
+    // The 64 pt mark is already the biggest shape on screen; it grows less.
+    let grow = min(scale, large ? 1.5 : 2)
     Image(symbol: symbol).unredacted()
       .font(.system(size: (large ? 44 : 26) * grow, weight: large ? .light : .regular))
       .foregroundStyle(tone.color)
