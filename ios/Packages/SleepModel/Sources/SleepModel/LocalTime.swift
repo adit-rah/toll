@@ -52,7 +52,7 @@ struct LocalTime: Equatable {
   }
 
   /// Howard Hinnant's days_from_civil.
-  private static func daysFromCivil(_ y0: Int, _ m: Int, _ d: Int) -> Int {
+  static func daysFromCivil(_ y0: Int, _ m: Int, _ d: Int) -> Int {
     let y = m <= 2 ? y0 - 1 : y0
     let era = (y >= 0 ? y : y - 399) / 400
     let yoe = y - era * 400

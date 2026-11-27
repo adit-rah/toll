@@ -4,6 +4,8 @@ import Foundation
 public enum ReconcileCause: String, Codable, Sendable, CaseIterable {
   case launch, foreground
   case windowStart, windowEnd, sweepStart, sweepEnd
+  /// The monitor's daily wake just after noon; on Monday it judges the week (#127).
+  case weekTurn
   case arrived, left
   case edit, entitlement, permission
   /// The block screen's "Never mind": the one tap that counts as being stopped (D24).

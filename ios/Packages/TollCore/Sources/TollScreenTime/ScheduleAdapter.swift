@@ -19,7 +19,7 @@
       let stale = center.activities.filter { name in
         switch Activity(name) {
         case .window, .sweep: !wanted.contains(name)
-        case .door: false
+        case .turn, .door: false
         case .unknown: true
         }
       }
@@ -63,6 +63,27 @@
     public func stopDoor() {
       DeviceActivityCenter().stopMonitoring([Activity.door.name])
     }
+
+    /// Asked on every saved reconcile, so it starts the wake only when DeviceActivity doesn't have
+    /// it, and stops any other turn. A failure is tried again at the next reconcile.
+    public func monitor(turn: TimeWindow?) {
+      let center = DeviceActivityCenter()
+      let wanted = turn.map { Activity.turn($0).name }
+      let turns = center.activities.filter {
+        if case .turn = Activity($0) { true } else { false }
+      }
+      let stale = turns.filter { $0 != wanted }
+      if !stale.isEmpty { center.stopMonitoring(stale) }
+      guard let turn, let wanted, !turns.contains(wanted) else { return }
+      do {
+        try center.startMonitoring(
+          wanted,
+          during: DeviceActivitySchedule(
+            intervalStart: turn.start.components, intervalEnd: turn.end.components, repeats: true))
+      } catch {
+        logger.error("turn schedule failed: \(error.localizedDescription, privacy: .public)")
+      }
+    }
   }
 
   extension Coordinator {
@@ -78,6 +99,17 @@
     @discardableResult
     public func wake(_ cause: ReconcileCause, _ commands: [Command] = []) -> Outcome {
       run(cause, commands, clock: SystemClock())
+    }
+
+    /// The monitor's wake at the week's turn (#127): on Monday it judges the buffers, and when one
+    /// changed, that night's heads-up moves to the new lock though Dusk stays closed.
+    public func turn() {
+      let outcome = wake(.weekTurn)
+      guard outcome.access == .saved,
+        let plan = WeekTurn.headsUps(
+          outcome.state, now: Date(), calendar: .current, config: config)
+      else { return }
+      HeadsUpNotifications.replaceIfAllowed(plan)
     }
   }
 

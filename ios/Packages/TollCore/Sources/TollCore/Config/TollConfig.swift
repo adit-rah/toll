@@ -103,6 +103,10 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var offFreezeWeeks = 2
     /// After an ease, smooth weeks in a row before it grows again.
     public var smoothAfterEase = 2
+    /// The monitor wakes this many minutes after noon every day (#127), so Monday's judgement runs
+    /// with Dusk closed. The week turns at noon (D70); a wake a moment early would still be in the
+    /// old week.
+    public var turnDelayMinutes = 1
   }
 
   /// The buffer after sleep (#144): apps stay locked this long after waking, growing by the same

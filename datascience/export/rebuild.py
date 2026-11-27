@@ -12,12 +12,13 @@ from __future__ import annotations
 import copy
 
 from dusk_model.artifact import Params
-from dusk_model.person import rebuild
+from dusk_model.person import held, rebuild
 
-from . import v0
+from . import v1
 from .fixtures import simulated_nights
 
 SLEEP = ("sleep_onset", "wake", "asleep_min", "awake_min", "sleep_source")
+HOLD = ("hold_start", "settled")
 
 
 def as_written(record: dict, shape: int) -> dict:
@@ -25,10 +26,17 @@ def as_written(record: dict, shape: int) -> dict:
 
     0: the first record (D62). 1: with bed and the gap (D83). 2: with the helper (D85).
     3: with its own format and revision (#140). 4: format 3, with the buffer after waking (#144).
+    5: format 3, with personal timing's held week (D66, sleep-model.v1): `policy` "held", `hold_start`
+    and `settled`. Before it, the start was v0's nightly draw.
     """
     line = copy.deepcopy(record)
     for key in SLEEP:
         line[key] = None
+    if shape < 5:
+        for key in HOLD:
+            line.pop(key, None)
+        line["policy"] = "thompson"
+        line["model_version"] = "sleep-model.v0"
     line["dusk"] = {"ran": line["block_start"] is not None, "stops": line["block_screens"], "door_asks": 0}
     if shape >= 1:
         line["bed"] = line["planned_bedtime"]
@@ -60,7 +68,7 @@ def correction(record: dict, written: dict, rev: int | None = None) -> dict:
 
 def lines() -> list[dict]:
     nights = simulated_nights("differ", 21)[:28]
-    written = [as_written(r, shape=i * 5 // len(nights)) for i, r in enumerate(nights)]
+    written = [as_written(r, shape=i * 6 // len(nights)) for i, r in enumerate(nights)]
     out = list(written)
     # The monitor and the app both wrote night 25: equal revisions, the first stands.
     monitor = copy.deepcopy(written[25])
@@ -79,7 +87,8 @@ def lines() -> list[dict]:
 
 
 def case() -> dict:
-    a = v0.artifact()
+    """The log rebuilt under the artifact this build ships, and the hold the phone keeps tonight."""
+    a = v1.artifact()
     log = lines()
     person = rebuild(Params.from_artifact(a), log)
-    return {"artifact": a, "lines": log, "state": person.state}
+    return {"artifact": a, "lines": log, "state": person.state, "hold": held(log)}
