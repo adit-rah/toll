@@ -6,8 +6,8 @@ import SwiftUI
 /// stay in the wordless render; VoiceOver reads the words.
 public struct FactLine: View {
   public struct Fact: Hashable, Sendable {
-    let symbol: TollSymbol?
-    let text: String
+    public let symbol: TollSymbol?
+    public let text: String
 
     public init(_ symbol: TollSymbol?, _ text: String) {
       self.symbol = symbol

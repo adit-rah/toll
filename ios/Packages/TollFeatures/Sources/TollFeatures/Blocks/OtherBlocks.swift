@@ -103,7 +103,7 @@ struct OtherBlockRow: View {
     BlockRowLayout(title: row.name) {
       IconTile(.block(row.kind), accent: row.state == .on)
     } detail: {
-      FactLine(row.facts.map(\.line))
+      FactLine(row.facts.lines)
     } trailing: {
       HStack(spacing: 10) {
         BlockState(state: row.state, text: row.stateText)
@@ -167,8 +167,25 @@ private struct BlockRowLayout<Leading: View, Detail: View, Trailing: View>: View
   }
 }
 
+extension [BlocksSnapshot.Fact] {
+  /// Each fact with its glyph; the days join the hours under one clock, so a line never ends on a
+  /// lone "Weekdays".
+  var lines: [FactLine.Fact] {
+    var lines: [FactLine.Fact] = []
+    for (index, fact) in enumerated() {
+      if fact.kind == .days, index > 0, self[index - 1].kind == .hours, let hours = lines.popLast()
+      {
+        lines.append(FactLine.Fact(.hours, hours.text + Copy.middleDot + fact.text))
+      } else {
+        lines.append(fact.line)
+      }
+    }
+    return lines
+  }
+}
+
 extension BlocksSnapshot.Fact {
-  /// The glyph each fact leads with (design §2.6); the days ride on the hours' clock.
+  /// The glyph each fact leads with (design §2.6).
   var line: FactLine.Fact {
     let symbol: TollSymbol? =
       switch kind {

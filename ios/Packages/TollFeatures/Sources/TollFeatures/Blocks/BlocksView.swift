@@ -63,7 +63,7 @@ private struct NightCard: View {
       if let picture = night.picture {
         NightPictureView(picture: picture)
       }
-      FactLine(night.facts.map(\.line))
+      FactLine(night.facts.lines)
     }
     .padding(.vertical, TollSpacing.statsCardVertical)
     .padding(.horizontal, TollSpacing.cardPadding)
