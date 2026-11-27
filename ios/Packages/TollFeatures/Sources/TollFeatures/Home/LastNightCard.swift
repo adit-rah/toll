@@ -64,6 +64,7 @@ struct LastNightDetails: View {
         .padding(.top, 16)
         .padding(.bottom, 8)
       NightDots(bars: night.week)
+      AfterBedRow().padding(.top, 16)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }

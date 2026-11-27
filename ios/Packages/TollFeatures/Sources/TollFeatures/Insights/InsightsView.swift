@@ -28,6 +28,7 @@ struct InsightsView: View {
             if let best = sleep.best {
               BestCard(best: best).padding(.top, 12)
             }
+            AfterBedRow().padding(.top, 12)
             // The night as it's planned, three parts: before sleep, sleep, after waking (#144).
             if let plan = sleep.plan {
               SectionHeader(Copy.Fit.aroundTitle).padding(.top, 28)
