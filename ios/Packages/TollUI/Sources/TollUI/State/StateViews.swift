@@ -29,7 +29,7 @@ public struct StateLine: View {
   public var body: some View {
     HStack(spacing: 6) {
       Image(symbol: symbol).unredacted()
-        .font(.system(size: 13, weight: .semibold))
+        .tollGlyph(13, weight: .semibold)
         .foregroundStyle(tone.color)
         .accessibilityHidden(true)
       Text(text).tollType(.eyebrow, TollColor.label2)
@@ -47,6 +47,8 @@ public struct StateMark: View {
   let tone: StateLine.Tone
   let large: Bool
   let spoken: String?
+  /// Grows with the words around it (#124), to twice its size: past that it would crowd the time.
+  @ScaledMetric(relativeTo: .body) private var scale: CGFloat = 1
 
   /// `spoken` names the mark to VoiceOver when nothing else on screen says the state.
   public init(
@@ -60,10 +62,11 @@ public struct StateMark: View {
   }
 
   public var body: some View {
+    let grow = min(scale, 2)
     Image(symbol: symbol).unredacted()
-      .font(.system(size: large ? 44 : 26, weight: large ? .light : .regular))
+      .font(.system(size: (large ? 44 : 26) * grow, weight: large ? .light : .regular))
       .foregroundStyle(tone.color)
-      .frame(width: large ? 64 : 40, height: large ? 64 : 36)
+      .frame(width: (large ? 64 : 40) * grow, height: (large ? 64 : 36) * grow)
       .accessibilityHidden(spoken == nil)
       .accessibilityLabel(spoken ?? "")
   }
@@ -85,7 +88,7 @@ public struct StatusValue: View {
   public var body: some View {
     HStack(spacing: 4) {
       Image(symbol: symbol).unredacted()
-        .font(.system(size: 12, weight: .semibold))
+        .tollGlyph(12, weight: .semibold)
         .accessibilityHidden(true)
       Text(text)
     }

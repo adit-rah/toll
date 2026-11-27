@@ -84,7 +84,7 @@ struct BandCard: View {
               HStack(spacing: 4) {
                 Text(action)
                 Image(symbol: .forward).unredacted()
-                  .font(.system(size: 12, weight: .bold))
+                  .tollGlyph(12, weight: .bold)
                   .accessibilityHidden(true)
               }
             }

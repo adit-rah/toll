@@ -99,7 +99,7 @@ struct Stat: View {
       HStack(alignment: .firstTextBaseline, spacing: 6) {
         if let symbol {
           Image(symbol: symbol).unredacted()
-            .font(.system(size: 15, weight: .medium))
+            .tollGlyph(15, weight: .medium)
             .foregroundStyle(TollColor.label2)
             .accessibilityHidden(true)
         }

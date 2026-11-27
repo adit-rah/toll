@@ -64,7 +64,7 @@ struct StripSnippet: View {
         HStack(spacing: 4) {
           Text(Copy.Strip.edit)
           Image(symbol: .forward).unredacted()
-            .font(.system(size: 12, weight: .bold))
+            .tollGlyph(12, weight: .bold)
             .accessibilityHidden(true)
         }
         .frame(minHeight: TollSpacing.minTapTarget)
@@ -79,9 +79,9 @@ struct StripSnippet: View {
   private func fact(_ symbol: TollSymbol, _ text: String) -> some View {
     HStack(alignment: .firstTextBaseline, spacing: 8) {
       Image(symbol: symbol).unredacted()
-        .font(.system(size: 13, weight: .medium))
+        .tollGlyph(13, weight: .medium)
         .foregroundStyle(TollColor.label2)
-        .frame(width: 18)
+        .frame(minWidth: 18)
         .accessibilityHidden(true)
       Text(text)
         .tollType(.body, TollColor.label)

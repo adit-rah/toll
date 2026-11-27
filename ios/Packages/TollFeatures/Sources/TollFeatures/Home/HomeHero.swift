@@ -36,7 +36,7 @@ struct HomeHero: View {
             // The moon says before what, without the words (D76).
             HStack(alignment: .firstTextBaseline, spacing: 6) {
               Image(symbol: .sleep).unredacted()
-                .font(.system(size: 13, weight: .medium))
+                .tollGlyph(13, weight: .medium)
                 .foregroundStyle(TollColor.accent)
                 .accessibilityHidden(true)
               Text(beforeBed).tollType(.heroLine, TollColor.label)
@@ -51,7 +51,7 @@ struct HomeHero: View {
           HStack(alignment: .firstTextBaseline, spacing: 6) {
             if let placeSymbol {
               Image(symbol: placeSymbol).unredacted()
-                .font(.system(size: 13, weight: .medium))
+                .tollGlyph(13, weight: .medium)
                 .foregroundStyle(TollColor.label2)
                 .accessibilityHidden(true)
             }
@@ -112,7 +112,7 @@ struct HomeHero: View {
     Button(action: action) {
       HStack(spacing: 6) {
         Image(symbol: symbol).unredacted()
-          .font(.system(size: 13, weight: .semibold))
+          .tollGlyph(13, weight: .semibold)
           .accessibilityHidden(true)
         Text(title)
       }

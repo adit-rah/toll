@@ -129,7 +129,7 @@ public struct Chevron: View {
 
   public var body: some View {
     Image(symbol: .forward).unredacted()
-      .font(.system(size: 13, weight: .semibold))
+      .tollGlyph(13, weight: .semibold)
       .foregroundStyle(TollColor.label3)
       .accessibilityHidden(true)
   }
@@ -177,9 +177,9 @@ public struct NoteCard<Accessory: View>: View {
     HStack(alignment: .top, spacing: 12) {
       if let symbol {
         Image(symbol: symbol).unredacted()
-          .font(.system(size: 17, weight: .medium))
+          .tollGlyph(17, weight: .medium)
           .foregroundStyle(tint)
-          .frame(width: 20, height: 20)
+          .frame(minWidth: 20, minHeight: 20)
           .accessibilityHidden(true)
       }
       VStack(alignment: .leading, spacing: 8) {
@@ -273,7 +273,7 @@ public struct SectionHeader: View {
 
   private func glyph(_ symbol: TollSymbol) -> some View {
     Image(symbol: symbol).unredacted()
-      .font(.system(size: 12, weight: .bold))
+      .tollGlyph(12, weight: .bold)
       .accessibilityHidden(true)
   }
 }

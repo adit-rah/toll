@@ -121,3 +121,28 @@ extension Image {
     self.init(systemName: symbol.name)
   }
 }
+
+/// A glyph's size that grows with Dynamic Type, like the text it sits beside (#124): a fixed
+/// point size stays small at AX5 while its words grow around it.
+private struct ScaledGlyph: ViewModifier {
+  @ScaledMetric private var size: CGFloat
+  let weight: Font.Weight
+
+  init(size: CGFloat, weight: Font.Weight, relativeTo style: Font.TextStyle) {
+    _size = ScaledMetric(wrappedValue: size, relativeTo: style)
+    self.weight = weight
+  }
+
+  func body(content: Content) -> some View {
+    content.font(.system(size: size, weight: weight))
+  }
+}
+
+extension View {
+  /// Sizes a symbol at `size` points at the default text size, scaled with `style`.
+  public func tollGlyph(
+    _ size: CGFloat, weight: Font.Weight = .regular, relativeTo style: Font.TextStyle = .footnote
+  ) -> some View {
+    modifier(ScaledGlyph(size: size, weight: weight, relativeTo: style))
+  }
+}
