@@ -21,6 +21,7 @@ import numpy as np  # noqa: E402
 
 from dusk_model import artifact  # noqa: E402
 from dusk_model.artifact import Params  # noqa: E402
+from export.versions import SHIPPED  # noqa: E402
 from replay.evaluate import replay  # noqa: E402
 from replay.health import records as health_records  # noqa: E402
 from replay.health import write_export  # noqa: E402
@@ -222,8 +223,35 @@ def replay_synthetic(params: Params, tmp: Path) -> dict:
     return out
 
 
+def long_run() -> None:
+    """False insights week by week over a year, from reports/longrun-final.json (#117)."""
+    path = REPORTS / "longrun-final.json"
+    if not path.exists():
+        return
+    runs = json.loads(path.read_text())["variants"]
+    names = {"v0": "v0: nightly", "d66": "D66, fixed zero test", "v1": "v1: zero test tightens"}
+    styles = {"null": "-", "null+wander": "--", "null+drift": ":"}
+    fig, ax = plt.subplots(figsize=(7, 4))
+    for i, (name, label) in enumerate(names.items()):
+        for scenario, style in styles.items():
+            series = runs.get(name, {}).get(scenario)
+            if series is None:
+                continue
+            shown = np.array(series["ever_shown_by_week"]) * 100
+            weeks = np.arange(1, len(shown) + 1)
+            tag = "" if scenario == "null" else f" ({scenario.split('+')[1]})"
+            ax.plot(weeks, shown, style, color=SLOTS[i], label=label + tag)
+    ax.axhline(5, color=INK2, linewidth=1)
+    ax.axvline(8, color=GRID, linewidth=1)
+    ax.set_xlabel("Week")
+    ax.set_ylabel("Ever shown an insight, start does nothing (%)")
+    ax.set_title("False insights over a year")
+    ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1.0))
+    save(fig, "false-insights-year")
+
+
 def main() -> None:
-    params = Params.from_artifact(artifact.load(ROOT / "artifacts" / "sleep-model.v0.json"))
+    params = Params.from_artifact(artifact.load(ROOT / "artifacts" / f"{SHIPPED.VERSION}.json"))
     c = json.loads((REPORTS / "criteria.json").read_text())
     coverage(c)
     insight_curve(c)
@@ -232,6 +260,7 @@ def main() -> None:
     example_person(params)
     if (REPORTS / "parity.json").exists():
         parity()
+    long_run()
     with tempfile.TemporaryDirectory() as tmp:
         print(json.dumps(replay_synthetic(params, Path(tmp))["share_beating_base_after_3_weeks"]))
     print("figures in", FIGURES)

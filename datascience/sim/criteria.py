@@ -18,10 +18,14 @@ import numpy as np
 from dusk_model import artifact
 from dusk_model.artifact import Params
 from dusk_model.night import features
+from dusk_model.timing import policy_name
+from export.versions import SHIPPED
 
 from .records import records
 from .run import ACTIONS, NIGHTS, World, run, world
 from .scenarios import SCENARIOS
+
+LONG_NIGHTS = 364  # a year: the insight is checked every night for as long as Dusk is used (#117)
 
 
 def first_insight_night(shown: np.ndarray) -> np.ndarray:
@@ -74,6 +78,31 @@ def summarize(scenario: str, w: World, ts, fixed) -> dict:
         "thompson_minus_fixed_by_week": weekly,
         "share_of_starts": {str(a): float((ts.offset[home] == a).mean()) for a in ACTIONS},
         "usable_night_share": float(ts.usable.mean()),
+        "changes_per_week": changes_per_week(ts),
+        "settled_at_end": float(ts.settled[:, -1].mean()),
+    }
+
+
+def changes_per_week(r) -> float:
+    """Nights a week the start differs from the last night the block ran (D66: about 0.5)."""
+    count, nights = r.home.shape
+    last, changes = np.zeros(count), np.zeros(count)
+    for t in range(nights):
+        changes += r.home[:, t] & (r.offset[:, t] != last)
+        last = np.where(r.home[:, t], r.offset[:, t], last)
+    return float(changes.mean() / (nights / 7))
+
+
+def long_run(params: Params, people: int, seed: int, nights: int = LONG_NIGHTS) -> dict:
+    """The null scenario for a year: the share ever shown an insight, week by week."""
+    w = world("null", people, seed, nights=nights)
+    r = run(w, params, "thompson", seed)
+    first = first_insight_night(r.shown)
+    return {
+        "people": people,
+        "nights": nights,
+        "ever_shown_by_week": [float((first <= 7 * (k + 1)).mean()) for k in range(nights // 7)],
+        "ever_shown": float(np.isfinite(first).mean()),
     }
 
 
@@ -92,7 +121,7 @@ def safety(params: Params, people: int, seed: int, version: str) -> dict:
         several = allowed.sum(axis=1) > 1
         min_prob = min(min_prob, float(r.prob[several][r.home[several]].min()))
         for p in range(per):
-            for t, rec in enumerate(records(w, r, p, version, "thompson", seed)):
+            for t, rec in enumerate(records(w, r, p, version, policy_name(params), seed)):
                 if rec["block_start"] is None:
                     continue
                 nights += 1
@@ -109,7 +138,9 @@ def safety(params: Params, people: int, seed: int, version: str) -> dict:
     }
 
 
-def evaluate(params: Params, people: int, seed: int, safety_people: int, fade: bool = True) -> dict:
+def evaluate(
+    params: Params, people: int, seed: int, safety_people: int, fade: bool = True, long_people: int = 0
+) -> dict:
     out = {"model_version": params.version, "people_per_scenario": people, "seed": seed, "scenarios": {}}
     for i, scenario in enumerate(SCENARIOS):
         w = world(scenario, people, seed + i)
@@ -119,6 +150,8 @@ def evaluate(params: Params, people: int, seed: int, safety_people: int, fade: b
         out["fade"] = summarize("differ+fade", w, run(w, params, "thompson", seed + 50), run(w, params, "fixed"))
     if safety_people:
         out["safety"] = safety(params, safety_people, seed, params.version)
+    if long_people:
+        out["long_run"] = long_run(params, long_people, seed + 200)
     out["checks"] = checks(out)
     return out
 
@@ -140,9 +173,14 @@ def checks(out: dict) -> list[dict]:
     ]
     big = [r for r in s["differ"]["first_insight_by_effect"] if r["effect_low"] >= 15]
     big_share = sum(r["shown_by_56"] * r["people"] for r in big) / max(1, sum(r["people"] for r in big))
-    rows.append(("Learns fast enough (proposed, decisions D53)", "differ",
+    rows.append(("Learns fast enough (decisions D66)", "differ",
                  "at least half of people with a true effect of 15 min or more get an insight by night 56",
                  big_share >= 0.5, round(big_share, 3)))
+    if "long_run" in out:
+        lr = out["long_run"]
+        rows.append(("No false insights over a year (#117)", f"null, {lr['nights']} nights",
+                     "a non-zero effect ever shown to at most 5% of people",
+                     lr["ever_shown"] <= 0.05, lr["ever_shown"]))
     if "safety" in out:
         sf = out["safety"]
         rows.append(("Never unsafe", f"{sf['people']} people x 8 weeks",
@@ -161,9 +199,10 @@ def recheck(path: str) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--artifact", default="artifacts/sleep-model.v0.json")
+    ap.add_argument("--artifact", default=f"artifacts/{SHIPPED.VERSION}.json")
     ap.add_argument("--people", type=int, default=2000)
     ap.add_argument("--safety-people", type=int, default=10_000)
+    ap.add_argument("--long-people", type=int, default=2000, help="null people run for a year (#117); 0 skips")
     ap.add_argument("--seed", type=int, default=20261120)
     ap.add_argument("--out", default="reports/criteria.json")
     ap.add_argument("--strict", action="store_true", help="exit 1 if a check fails that is not waived")
@@ -171,12 +210,12 @@ def main() -> None:
         "--waive",
         action="append",
         default=["Learns fast enough"],
-        help="a check reported but not enforced, pending the founders (docs/decisions.md D53)",
+        help="a check reported but not enforced: the spec's, replaced by D66's learning mark (decisions D53, D66)",
     )
     args = ap.parse_args()
     params = Params.from_artifact(artifact.load(Path(args.artifact)))
     started = time.time()
-    out = evaluate(params, args.people, args.seed, args.safety_people)
+    out = evaluate(params, args.people, args.seed, args.safety_people, long_people=args.long_people)
     out["seconds"] = round(time.time() - started, 1)
     Path(args.out).write_text(json.dumps(out, indent=2) + "\n")
     failed = []
