@@ -225,6 +225,10 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 207 | Any day other than Monday | A `weekTurn` line around 12:01 each day; nothing else changes | | |
 | 208 | Settings › Sleep: both buffers Fixed | No `weekTurn` lines from the next day | | |
 | 209 | Restart the phone Monday morning; first unlock at 12:10 | Monday's judgement still happens, with a `weekTurn` line at about 12:16 | | |
+| 210 | Run a night; 10 minutes before sleep, ask for a pause and let it open; next morning share the night records | That night's line has `dusk.pauses_before` 1, `pauses_after` 0, `waits` 1, `waits_cancelled` 0 | | |
+| 211 | During a night, start a pause's wait and cancel it within the 60 s; share the records | `dusk.waits` 1, `waits_cancelled` 1, `unlocks_used` 0 | | |
+| 212 | Ask for a pause 5 minutes after waking, inside the buffer after waking | `dusk.pauses_after` 1 | | |
+| 213 | Ask for a pause between sleep and wake | `unlocks_used` 1; `pauses_before` and `pauses_after` both 0 | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
