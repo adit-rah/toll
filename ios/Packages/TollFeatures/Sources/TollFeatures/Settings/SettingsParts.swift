@@ -112,12 +112,13 @@ struct AppearancePicker: View {
 
 /// How it works, as a sheet, with a button to close it: a swipe isn't the only way out (the audit).
 struct HowItWorks: View {
+  let config: TollConfig
   @Environment(\.dismiss) private var dismiss
 
   var body: some View {
     SheetPage(height: 540) {
       SheetTitle(Copy.Settings.howItWorks)
-      ForEach(Copy.Settings.howItWorksLines, id: \.self) { line in
+      ForEach(Copy.Settings.howItWorksLines(config), id: \.self) { line in
         Text(line)
           .tollType(.sheetBody, TollColor.label)
           .fixedSize(horizontal: false, vertical: true)

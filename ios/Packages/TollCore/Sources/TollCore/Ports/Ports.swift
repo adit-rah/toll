@@ -40,6 +40,9 @@ public protocol SchedulePort: Sendable {
   func monitor(windows: [TimeWindow]) throws
   func startDoor(_ door: Door, config: TollConfig) throws
   func stopDoor()
+  /// The daily wake at the week's turn (#127): starts it, or stops it when nil. Called on every
+  /// saved reconcile, so it changes only what differs.
+  func monitor(turn: TimeWindow?)
 }
 
 public protocol LogPort: Sendable {
