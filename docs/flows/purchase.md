@@ -20,7 +20,7 @@ flowchart TD
   lastNight -.->|"its end: the first wake after it (monitor, app or block screen)"| notEntitled[("reconcile: entitled false; every shield off; nothing scheduled to block")]
   notEntitled --> offState["Tonight: Dusk is off this morning; Turn Dusk back on · $9.99 once, for good<br/>render: home-paused"]
   offState -->|"Turn Dusk back on"| sheet
-  notEntitled --> sleepFrozen["Your sleep: Your free nights, two rows of seven dots<br/>render: none"]
+  notEntitled --> sleepFrozen["Your sleep: Your free nights, two rows of seven dots<br/>render: sleep-after-trial"]
   settingsRow["Settings: Free nights · Night 5 of 14, $9.99 once<br/>render: settings"]
   settingsRow -->|"$9.99 once"| sheet
 ```
@@ -31,7 +31,7 @@ No pill shows while any block is on, while away, or with no night (D33, D75). Of
 
 ```mermaid
 flowchart TD
-  sheet["The purchase sheet: free nights as segments, the nights locked and taps if above 0,<br/>what buying keeps, $9.99 once, Keep it, Restore purchase<br/>render: purchase"]
+  sheet["The purchase sheet: free nights as segments, the nights locked and taps if above 0,<br/>what buying keeps, its terms; $9.99 once, Keep it, Restore purchase<br/>render: purchase"]
   sheet -->|"Keep it"| payment{{"App Store payment sheet"}}
   payment -.->|"cancelled"| sheet
   payment -.->|"bought"| bought[("state.json: trial.purchased; reconcile: entitled")]
@@ -40,7 +40,7 @@ flowchart TD
   failed -->|"Try again"| payment
   failed -->|"Not now"| closed(["Sheet closes"])
   pending -->|"OK"| closed
-  bought --> doneSheet["Every night is yours, all segments filled: Done<br/>render: purchase-done"]
+  bought --> doneSheet["Every night is yours: Dusk keeps locking your apps every night; all segments filled; Done<br/>render: purchase-done"]
   doneSheet -->|"Done"| closed
   sheet -->|"Restore purchase"| sync{{"App Store sync (may ask for the Apple Account)"}}
   sync -.->|"found"| bought
@@ -64,8 +64,10 @@ flowchart TD
 
 Welcome's "Already bought it? Restore" is the same restore; see [onboarding.md](onboarding.md).
 
+Every outcome's button sits on the offer's "Keep it" line (#135): the terms left the bar for the scrolling content, and an outcome with one button keeps the restore link's room under it, empty (`LinkRoom`). There is no spinner in "Keep it" while the App Store answers: a spinner loops, which design §2.5 never allows; the button dims until Apple's sheet appears (#129).
+
 ## Doubts
-- **An approved Ask to Buy reaches Dusk only while it runs** (`Transaction.updates`) or at the next foreground. Until then the monitor still treats the night as Off, so a night can stay unlocked after approval if Dusk isn't opened. Expected, but not written down in a decision.
+- **An approved Ask to Buy reaches Dusk only while it runs** (`Transaction.updates`) or at the next foreground. Until then the monitor still treats the night as Off, so a night can stay unlocked after approval if Dusk isn't opened. Intended (#141): the extensions never import StoreKit (spec §9, CLAUDE.md), and the pending sheet already asks the person to come back; proposed for the decisions log.
 - **A refund while Dusk stays closed** keeps blocking until the next foreground: the extensions read `trial.purchased` from the state file, and only the app asks StoreKit.
-- **The free nights after the trial on Your sleep** ("Your free nights") have no scenario.
+- **The free nights after the trial on Your sleep** ("Your free nights"): `sleep-after-trial`.
 - **The Off state's name in code:** `home-paused` is the render id for Off, and night records call it `dusk.paused` (see `data.md`). Both predate D74's rename; the pause itself is `door` in code.

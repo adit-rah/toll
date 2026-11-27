@@ -12,9 +12,9 @@ flowchart TD
   setupDone -->|"yes"| tabs(["Tonight, see tonight.md"])
   setupDone -->|"no: a new install, or a state file that could not be read (data.md)"| keychain{"Free nights already started on this phone or Apple ID?<br/>(Keychain, both copies, earliest wins)"}
   keychain -->|"no"| welcomeFresh["1 · Welcome: 14 nights free, two rows of seven empty segments;<br/>Start my 14 free nights · Buy it now · $9.99 · Restore<br/>render: welcome"]
-  keychain -->|"yes, still running"| welcomeRunning["Welcome: 14 nights free, without the segments<br/>render: none"]
-  keychain -->|"yes, used up"| welcomeUsed["Welcome: Free nights used, then the price<br/>render: none"]
-  keychain -->|"bought"| welcomeBought["Welcome: Purchased; no Buy it now<br/>render: none"]
+  keychain -->|"yes, still running"| welcomeRunning["Welcome: 14 nights free, without the segments<br/>render: welcome-running"]
+  keychain -->|"yes, used up"| welcomeUsed["Welcome: Free nights used, then the price<br/>render: welcome-used"]
+  keychain -->|"bought"| welcomeBought["Welcome: Purchased; no Buy it now<br/>render: welcome-bought"]
 
   welcomeFresh -->|"Buy it now · $9.99"| buy{{"App Store purchase sheet"}}
   welcomeRunning -->|"Buy it now"| buy
@@ -63,11 +63,11 @@ flowchart TD
   appsCheck -->|"no"| apps
   appsCheck -->|"yes: Continue"| ready
 
-  ready["7 · You're set: Apps lock at 10:50 pm tonight.<br/>the night drawn, then three lines: Lock 10:50 pm (30 min before sleep), Sleep 11:20 pm – 7:10 am, Open 7:25 am (15 min after waking);<br/>one short line: Anywhere · the apps · 3 pauses a week; the free nights<br/>render: ready, ready-health"]
+  ready["7 · You're set: Apps lock at 10:50 pm tonight.<br/>the night drawn, then three lines: Lock 10:50 pm (30 min before sleep), Sleep 11:20 pm – 7:10 am, Open 7:25 am (15 min after waking);<br/>one short line: Anywhere · the apps · 3 pauses a week, 10 min each; the free nights, tonight's ringed on a fresh start;<br/>Free until the morning of …, then $9.99 once, or Dusk stops locking<br/>render: ready, ready-health"]
   ready -->|"Done (no Back)"| begin[("Keychain: the free nights' start, this phone and iCloud<br/>state.json: the night's block (sleep, no place), gap and after growing from their starts to their targets, health, setupFinishedAt")]
   begin --> inLock{"Inside tonight's lock already?"}
   inLock -->|"no"| evening["Tonight: Apps lock at, 30 min before sleep; the strip: before · sleep · after<br/>render: home-anywhere"]
-  inLock -->|"yes"| locked["Tonight: Apps locked until<br/>render: none (home-blocked has home set)"]
+  inLock -->|"yes"| locked["Tonight: Apps locked until<br/>render: home-blocked-anywhere"]
   evening -.->|"lock time: the monitor wakes"| locked
   locked -.->|"the lock ends, after the buffer after waking"| morningAfter["Tonight: last night's card; the home card once it is put away<br/>render: home-morning-card"]
   morningAfter --> later(["Offers after the first night: set-home.md, heads-up.md"])
@@ -79,10 +79,10 @@ flowchart TD
 Going Back from any step keeps what was chosen; leaving the app before Ready's Done saves nothing, so the next launch starts at Welcome again. Health's answer, the times and both buffers live in `FitDraft` until Done.
 
 ## Doubts
-- **Welcome's other offers, restore and "Buy it now" outcomes have no render.** `welcome` shows only the fresh offer.
+- **Welcome's restore and "Buy it now" outcomes have no render.** Its other offers are `welcome-running`, `welcome-used` and `welcome-bought` (#141).
 - **Health refused looks like Health with no nights.** iOS doesn't say which; both lead to the asking screen, which is what #144 asks for. A person who refused can't be told how to allow it without guessing.
 - **"Use Apple Health" waits on iOS's sheet and the read, with the button disabled and nothing moving** (design §2.5 has no spinner). On a phone with years of sleep the read is a few hundred samples, so the wait should be short; it isn't measured.
 - **The buffers are a baseline, not fitted.** Everyone is offered 30 before sleep growing to 60, and 15 after waking growing to 30 (`BufferSuggestion`, TollConfig `suggestion`). Health fits the hours only: it can't say how long a person takes to fall asleep, and how much nights vary needs weeks more data. #145 personalises the buffers later from Dusk's own nights.
 - **Most people without a watch land on the asking screen.** An iPhone alone has written no sleep to Health since iOS 18; only a worn tracker or manual entries do.
-- **A night that is on at Done has no render.** `ready` covers the title ("From now until 7:25 am"), but Tonight locked with home not set has no scenario.
+- **A night that is on at Done:** `ready` covers the title ("From now until 7:25 am"), and `home-blocked-anywhere` Tonight locked with home not set (#141).
 - **An unreadable state file sends a set-up phone back here.** See `data.md`.
