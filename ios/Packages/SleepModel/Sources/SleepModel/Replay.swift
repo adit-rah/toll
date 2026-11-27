@@ -1,10 +1,18 @@
 /// Runs a sequence of nights through the model the way the app does each night: choose tonight's
-/// start, predict every start, then learn from the night. The parity tests and `sleep-model-replay`
-/// share it, so what the tests check is what the tool prints.
+/// start (the hold, D66), predict every start, then learn from the night. The parity tests and
+/// `sleep-model-replay` share it, so what the tests check is what the tool prints.
 public struct ReplayStep: Codable, Sendable, Equatable {
   public struct Choice: Codable, Sendable, Equatable {
     public var offset: Int
     public var prob: Double
+    /// The hold's first night and whether it was settled; nil in replays from before holds.
+    public var holdStart: String?
+    public var settled: Bool?
+
+    enum CodingKeys: String, CodingKey {
+      case offset, prob, settled
+      case holdStart = "hold_start"
+    }
   }
   public struct Prediction: Codable, Sendable, Equatable {
     public var offset: Int
@@ -33,15 +41,20 @@ public struct ReplayStep: Codable, Sendable, Equatable {
 }
 
 public enum Replay {
+  /// `allowedNights`, when given, is the allowed starts night by night (a person changing their
+  /// limits); otherwise `allowed` holds for every night.
   public static func run(
-    artifact: ModelArtifact, nights: [NightRecord], seed: UInt64, allowed: [Int]? = nil
+    artifact: ModelArtifact, nights: [NightRecord], seed: UInt64, allowed: [Int]? = nil,
+    allowedNights: [[Int]]? = nil
   ) -> [ReplayStep] {
     var model = SleepModel(artifact: artifact)
     var rng = SeededRNG(seed: seed)
-    return nights.map { night in
+    var hold: Hold?
+    return nights.enumerated().map { i, night in
       var context = night.context(artifact)
-      context.allowedOffsets = allowed
-      let choice = model.chooseOffset(context, rng: &rng)
+      context.allowedOffsets = allowedNights.map { $0[i] } ?? allowed
+      let tonight = model.chooseStart(night: night.night, context, held: hold, rng: &rng)
+      hold = tonight
       let predictions = artifact.actions.map { offset in
         let p = model.predict(context, offset: offset)
         return ReplayStep.Prediction(offset: offset, mean: p.mean, sd: p.sd)
@@ -51,7 +64,9 @@ public enum Replay {
       let hex = String(rng.state, radix: 16)
       return ReplayStep(
         context: .init(weekend: context.weekend, late: context.late),
-        choice: .init(offset: choice.offset, prob: choice.prob),
+        choice: .init(
+          offset: tonight.offset, prob: tonight.prob, holdStart: tonight.start,
+          settled: tonight.settled),
         predictions: predictions, used: used, skip: skip?.rawValue, state: model.state,
         insights: model.insights(),
         rngState: String(repeating: "0", count: 16 - hex.count) + hex)
