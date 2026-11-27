@@ -37,6 +37,38 @@ public struct StateLine: View {
   }
 }
 
+/// Tonight's state as a shape (#74): the state's glyph on its own, centred over the eyebrow, big
+/// enough to tell blocked, later, away, paused and off apart with every word wiped (design §5).
+/// When nothing will block there's no time, and the mark is drawn at 64 pt to stand in for it
+/// (design §2.6). No tile behind it: a filled square reads as a button. Hidden from VoiceOver; the
+/// eyebrow and the time say it.
+public struct StateMark: View {
+  let symbol: TollSymbol
+  let tone: StateLine.Tone
+  let large: Bool
+  let spoken: String?
+
+  /// `spoken` names the mark to VoiceOver when nothing else on screen says the state.
+  public init(
+    _ symbol: TollSymbol, tone: StateLine.Tone = .neutral, large: Bool = false,
+    spoken: String? = nil
+  ) {
+    self.symbol = symbol
+    self.tone = tone
+    self.large = large
+    self.spoken = spoken
+  }
+
+  public var body: some View {
+    Image(symbol: symbol).unredacted()
+      .font(.system(size: large ? 44 : 26, weight: large ? .light : .regular))
+      .foregroundStyle(tone.color)
+      .frame(width: large ? 64 : 40, height: large ? 64 : 36)
+      .accessibilityHidden(spoken == nil)
+      .accessibilityLabel(spoken ?? "")
+  }
+}
+
 /// A status value: a glyph and a word, never the colour alone (#72, C4): "✓ Always", "⚠ Off",
 /// "🔒 On now".
 public struct StatusValue: View {

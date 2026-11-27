@@ -25,7 +25,7 @@ struct SettingsView: View {
         SettingsSection(Copy.Settings.working, top: 16) {
           Card {
             if model.screenTime == .approved {
-              SettingsRow(Copy.Settings.screenTime) {
+              SettingsRow(Copy.Settings.screenTime, symbol: .screenTime) {
                 PermissionState(text: screenTime.0, tone: screenTime.1)
               }
             } else {
@@ -33,10 +33,17 @@ struct SettingsView: View {
               Button {
                 Task { await model.turnOnScreenTime() }
               } label: {
-                SettingsRow(Copy.Settings.screenTime) {
+                SettingsRow(Copy.Settings.screenTime, symbol: .screenTime) {
                   HStack(spacing: 8) {
                     PermissionState(text: screenTime.0, tone: screenTime.1)
-                    Text(Copy.Home.turnOn).tollType(.action, TollColor.accent)
+                    // As Tonight's note says it: an action that may leave for iOS Settings.
+                    HStack(spacing: 6) {
+                      Text(Copy.Home.turnOn)
+                      Image(symbol: .openSettings).unredacted()
+                        .font(.system(size: 13, weight: .semibold))
+                        .accessibilityHidden(true)
+                    }
+                    .tollType(.action, TollColor.accent)
                   }
                 }
               }
@@ -46,12 +53,15 @@ struct SettingsView: View {
             Button {
               settingHome = true
             } label: {
-              SettingsRow(Copy.Settings.onlyAtHome, detail: onlyAtHome, glyph: true) { Chevron() }
+              SettingsRow(
+                Copy.Settings.onlyAtHome, detail: onlyAtHome, glyph: true,
+                symbol: model.state.homeIsSet ? .home : .anywhere
+              ) { Chevron() }
             }
             .buttonStyle(.plain)
             SleepRow(model: model)
             HeadsUpRow(model: model)
-            SettingsRow(Copy.Settings.lastNight, detail: lastNight)
+            SettingsRow(Copy.Settings.lastNight, detail: lastNight, symbol: .blocked)
           }
         }
         SettingsSection(Copy.Settings.app) {
@@ -141,7 +151,7 @@ struct SettingsView: View {
   @ViewBuilder private var locationRow: some View {
     if model.state.homeIsSet, model.location != .always {
       Button(action: openSystemSettings) {
-        SettingsRow(Copy.Settings.location) {
+        SettingsRow(Copy.Settings.location, symbol: .location) {
           HStack(spacing: 8) {
             PermissionState(text: location.0, tone: location.1)
             LeavesApp()
@@ -150,7 +160,7 @@ struct SettingsView: View {
       }
       .buttonStyle(.plain)
     } else {
-      SettingsRow(Copy.Settings.location) {
+      SettingsRow(Copy.Settings.location, symbol: .location) {
         PermissionState(text: location.0, tone: location.1)
       }
     }
