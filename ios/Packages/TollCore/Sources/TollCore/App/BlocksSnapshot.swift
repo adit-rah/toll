@@ -14,6 +14,8 @@ public struct BlocksSnapshot: Equatable, Sendable {
     public var stateText: String
     /// "4 apps · Home · Weekends differ", or a change held until the night ends (B-3).
     public var detail: String
+    /// The same, fact by fact, each with its glyph (#110).
+    public var facts: [Fact]
   }
 
   /// One block other than the night.
@@ -28,6 +30,8 @@ public struct BlocksSnapshot: Equatable, Sendable {
     public var kind: Block.Kind
     /// "Library · 9 am – 5 pm · Weekdays", or a change held until it ends.
     public var detail: String
+    /// The same, fact by fact, each with its glyph (#110).
+    public var facts: [Fact]
     /// "On now", "Today", "Mon", "Waiting".
     public var stateText: String
     public var state: State
@@ -35,6 +39,8 @@ public struct BlocksSnapshot: Equatable, Sendable {
 
   public var night: Night?
   public var others: [Row]
+  /// More other blocks than `blocks.foldAbove` fold into one row (#110); nil while they fit.
+  public var group: Group?
   public var limits: BlockLimits
 
   /// `screenTime` is false when Screen Time is off for Dusk: nothing is on then, whatever the
@@ -51,19 +57,22 @@ public struct BlocksSnapshot: Equatable, Sendable {
       Self.row($0, state: state, now: now, calendar: calendar, blocking: blocking)
     }
     limits = BlockLimits(state: state, config: config)
+    group = Self.group(others, state: state, calendar: calendar, config: config)
   }
 
   static func night(
     _ block: Block, state: DuskState, now: Date, calendar: Calendar, blocking: Bool
   ) -> Night {
     let row = Self.row(block, state: state, now: now, calendar: calendar, blocking: blocking)
-    var parts = [
-      Copy.Blocks.summary(categories: block.categoryCount, apps: block.appCount)
+    var facts = [
+      Fact(.apps, Copy.Blocks.summary(categories: block.categoryCount, apps: block.appCount)),
+      placeFact(block, state: state) ?? Fact(.anywhere, Copy.Blocks.anywhere),
     ]
-    parts.append(placeText(block, state: state) ?? Copy.Blocks.anywhere)
-    if block.schedule.rules.count > 1 { parts.append(Copy.Home.weekendsDiffer) }
-    let held = state.runtime.active[block.id].flatMap {
-      Self.held(block, state: state, at: Copy.time($0, in: calendar))
+    if block.schedule.rules.count > 1 { facts.append(Fact(.weekendsDiffer, Copy.Home.weekendsDiffer)) }
+    if let held = state.runtime.active[block.id].flatMap({
+      Self.heldFact(block, state: state, at: Copy.time($0, in: calendar))
+    }) {
+      facts = [held]
     }
     // The strip is drawn as Tonight draws it: solid while on, dashed when nothing will block.
     var picture = NightPicture(block.schedule, now: now, calendar: calendar)
@@ -74,8 +83,7 @@ public struct BlocksSnapshot: Equatable, Sendable {
     }
     return Night(
       id: block.id, picture: picture,
-      state: row.state, stateText: row.stateText,
-      detail: held ?? parts.joined(separator: Copy.middleDot))
+      state: row.state, stateText: row.stateText, detail: line(facts), facts: facts)
   }
 
   /// Where a block runs as it really runs: its place, or "Anywhere" while location isn't usable

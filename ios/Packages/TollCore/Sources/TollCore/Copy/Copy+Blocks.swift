@@ -9,6 +9,10 @@ extension Copy {
       return count.isEmpty ? "No apps" : count
     }
     public static let new = "New block"
+    /// The other blocks folded into one row (#110).
+    public static func otherBlocks(_ count: Int) -> String { "\(count) other blocks" }
+    public static let showBlocksHint = "Double-tap to show each block."
+    public static let hideBlocksHint = "Double-tap to fold them into one row."
     public static let wholeCategory = "Whole category"
     public static let website = "Website"
     public static let appsAndSites = "Apps and sites"
