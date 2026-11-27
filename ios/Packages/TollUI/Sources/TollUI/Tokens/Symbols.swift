@@ -67,8 +67,9 @@ public struct TollSymbol: Hashable, Sendable {
   public static let degraded = TollSymbol("location.slash")
   /// A block waiting for Always location (#63).
   public static let waiting = TollSymbol("hourglass.bottomhalf.filled")
-  /// Changes can't be saved: a build older than the state file it read (#140).
-  public static let readOnly = TollSymbol("pencil.slash")
+  /// Changes can't be saved until the app is updated: a build older than the state file it read
+  /// (#140).
+  public static let readOnly = TollSymbol("exclamationmark.arrow.triangle.2.circlepath")
 
   // The pause (D67); the code keeps the spec's door and unlock
   /// A pause: on its button, its sheet and Home's capsule.

@@ -42,11 +42,14 @@ struct ReadyView: View {
         .padding(.top, 16)
       }
       // The rest, one short line of what else tonight holds.
-      AdaptiveStack(spacing: 14) {
-        fact(.anywhere, Copy.Setup.anywhere)
-        fact(.apps, apps.isEmpty ? Copy.Setup.blocked : apps)
-        // The week's pauses as dots, as everywhere they're shown (design §2.6).
-        HStack(spacing: 6) {
+      VStack(alignment: .leading, spacing: 10) {
+        AdaptiveStack(spacing: 14) {
+          fact(.anywhere, Copy.Setup.anywhere)
+          fact(.apps, apps.isEmpty ? Copy.Setup.blocked : apps)
+        }
+        // The week's pauses as dots, as everywhere they're shown (design §2.6), on a line of
+        // their own so the words beside them don't wrap.
+        HStack(spacing: 10) {
           fact(.unlock, Copy.Setup.unlocks(unlocks))
           Pips(filled: unlocks, total: unlocks, spoken: Copy.Setup.unlocks(unlocks))
             .accessibilityHidden(true)
