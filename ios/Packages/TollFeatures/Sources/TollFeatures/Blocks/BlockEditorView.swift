@@ -18,12 +18,21 @@ struct BlockEditorView: View {
   @State private var askingAlways = false
   /// The night's place is home, set with the same map as Tonight and Settings (the audit).
   @State private var settingHome = false
+  /// What was chosen when the editor opened: the Apps row animates only what arrives after.
+  @State private var appsAtOpen: FamilyActivitySelection
 
   /// `pickingApps` opens Apple's picker straight away: Tonight's note for a night that came back
   /// without its apps (#140).
   init(app: AppModel, editing id: BlockID?, pickingApps: Bool = false) {
-    _model = State(initialValue: BlockEditorModel(app: app, editing: id))
+    let model = BlockEditorModel(app: app, editing: id)
+    _model = State(initialValue: model)
+    _appsAtOpen = State(initialValue: model.selection)
     _picking = State(initialValue: pickingApps)
+    #if DEBUG
+      // Renders can't tap Place or Delete; their scenarios open on them (docs/renders.md).
+      _choosingPlace = State(initialValue: DemoScenario.current == .blockPlace)
+      _confirmingDelete = State(initialValue: DemoScenario.current == .blockDelete)
+    #endif
   }
 
   var body: some View {
@@ -89,17 +98,13 @@ struct BlockEditorView: View {
       Button {
         if model.hasApps { showingApps = true } else { picking = true }
       } label: {
-        CardRow(Copy.Blocks.apps, detail: model.appsSummary) {
-          // The row Save is waiting for is drawn as a slot to fill (#78).
-          if model.hasApps { IconTile(.apps, accent: false) } else { EmptyTile(.apps) }
-        } trailing: {
-          Chevron()
-        }
+        AppsRow(model: model, atOpen: appsAtOpen)
       }
       .buttonStyle(.plain)
       ForEach(model.block.schedule.rules.indices, id: \.self) { index in
+        let rule = model.block.schedule.rules[index]
         HoursInline(
-          title: hoursTitle(index), rule: model.block.schedule.rules[index], isNight: model.isSleep
+          title: hoursTitle(index), rule: rule, isNight: model.isSleep, length: length(rule.window)
         ) { model.setRule(index, $0) }
       }
       Button {
@@ -178,6 +183,14 @@ struct BlockEditorView: View {
   private var placeSymbol: TollSymbol {
     guard let place = model.place else { return .anywhere }
     return model.app.state.isHome(place.id) ? .home : .place
+  }
+
+  /// The night's length is its sleep, with the minutes apps lock before and after it (D76, #144).
+  private func length(_ window: TimeWindow) -> String {
+    guard model.isSleep else { return Copy.Blocks.length(minutes: window.minutes) }
+    let state = model.app.state
+    return Copy.Blocks.nightLength(
+      minutes: window.minutes, before: state.gap.minutes, after: state.after.minutes)
   }
 
   /// The night with weekends different has two rules; name them as setup did (#49).

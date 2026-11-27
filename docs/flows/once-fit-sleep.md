@@ -4,7 +4,7 @@
 
 **Implements:** #144 (the flow), #140 and D92 (the registry, its calm moments and "Not now"), D86, D91 and D94 (Tonight's band, `TonightBand`), D76 (the weekly rule, now both sides).
 
-**Code:** `TollCore/App/Flows.swift` (`Flows.fitSleep`, `due`, `calm`, `record`), `Persist/Migration.swift` (`v3to4`), `App/Fit.swift` (`Fit.existing`, `Fit.apply`); `TollFeatures/Setup/FitFlowSheet.swift`, `FitView.swift` (`FitChoice`), `SleepTimesView.swift`, `AroundView.swift`, `FitDraft.swift`; `Home/HomeView.swift` (`HomeNote.flow`), `Home/TonightCardView.swift` (`BandCard`); `App/RootView.swift`, `AppModel.foreground` (`dueFlow`), `AppModel+Intents.swift` (`flow`).
+**Code:** `TollCore/App/Flows.swift` (`Flows.fitSleep`, `due`, `calm`, `record`), `Persist/Migration.swift` (`v3to4`), `App/Fit.swift` (`Fit.existing`, `Fit.apply`), `Domain/BufferSuggestion.swift`, `Domain/BufferNight.swift`, `Persist/NightHistory.swift` (`NightLog.buffers`); `TollFeatures/Setup/FitFlowSheet.swift`, `FitView.swift` (`FitChoice`), `SleepTimesView.swift`, `AroundView.swift`, `FitDraft.swift`; `Home/HomeView.swift` (`HomeNote.flow`), `Home/TonightCardView.swift` (`BandCard`); `App/RootView.swift`, `AppModel.foreground` (`dueFlow`), `AppModel+Intents.swift` (`flow`).
 
 **Applies** (`applies`): `setupFinishedAt` is set and `after.offered` is true. The 3 → 4 step sets `after.offered` for every file it migrates (and `Migration.fromV1` for schema 1); a new install's `finishSetup` never does. Version 1.
 
@@ -36,7 +36,7 @@ flowchart TD
   hk -.->|"fewer, or refused"| sleepAsk
   sheet1 -->|"Set my hours myself"| sleepAsk["2 of 3 · Your sleep: asked, their night's hours filled in<br/>render: fit-sheet-sleep"]
   sleepFound -->|"Continue"| around
-  sleepAsk -->|"Continue"| around["3 of 3 · The time around your sleep:<br/>before 30 growing to 60, or their gap where it is already 30 or more; after 15, growing to 30<br/>render: fit-sheet-around"]
+  sleepAsk -->|"Continue"| around["3 of 3 · The time around your sleep:<br/>before 30 growing to 60, or their gap where it is already 30 or more; after 15, growing to 30;<br/>'Recommended to start.'<br/>with 4 or more judged weeks on a side (BufferSuggestion, #145): that side's target fitted from them,<br/>a fitted target holds over a longer gap; 'Fitted to your nights so far.'<br/>render: fit-sheet-around, fit-sheet-around-fitted"]
   around -->|"Save"| answered[(".fit: the night's hours (held if the night is on, B-3), both buffers growing from their starts to their targets, health;<br/>flows['fit-sleep'] = answered; after.offered false")]
   answered --> tonight(["Tonight: Apps lock at …, the strip before · sleep · after"])
 

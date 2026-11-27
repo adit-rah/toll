@@ -50,9 +50,12 @@ struct ReadyView: View {
         // The week's pauses as dots, as everywhere they're shown (design §2.6), on a line of
         // their own so the words beside them don't wrap.
         HStack(spacing: 10) {
-          fact(.unlock, Copy.Setup.unlocks(unlocks))
-          Pips(filled: unlocks, total: unlocks, spoken: Copy.Setup.unlocks(unlocks))
-            .accessibilityHidden(true)
+          fact(.unlock, Copy.Setup.unlocks(unlocks, minutes: model.app.config.door.minutes))
+          Pips(
+            filled: unlocks, total: unlocks,
+            spoken: Copy.Setup.unlocks(unlocks, minutes: model.app.config.door.minutes)
+          )
+          .accessibilityHidden(true)
         }
       }
       .padding(.vertical, 12)
@@ -63,11 +66,15 @@ struct ReadyView: View {
       .padding(.top, 12)
     } actions: {
       if let footnote {
-        // The free nights as segments, none used yet (#77), over the words.
+        // The free nights as segments, none used yet (#77), over the words; on a fresh start,
+        // tonight's ringed as on the pill: tonight is the first (#66).
         if model.offer(now: Date()).isFree {
-          FreeNights(used: 0, total: model.app.config.trial.nights, spoken: footnote)
-            .accessibilityHidden(true)
-            .padding(.bottom, 8)
+          FreeNights(
+            used: 0, total: model.app.config.trial.nights, tonight: freshStart ? 0 : nil,
+            spoken: footnote
+          )
+          .accessibilityHidden(true)
+          .padding(.bottom, 8)
         }
         Footnote(footnote, alignment: .center)
           .padding(.horizontal, 12)
@@ -79,6 +86,11 @@ struct ReadyView: View {
   }
 
   private var unlocks: Int { model.app.config.unlocks.max }
+
+  private var freshStart: Bool {
+    if case .fresh = model.offer(now: Date()) { return true }
+    return false
+  }
 
   /// "2 categories · 2 apps"; the simulator has no tokens to count.
   private var apps: String {

@@ -107,6 +107,12 @@ struct HomeNotSetTests {
     #expect(!night.homeIsSet)
     #expect(night.sleepBlock?.place == homePlace.id)
     #expect(night.homeChangeAt == date(2026, 11, 18, 7))
+    // Tonight's hero says it too, beside what's true tonight (#129).
+    if case .blocked(_, let detail) = snapshot(night, date(2026, 11, 17, 23, 30)).hero {
+      #expect(detail == "You're home · Anywhere from the next night")
+    } else {
+      Issue.record("not blocked")
+    }
     run(&night, date(2026, 11, 18, 7, 5))
     #expect(night.sleepBlock?.place == nil && night.homeChangeAt == nil)
   }

@@ -134,7 +134,8 @@ extension Copy {
     public static func readyNow(_ end: String) -> String { "From now until \(end)." }
     public static let anywhere = "Anywhere"
     public static let anywhereDetail = "At its set times, wherever you are"
-    public static let blocked = "Blocked"
+    /// Before any app is counted. Nothing is blocked yet, so not a state's word (#129).
+    public static let blocked = "Your apps"
     /// "2 categories · 2 apps": counts, because iOS never tells the app the names (D41).
     public static func blockedCount(categories: Int, apps: Int, sites: Int = 0) -> String {
       var parts: [String] = []
@@ -145,14 +146,16 @@ extension Copy {
       if sites > 0 { parts.append(sites == 1 ? "1 site" : "\(sites) sites") }
       return parts.joined(separator: middleDot)
     }
-    public static func unlocks(_ n: Int) -> String {
-      n == 1 ? "1 pause a week" : "\(n) pauses a week"
+    /// Ready's first word on pauses, so it says how long one lasts (#129).
+    public static func unlocks(_ n: Int, minutes: Int) -> String {
+      "\(n == 1 ? "1 pause" : "\(n) pauses") a week, \(minutes) min each"
     }
     public static func freeNightsEnded(_ day: String, price: String) -> String {
       "Your free nights ended \(day). Nothing is blocked until the \(price) purchase."
     }
+    /// "It" was unclear (the audit): what stops is the lock (#129).
     public static func freeUntil(_ day: String, price: String) -> String {
-      "Free until the morning of \(day). Then \(price) once, or it switches off."
+      "Free until the morning of \(day). Then \(price) once, or \(name) stops locking."
     }
   }
 }

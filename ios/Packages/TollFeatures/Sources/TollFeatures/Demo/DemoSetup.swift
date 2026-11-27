@@ -10,6 +10,9 @@
     init(app: AppModel, path: [SetupModel.Step]) {
       let model = SetupModel(app: app, path: path)
       DemoScenario.current?.prepare(model.draft)
+      if let days = DemoScenario.current?.trialStartedDaysAgo {
+        model.trialStart = Calendar.current.date(byAdding: .day, value: -days, to: Date())
+      }
       _model = State(initialValue: model)
     }
 

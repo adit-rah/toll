@@ -66,6 +66,23 @@ extension HomeSnapshot {
   }
 }
 
+extension HomeSnapshot.Supply {
+  /// The pauses' week as its seven nights, from the refill night, drawn as the nights' dots: the
+  /// nights gone and those still to come before the pauses are back (#129). Segments are kept for
+  /// the free nights.
+  public static func nights(
+    state: DuskState, log: [Transition], now: Date, calendar: Calendar,
+    config: TollConfig = .defaults
+  ) -> [HomeSnapshot.Bar] {
+    let week = UnlockSupply.week(containing: now, calendar: calendar, config: config)
+    let slots = (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: week) }
+    return Week(
+      log: log, now: now, calendar: calendar, since: state.setupFinishedAt,
+      sleep: state.sleepBlock, slots: slots, regret: TimeInterval(config.door.regretSeconds)
+    ).bars
+  }
+}
+
 /// This week on Home, from the log (sticky note s2). In the first week, the nights since setup with
 /// the rest still to come; from night 8, the last seven. A night is keyed by the day twelve hours
 /// before, so 1 am counts with the evening.

@@ -115,11 +115,14 @@ struct WelcomeView: View {
         offer.isFree ? Copy.Fit.start(nights: model.app.config.trial.nights) : Copy.Setup.setUp
       ) { model.go(.fit) }
       // The whole purchase, quieter, under the free nights (#144): bought or not, setup goes on.
+      // Once bought, its room stays, so a restore found here moves nothing (#135).
       if offer != .purchased {
         QuietButton(Copy.Fit.buyNow(model.app.price)) {
           Task { await model.buyNow() }
         }
         .disabled(model.buying || restoring)
+      } else {
+        LinkRoom()
       }
       // Found, the card says Purchased and setup goes on from the button; not found, the user is
       // told and stays here (#46). Once bought the link keeps its room, so the button stays put.

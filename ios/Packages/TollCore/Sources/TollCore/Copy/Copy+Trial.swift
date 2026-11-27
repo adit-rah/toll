@@ -14,10 +14,10 @@ extension Copy {
     public static let restore = "Restore purchase"
     public static let notNow = "Not now"
     public static let footnote = "Without it, nothing is blocked. Everything you set up stays."
-    public static func usedLabel(_ n: Int) -> String { n == 1 ? "pause used" : "pauses used" }
 
-    /// After buying (#77; founders, 21 Nov).
+    /// After buying (#77; founders, 21 Nov), and under it what happens now (#129).
     public static let doneTitle = "Every night is yours"
+    public static let doneLine = "\(name) keeps locking your apps every night."
     public static let done = "Done"
     public static let pendingTitle = "Waiting for approval"
     /// During the trial nothing is off yet (#48).

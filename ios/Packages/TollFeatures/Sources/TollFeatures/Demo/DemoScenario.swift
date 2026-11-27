@@ -26,6 +26,8 @@
     case fitSheet = "fit-sheet"
     case fitSheetSleep = "fit-sheet-sleep"
     case fitSheetAround = "fit-sheet-around"
+    /// The same step for someone whose weeks fitted their targets (#145).
+    case fitSheetFitted = "fit-sheet-around-fitted"
     case settingsSleep = "settings-sleep"
     /// Each side's small sheet: before sleep from onboarding, after waking from Settings › Sleep.
     case aroundBefore = "setup-around-before"
@@ -138,6 +140,10 @@
     case blocks
     /// Blocks on a weekday at 11 am, Study on (#89).
     case blocksDay = "blocks-day"
+    /// Four other blocks fold into one row (#110): in the evening, and at 11 am with Study on,
+    /// when the row opens by itself.
+    case blocksMany = "blocks-many"
+    case blocksManyDay = "blocks-many-day"
     /// New block: the kinds, then (`-gym`) Gym picked with its hours and no apps yet (#89).
     case blockNew = "block-new"
     case blockNewGym = "block-new-gym"
@@ -145,10 +151,24 @@
     /// Editing Study while it's on, and editing the night (#89).
     case blockEditOn = "block-edit-on"
     case blockNight = "block-night"
+    /// Study's place picker, and its delete sheet (#141).
+    case blockPlace = "block-place"
+    case blockDelete = "block-delete"
     case doorChoosing = "door-choosing"
     case doorWaiting = "door-waiting"
     case doorOpen = "door-open"
     case doorNone = "door-none"
+    /// States no scenario showed (#129, #141); `DemoPolish.swift` builds them.
+    case doorOpenUsed = "door-open-used"
+    case homePauseWaiting = "home-pause-waiting"
+    case homeHeldHome = "home-held-home"
+    case homeBlockedAnywhere = "home-blocked-anywhere"
+    case sleepAfterTrial = "sleep-after-trial"
+    case settingsScreenTimeOff = "settings-screen-time-off"
+    case settingsLog = "settings-log"
+    case welcomeRunning = "welcome-running"
+    case welcomeUsed = "welcome-used"
+    case welcomeBought = "welcome-bought"
 
     static var current: DemoScenario? {
       UserDefaults.standard.string(forKey: "TollDemo").flatMap(Self.init(rawValue:))
@@ -160,7 +180,7 @@
     var setupPath: [SetupModel.Step]? {
       let around: [SetupModel.Step] = [.fit, .sleep, .around]
       switch self {
-      case .welcome: return []
+      case .welcome, .welcomeRunning, .welcomeUsed, .welcomeBought: return []
       case .fit: return [.fit]
       case .sleepFound, .sleepFoundWeekends, .sleepAsk, .sleepNone: return [.fit, .sleep]
       case .around, .aroundOff, .aroundBefore: return around
@@ -185,8 +205,11 @@
     /// Home not set yet (D68): onboarding's Sleep block has no place.
     var homeNotSet: Bool {
       (setHomePath != nil && self != .setHomeSet)
-        || [.homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere]
-          .contains(self)
+        || [
+          .homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere,
+          .homeBlockedAnywhere,
+        ]
+        .contains(self)
     }
 
     /// The simulator cannot grant Family Controls or answer the location prompt; each screen past
@@ -194,7 +217,7 @@
     var screenTime: ScreenTimeAuthorization.State? {
       switch self {
       case .blocklist, .ready, .readyHealth, .screenTimeAllowed: .approved
-      case .screenTimeDenied, .homeScreenTimeOff: .denied
+      case .screenTimeDenied, .homeScreenTimeOff, .settingsScreenTimeOff: .denied
       // Every screen after setup assumes what its board shows: everything working.
       default: isHome ? .approved : nil
       }
@@ -207,7 +230,8 @@
         .whileUsing
       case .setHomeOff: .denied
       case .setHomeLocationOff: .approximate
-      case .homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere:
+      case .homeAnywhere, .homeCard, .homeMorningCard, .homeMorningCardOpen, .settingsAnywhere,
+        .homeBlockedAnywhere:
         .notDetermined
       default: isHome ? .always : nil
       }
@@ -225,7 +249,7 @@
     var tab: DuskTab {
       switch self {
       case _ where self == .insights || rawValue.hasPrefix("sleep-"): .sleep
-      case .blocks, .blocksDay, .blockNew, .blockNewGym, .blockEdit, .blockEditOn, .blockNight:
+      case _ where rawValue.hasPrefix("block") && self != .blocklist:
         .blocks
       default: .tonight
       }
@@ -233,7 +257,9 @@
     /// The kind a new-block scenario shows already picked.
     var newBlockKind: Block.Kind? { self == .blockNewGym ? .gym : nil }
     /// Weekday scenarios at 11 am, with Study on.
-    var isDay: Bool { [.homeDay, .homeStripDay, .blocksDay, .blockEditOn].contains(self) }
+    var isDay: Bool {
+      [.homeDay, .homeStripDay, .blocksDay, .blocksManyDay, .blockEditOn].contains(self)
+    }
     /// The segment whose snippet the strip opens on (D75): a block, or last night.
     var snippet: String? {
       switch self {
@@ -247,11 +273,12 @@
     var routes: [HomeRoute] {
       switch self {
       case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing,
-        .settingsHowItWorks:
+        .settingsScreenTimeOff, .settingsHowItWorks:
         [.settings]
       case .settingsSleep, .settingsSleepAfter: [.settings, .sleep]
+      case .settingsLog: [.settings, .log]
       case .blockNew, .blockNewGym: [.block(nil)]
-      case .blockEdit, .blockEditOn: [.block(BlockID("study"))]
+      case .blockEdit, .blockEditOn, .blockPlace, .blockDelete: [.block(BlockID("study"))]
       case .blockNight: [.block(BlockID("sleep"))]
       default: []
       }

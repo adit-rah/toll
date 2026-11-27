@@ -35,7 +35,9 @@ flowchart TD
 
   setGap{"The night's block on now?"}
   setGap -->|"no"| applyNow[("state.json: gap in force now")]
-  setGap -->|"yes"| held[("state.json: gap.pending; applied when the night ends (B-3)")]
+  setGap -->|"yes"| sameGap{"The same as the one in force?"}
+  sameGap -->|"yes"| nothingHeld[("state.json: no pending change; one held before is taken back")]
+  sameGap -->|"no"| held[("state.json: gap.pending; applied when the night ends (B-3)")]
   applyNow --> lockMoves["Tonight: Apps lock at … · N min before sleep;<br/>the strip's lower steps either side of the moon; heads-up moves<br/>render: home-evening"]
   held -.->|"the night ends: the monitor or the app reconciles"| applyNow
 
@@ -82,5 +84,5 @@ flowchart TD
 ## Doubts
 - **Monday's card can be missed.** It shows only between Monday noon and Tuesday noon, and only while nothing blocks, so a person who opens Dusk only inside a long Study block that day never sees it; the change still applies. That matches D76's "this week's gap" but isn't stated anywhere.
 - **The offer to older installs** has no "seen" flag beyond `offered`; "Turn on" and "Not now" both clear it (`GapRules.set` clears it too), so changing the gap in Settings also removes the offer. Matches the code; D83 doesn't say.
-- **Settings' Done sends the gap even when unchanged.** `setBeforeBed` always sends `.gap(...)`; during the night that stores a pending gap equal to the current one. Harmless, but it makes Settings say a change is waiting when nothing changed (worth a check on device).
+- **Settings' Save sends each buffer even when unchanged** (`saveSleep` always sends `.buffer`). Fixed (#141): during the night, a buffer equal to the one in force holds nothing (`GapRules.set`), so Settings never says a change is waiting when nothing changed; choosing the one in force again takes back a held change.
 - **A pause in the gap** shows "Paused until"; the capsule hides while paused (`untilBed` needs the blocked hero) and returns if the pause ends before bed.

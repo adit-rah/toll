@@ -49,7 +49,7 @@ final class SetupModel {
   }
 
   /// The trial's start from the Keychain: a reinstall keeps it (P-4).
-  let trialStart = TrialClock().start
+  var trialStart = TrialClock().start
 
   /// What Welcome and Ready can promise this phone (#46).
   func offer(now: Date, calendar: Calendar = .current) -> Trial.Offer {
