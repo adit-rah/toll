@@ -69,6 +69,17 @@ struct BlockFactsTests {
   }
 }
 
+/// The editor's hours say how long they are; the night's, with the minutes locked around it.
+struct HoursLengthTests {
+  @Test func theLengthIsSaid() {
+    #expect(Copy.Blocks.length(minutes: 480) == "8 h")
+    #expect(
+      Copy.Blocks.nightLength(minutes: 510, before: 30, after: 15)
+        == "8 h 30 m asleep · 30 min before sleep · 15 min after waking")
+    #expect(Copy.Blocks.nightLength(minutes: 510, before: 0, after: 0) == "8 h 30 m asleep")
+  }
+}
+
 /// Past `blocks.foldAbove` other blocks fold into one row, which opens by itself while one is on
 /// (#110).
 struct BlockGroupTests {

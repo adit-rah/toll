@@ -200,6 +200,12 @@ extension BlocksSnapshot.Fact {
       case .deleting: .delete
       case .changing: .later
       }
-    return FactLine.Fact(symbol, text)
+    let tone: FactLine.Fact.Tone =
+      switch kind {
+      case .changing: .accent
+      case .deleting: .warn
+      default: .plain
+      }
+    return FactLine.Fact(symbol, text, tone: tone)
   }
 }

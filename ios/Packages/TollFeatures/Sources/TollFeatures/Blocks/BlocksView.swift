@@ -96,7 +96,7 @@ private struct NewBlockRow: View {
             Text(
               limits.blocksUsed >= limits.blocksMax
                 ? Copy.Blocks.blocksFull(limits.blocksMax)
-                : Copy.Blocks.windowsFull(limits.windowsMax)
+                : Copy.Blocks.windowsFullHint(limits.windowsMax)
             )
             .tollType(.detail, TollColor.label2)
           }

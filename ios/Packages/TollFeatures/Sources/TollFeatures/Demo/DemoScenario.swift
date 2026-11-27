@@ -149,6 +149,9 @@
     /// Editing Study while it's on, and editing the night (#89).
     case blockEditOn = "block-edit-on"
     case blockNight = "block-night"
+    /// Study's place picker, and its delete sheet (#141).
+    case blockPlace = "block-place"
+    case blockDelete = "block-delete"
     case doorChoosing = "door-choosing"
     case doorWaiting = "door-waiting"
     case doorOpen = "door-open"
@@ -229,8 +232,7 @@
     var tab: DuskTab {
       switch self {
       case _ where self == .insights || rawValue.hasPrefix("sleep-"): .sleep
-      case .blocks, .blocksDay, .blocksMany, .blocksManyDay, .blockNew, .blockNewGym, .blockEdit,
-        .blockEditOn, .blockNight:
+      case _ where rawValue.hasPrefix("block") && self != .blocklist:
         .blocks
       default: .tonight
       }
@@ -258,7 +260,7 @@
         [.settings]
       case .settingsSleep, .settingsSleepAfter: [.settings, .sleep]
       case .blockNew, .blockNewGym: [.block(nil)]
-      case .blockEdit, .blockEditOn: [.block(BlockID("study"))]
+      case .blockEdit, .blockEditOn, .blockPlace, .blockDelete: [.block(BlockID("study"))]
       case .blockNight: [.block(BlockID("sleep"))]
       default: []
       }

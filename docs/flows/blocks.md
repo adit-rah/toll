@@ -19,7 +19,7 @@ flowchart TD
   unfolded -->|"a block's row"| editor
   tonightStrip -->|"Edit"| editor
   tab --> canAdd{"Fewer than 8 blocks and a set of hours free?"}
-  canAdd -->|"no"| full(["New block greyed: Up to 8 blocks, or the hours are full"])
+  canAdd -->|"no"| full(["New block greyed: Up to 8 blocks, or the hours are full and what frees a set"])
   canAdd -->|"yes: New block"| kinds["New block: Study, Work, Gym, Other<br/>render: block-new"]
   kinds -->|"picks a kind"| kindApplied[("draft: the kind's name and hours,<br/>e.g. Gym 6–7 pm weekdays")]
   kindApplied --> firstPicker{{"Apple's apps picker, at once"}}
@@ -39,7 +39,8 @@ flowchart TD
   editing -->|"From, Until, the day chips"| hours{"A ninth set of hours?"}
   hours -->|"yes"| hoursFull(["Said under the hours; Save stays off"])
   hours -->|"no"| editing
-  editing -->|"Place"| placePicker["Place: search, current location, or Anywhere; then the map and its size<br/>render: none"]
+  hours -.->|"either way"| length(["The length under the fields: 8 h, or the night's sleep and the minutes locked around it"])
+  editing -->|"Place"| placePicker["Place: search, current location, or Anywhere; then the map and its size<br/>render: block-place"]
   placePicker -->|"Use this place, or Use anywhere"| editing
   editing -->|"Save block / Save"| canSave{"A kind, some apps, valid hours, within 40 apps and sites,<br/>a name of 1–24 characters?"}
   canSave -->|"no"| editing
@@ -50,12 +51,12 @@ flowchart TD
   alwaysCheck -->|"no"| save
   save{"The engine: too many blocks, places, sets of hours or apps?"}
   save -->|"refused"| refusal(["A note says why; nothing saved"])
-  save -->|"block on now"| held[("state.json: pending edit; applied when it ends (B-3)")]
+  save -->|"block on now"| held[("state.json: pending edit; applied when it ends (B-3); its row says so in amber with a clock")]
   save -->|"otherwise"| applied[("state.json: the block; schedules and shield on the next reconcile")]
   held --> popped(["Back to where it came from: Blocks, or Tonight's strip"])
   applied --> popped
 
-  editor -->|"Delete block"| deleteSheet["The delete sheet: what stops being blocked; the other blocks stay<br/>render: none"]
+  editor -->|"Delete block"| deleteSheet["The delete sheet: what stops being blocked; the other blocks stay<br/>render: block-delete"]
   deleteSheet -->|"Delete block, or Delete at 5:00 pm while on"| deleted[("state.json: removed now, or pending delete")]
   deleteSheet -->|"Cancel"| editor
   deleted --> popped
@@ -74,5 +75,5 @@ The tab bar hides on the editor so Save can sit at the bottom. Saving a place mo
 ## Doubts
 - **Block.isOn has no switch.** Blocks store whether they're on and the engine respects it, but no screen turns a block off; only Delete removes one.
 - **The folded group forgets a tap** when Blocks leaves memory: it follows whether a block is on again.
-- **No render reaches the apps list, the place picker, Delete's sheet or the Without Always question.** The simulator has no app tokens, so the apps list is empty there anyway.
+- **No render reaches the apps list or the Without Always question.** The simulator has no app tokens, so the apps list is empty there anyway.
 - **The night can't be left without apps:** removing every app in the picker keeps Save off (`canSave`), with no note saying why beyond the Apps row's "Choose apps to save".

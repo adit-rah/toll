@@ -28,6 +28,11 @@ struct BlockEditorView: View {
     _model = State(initialValue: model)
     _appsAtOpen = State(initialValue: model.selection)
     _picking = State(initialValue: pickingApps)
+    #if DEBUG
+      // Renders can't tap Place or Delete; their scenarios open on them (docs/renders.md).
+      _choosingPlace = State(initialValue: DemoScenario.current == .blockPlace)
+      _confirmingDelete = State(initialValue: DemoScenario.current == .blockDelete)
+    #endif
   }
 
   var body: some View {
@@ -97,8 +102,9 @@ struct BlockEditorView: View {
       }
       .buttonStyle(.plain)
       ForEach(model.block.schedule.rules.indices, id: \.self) { index in
+        let rule = model.block.schedule.rules[index]
         HoursInline(
-          title: hoursTitle(index), rule: model.block.schedule.rules[index], isNight: model.isSleep
+          title: hoursTitle(index), rule: rule, isNight: model.isSleep, length: length(rule.window)
         ) { model.setRule(index, $0) }
       }
       Button {
@@ -177,6 +183,14 @@ struct BlockEditorView: View {
   private var placeSymbol: TollSymbol {
     guard let place = model.place else { return .anywhere }
     return model.app.state.isHome(place.id) ? .home : .place
+  }
+
+  /// The night's length is its sleep, with the minutes apps lock before and after it (D76, #144).
+  private func length(_ window: TimeWindow) -> String {
+    guard model.isSleep else { return Copy.Blocks.length(minutes: window.minutes) }
+    let state = model.app.state
+    return Copy.Blocks.nightLength(
+      minutes: window.minutes, before: state.gap.minutes, after: state.after.minutes)
   }
 
   /// The night with weekends different has two rules; name them as setup did (#49).

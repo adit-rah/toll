@@ -6,12 +6,20 @@ import SwiftUI
 /// stay in the wordless render; VoiceOver reads the words.
 public struct FactLine: View {
   public struct Fact: Hashable, Sendable {
+    /// A fact's glyph is a mark; a fact about a change waiting to apply is amber, or `warn` for a
+    /// delete, glyph and words both, so it doesn't read as ignored (the audit).
+    public enum Tone: Hashable, Sendable {
+      case plain, accent, warn
+    }
+
     public let symbol: TollSymbol?
     public let text: String
+    public let tone: Tone
 
-    public init(_ symbol: TollSymbol?, _ text: String) {
+    public init(_ symbol: TollSymbol?, _ text: String, tone: Tone = .plain) {
       self.symbol = symbol
       self.text = text
+      self.tone = tone
     }
   }
 
@@ -29,16 +37,26 @@ public struct FactLine: View {
           if let symbol = fact.symbol {
             Image(symbol: symbol).unredacted()
               .font(.system(size: glyph, weight: .semibold))
-              .foregroundStyle(TollColor.label3)
+              .foregroundStyle(tint(fact.tone) ?? TollColor.label3)
               .accessibilityHidden(true)
           }
           Text(fact.text)
-            .tollType(.detail, TollColor.label2)
+            .tollType(
+              fact.tone == .plain ? .detail : .trailing, tint(fact.tone) ?? TollColor.label2
+            )
             .fixedSize(horizontal: false, vertical: true)
         }
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
+  }
+
+  private func tint(_ tone: Fact.Tone) -> Color? {
+    switch tone {
+    case .plain: nil
+    case .accent: TollColor.accent
+    case .warn: TollColor.warn
+    }
   }
 }
 

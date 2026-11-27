@@ -27,6 +27,20 @@ extension Copy {
     public static func windowsFull(_ max: Int) -> String {
       "Up to \(max) sets of hours across all blocks."
     }
+    /// "New block" while the sets of hours are used up: what frees one (the audit), since blocks with
+    /// the same hours share a set (D40).
+    public static func windowsFullHint(_ max: Int) -> String {
+      "Up to \(max) sets of hours across all blocks. Give two blocks the same hours to free one."
+    }
+    /// Under the editor's From and Until (the audit): how long the hours are. The night's is its
+    /// sleep, with the time apps lock around it (D76, #144).
+    public static func length(minutes: Int) -> String { Copy.length(minutes: minutes) }
+    public static func nightLength(minutes: Int, before: Int, after: Int) -> String {
+      var parts = ["\(Copy.length(minutes: minutes)) asleep"]
+      if before > 0 { parts.append(Gap.beforeBed(before)) }
+      if after > 0 { parts.append(Fit.afterWaking(after)) }
+      return parts.joined(separator: middleDot)
+    }
     public static func onNowUntil(_ time: String) -> String { "until \(time)" }
     public static func thisBlock(_ n: Int) -> String { "This block: \(n) apps and sites" }
     public static func allBlocks(_ used: Int, of max: Int) -> String {
