@@ -6,6 +6,7 @@ Dusk's sleep model, built, fitted and tested in Python, following the founders' 
 dusk_model/   reference implementation: rng, artifact, night records, model, policy, insights
 sim/          synthetic people, six scenarios, the pass criteria, tuning, dampened start policies, the growing gap, figures
 replay/       real nights in (Health export or Dusk's night records), prediction error out
+economy/      the buffer suggestion's reference and fixtures (#145), and the buffer and pause studies (#61)
 export/       writes the artifact, the parity fixtures and the rebuild fixture; compares the Swift package (parity.py)
 artifacts/    every exported version, kept; fixtures.jsonl; rebuild.json (a night log and the state rebuilt from it)
 reports/      criteria.json, tuning.md, figures/
@@ -38,6 +39,9 @@ For each night the outcome is when the person fell asleep, in minutes from plann
 | Figures | `uv run python -m sim.figures` |
 | Replay your own Health data | `uv run python -m replay --health path/to/export.xml --bedtime 23:00 --weekend-bedtime 23:30` |
 | Replay Dusk's night records | `uv run python -m replay --records nights.jsonl` |
+| The buffer suggestion's fixtures for TollCore (#145) | `uv run python -m economy.fixtures` |
+| The buffer suggestion in the simulator (`reports/buffers.md`) | `uv run python -m economy.buffers --people 2000 --out reports/buffers-final.json` |
+| The pause economy (`reports/pauses.md`, #61) | `uv run python -m economy.pauses grid --out reports/pauses-grid.json` |
 
 The Health export is from the Health app: Profile › Export All Health Data, then unzip it. Only sleep samples are read, and nothing leaves the laptop. Until the app logs night records, each night is replayed with the block at plan.
 
