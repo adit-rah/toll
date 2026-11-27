@@ -567,3 +567,12 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Not on the phone yet.** SleepModel's API gains `Hold`, `chooseStart` and `PersonState.shown` (source-compatible), but the app doesn't choose starts with it, and records still say "fixed" (#155). Old `model.json` caches rebuild because the artifact changed.
 - **Assumed, for the founders:** spending starts at 30 usable nights (40 keeps slightly more learning, 53.8% against 52.2%, but lets 4.5–5.9% false insights through in a year).
 
+**D100. Monday's change applies with Dusk closed** (2026-11-27, #127; closes D83's open point).
+- **A noon wake.** The monitor wakes every day from 12:01 to 12:16 (`t.1201-1216`, `WeekTurn`). Every saved reconcile asks for it while either buffer grows (D97), and stops it when both are fixed. Its start and end both reconcile, so the end is a second chance after a restart before the first unlock.
+- **On Monday** the wake judges the week (D76, D97), so the DeviceActivity schedule moves to the new lock that afternoon: earlier after a growth, later after an ease. When a buffer changed and iOS allows notifications, the monitor replaces that night's heads-ups (`HeadsUpNotifications` in TollScreenTime, UserNotifications only, waiting at most 2 s for iOS). Other days' wakes change nothing but log `weekTurn`.
+- **Chosen over scheduling both outcomes ahead:** one activity (18 of the 20 at most), nothing to withdraw, and the same judgement every reconcile already runs. Daily rather than weekly, because a repeating hour-and-minute schedule is the form already checked on device.
+- **Trade-off, accepted:** `weekTurn` is a new transition cause, so a build from before it drops those noon lines, which almost never carry a night's change.
+- **Settings › How it works** says the rule, and every number in it comes from `TollConfig` (#52).
+- **Assumed, for the founders:** the App Store subtitle is "Your nights, phone-free", matching Welcome (the alternative is "Buy back your sleep"). The review notes' Apple guideline numbers are to be checked before submitting.
+- **Amends D98:** a demo launch never opens the place watch; its simulated Always opened the real one, and iOS prompted over the renders.
+

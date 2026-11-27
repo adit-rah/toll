@@ -140,8 +140,10 @@ public enum Engine {
     state.runtime.active = active
     GapRules.tally(&state, now: now, calendar: calendar)
     DoorRules.advance(&state, now: now, calendar: calendar, config: config)
-    return effects(
+    var effects = effects(
       before: before, after: &state, wall: wall, now: now, calendar: calendar, cause: cause)
+    effects.turn = WeekTurn.schedule(state, config: config)
+    return effects
   }
 
   // MARK: Deciding

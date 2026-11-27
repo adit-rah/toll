@@ -2,9 +2,9 @@
 
 **What it's for:** one quiet local notification 20 minutes before the apps lock, so the lock never comes as a surprise. It is Dusk's only notification. Permission is asked after the first night, from Tonight's card or Settings, never in onboarding.
 
-**Implements:** D68 and D72 (one heads-up, asked after the first night, Settings can switch it off), D83 (it comes 20 minutes before the lock, not before bed), D65 (banners only: no sound, no badge).
+**Implements:** D68 and D72 (one heads-up, asked after the first night, Settings can switch it off), D83 (it comes 20 minutes before the lock, not before bed), #127 (Monday's change moves it with Dusk closed), D65 (banners only: no sound, no badge).
 
-**Code:** `TollCore/App/HeadsUp.swift` (who gets one and when), `TonightCard.headsUp`, `TollFeatures/App/AppModel+HeadsUp.swift`, `Settings/HeadsUpRow.swift`, `TollData/Notifications/NotificationAdapter.swift`.
+**Code:** `TollCore/App/HeadsUp.swift` (who gets one and when), `TonightCard.headsUp`, `TollFeatures/App/AppModel+HeadsUp.swift`, `Settings/HeadsUpRow.swift`, `TollData/Notifications/NotificationAdapter.swift` (asks iOS), `TollScreenTime/HeadsUpNotifications.swift` (hands iOS the plan, from the app and the monitor), `TollCore/App/WeekTurn.swift`.
 
 ```mermaid
 flowchart TD
@@ -30,6 +30,9 @@ flowchart TD
   plan{"For each of the next 7 nights: set up, the night's block on,<br/>Screen Time allowed, free or bought that night,<br/>switch on, iOS allows?"}
   plan -->|"those nights"| pending{{"iOS pending notifications: all replaced<br/>headsUp-epoch, 20 min before each lock"}}
   plan -->|"none"| cleared{{"iOS pending notifications: all removed"}}
+  turn(["Monday's turn: the monitor's wake at 12:01 changed a buffer (#127)"]) -.-> turnPlan{"Switch on, and iOS allows notifications?"}
+  turnPlan -->|"yes: the same plan, from the monitor"| pending
+  turnPlan -->|"no"| turnNothing(["Nothing handed to iOS"])
   pending -.->|"20 min before the lock"| banner{{"Banner: Apps lock in 20 min, with the night's hours"}}
   banner -->|"tap"| tonight["Tonight: Apps lock at …<br/>render: home-evening"]
 
@@ -37,9 +40,9 @@ flowchart TD
   class prompt,iosSettings,pending,cleared,banner system
 ```
 
-**When the plan is handed to iOS again:** after every command the app sends, at launch and on every foreground (the plan is forgotten first, so it always goes again), and when the app's 20-second refresh sees a state the monitor wrote (a held edit applied at the end of a night). Only a plan that differs from the last one is handed over.
+**When the plan is handed to iOS again:** on Monday, by the monitor at the week's turn when a buffer changed, so that night's heads-up moves with the lock while Dusk stays closed (#127); after every command the app sends, at launch and on every foreground (the plan is forgotten first, so it always goes again), and when the app's 20-second refresh sees a state the monitor wrote (a held edit applied at the end of a night). Only a plan that differs from the last one is handed over.
 
 ## Doubts
 - **A heads-up already handed to iOS still arrives** if Screen Time is switched off, the night's block is switched off by another route, or a refund lands while Dusk stays closed: the extensions can't schedule (D72's open point).
-- **A gap judged on Monday while Dusk stays closed** leaves that night's heads-up at last week's lock time (#127, D83's open point).
+- **The monitor's plan needs iOS's answer within 2 seconds** (`HeadsUpNotifications.replaceIfAllowed`); if iOS is slower, the old plan stays and Monday's heads-up comes at last week's time. A device row checks it.
 - **The card's time** comes from `HeadsUp.nights(...).first`, which skips a night whose heads-up time has passed. The card never shows in the hour before the lock (Tonight's band), so it names tonight's whenever it shows on a day with a night.

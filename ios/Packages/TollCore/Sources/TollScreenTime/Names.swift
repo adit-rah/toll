@@ -15,6 +15,8 @@
   public enum Activity: Equatable, Sendable {
     case window(TimeWindow)
     case sweep(TimeWindow)
+    /// The daily wake at the week's turn (#127), "t.1201-1216".
+    case turn(TimeWindow)
     case door
     /// Step 2's names and Toll's: stopped when they fire (decisions D28).
     case unknown
@@ -33,6 +35,7 @@
       switch parts[0] {
       case "w": self = .window(window)
       case "s": self = .sweep(window)
+      case "t": self = .turn(window)
       default: self = .unknown
       }
     }
@@ -41,6 +44,7 @@
       switch self {
       case .window(let window): DeviceActivityName("w.\(Self.code(window))")
       case .sweep(let window): DeviceActivityName("s.\(Self.code(window))")
+      case .turn(let window): DeviceActivityName("t.\(Self.code(window))")
       case .door: DeviceActivityName("door")
       case .unknown: DeviceActivityName("unknown")
       }
