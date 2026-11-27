@@ -606,3 +606,13 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - "No pauses left" draws the week (rather than dropping it).
 - **Left:** #160, #161, #162.
 
+**D103. Blocks, round two** (2026-11-27, #78, #110, #129, #141; details of D73).
+- **A block's line is facts, each led by its glyph** (`FactLine`): house, pin or globe for where; an hourglass while waiting for Always; the clock for hours, with the days riding on it; the grid for apps; the calendar when weekends differ. VoiceOver's text is unchanged.
+- **Held changes (B-3).** A held change is amber with its clock ("Changes apply at 5:00 pm"); a held delete is `warn` with the trash.
+- **App icons.** The editor's Apps row shows up to three of the apps' own icons. New ones arrive as from the picker (D73's motion); those already there don't move.
+- **Folding.** Past `blocks.foldAbove` (3) other blocks, they fold into one row: "N other blocks" with the kinds' glyphs, or the one on now with its lock. It opens on a tap, and by itself while one is on; a tap isn't kept. The chevron turns half a turn (§2.5).
+- **Lengths.** The hours show their length; the night's says its sleep and the minutes locked before and after it.
+- **Full sets of hours.** New block says what frees one ("Give two blocks the same hours to free one").
+- **Demos** use the fixture's app counts with stand-in tiles.
+- **Assumed, for the founders:** the fold threshold of 3, and no apps-count fact on other blocks' rows.
+

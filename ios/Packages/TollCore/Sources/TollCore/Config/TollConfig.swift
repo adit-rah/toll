@@ -42,6 +42,9 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var maxWindows = 8
     /// A block's name fits one line on the block screen's title (#62).
     public var maxNameLength = 24
+    /// More other blocks than this fold into one row on Blocks, so the night still leads with all
+    /// eight (#110; the canvas draws three rows before the list runs long).
+    public var foldAbove = 3
     /// The hours a new block starts with, by kind, so adding one is a kind, the apps and Save (#89).
     /// Study, Work and Other share 9 to 5 on weekdays: blocks with the same hours share one time
     /// window (D40), so the defaults don't use up the eight.

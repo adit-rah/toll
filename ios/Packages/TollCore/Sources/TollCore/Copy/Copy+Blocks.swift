@@ -9,6 +9,12 @@ extension Copy {
       return count.isEmpty ? "No apps" : count
     }
     public static let new = "New block"
+    /// The other blocks folded into one row (#110).
+    public static func otherBlocks(_ count: Int) -> String { "\(count) other blocks" }
+    public static let showBlocksHint = "Double-tap to show each block."
+    public static let hideBlocksHint = "Double-tap to fold them into one row."
+    /// A row's hours and days under one clock: "6 pm – 7 pm, Weekdays", which wraps after the comma.
+    public static func hoursOn(_ hours: String, days: String) -> String { "\(hours), \(days)" }
     public static let wholeCategory = "Whole category"
     public static let website = "Website"
     public static let appsAndSites = "Apps and sites"
@@ -20,6 +26,20 @@ extension Copy {
     public static func blocksFull(_ max: Int) -> String { "Up to \(max) blocks." }
     public static func windowsFull(_ max: Int) -> String {
       "Up to \(max) sets of hours across all blocks."
+    }
+    /// "New block" while the sets of hours are used up: what frees one (the audit), since blocks with
+    /// the same hours share a set (D40).
+    public static func windowsFullHint(_ max: Int) -> String {
+      "Up to \(max) sets of hours across all blocks. Give two blocks the same hours to free one."
+    }
+    /// Under the editor's From and Until (the audit): how long the hours are. The night's is its
+    /// sleep, with the time apps lock around it (D76, #144).
+    public static func length(minutes: Int) -> String { Copy.length(minutes: minutes) }
+    public static func nightLength(minutes: Int, before: Int, after: Int) -> String {
+      var parts = ["\(Copy.length(minutes: minutes)) asleep"]
+      if before > 0 { parts.append(Gap.beforeBed(before)) }
+      if after > 0 { parts.append(Fit.afterWaking(after)) }
+      return parts.joined(separator: middleDot)
     }
     public static func onNowUntil(_ time: String) -> String { "until \(time)" }
     public static func thisBlock(_ n: Int) -> String { "This block: \(n) apps and sites" }

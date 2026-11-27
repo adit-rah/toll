@@ -99,6 +99,14 @@
         gym.appCount = 2
         state.blocks.append(gym)
       }
+      if [.blocksMany, .blocksManyDay].contains(scenario) {
+        for (kind, apps) in [(Block.Kind.work, 5), (.other, 1)] {
+          var block = BlockDraft.new(kind)
+          block.id = BlockID(Copy.Blocks.kindName(kind).lowercased())
+          block.appCount = apps
+          state.blocks.append(block)
+        }
+      }
       if scenario.isDay, let end = calendar.date(bySettingHour: 17, minute: 0, second: 0, of: now) {
         state.presence[library.id] = Presence(isInside: true, at: now)
         state.runtime.active[BlockID("study")] = end

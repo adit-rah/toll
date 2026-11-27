@@ -240,6 +240,10 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 222 | Open Set home with location denied, then allowed | "Open Settings" and "This is home" sit at the same height | | |
 | 223 | Restore on Welcome | The card turns to Purchased and "Set up Dusk" doesn't move | | |
 | 224 | A landmark morning, at the default size and at AX5 | The tile shows last night's moon in its corner, clear of the shape | | |
+| 225 | Edit a block with 5 apps; pick one more in Apple's picker | Three icons show; a newly arrived icon fades in and rises; icons already there don't move | | |
+| 226 | With 4 other blocks, open Blocks and tap the group | Its rows fade in as the card grows; the chevron turns; New block and the limits stay put. With Reduce Motion, a crossfade | | |
+| 227 | Open Blocks while Study is on | The group is already open; a tap folds it to "Study on until 5:00 pm" with a lock | | |
+| 228 | Save an edit to a block that's on | Its row says "Changes apply at …" in amber with a clock until the block ends | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

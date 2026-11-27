@@ -8,18 +8,20 @@ extension BlocksSnapshot {
     _ block: Block, state: DuskState, now: Date, calendar: Calendar, blocking: Bool = true
   ) -> Row {
     if blocking, let end = state.runtime.active[block.id], state.trial.entitled,
-      let held = held(block, state: state, at: Copy.time(end, in: calendar))
+      let held = heldFact(block, state: state, at: Copy.time(end, in: calendar))
     {
       return Row(
-        id: block.id, name: block.name, kind: block.kind, detail: held,
+        id: block.id, name: block.name, kind: block.kind, detail: held.text, facts: [held],
         stateText: Copy.Home.onNow, state: .on)
     }
-    var parts: [String] = []
-    if let place = placeText(block, state: state) { parts.append(place) }
+    var facts: [Fact] = []
+    if let place = placeFact(block, state: state) { facts.append(place) }
     if let window = block.schedule.windows.first {
-      parts.append(Copy.span(window, in: calendar, short: true))
+      facts.append(Fact(.hours, Copy.span(window, in: calendar, short: true)))
     }
-    if let days = Self.days(block.schedule) { parts.append(days) }
+    if let days = Self.days(block.schedule) {
+      facts.append(Fact(days == Copy.Home.weekendsDiffer ? .weekendsDiffer : .days, days))
+    }
     let stateText: String
     let rowState: Row.State
     if Engine.waitsForAlways(block, state) {
@@ -49,7 +51,7 @@ extension BlocksSnapshot {
     }
     return Row(
       id: block.id, name: block.name, kind: block.kind,
-      detail: parts.joined(separator: Copy.middleDot), stateText: stateText, state: rowState)
+      detail: line(facts), facts: facts, stateText: stateText, state: rowState)
   }
 
   /// "Weekdays", "Weekends", or nothing for every day; one rule's days stand for the block.
