@@ -188,6 +188,10 @@ public final class AppModel {
   /// location at launch, before Set home has said why. Below Always, blocks run on their hours (D37).
   func watchPlaces() {
     guard !watchingPlaces, locationAccess.state == .always else { return }
+    #if DEBUG
+      // Demos assume Always (`DemoScenario.location`); a real session would ask over the render.
+      guard DemoScenario.current == nil else { return }
+    #endif
     watchingPlaces = true
     Task {
       await PlaceMonitor.shared.watch { [weak self] place, presence in
