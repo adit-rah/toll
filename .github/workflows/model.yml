@@ -43,7 +43,7 @@ jobs:
         run: uv run python -m export.verify
       - name: Artifact checksum, and the Swift package holds the same files
         run: |
-          ../ios/scripts/check-model-artifact.sh artifacts/sleep-model.v0.json
+          ../ios/scripts/check-model-artifact.sh artifacts/sleep-model.v*.json
           ../ios/scripts/sync-model.sh --check
       - name: Pass criteria (fails on any check not waived in decisions D53)
         run: uv run python -m sim.criteria --people 2000 --safety-people 10000 --out criteria.json --strict

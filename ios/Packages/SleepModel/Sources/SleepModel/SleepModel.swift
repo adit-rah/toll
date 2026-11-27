@@ -1,14 +1,28 @@
-/// One person's adapter: the precision matrix Λ (row by row), the vector b, and the usable nights.
+/// One person's adapter: the precision matrix Λ (row by row), the vector b, the usable nights, and
+/// whether the insight showed after the last of them (an insight showing keeps a laxer test, #117).
 /// The app keeps the night records too, so a new base can rebuild this in one pass.
 public struct PersonState: Codable, Sendable, Equatable {
   public var precision: [Double]
   public var b: [Double]
   public var nights: Int
+  public var shown: Bool
 
-  public init(precision: [Double], b: [Double], nights: Int) {
+  public init(precision: [Double], b: [Double], nights: Int, shown: Bool = false) {
     self.precision = precision
     self.b = b
     self.nights = nights
+    self.shown = shown
+  }
+
+  enum CodingKeys: String, CodingKey { case precision, b, nights, shown }
+
+  /// A state written before `shown` (sleep-model.v0's caches) reads as not shown.
+  public init(from decoder: any Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    precision = try c.decode([Double].self, forKey: .precision)
+    b = try c.decode([Double].self, forKey: .b)
+    nights = try c.decode(Int.self, forKey: .nights)
+    shown = try c.decodeIfPresent(Bool.self, forKey: .shown) ?? false
   }
 }
 
@@ -73,7 +87,8 @@ public struct SleepModel: Sendable {
       for j in 0..<4 { lam[i * 4 + j] = lam[i * 4 + j] + (phi[i] * phi[j]) / s2 }
     }
     for i in 0..<4 { b[i] = b[i] + (phi[i] * r) / s2 }
-    state = PersonState(precision: lam, b: b, nights: state.nights + 1)
+    state = PersonState(precision: lam, b: b, nights: state.nights + 1, shown: state.shown)
+    state.shown = insightCheck().shown
     return true
   }
 

@@ -11,7 +11,7 @@ let package = Package(
     .executable(name: "sleep-model-replay", targets: ["sleep-model-replay"]),
   ],
   targets: [
-    .target(name: "SleepModel", resources: [.copy("Resources/sleep-model.v0.json")]),
+    .target(name: "SleepModel", resources: [.copy("Resources/sleep-model.v1.json")]),
     .executableTarget(name: "sleep-model-replay", dependencies: ["SleepModel"]),
     .testTarget(
       name: "SleepModelTests", dependencies: ["SleepModel"], resources: [.copy("Fixtures")]),

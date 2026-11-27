@@ -40,7 +40,7 @@ flowchart TD
   bought -->|"yes"| purchased(["Purchased · Every night is yours (reports only)"])
   settings -->|"Restore purchase (gone once bought)"| restore(["See purchase.md: Purchase restored., or No purchase found"])
 
-  settings -->|"How it works"| how["How it works sheet: Done<br/>render: none"]
+  settings -->|"How it works"| how["How it works sheet: the night, home, the buffers' weekly rule (#127), the pause, other blocks;<br/>every number from the config (#52); Done<br/>render: settings-how-it-works"]
   settings -->|"Privacy (when a link is set)"| privacy{{"Safari: the privacy page"}}
   settings -->|"Contact (when an address is set)"| mail{{"Mail"}}
   settings -->|"Activity log · testing only"| log["Activity log: version, Share night records, every transition<br/>render: settings-log"]
@@ -51,7 +51,7 @@ flowchart TD
 ```
 
 ## Doubts
-- **How it works has no render.** Screen Time off in Settings is `settings-screen-time-off`, the activity log `settings-log` (#141).
+- **Screen Time off in Settings and the activity log:** `settings-screen-time-off`, `settings-log` (#141).
 - **The Location row with home not set** only reports, even when location is off; there's nothing for location to do until home is set (D68). Matches the code.
 - **The activity log** is labelled "testing only" and kept "until the founders remove it" (spec §2); its Share is the only way night records leave the phone, and only by the person's own share (D62). Removing the screen removes that path for the pilot's replays.
 - **Privacy and Contact rows depend on `AppLinks`**; when the links aren't configured the rows don't show, so a build without them has no way to reach support from the app.

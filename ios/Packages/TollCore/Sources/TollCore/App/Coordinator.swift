@@ -88,5 +88,6 @@ public struct Coordinator: Sendable {
     case nil:
       break
     }
+    schedule.monitor(turn: effects.turn)
   }
 }

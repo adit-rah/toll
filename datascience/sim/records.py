@@ -38,6 +38,12 @@ def records(w: World, r: Run, person: int, model_version: str, policy: str, seed
         # Away nights still have Health data (the watch goes too); the model skips them as away.
         missing = bool(w.missing[person, t])
         onset = None if missing else bedtime + timedelta(minutes=float(r.measured[person, t]))
+        hold = {}
+        if policy == "held":
+            # A held night logs its hold whether or not the block ran (dusk_model.timing).
+            offset = int(r.held[person, t])
+            start = START + timedelta(days=int(r.hold_start[person, t]))
+            hold = {"hold_start": start.date().isoformat(), "settled": bool(r.settled[person, t])}
         out.append(
             {
                 "night": day.date().isoformat(),
@@ -46,9 +52,10 @@ def records(w: World, r: Run, person: int, model_version: str, policy: str, seed
                 "block_start": _iso(bedtime + timedelta(minutes=offset)) if home else None,
                 "block_end": _iso(wake) if home else None,
                 "action_offset_min": offset,
-                "action_prob": float(r.prob[person, t]) if home else 1.0,
+                "action_prob": float(r.held_prob[person, t]) if hold else float(r.prob[person, t]) if home else 1.0,
                 "model_version": model_version,
                 "policy": policy,
+                **hold,
                 "home_arrival": _iso(arrival),
                 "away_all_night": not home,
                 "weekend": bool(w.weekend[person, t]),
