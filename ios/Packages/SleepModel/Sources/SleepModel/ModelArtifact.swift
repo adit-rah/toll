@@ -154,6 +154,6 @@ public struct ModelArtifact: Codable, Sendable, Equatable {
     usableNight: UsableNight(maxOnsetFromPlanMin: 240, residualClipMin: 90),
     insight: InsightRule(
       interval: 0.9, zeroTestInterval: 0.98, maxWidthMin: 30, minNights: 14,
-      zeroTestSpendAfter: 40, zeroTestSpendPower: 1.5),
+      zeroTestSpendAfter: 30, zeroTestSpendPower: 2),
     sha256: "")
 }
