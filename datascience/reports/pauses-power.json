@@ -1,0 +1,31 @@
+{
+  "people": 4000,
+  "nights": 56,
+  "seed": 61,
+  "behaviour": {
+    "urges_median": 0.3,
+    "urges_sd": 1.0,
+    "patience_median_s": 120.0,
+    "patience_sd": 0.5,
+    "off_per_refusal": 0.1,
+    "quit_share": 0.3,
+    "off_background": 0.005,
+    "supply_elasticity": 0.0,
+    "off_per_wait_min": 0.0,
+    "home": 0.9,
+    "lock_min": 585
+  },
+  "seconds": 0.3,
+  "results": {
+    "ran_out_share": 0.18422916666666667,
+    "icc": 0.2654036671671044,
+    "design_effect_12_weeks": 3.9194403388381485,
+    "person_weeks_for_ran_out_share_pm5": 905.1545804299698,
+    "people_at_12_weeks_for_ran_out_share": 75.42954836916415,
+    "off_share_weeks_ran_out": 0.21983489765916545,
+    "off_share_other_weeks": 0.02742804607094517,
+    "ran_out_weeks_needed_each_side": 3207.342404436598,
+    "person_weeks_for_off_difference": 17409.5256601783,
+    "people_at_12_weeks_for_off_difference": 1450.7938050148584
+  }
+}

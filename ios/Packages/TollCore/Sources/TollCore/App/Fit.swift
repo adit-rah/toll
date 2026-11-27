@@ -49,25 +49,36 @@ public struct Fit: Equatable, Sendable {
 
 extension Fit {
   /// What a new person is offered: the recommended baseline (`TollConfig.suggestion`), each side
-  /// growing from its start. Health fits the hours, not these.
+  /// growing from its start. Health fits the hours, not these. Someone with weeks of their own
+  /// nights gets their fitted targets instead (#145).
   public static func suggested(
-    sleep: WeeklySchedule?, health: Bool, config: TollConfig = .defaults
+    sleep: WeeklySchedule?, health: Bool, suggestion: BufferSuggestion? = nil,
+    config: TollConfig = .defaults
   ) -> Fit {
-    let baseline = BufferSuggestion(config: config)
+    let targets = suggestion ?? BufferSuggestion(config: config)
     return Fit(
       sleep: sleep,
-      before: Buffer(start: min(config.gap.start, baseline.before), target: baseline.before),
-      after: Buffer(start: min(config.after.start, baseline.after), target: baseline.after),
+      before: Buffer(start: min(config.gap.start, targets.before), target: targets.before),
+      after: Buffer(start: min(config.after.start, targets.after), target: targets.after),
       health: health)
   }
 
   /// Someone already using Dusk (the one-time flow): their night as it is and the same baseline
   /// as a new person, keeping their gap where it already starts at the baseline's start or more.
-  public static func existing(_ state: DuskState, config: TollConfig = .defaults) -> Fit {
-    var fit = suggested(sleep: state.sleepBlock?.schedule, health: state.health, config: config)
+  /// A target fitted from their weeks (#145) holds even over their gap: it's the level below the
+  /// one they kept finding hard.
+  public static func existing(
+    _ state: DuskState, suggestion: BufferSuggestion? = nil, config: TollConfig = .defaults
+  ) -> Fit {
+    var fit = suggested(
+      sleep: state.sleepBlock?.schedule, health: state.health, suggestion: suggestion,
+      config: config)
     let gap = state.gap.upcoming
     if gap >= fit.before.start {
-      fit.before = Buffer(start: gap, target: max(fit.before.target, gap))
+      fit.before =
+        suggestion?.fitted.contains(.before) == true
+        ? Buffer(start: min(gap, fit.before.target), target: fit.before.target)
+        : Buffer(start: gap, target: max(fit.before.target, gap))
     }
     return fit
   }

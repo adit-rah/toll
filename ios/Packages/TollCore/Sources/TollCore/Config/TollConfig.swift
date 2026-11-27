@@ -148,14 +148,37 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var correctDays = 7
   }
 
-  /// The buffers' targets at onboarding (#144): the same recommended baseline for everyone. Health
-  /// can't say how long a person takes to fall asleep, and how much their nights vary needs weeks
-  /// more than onboarding has, so nothing personal moves it yet; #145 personalises it later from
-  /// Dusk's own nights.
+  /// The buffers' targets (`BufferSuggestion`, #145). A new person gets the recommended baseline
+  /// (D97): Health can't say how long someone takes to fall asleep. With enough of their own weeks
+  /// a side's target is fitted from them, inside the founder's bounds. The numbers are
+  /// `datascience/economy/suggest.py`'s, studied in `datascience/reports/buffers.md`.
   public struct Suggestion: Codable, Sendable, Equatable {
     public init() {}
+    /// The baseline, and the fallback with too few weeks.
     public var before = 60
     public var after = 30
+    /// What a fitted target may be: before sleep never more than 90 by suggestion; after waking
+    /// no more than the baseline, since nothing has tested a longer one.
+    public var beforeLow = 30
+    public var beforeHigh = 90
+    public var afterLow = 15
+    public var afterHigh = 30
+    /// Judged weeks (smooth, hard or Screen Time off) a side needs before its target is fitted:
+    /// fewer say too little about a person's edge.
+    public var minWeeks = 4
+    /// Only the latest weeks count; people change.
+    public var lookbackWeeks = 12
+    /// Past the baseline only after this many smooth weeks in a row at the top level, with no
+    /// pause in the buffer, and only with Health's sign below.
+    public var raiseSmoothWeeks = 3
+    /// Health's sign: on at least `healthNights` nights the lock ran, the median person fell
+    /// asleep this many minutes or more after planned sleep.
+    public var lateOnsetMinutes = 20
+    public var healthNights = 14
+
+    public func bounds(_ side: TollCore.Gap.Side) -> ClosedRange<Int> {
+      side == .before ? beforeLow...beforeHigh : afterLow...afterHigh
+    }
   }
 
   public struct Sky: Codable, Sendable, Equatable {

@@ -1,0 +1,1317 @@
+{
+  "people": 4000,
+  "nights": 56,
+  "seed": 61,
+  "behaviour": {
+    "urges_median": 0.3,
+    "urges_sd": 1.0,
+    "patience_median_s": 120.0,
+    "patience_sd": 0.5,
+    "off_per_refusal": 0.1,
+    "quit_share": 0.3,
+    "off_background": 0.005,
+    "supply_elasticity": 0.0,
+    "off_per_wait_min": 0.0,
+    "home": 0.9,
+    "lock_min": 585
+  },
+  "seconds": 11.7,
+  "results": {
+    "2/wk \u00b7 30s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 0.9995625,
+      "waits_cancelled_per_week": 0.3296875,
+      "weeks_ran_out": 0.38771875,
+      "people_ever_ran_out": 0.84775,
+      "refused_per_week": 0.86571875,
+      "weeks_screen_time_off": 0.09990625,
+      "gone_by_end": 0.207,
+      "unshielded_min_per_lock_night": 74.53903704189489,
+      "paused_min_per_lock_night": 0.789655260819907,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 30,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "2/wk \u00b7 30s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 0.9670625,
+      "waits_cancelled_per_week": 0.3168125,
+      "weeks_ran_out": 0.3561875,
+      "people_ever_ran_out": 0.82225,
+      "refused_per_week": 0.879,
+      "weeks_screen_time_off": 0.102,
+      "gone_by_end": 0.21825,
+      "unshielded_min_per_lock_night": 75.8799489066329,
+      "paused_min_per_lock_night": 0.7641692423463411,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 30,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "2/wk \u00b7 30s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 0.999375,
+      "waits_cancelled_per_week": 0.32978125,
+      "weeks_ran_out": 0.387375,
+      "people_ever_ran_out": 0.84675,
+      "refused_per_week": 0.8619375,
+      "weeks_screen_time_off": 0.09965625,
+      "gone_by_end": 0.2065,
+      "unshielded_min_per_lock_night": 75.1982309582819,
+      "paused_min_per_lock_night": 1.5728358502096909,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 30,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "2/wk \u00b7 30s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 0.96728125,
+      "waits_cancelled_per_week": 0.31684375,
+      "weeks_ran_out": 0.3563125,
+      "people_ever_ran_out": 0.82225,
+      "refused_per_week": 0.87509375,
+      "weeks_screen_time_off": 0.101625,
+      "gone_by_end": 0.21775,
+      "unshielded_min_per_lock_night": 76.41739878873513,
+      "paused_min_per_lock_night": 1.523165936987173,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 30,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "2/wk \u00b7 30s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 1.00034375,
+      "waits_cancelled_per_week": 0.3303125,
+      "weeks_ran_out": 0.38759375,
+      "people_ever_ran_out": 0.84675,
+      "refused_per_week": 0.85959375,
+      "weeks_screen_time_off": 0.0995,
+      "gone_by_end": 0.2055,
+      "unshielded_min_per_lock_night": 75.45116621000219,
+      "paused_min_per_lock_night": 2.35152849471892,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 30,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "2/wk \u00b7 30s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 0.96790625,
+      "waits_cancelled_per_week": 0.31675,
+      "weeks_ran_out": 0.35653125,
+      "people_ever_ran_out": 0.82225,
+      "refused_per_week": 0.8711875,
+      "weeks_screen_time_off": 0.101375,
+      "gone_by_end": 0.21725,
+      "unshielded_min_per_lock_night": 76.85653163651256,
+      "paused_min_per_lock_night": 2.2774484779620634,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 30,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "2/wk \u00b7 60s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 0.87771875,
+      "waits_cancelled_per_week": 0.67171875,
+      "weeks_ran_out": 0.31884375,
+      "people_ever_ran_out": 0.77925,
+      "refused_per_week": 0.7176875,
+      "weeks_screen_time_off": 0.08734375,
+      "gone_by_end": 0.17725,
+      "unshielded_min_per_lock_night": 63.65627861487992,
+      "paused_min_per_lock_night": 0.6923373754563837,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 60,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "2/wk \u00b7 60s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 0.85778125,
+      "waits_cancelled_per_week": 0.65115625,
+      "weeks_ran_out": 0.2950625,
+      "people_ever_ran_out": 0.75025,
+      "refused_per_week": 0.769,
+      "weeks_screen_time_off": 0.09190625,
+      "gone_by_end": 0.17675,
+      "unshielded_min_per_lock_night": 62.94892955663738,
+      "paused_min_per_lock_night": 0.6767612965481556,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 60,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "2/wk \u00b7 60s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 0.874875,
+      "waits_cancelled_per_week": 0.67046875,
+      "weeks_ran_out": 0.316875,
+      "people_ever_ran_out": 0.774,
+      "refused_per_week": 0.71921875,
+      "weeks_screen_time_off": 0.08725,
+      "gone_by_end": 0.17975,
+      "unshielded_min_per_lock_night": 64.68993475320602,
+      "paused_min_per_lock_night": 1.3742639823293124,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 60,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "2/wk \u00b7 60s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 0.85840625,
+      "waits_cancelled_per_week": 0.65184375,
+      "weeks_ran_out": 0.2953125,
+      "people_ever_ran_out": 0.75025,
+      "refused_per_week": 0.76521875,
+      "weeks_screen_time_off": 0.09171875,
+      "gone_by_end": 0.17575,
+      "unshielded_min_per_lock_night": 63.204256428181026,
+      "paused_min_per_lock_night": 1.349601162895995,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 60,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "2/wk \u00b7 60s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 0.8756875,
+      "waits_cancelled_per_week": 0.6704375,
+      "weeks_ran_out": 0.31709375,
+      "people_ever_ran_out": 0.77375,
+      "refused_per_week": 0.71809375,
+      "weeks_screen_time_off": 0.08728125,
+      "gone_by_end": 0.17925,
+      "unshielded_min_per_lock_night": 64.9543295373225,
+      "paused_min_per_lock_night": 2.0550161444244557,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 60,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "2/wk \u00b7 60s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 0.859,
+      "waits_cancelled_per_week": 0.65215625,
+      "weeks_ran_out": 0.295625,
+      "people_ever_ran_out": 0.7505,
+      "refused_per_week": 0.7616875,
+      "weeks_screen_time_off": 0.09146875,
+      "gone_by_end": 0.175,
+      "unshielded_min_per_lock_night": 63.613010963006886,
+      "paused_min_per_lock_night": 2.0183284883895793,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 60,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "2/wk \u00b7 120s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 0.6699375,
+      "waits_cancelled_per_week": 1.31559375,
+      "weeks_ran_out": 0.2150625,
+      "people_ever_ran_out": 0.6125,
+      "refused_per_week": 0.51584375,
+      "weeks_screen_time_off": 0.0705625,
+      "gone_by_end": 0.12075,
+      "unshielded_min_per_lock_night": 42.664498280747644,
+      "paused_min_per_lock_night": 0.5274504620263516,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 120,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "2/wk \u00b7 120s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 0.6398125,
+      "waits_cancelled_per_week": 1.2521875,
+      "weeks_ran_out": 0.19475,
+      "people_ever_ran_out": 0.5905,
+      "refused_per_week": 0.5578125,
+      "weeks_screen_time_off": 0.07659375,
+      "gone_by_end": 0.1345,
+      "unshielded_min_per_lock_night": 47.60019210435197,
+      "paused_min_per_lock_night": 0.5040597047015998,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 120,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "2/wk \u00b7 120s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 0.66834375,
+      "waits_cancelled_per_week": 1.3178125,
+      "weeks_ran_out": 0.21434375,
+      "people_ever_ran_out": 0.618,
+      "refused_per_week": 0.50896875,
+      "weeks_screen_time_off": 0.07009375,
+      "gone_by_end": 0.11775,
+      "unshielded_min_per_lock_night": 42.18664201580901,
+      "paused_min_per_lock_night": 1.0469625307885229,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 120,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "2/wk \u00b7 120s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 0.6403125,
+      "waits_cancelled_per_week": 1.2530625,
+      "weeks_ran_out": 0.19490625,
+      "people_ever_ran_out": 0.5905,
+      "refused_per_week": 0.5543125,
+      "weeks_screen_time_off": 0.07646875,
+      "gone_by_end": 0.13375,
+      "unshielded_min_per_lock_night": 47.83466812834079,
+      "paused_min_per_lock_night": 1.004982072796609,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 120,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "2/wk \u00b7 120s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 0.66884375,
+      "waits_cancelled_per_week": 1.31796875,
+      "weeks_ran_out": 0.2145,
+      "people_ever_ran_out": 0.618,
+      "refused_per_week": 0.5080625,
+      "weeks_screen_time_off": 0.07003125,
+      "gone_by_end": 0.11725,
+      "unshielded_min_per_lock_night": 42.46515793180324,
+      "paused_min_per_lock_night": 1.5653404589850164,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 120,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "2/wk \u00b7 120s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 0.64128125,
+      "waits_cancelled_per_week": 1.254625,
+      "weeks_ran_out": 0.1953125,
+      "people_ever_ran_out": 0.5905,
+      "refused_per_week": 0.55240625,
+      "weeks_screen_time_off": 0.07628125,
+      "gone_by_end": 0.13275,
+      "unshielded_min_per_lock_night": 47.90768149840996,
+      "paused_min_per_lock_night": 1.504136020695895,
+      "nights": 56,
+      "economy": {
+        "per_week": 2,
+        "wait_s": 120,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "3/wk \u00b7 30s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 1.30675,
+      "waits_cancelled_per_week": 0.424875,
+      "weeks_ran_out": 0.26078125,
+      "people_ever_ran_out": 0.65675,
+      "refused_per_week": 0.61371875,
+      "weeks_screen_time_off": 0.07996875,
+      "gone_by_end": 0.151,
+      "unshielded_min_per_lock_night": 54.34783468306822,
+      "paused_min_per_lock_night": 1.0318989796912814,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 30,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "3/wk \u00b7 30s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 1.2116875,
+      "waits_cancelled_per_week": 0.392375,
+      "weeks_ran_out": 0.20209375,
+      "people_ever_ran_out": 0.57375,
+      "refused_per_week": 0.71396875,
+      "weeks_screen_time_off": 0.085375,
+      "gone_by_end": 0.16275,
+      "unshielded_min_per_lock_night": 58.08748411754805,
+      "paused_min_per_lock_night": 0.9582423314552281,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 30,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "3/wk \u00b7 30s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 1.30603125,
+      "waits_cancelled_per_week": 0.4245625,
+      "weeks_ran_out": 0.26025,
+      "people_ever_ran_out": 0.65575,
+      "refused_per_week": 0.60928125,
+      "weeks_screen_time_off": 0.0798125,
+      "gone_by_end": 0.15075,
+      "unshielded_min_per_lock_night": 55.24346321431023,
+      "paused_min_per_lock_night": 2.054689548598914,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 30,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "3/wk \u00b7 30s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 1.21253125,
+      "waits_cancelled_per_week": 0.39278125,
+      "weeks_ran_out": 0.2023125,
+      "people_ever_ran_out": 0.57375,
+      "refused_per_week": 0.70821875,
+      "weeks_screen_time_off": 0.08509375,
+      "gone_by_end": 0.1615,
+      "unshielded_min_per_lock_night": 58.69937203608979,
+      "paused_min_per_lock_night": 1.910980757245139,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 30,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "3/wk \u00b7 30s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 1.30621875,
+      "waits_cancelled_per_week": 0.42490625,
+      "weeks_ran_out": 0.25984375,
+      "people_ever_ran_out": 0.65525,
+      "refused_per_week": 0.604375,
+      "weeks_screen_time_off": 0.079375,
+      "gone_by_end": 0.1495,
+      "unshielded_min_per_lock_night": 55.88088356745848,
+      "paused_min_per_lock_night": 3.0695615176875752,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 30,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "3/wk \u00b7 30s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 1.21321875,
+      "waits_cancelled_per_week": 0.3928125,
+      "weeks_ran_out": 0.2025625,
+      "people_ever_ran_out": 0.57425,
+      "refused_per_week": 0.702625,
+      "weeks_screen_time_off": 0.0849375,
+      "gone_by_end": 0.161,
+      "unshielded_min_per_lock_night": 59.4140866199531,
+      "paused_min_per_lock_night": 2.8573207081468133,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 30,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "3/wk \u00b7 60s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 1.13075,
+      "waits_cancelled_per_week": 0.84559375,
+      "weeks_ran_out": 0.20153125,
+      "people_ever_ran_out": 0.56425,
+      "refused_per_week": 0.49696875,
+      "weeks_screen_time_off": 0.06915625,
+      "gone_by_end": 0.11875,
+      "unshielded_min_per_lock_night": 42.92930211234873,
+      "paused_min_per_lock_night": 0.8915809682882583,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 60,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "3/wk \u00b7 60s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 1.04409375,
+      "waits_cancelled_per_week": 0.7784375,
+      "weeks_ran_out": 0.15253125,
+      "people_ever_ran_out": 0.483,
+      "refused_per_week": 0.601125,
+      "weeks_screen_time_off": 0.077,
+      "gone_by_end": 0.14,
+      "unshielded_min_per_lock_night": 49.421630984608385,
+      "paused_min_per_lock_night": 0.8239516176767838,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 60,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "3/wk \u00b7 60s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 1.1308125,
+      "waits_cancelled_per_week": 0.84615625,
+      "weeks_ran_out": 0.201125,
+      "people_ever_ran_out": 0.563,
+      "refused_per_week": 0.4940625,
+      "weeks_screen_time_off": 0.06884375,
+      "gone_by_end": 0.118,
+      "unshielded_min_per_lock_night": 43.41733886859574,
+      "paused_min_per_lock_night": 1.7766487367810155,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 60,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "3/wk \u00b7 60s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 1.0469375,
+      "waits_cancelled_per_week": 0.7835,
+      "weeks_ran_out": 0.15328125,
+      "people_ever_ran_out": 0.47425,
+      "refused_per_week": 0.60478125,
+      "weeks_screen_time_off": 0.07771875,
+      "gone_by_end": 0.1425,
+      "unshielded_min_per_lock_night": 49.761832854787045,
+      "paused_min_per_lock_night": 1.6483991619446827,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 60,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "3/wk \u00b7 60s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 1.13125,
+      "waits_cancelled_per_week": 0.847,
+      "weeks_ran_out": 0.20071875,
+      "people_ever_ran_out": 0.56175,
+      "refused_per_week": 0.49015625,
+      "weeks_screen_time_off": 0.06828125,
+      "gone_by_end": 0.11625,
+      "unshielded_min_per_lock_night": 43.868788681832584,
+      "paused_min_per_lock_night": 2.655423584259083,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 60,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "3/wk \u00b7 60s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 1.0480625,
+      "waits_cancelled_per_week": 0.78409375,
+      "weeks_ran_out": 0.1535625,
+      "people_ever_ran_out": 0.47475,
+      "refused_per_week": 0.59975,
+      "weeks_screen_time_off": 0.0775,
+      "gone_by_end": 0.1415,
+      "unshielded_min_per_lock_night": 50.28729391711581,
+      "paused_min_per_lock_night": 2.466176613100034,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 60,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "3/wk \u00b7 120s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 0.816625,
+      "waits_cancelled_per_week": 1.56590625,
+      "weeks_ran_out": 0.11675,
+      "people_ever_ran_out": 0.37925,
+      "refused_per_week": 0.30175,
+      "weeks_screen_time_off": 0.05303125,
+      "gone_by_end": 0.06825,
+      "unshielded_min_per_lock_night": 25.74416801205269,
+      "paused_min_per_lock_night": 0.6438019970819937,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 120,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "3/wk \u00b7 120s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 0.74753125,
+      "waits_cancelled_per_week": 1.44196875,
+      "weeks_ran_out": 0.0819375,
+      "people_ever_ran_out": 0.30525,
+      "refused_per_week": 0.40821875,
+      "weeks_screen_time_off": 0.06459375,
+      "gone_by_end": 0.1045,
+      "unshielded_min_per_lock_night": 35.43300766566335,
+      "paused_min_per_lock_night": 0.589752555073553,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 120,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "3/wk \u00b7 120s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 0.81734375,
+      "waits_cancelled_per_week": 1.56640625,
+      "weeks_ran_out": 0.11690625,
+      "people_ever_ran_out": 0.37875,
+      "refused_per_week": 0.30053125,
+      "weeks_screen_time_off": 0.0526875,
+      "gone_by_end": 0.06675,
+      "unshielded_min_per_lock_night": 26.021948167851352,
+      "paused_min_per_lock_night": 1.2835771918242593,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 120,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "3/wk \u00b7 120s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 0.7485625,
+      "waits_cancelled_per_week": 1.444,
+      "weeks_ran_out": 0.08215625,
+      "people_ever_ran_out": 0.306,
+      "refused_per_week": 0.4053125,
+      "weeks_screen_time_off": 0.06440625,
+      "gone_by_end": 0.10325,
+      "unshielded_min_per_lock_night": 35.63207852612939,
+      "paused_min_per_lock_night": 1.176566077911873,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 120,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "3/wk \u00b7 120s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 0.8179375,
+      "waits_cancelled_per_week": 1.56815625,
+      "weeks_ran_out": 0.11675,
+      "people_ever_ran_out": 0.37775,
+      "refused_per_week": 0.29828125,
+      "weeks_screen_time_off": 0.05246875,
+      "gone_by_end": 0.066,
+      "unshielded_min_per_lock_night": 26.221087892400377,
+      "paused_min_per_lock_night": 1.919233788910865,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 120,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "3/wk \u00b7 120s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 0.749375,
+      "waits_cancelled_per_week": 1.4450625,
+      "weeks_ran_out": 0.08240625,
+      "people_ever_ran_out": 0.30625,
+      "refused_per_week": 0.40203125,
+      "weeks_screen_time_off": 0.06421875,
+      "gone_by_end": 0.10275,
+      "unshielded_min_per_lock_night": 36.02381372164239,
+      "paused_min_per_lock_night": 1.7597866691667783,
+      "nights": 56,
+      "economy": {
+        "per_week": 3,
+        "wait_s": 120,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "4/wk \u00b7 30s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 1.54053125,
+      "waits_cancelled_per_week": 0.5055,
+      "weeks_ran_out": 0.17853125,
+      "people_ever_ran_out": 0.4875,
+      "refused_per_week": 0.44796875,
+      "weeks_screen_time_off": 0.065,
+      "gone_by_end": 0.10725,
+      "unshielded_min_per_lock_night": 39.09573458212756,
+      "paused_min_per_lock_night": 1.2163021573149737,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 30,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "4/wk \u00b7 30s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 1.34171875,
+      "waits_cancelled_per_week": 0.43440625,
+      "weeks_ran_out": 0.10546875,
+      "people_ever_ran_out": 0.3525,
+      "refused_per_week": 0.63415625,
+      "weeks_screen_time_off": 0.08265625,
+      "gone_by_end": 0.15225,
+      "unshielded_min_per_lock_night": 53.90957243574146,
+      "paused_min_per_lock_night": 1.05932640928621,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 30,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "4/wk \u00b7 30s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 1.54025,
+      "waits_cancelled_per_week": 0.5050625,
+      "weeks_ran_out": 0.17775,
+      "people_ever_ran_out": 0.48575,
+      "refused_per_week": 0.4445,
+      "weeks_screen_time_off": 0.0646875,
+      "gone_by_end": 0.106,
+      "unshielded_min_per_lock_night": 39.90357988048288,
+      "paused_min_per_lock_night": 2.4227795911427186,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 30,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "4/wk \u00b7 30s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 1.342875,
+      "waits_cancelled_per_week": 0.434875,
+      "weeks_ran_out": 0.10553125,
+      "people_ever_ran_out": 0.3525,
+      "refused_per_week": 0.6281875,
+      "weeks_screen_time_off": 0.082375,
+      "gone_by_end": 0.152,
+      "unshielded_min_per_lock_night": 54.67341344690268,
+      "paused_min_per_lock_night": 2.113140920161881,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 30,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "4/wk \u00b7 30s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 1.53840625,
+      "waits_cancelled_per_week": 0.50196875,
+      "weeks_ran_out": 0.1766875,
+      "people_ever_ran_out": 0.48475,
+      "refused_per_week": 0.4373125,
+      "weeks_screen_time_off": 0.0645,
+      "gone_by_end": 0.10575,
+      "unshielded_min_per_lock_night": 40.57409329807605,
+      "paused_min_per_lock_night": 3.614663572524532,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 30,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "4/wk \u00b7 30s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 1.34615625,
+      "waits_cancelled_per_week": 0.436,
+      "weeks_ran_out": 0.10603125,
+      "people_ever_ran_out": 0.35325,
+      "refused_per_week": 0.62340625,
+      "weeks_screen_time_off": 0.0819375,
+      "gone_by_end": 0.15,
+      "unshielded_min_per_lock_night": 54.97706925226122,
+      "paused_min_per_lock_night": 3.166114714834652,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 30,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "4/wk \u00b7 60s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 1.30190625,
+      "waits_cancelled_per_week": 0.96934375,
+      "weeks_ran_out": 0.12928125,
+      "people_ever_ran_out": 0.388,
+      "refused_per_week": 0.3413125,
+      "weeks_screen_time_off": 0.05834375,
+      "gone_by_end": 0.0875,
+      "unshielded_min_per_lock_night": 32.21677912138103,
+      "paused_min_per_lock_night": 1.0257686818706182,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 60,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "4/wk \u00b7 60s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 1.12315625,
+      "waits_cancelled_per_week": 0.8333125,
+      "weeks_ran_out": 0.07065625,
+      "people_ever_ran_out": 0.2685,
+      "refused_per_week": 0.52025,
+      "weeks_screen_time_off": 0.074125,
+      "gone_by_end": 0.126,
+      "unshielded_min_per_lock_night": 45.03295072679213,
+      "paused_min_per_lock_night": 0.8877633252233048,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 60,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "4/wk \u00b7 60s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 1.3020625,
+      "waits_cancelled_per_week": 0.96971875,
+      "weeks_ran_out": 0.128875,
+      "people_ever_ran_out": 0.386,
+      "refused_per_week": 0.339875,
+      "weeks_screen_time_off": 0.058,
+      "gone_by_end": 0.0865,
+      "unshielded_min_per_lock_night": 32.799241410057206,
+      "paused_min_per_lock_night": 2.0434814943116386,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 60,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "4/wk \u00b7 60s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 1.12775,
+      "waits_cancelled_per_week": 0.8271875,
+      "weeks_ran_out": 0.071,
+      "people_ever_ran_out": 0.2635,
+      "refused_per_week": 0.5195,
+      "weeks_screen_time_off": 0.07365625,
+      "gone_by_end": 0.12575,
+      "unshielded_min_per_lock_night": 45.45389111528149,
+      "paused_min_per_lock_night": 1.7750216837374666,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 60,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "4/wk \u00b7 60s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 1.30234375,
+      "waits_cancelled_per_week": 0.96909375,
+      "weeks_ran_out": 0.12846875,
+      "people_ever_ran_out": 0.384,
+      "refused_per_week": 0.33621875,
+      "weeks_screen_time_off": 0.057625,
+      "gone_by_end": 0.086,
+      "unshielded_min_per_lock_night": 33.512589865968465,
+      "paused_min_per_lock_night": 3.053063112588626,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 60,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "4/wk \u00b7 60s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 1.12971875,
+      "waits_cancelled_per_week": 0.82790625,
+      "weeks_ran_out": 0.07134375,
+      "people_ever_ran_out": 0.264,
+      "refused_per_week": 0.5145,
+      "weeks_screen_time_off": 0.07328125,
+      "gone_by_end": 0.12475,
+      "unshielded_min_per_lock_night": 45.95166616886873,
+      "paused_min_per_lock_night": 2.6571883346445673,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 60,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "4/wk \u00b7 120s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 0.9125,
+      "waits_cancelled_per_week": 1.707375,
+      "weeks_ran_out": 0.06875,
+      "people_ever_ran_out": 0.24425,
+      "refused_per_week": 0.1851875,
+      "weeks_screen_time_off": 0.04478125,
+      "gone_by_end": 0.0485,
+      "unshielded_min_per_lock_night": 18.37647485969608,
+      "paused_min_per_lock_night": 0.7192597117955167,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 120,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "4/wk \u00b7 120s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 0.79715625,
+      "waits_cancelled_per_week": 1.51715625,
+      "weeks_ran_out": 0.03284375,
+      "people_ever_ran_out": 0.14675,
+      "refused_per_week": 0.36340625,
+      "weeks_screen_time_off": 0.0598125,
+      "gone_by_end": 0.0815,
+      "unshielded_min_per_lock_night": 28.72592652418385,
+      "paused_min_per_lock_night": 0.6285991944718912,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 120,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "4/wk \u00b7 120s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 0.911625,
+      "waits_cancelled_per_week": 1.705875,
+      "weeks_ran_out": 0.068375,
+      "people_ever_ran_out": 0.24325,
+      "refused_per_week": 0.1828125,
+      "weeks_screen_time_off": 0.044625,
+      "gone_by_end": 0.048,
+      "unshielded_min_per_lock_night": 18.944147002152782,
+      "paused_min_per_lock_night": 1.4311013912557204,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 120,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "4/wk \u00b7 120s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 0.7981875,
+      "waits_cancelled_per_week": 1.51834375,
+      "weeks_ran_out": 0.03284375,
+      "people_ever_ran_out": 0.14675,
+      "refused_per_week": 0.35890625,
+      "weeks_screen_time_off": 0.05971875,
+      "gone_by_end": 0.0805,
+      "unshielded_min_per_lock_night": 29.00393028796194,
+      "paused_min_per_lock_night": 1.2543718570403362,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 120,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "4/wk \u00b7 120s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 0.912375,
+      "waits_cancelled_per_week": 1.70509375,
+      "weeks_ran_out": 0.068375,
+      "people_ever_ran_out": 0.243,
+      "refused_per_week": 0.180875,
+      "weeks_screen_time_off": 0.04446875,
+      "gone_by_end": 0.04725,
+      "unshielded_min_per_lock_night": 19.318016401116946,
+      "paused_min_per_lock_night": 2.138837569797177,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 120,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "4/wk \u00b7 120s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 0.7995625,
+      "waits_cancelled_per_week": 1.5206875,
+      "weeks_ran_out": 0.0330625,
+      "people_ever_ran_out": 0.14725,
+      "refused_per_week": 0.3555,
+      "weeks_screen_time_off": 0.05940625,
+      "gone_by_end": 0.07925,
+      "unshielded_min_per_lock_night": 29.279186739304805,
+      "paused_min_per_lock_night": 1.877972076884303,
+      "nights": 56,
+      "economy": {
+        "per_week": 4,
+        "wait_s": 120,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "5/wk \u00b7 30s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 1.70975,
+      "waits_cancelled_per_week": 0.55546875,
+      "weeks_ran_out": 0.12540625,
+      "people_ever_ran_out": 0.3675,
+      "refused_per_week": 0.33071875,
+      "weeks_screen_time_off": 0.05615625,
+      "gone_by_end": 0.08,
+      "unshielded_min_per_lock_night": 30.57385902445392,
+      "paused_min_per_lock_night": 1.3491231724632324,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 30,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "5/wk \u00b7 30s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 1.40146875,
+      "waits_cancelled_per_week": 0.4545625,
+      "weeks_ran_out": 0.0456875,
+      "people_ever_ran_out": 0.18625,
+      "refused_per_week": 0.58878125,
+      "weeks_screen_time_off": 0.0785625,
+      "gone_by_end": 0.132,
+      "unshielded_min_per_lock_night": 48.522250729652875,
+      "paused_min_per_lock_night": 1.1085795888920345,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 30,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "5/wk \u00b7 30s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 1.70853125,
+      "waits_cancelled_per_week": 0.55515625,
+      "weeks_ran_out": 0.12459375,
+      "people_ever_ran_out": 0.36525,
+      "refused_per_week": 0.32590625,
+      "weeks_screen_time_off": 0.0556875,
+      "gone_by_end": 0.07925,
+      "unshielded_min_per_lock_night": 31.55546293107108,
+      "paused_min_per_lock_night": 2.6848786291127493,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 30,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "5/wk \u00b7 30s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 1.40234375,
+      "waits_cancelled_per_week": 0.45496875,
+      "weeks_ran_out": 0.04584375,
+      "people_ever_ran_out": 0.1865,
+      "refused_per_week": 0.58221875,
+      "weeks_screen_time_off": 0.07815625,
+      "gone_by_end": 0.13175,
+      "unshielded_min_per_lock_night": 49.455371767099834,
+      "paused_min_per_lock_night": 2.210787276812163,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 30,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "5/wk \u00b7 30s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 1.70790625,
+      "waits_cancelled_per_week": 0.55415625,
+      "weeks_ran_out": 0.124,
+      "people_ever_ran_out": 0.36425,
+      "refused_per_week": 0.32184375,
+      "weeks_screen_time_off": 0.05509375,
+      "gone_by_end": 0.07825,
+      "unshielded_min_per_lock_night": 32.455286024580005,
+      "paused_min_per_lock_night": 4.008687007698602,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 30,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "5/wk \u00b7 30s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 1.40515625,
+      "waits_cancelled_per_week": 0.45559375,
+      "weeks_ran_out": 0.04603125,
+      "people_ever_ran_out": 0.188,
+      "refused_per_week": 0.57446875,
+      "weeks_screen_time_off": 0.07790625,
+      "gone_by_end": 0.13,
+      "unshielded_min_per_lock_night": 50.00290426355161,
+      "paused_min_per_lock_night": 3.311061986207159,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 30,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "5/wk \u00b7 60s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 1.43228125,
+      "waits_cancelled_per_week": 1.05653125,
+      "weeks_ran_out": 0.087625,
+      "people_ever_ran_out": 0.281,
+      "refused_per_week": 0.23853125,
+      "weeks_screen_time_off": 0.04865625,
+      "gone_by_end": 0.06,
+      "unshielded_min_per_lock_night": 22.47704417471781,
+      "paused_min_per_lock_night": 1.1289116686708474,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 60,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "5/wk \u00b7 60s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 1.163875,
+      "waits_cancelled_per_week": 0.85509375,
+      "weeks_ran_out": 0.028625,
+      "people_ever_ran_out": 0.13075,
+      "refused_per_week": 0.48815625,
+      "weeks_screen_time_off": 0.07246875,
+      "gone_by_end": 0.12125,
+      "unshielded_min_per_lock_night": 42.460106748110626,
+      "paused_min_per_lock_night": 0.9195254834209832,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 60,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "5/wk \u00b7 60s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 1.43234375,
+      "waits_cancelled_per_week": 1.03971875,
+      "weeks_ran_out": 0.086875,
+      "people_ever_ran_out": 0.27125,
+      "refused_per_week": 0.243,
+      "weeks_screen_time_off": 0.04821875,
+      "gone_by_end": 0.05825,
+      "unshielded_min_per_lock_night": 23.266464359898848,
+      "paused_min_per_lock_night": 2.2518072892218246,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 60,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "5/wk \u00b7 60s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 1.1650625,
+      "waits_cancelled_per_week": 0.85625,
+      "weeks_ran_out": 0.02875,
+      "people_ever_ran_out": 0.13125,
+      "refused_per_week": 0.48221875,
+      "weeks_screen_time_off": 0.0721875,
+      "gone_by_end": 0.12075,
+      "unshielded_min_per_lock_night": 43.0980858213897,
+      "paused_min_per_lock_night": 1.8338683417590504,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 60,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "5/wk \u00b7 60s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 1.43278125,
+      "waits_cancelled_per_week": 1.039,
+      "weeks_ran_out": 0.0863125,
+      "people_ever_ran_out": 0.26975,
+      "refused_per_week": 0.24028125,
+      "weeks_screen_time_off": 0.04796875,
+      "gone_by_end": 0.0575,
+      "unshielded_min_per_lock_night": 24.00159416573902,
+      "paused_min_per_lock_night": 3.3649573404989095,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 60,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "5/wk \u00b7 60s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 1.16815625,
+      "waits_cancelled_per_week": 0.8594375,
+      "weeks_ran_out": 0.0289375,
+      "people_ever_ran_out": 0.13175,
+      "refused_per_week": 0.478,
+      "weeks_screen_time_off": 0.07184375,
+      "gone_by_end": 0.119,
+      "unshielded_min_per_lock_night": 43.43778213924461,
+      "paused_min_per_lock_night": 2.7477404290828376,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 60,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    },
+    "5/wk \u00b7 120s \u00b7 5min \u00b7 weekly": {
+      "pauses_used_per_week": 0.9826875,
+      "waits_cancelled_per_week": 1.813125,
+      "weeks_ran_out": 0.039,
+      "people_ever_ran_out": 0.146,
+      "refused_per_week": 0.11115625,
+      "weeks_screen_time_off": 0.03940625,
+      "gone_by_end": 0.0285,
+      "unshielded_min_per_lock_night": 11.803870837912022,
+      "paused_min_per_lock_night": 0.7736902373482323,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 120,
+        "minutes": 5,
+        "refill": "weekly"
+      }
+    },
+    "5/wk \u00b7 120s \u00b7 5min \u00b7 nightly": {
+      "pauses_used_per_week": 0.81628125,
+      "waits_cancelled_per_week": 1.53346875,
+      "weeks_ran_out": 0.0108125,
+      "people_ever_ran_out": 0.05725,
+      "refused_per_week": 0.35071875,
+      "weeks_screen_time_off": 0.0595,
+      "gone_by_end": 0.07875,
+      "unshielded_min_per_lock_night": 28.04822409712995,
+      "paused_min_per_lock_night": 0.643705634598957,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 120,
+        "minutes": 5,
+        "refill": "nightly"
+      }
+    },
+    "5/wk \u00b7 120s \u00b7 10min \u00b7 weekly": {
+      "pauses_used_per_week": 0.9816875,
+      "waits_cancelled_per_week": 1.8111875,
+      "weeks_ran_out": 0.038625,
+      "people_ever_ran_out": 0.14525,
+      "refused_per_week": 0.11034375,
+      "weeks_screen_time_off": 0.03940625,
+      "gone_by_end": 0.02825,
+      "unshielded_min_per_lock_night": 12.453186202148975,
+      "paused_min_per_lock_night": 1.5390121551791833,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 120,
+        "minutes": 10,
+        "refill": "weekly"
+      }
+    },
+    "5/wk \u00b7 120s \u00b7 10min \u00b7 nightly": {
+      "pauses_used_per_week": 0.81825,
+      "waits_cancelled_per_week": 1.5366875,
+      "weeks_ran_out": 0.010875,
+      "people_ever_ran_out": 0.0575,
+      "refused_per_week": 0.3465625,
+      "weeks_screen_time_off": 0.05928125,
+      "gone_by_end": 0.077,
+      "unshielded_min_per_lock_night": 28.1184988192277,
+      "paused_min_per_lock_night": 1.2859893956082515,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 120,
+        "minutes": 10,
+        "refill": "nightly"
+      }
+    },
+    "5/wk \u00b7 120s \u00b7 15min \u00b7 weekly": {
+      "pauses_used_per_week": 0.980875,
+      "waits_cancelled_per_week": 1.8083125,
+      "weeks_ran_out": 0.03825,
+      "people_ever_ran_out": 0.14375,
+      "refused_per_week": 0.110625,
+      "weeks_screen_time_off": 0.03940625,
+      "gone_by_end": 0.02825,
+      "unshielded_min_per_lock_night": 13.06298185372873,
+      "paused_min_per_lock_night": 2.296662221428319,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 120,
+        "minutes": 15,
+        "refill": "weekly"
+      }
+    },
+    "5/wk \u00b7 120s \u00b7 15min \u00b7 nightly": {
+      "pauses_used_per_week": 0.82,
+      "waits_cancelled_per_week": 1.5394375,
+      "weeks_ran_out": 0.011,
+      "people_ever_ran_out": 0.058,
+      "refused_per_week": 0.34271875,
+      "weeks_screen_time_off": 0.05909375,
+      "gone_by_end": 0.0765,
+      "unshielded_min_per_lock_night": 28.446940902751614,
+      "paused_min_per_lock_night": 1.9259235188957446,
+      "nights": 56,
+      "economy": {
+        "per_week": 5,
+        "wait_s": 120,
+        "minutes": 15,
+        "refill": "nightly"
+      }
+    }
+  }
+}

@@ -102,17 +102,3 @@ public struct SleepEstimate: Equatable, Sendable {
     return ClockTime(hour: minute / 60, minute: minute % 60)
   }
 }
-
-/// The buffers' targets at onboarding (#144): the recommended baseline, the same for everyone
-/// (`TollConfig.suggestion`). Health's sleep fits the hours, not the buffers: nothing in it says
-/// how long a person takes to fall asleep, and #145 personalises the buffers later from Dusk's own
-/// nights.
-public struct BufferSuggestion: Equatable, Sendable {
-  public var before: Int
-  public var after: Int
-
-  public init(config: TollConfig = .defaults) {
-    before = config.suggestion.before
-    after = config.suggestion.after
-  }
-}

@@ -3,8 +3,9 @@ import TollCore
 import TollUI
 
 /// The time around your sleep (#144): apps lock a while before sleep and stay locked a while after
-/// waking. Both sides are the same recommended start for everyone (only the hours come from Health)
-/// and grow weekly toward their targets (D76's rule, both sides). The screen reads at a glance: the
+/// waking. Both sides are the same recommended start for everyone (only the hours come from Health),
+/// or for someone with weeks of nights, targets fitted from them (#145), and grow weekly toward
+/// their targets (D76's rule, both sides). The screen reads at a glance: the
 /// night drawn lock → sleep → wake → open, and one row a side. Changing a side is a tap away, in a
 /// small sheet; most people just read it and go on. Shared by onboarding and the one-time flow,
 /// whose last step it is.
@@ -40,7 +41,8 @@ struct AroundStep: View {
         }
       }
       .padding(.top, 20)
-      Footnote(Copy.Fit.suggested).padding(.top, TollSpacing.underCard)
+      Footnote(draft.fitted ? Copy.Fit.fitted : Copy.Fit.suggested)
+        .padding(.top, TollSpacing.underCard)
     } actions: {
       PrimaryButton(action, action: next)
         .disabled(!draft.isValid)
