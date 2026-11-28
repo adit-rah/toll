@@ -39,6 +39,11 @@ public enum Command: Sendable {
   /// Settings › Before bed's helpers: on or off, and the breath's length (D80). Applies at once:
   /// nothing about the night's hours changes.
   case helpers(Helpers)
+  /// Personal timing on or off (D65). Off, the lock goes back to the plan from the next night.
+  case timing(Bool)
+  /// The sleep model's start for the week (`TimingRules.ask`), and its generator after the draw.
+  /// Ignored if the question has changed since.
+  case hold(Timing.Hold, generator: UInt64)
   case presence(PlaceID, Presence)
   case location(LocationMode)
   case trialStart(Date)

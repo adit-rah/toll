@@ -14,11 +14,13 @@ public enum WeekTurn {
     return TimeWindow(start: start, end: start.adding(minutes: TimeWindow.minimumMinutes))
   }
 
-  /// The turn to schedule: once set up, while either buffer is judged weekly. A fixed buffer is
-  /// never judged, so with both fixed nothing needs the wake.
+  /// The turn to schedule: once set up, while either buffer is judged weekly, or while personal
+  /// timing holds a start. Sunday night's end lets that start go; if that wake was missed, the
+  /// noon wake still does, so a later start never locks Monday's night at last week's time. A
+  /// fixed buffer is never judged, so with both fixed and no start held nothing needs the wake.
   public static func schedule(_ state: DuskState, config: TollConfig = .defaults) -> TimeWindow? {
     guard state.setupFinishedAt != nil,
-      Gap.Side.allCases.contains(where: { state[$0].judged })
+      Gap.Side.allCases.contains(where: { state[$0].judged }) || state.timing.inForce != nil
     else { return nil }
     return window(config)
   }
