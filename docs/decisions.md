@@ -724,3 +724,22 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **The invented profiles** bracket how much people's usual time moves: level sd {20, 45, 90} min, weekly memory {0.2, 0.6, 0.97}, and heavy-tail shares {0, 15%, 40%}. Their range was checked against a real Health export (n=1, private). By the founders' choice none sits within 10% of it. The trends study's grid (D108) follows the same idea, and its rule and fixtures are unchanged.
 - **Assumed, for the founders:** no insight before 28 usable nights.
 - **Left:** re-measuring how much usual times move on the pilot's nights (#183).
+
+**D114. Your sleep's change lines: How steady against the days around each night; a noisier first week keeps its own error; Health's late night accepted** (2026-11-28, #173; amends D108).
+- **How steady** reads each night's distance from the middle of the nights within three days of it, in the same window (`TollConfig.trends.steadyAround` = 3).
+  - A usual time that moved in the first 14 nights, or that moves week to week, is Asleep by's to say. D108 counted that move a second time, as "steadier".
+  - On invented profiles, a 60-minute shift at night 8 told 42% of people with 20-minute nights "steadier" under D108; now 2.6%. Every shift and wander case is 1.7–3.5%.
+  - The cost: plain nulls are 2.1–3.7% (from 1.2–2.5%), and power to catch a real halving of the noise by week 12 is 6–12% (from 8–14%).
+  - The value reads about a tenth smaller (± 18 instead of ± 20 for 30-minute nights). The copy is unchanged and still true.
+- **A first week noisier than the weeks since.** Past 1.5× the weeks' pooled spread (`firstNoiseRatio`), each side takes its own noise (Yuen's test, Welch's degrees of freedom).
+  - With half the noise from week 3, false level changes fall from 3.3–6.1% to 1.4–4.6%.
+  - The cost: 3–5 points of power for real shifts, and up to 2.6 on heavy-tailed profiles.
+- **Health's late night is accepted.** When Sunday's sleep arrives after Monday noon, the line can change once, toward the fuller week.
+  - With no real change, it flips between "about the same" and a change on 0.1–0.3% of judged weeks; up to 5.9% when a real change sits at the test's edge.
+  - Freezing the line at noon would need a stored judgement or a correction time (D92), and would hide a night Dusk already has for a week.
+- **Result.** Every null of the study stays at 1.2–4.6% by week 26 across the public profiles (`datascience/reports/trends.md`). Parity is exact on 420 fixtures.
+- **Assumed, for the founders:** How steady's new middle, with values about 10% smaller; the 1.5× guard; accepting the late change.
+- **Left, needing real nights (#183, #159):**
+  - how often Health's Sunday sleep arrives after Monday noon;
+  - how often a real first week passes the 1.5× guard;
+  - how the ±3-day middle behaves on weekday/weekend patterns.
