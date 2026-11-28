@@ -20,6 +20,7 @@ struct BlockEditorView: View {
   @State private var settingHome = false
   /// What was chosen when the editor opened: the Apps row animates only what arrives after.
   @State private var appsAtOpen: FamilyActivitySelection
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   /// `pickingApps` opens Apple's picker straight away: Tonight's note for a night that came back
   /// without its apps (#140).
@@ -152,21 +153,38 @@ struct BlockEditorView: View {
     if let refusal = model.refusal {
       NoteCard(refusal, severity: .broken).padding(.top, 12)
     }
+    if typeSize.isAccessibilitySize {
+      // At accessibility sizes the bar keeps only Save, so it doesn't cover the page (#162): Delete
+      // and the note end the page instead, the note last, so its coming moves nothing above it.
+      VStack(alignment: .leading, spacing: 12) {
+        if !model.isNew && !model.isSleep { delete }
+        if let note = model.activeNote {
+          NoteCard(note, symbol: .blocked).transition(.opacity)
+        }
+      }
+      .padding(.top, 24)
+      .animation(Motion.stateChange, value: model.activeNote)
+    }
+  }
+
+  private var delete: some View {
+    DestructiveQuiet(Copy.Blocks.delete) { confirmingDelete = true }
   }
 
   /// The note for a block that's on sits at the top of the pinned bar, over Save, which says when the
   /// edit applies (B-3): when the block comes on mid-edit the bar grows upward and nothing on the page
-  /// or in the bar moves (#133, design §2.5).
+  /// or in the bar moves (#133, design §2.5). At accessibility sizes only Save is pinned.
   private var actions: some View {
     VStack(spacing: 0) {
-      if let note = model.activeNote {
-        NoteCard(note, symbol: .blocked)
-          .padding(.bottom, 12)
-          .transition(.opacity)
-      }
-      if !model.isNew && !model.isSleep {
-        DestructiveQuiet(Copy.Blocks.delete) { confirmingDelete = true }
-          .padding(.bottom, 10)
+      if !typeSize.isAccessibilitySize {
+        if let note = model.activeNote {
+          NoteCard(note, symbol: .blocked)
+            .padding(.bottom, 12)
+            .transition(.opacity)
+        }
+        if !model.isNew && !model.isSleep {
+          delete.padding(.bottom, 10)
+        }
       }
       PrimaryButton(saveTitle) {
         if model.asksAboutAlways {

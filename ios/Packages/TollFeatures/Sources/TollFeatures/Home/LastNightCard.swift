@@ -21,7 +21,7 @@ struct LastNightCard: View {
   }
 }
 
-/// Everything under "Last night": the sentence, the bar and its breaks, the taps, a landmark, and
+/// Everything under "Last night": the sentence, the bar and its breaks, a landmark, the taps, and
 /// the seven nights.
 struct LastNightDetails: View {
   let night: Morning
@@ -58,6 +58,11 @@ struct LastNightDetails: View {
       if night.healthEmpty {
         Footnote(Copy.Morning.healthEmpty, symbol: .health).padding(.top, 10)
       }
+      // A landmark comes straight after the night itself: on Tonight the open card can be shorter
+      // than its details (#162), and the landmark is that morning's news.
+      if let landmark = night.landmark {
+        LandmarkLine(landmark: landmark).padding(.top, 14)
+      }
       if let putDown = night.putDown {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
           Image(symbol: .phoneDown).unredacted()
@@ -70,9 +75,6 @@ struct LastNightDetails: View {
         }
         .accessibilityElement(children: .combine)
         .padding(.top, 12)
-      }
-      if let landmark = night.landmark {
-        LandmarkLine(landmark: landmark).padding(.top, 14)
       }
       Text(night.weekTitle)
         .tollType(.eyebrow, TollColor.label2)

@@ -7,7 +7,8 @@
 #   SCENARIOS  one per line: `<scenario>` or `<scenario>: <axe step>; <axe step>…`
 #              (default: every scenario in ALL below). `motion <scenario>: <steps>` also films the
 #              steps into motion.mp4, and `wait <seconds>` is a step there (docs/renders.md, "Motion").
-#   VARIANTS   any of light dark ax5 dark-ax5 wordless dark-wordless, space-separated (default: light).
+#   VARIANTS   any of light dark ax5 dark-ax5 xxxl wordless dark-wordless, space-separated (default: light).
+#              xxxl is the largest size below the accessibility sizes.
 #              wordless draws every line of text as a placeholder bar (docs/design.md §5).
 #   UDID       the simulator to use (default: render-device.sh picks and boots one)
 #   XCODEBUILD_ARGS  extra xcodebuild arguments (CI passes its package cache)
@@ -181,7 +182,11 @@ capture() {
 
 for variant in $VARIANTS; do
   case $variant in *dark*) appearance=dark ;; *) appearance=light ;; esac
-  case $variant in *ax5*) size=accessibility-extra-extra-extra-large ;; *) size=large ;; esac
+  case $variant in
+    *ax5*) size=accessibility-extra-extra-extra-large ;;
+    *xxxl*) size=extra-extra-extra-large ;;
+    *) size=large ;;
+  esac
   case $variant in *wordless*) wordless=YES ;; *) wordless=NO ;; esac
   xcrun simctl ui "$UDID" appearance "$appearance"
   xcrun simctl ui "$UDID" content_size "$size"
