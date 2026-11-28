@@ -8,7 +8,7 @@
 
 ## What the state shows
 
-The checks run in this order (`HomeSnapshot.hero`, then the Screen Time override). Each state's glyph is named first in each box: small before the eyebrow when the state shows a time; alone and large over the eyebrow when it doesn't (64 pt in the time's stead when nothing will block, #74), so the states tell apart with every word wiped (#74). The night's times are the lock's: bed minus the gap. Last night never takes the state's place: it is a row in Tonight's band each morning and a segment at the strip's start all day (below).
+The checks run in this order (`HomeSnapshot.hero`, then the Screen Time override). Each state's glyph is named first in each box: placed by design §1.1's rule for state glyphs (small before the eyebrow with a time; alone and large without, 64 pt when nothing will block, #74), so the states tell apart with every word wiped (#74). The night's times are the lock's: bed minus the gap. Last night never takes the state's place: it is a row in Tonight's band each morning and a segment at the strip's start all day (below).
 
 ```mermaid
 flowchart TD
