@@ -55,9 +55,12 @@
       let reaches: Int
       switch story {
       case .improving, .dusk:
-        onset = 50 - 40 * progress + w * (35 - 28 * progress)
-        asleep = 410 + 40 * progress + w * 15
-        reaches = max(0, Int((4 - 3 * progress + w).rounded()))
+        // Earlier over the first two weeks, then held, so the weekly line (#165) says it whatever
+        // day the demo runs.
+        let step = min(1, 2 * progress)
+        onset = 50 - 40 * step + w * (20 - 12 * progress)
+        asleep = 410 + 40 * step + w * 12
+        reaches = max(0, Int((4 - 3 * step + w).rounded()))
       case .flat, .few:
         onset = 20 + w * 12
         asleep = 440 + w * 20
