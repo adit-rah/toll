@@ -756,3 +756,10 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Attention (D105).** Tonight on the SE: the state is seen first and stays put; the open card sits under it, the faded card leaves no outline. The editor on the SE at xxxL: the block's details and Save fill the screen; the red Delete and the note move to the page's end.
 - **Assumed, for the founders:** xxxL is the line (the SE's bar is about 29% at every size below it, kept because the note explains why Save says "for after …"); the line is 700 pt (the SE is 667, the next phone 812); the strip stays partly under the tab bar in this one state.
 - **Left:** Settings › Sleep at AX5 on the SE, where its pinned Save and the tab bar take about 30% of the screen (a different bar, not this issue). An open card with no card above in the same fallback would show only its header; no current phone or size reaches it.
+
+**D116. The founders confirm what D111 to D115 assumed** (2026-11-28; confirms D111, D112, D113, D114 and D115).
+- **D111:** the landmark moves up, OK goes to the card's end at accessibility sizes, and the cut edge fades.
+- **D112:** "the first week" is 7 nights ended since setup; Keep my own time answers the offer for good; a settled week keeps the "to learn what helps" reason until the insight is on screen (#182); a held week's Tonight gives the reason in place of "N min before sleep".
+- **D113:** no insight before 28 usable nights.
+- **D114:** How steady's new middle, with values about 10% smaller; the 1.5× guard; accepting Health's late night.
+- **D115:** xxxL is the line on phones under 700 pt; the strip stays partly under the tab bar in that one state.
