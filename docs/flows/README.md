@@ -8,6 +8,7 @@ Every user flow in Dusk, as built on `main`, drawn as a Mermaid flowchart. A UX 
 |---|---|---|
 | [onboarding.md](onboarding.md) | First launch to the first locked night: Welcome, Fit Dusk to your sleep (Apple Health), your sleep, the time around it, Screen Time, the apps, Ready | D68, D71, D76, D78, D82, #144 |
 | [once-fit-sleep.md](once-fit-sleep.md) | One-time flow #1 for people set up before #144: Tonight's card and its sheet of sleep and both buffers | D86, D91, D92, #144 |
+| [once-personal-timing.md](once-personal-timing.md) | One-time flow #2 after the first week, with Health chosen: Tonight's card and its sheet, Turn on or Keep my own time, and Tonight's reason when a week's start moves | D65, D92, D94, D105, D107, #171 |
 | [set-home.md](set-home.md) | "Only when I'm home": the map, the location prompts, Always, and "Use anywhere" | D68, D71, D84 |
 | [heads-up.md](heads-up.md) | The heads-up before the night: Tonight's offer, iOS's prompt, Settings' switch, the monitor's replan at Monday's turn | D68, D72, #127 |
 | [before-bed.md](before-bed.md) | The gap before bed (Monday's judgement, with Dusk closed too; Monday's card, the offer to older installs, Settings), personal timing's week's start, and the helpers in the gap | D76, D80, D83, D85, D99, #127, #155 |
@@ -56,7 +57,8 @@ There is no CI check. A pull request that changes a flow updates its chart, and 
 | `ios/Packages/TollFeatures/Sources/TollFeatures/Setup/` (`SetupFlow`, `SetupModel`, `FitView`, `SleepTimesView`, `AroundView`, `ScreenTimeView`, `BlocklistView`, `ReadyView`, `NightPictureView`) | onboarding |
 | `…/TollFeatures/Setup/` (`FitDraft`, `FitFlowSheet`, `FitView`, `SleepTimesView`, `AroundView`) | onboarding, once-fit-sleep, settings |
 | `…/TollFeatures/Setup/` (`SetHomeFlow`, `SetHomeModel`, `HomeMapView`, `PermissionsView`) | set-home, permissions |
-| `…/TollFeatures/Home/` | tonight, pause, heads-up, before-bed, set-home |
+| `…/TollFeatures/Home/` | tonight, pause, heads-up, before-bed, set-home; `TimingOfferSheet` once-personal-timing |
+| `…/TollCore/App/` (`Flows+Timing`, `TimingLine`), `…/TollFeatures/Settings/TimingRow.swift` | once-personal-timing, tonight, settings |
 | `…/TollFeatures/BeforeBed/` | before-bed |
 | `…/TollFeatures/Door/` | pause |
 | `…/TollFeatures/Purchase/` | purchase |
@@ -78,7 +80,7 @@ When a flow is added, add its chart, a row in the first table and its folders in
 
 ## One-time flows
 
-Some changes need the person: a build starts keeping something people already using Dusk have never been asked for (the onboarding redesign's sleep interval and buffers, say), and there's no server to fill it in for them. A one-time flow asks them once, in the app, at a calm moment. The registry is `Flows` in `TollCore/App/Flows.swift`. It holds one flow: #1, `fit-sleep`, "Fit Dusk to your sleep" (#144, [once-fit-sleep.md](once-fit-sleep.md)).
+Some changes need the person: a build starts keeping something people already using Dusk have never been asked for (the onboarding redesign's sleep interval and buffers, say), and there's no server to fill it in for them. A one-time flow asks them once, in the app, at a calm moment. The registry is `Flows` in `TollCore/App/Flows.swift`. It holds two flows, in the order they win: #1, `fit-sleep`, "Fit Dusk to your sleep" (#144, [once-fit-sleep.md](once-fit-sleep.md)); and #2, `personal-timing`, "Learn what helps your sleep" (#171, [once-personal-timing.md](once-personal-timing.md)). A flow that waits on the person's nights has a `ready` predicate besides `applies` (#2 waits for the first 7 nights).
 
 **Add a flow only when a person must decide.** If a safe value can be worked out from what's stored, a migration step does it (`docs/architecture.md`, "Data and its evolution") and nobody is asked.
 

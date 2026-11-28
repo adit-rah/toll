@@ -26,6 +26,8 @@ flowchart TD
   awayCheck -->|"no"| placeCheck{"Home set and location Always?"}
   placeCheck -->|"no: Anywhere"| anywhere["clock: Apps lock at … · N min before bed; Anywhere · starts in …<br/>render: home-anywhere"]
   placeCheck -->|"yes"| evening["clock: Apps lock at … · N min before bed; At home · starts in …<br/>render: home-evening"]
+  evening -.->|"personal timing holds this week's start away from the person's own (HeldStart, #171)"| heldLine["The same, the minutes-before-bed line replaced by its reason, in label2:<br/>timing glyph · 30 min earlier this week, to learn what helps; the time doesn't move<br/>render: home-timing-held"]
+  anywhere -.->|"the same"| heldLine
 
   off --> stCheck
   paused --> stCheck
@@ -114,7 +116,7 @@ flowchart TD
   answer -->|"no"| flow{"A one-time flow due today?"}
   answerOn --> review
   answerOff --> review
-  flow -->|"yes"| flowCard["The flow's card: Fit Dusk to your sleep, see once-fit-sleep.md<br/>render: home-morning-flow, home-fit-card"]
+  flow -->|"yes"| flowCard["The flow's card, the registry's first due: Fit Dusk to your sleep (once-fit-sleep.md),<br/>then Learn what helps your sleep (once-personal-timing.md)<br/>render: home-morning-flow, home-fit-card, home-timing-card"]
   flow -->|"no"| setup{"A night ended since setup, and an offer due:<br/>home, then the heads-up, then the gap offer?"}
   setup -->|"yes"| setupCard["Only when I'm home? · A heads-up before your night? · Lock apps 15 min before bed?<br/>render: home-card, home-heads-up, home-gap-offer"]
   setup -->|"no"| noCard
