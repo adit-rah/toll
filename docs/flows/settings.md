@@ -2,9 +2,9 @@
 
 **What it's for:** is everything working, the few choices Dusk has, and help. Pushed from Tonight's gear; Back returns to Tonight. Rows that leave the app carry the leave glyph; rows that only report have no chevron. Each check under "Is everything working?" leads with the tile of what it checks (Screen Time's hourglass, location, home or anywhere, sleep's moon, the heads-up's bell, last night's lock), and its state is a glyph and a word, so the card reads without its words (#79).
 
-**Implements:** D36 (dark first, switchable), #45 and D48 (Screen Time off is a button here), D68 and D72 (the heads-up switch, and iOS Settings after a denial), D71 and D84 (Only when I'm home, the one home picker; held changes say when they apply), D83 and D85 (Before bed held the gap and the helpers; #144 makes it Settings › Sleep, with sleep and both buffers), D84 ("Last night · Mon 10:30 pm – 7:00 am", "Purchase restored.", the version line), D62 (the night records can be shared from the activity log).
+**Implements:** D36 (dark first, switchable), #45 and D48 (Screen Time off is a button here), D68 and D72 (the heads-up switch, and iOS Settings after a denial), D71 and D84 (Only when I'm home, the one home picker; held changes say when they apply), D83 and D85 (Before bed held the gap and the helpers; #144 makes it Settings › Sleep, with sleep and both buffers), D84 ("Last night · Mon 10:30 pm – 7:00 am", "Purchase restored.", the version line), D62 (the night records can be shared from the activity log), D65 and #171 (personal timing's switch in Settings › Sleep, needing Health).
 
-**Code:** `TollFeatures/Settings/SettingsView.swift`, `SettingsParts.swift` (`HowItWorks`, `AppearancePicker`), `HeadsUpRow.swift`, `BeforeBedRow.swift` (`SleepRow`, `SleepSettingsView`, `BufferChoiceCard`), `TransitionLogView.swift`; `App/Appearance.swift`; `RootView.HomeDestination`.
+**Code:** `TollFeatures/Settings/SettingsView.swift`, `SettingsParts.swift` (`HowItWorks`, `AppearancePicker`), `HeadsUpRow.swift`, `BeforeBedRow.swift` (`SleepRow`, `SleepSettingsView`, `BufferChoiceCard`), `TimingRow.swift` (`TimingSetting` in TollCore), `TransitionLogView.swift`; `App/Appearance.swift`; `RootView.HomeDestination`.
 
 ```mermaid
 flowchart TD
@@ -22,9 +22,14 @@ flowchart TD
   locRow -->|"no"| locReport(["Location · Always, While Using, Approximate or Off (reports only)"])
 
   settings -->|"Only when I'm home · On, Off, or On/Off from 7:00 am"| setHome["The home map sheet, see set-home.md<br/>render: set-home-set, or set-home from settings-anywhere"]
-  settings -->|"Sleep · 10:30 pm – 7 am · 30 min before · 15 min after"| sleepScreen["Sleep (pushed): the night drawn lock · sleep · open;<br/>Fall asleep and Wake up, Different on weekends;<br/>a row each for Before sleep and After waking, each opening its sheet (render: settings-sleep-after): Grows with you, Fixed or None, and only the minutes it needs;<br/>Something to do before sleep, the breathing tone's length<br/>render: settings-sleep"]
+  settings -->|"Sleep · 10:30 pm – 7 am · 30 min before · 15 min after"| sleepScreen["Sleep (pushed): the night drawn lock · sleep · open;<br/>Fall asleep and Wake up, Different on weekends;<br/>a row each for Before sleep and After waking, each opening its sheet (render: settings-sleep-after): Grows with you, Fixed or None, and only the minutes it needs;<br/>Something to do before sleep, the breathing tone's length;<br/>Learn what helps your sleep (personal timing, #171)<br/>render: settings-sleep"]
+  sleepScreen --> timingRow{"Health chosen?"}
+  timingRow -->|"no"| timingHealth["Learn what helps your sleep · Needs your sleep from Apple Health · Use Apple Health<br/>render: settings-sleep"]
+  timingHealth -->|"Use Apple Health"| hkTiming{{"iOS: Health access sheet (read: Sleep only)"}}
+  hkTiming -.->|"health true whatever iOS answers; the switch turns on, not saved yet"| timingSwitch
+  timingRow -->|"yes"| timingSwitch["Switch · Some weeks, up to 30 min earlier or later;<br/>on and saved: This week: 30 min earlier, or your own time<br/>render: settings-sleep-timing-off, settings-sleep-timing-on"]
   sleepScreen -->|"Back"| settings
-  sleepScreen -->|"Save"| sleepSaved[("state.json in one change: the night's hours (.saveBlock), .buffer before and after, .helpers;<br/>hours and minutes held while the night is on (B-3), targets and helpers at once")]
+  sleepScreen -->|"Save"| sleepSaved[("state.json in one change: the night's hours (.saveBlock), .buffer before and after, .helpers;<br/>hours and minutes held while the night is on (B-3), targets and helpers at once;<br/>then .timing if the switch moved: off gives the next night back to the person's own time, on draws this week's start (before-bed.md)")]
   sleepSaved --> settings
   settings --> headsUpRow{"iOS said no to notifications?"}
   headsUpRow -->|"no"| headsUpSwitch["Heads-up switch: arrives 20 min before the lock<br/>render: settings"]
@@ -47,7 +52,7 @@ flowchart TD
   log -->|"Share night records"| shareSheet{{"iOS share sheet: nights.jsonl"}}
 
   classDef system stroke-dasharray: 5 3
-  class fcPrompt,iosSettingsSt,iosSettingsLoc,iosSettingsN,privacy,mail,shareSheet system
+  class fcPrompt,iosSettingsSt,iosSettingsLoc,iosSettingsN,privacy,mail,shareSheet,hkTiming system
 ```
 
 ## Doubts

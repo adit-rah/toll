@@ -194,7 +194,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 176 | Trigger a system alert (e.g. delete a block) | Its buttons are tinted Dusk's amber, not blue | | |
 | 177 | Open last night's row, then fold it, at the default text size and at AX5 | One surface grows from the row and folds back to it; the header rides the top edge; the details fade in after the first 100 ms; the chevron turns half a turn; nothing overlaps or jumps; the state and strip don't move | | |
 | 178 | Same, with a card above (e.g. the home offer) | The card fades out in place as last night opens and back as it folds; it never moves | | |
-| 179 | Same on the smallest phone at the largest non-AX size, where the open card doesn't fit above the strip | Note whether the band's move under the state reads as a jump | | |
+| 179 | Open last night's card on a landmark morning on the smallest phone, at the default size and at the largest non-AX size; scroll its details | The card grows up from its row and stays between the state and the strip; its header stays while the details scroll; the cut edge fades while more is below and not at the end; nothing goes under the tab bar; the state and strip don't move (D111) | | |
 | 180 | Tap last night's row, then tap its header within 150 ms | The card turns back from where it is, smoothly, without restarting or jumping | | |
 | 181 | Rows 177 and 178 with Reduce Motion on | The card snaps to size and its content crossfades over 200 ms; the chevrons crossfade | | |
 | 182 | Pause: Pause for 10 min, then wait for the wait to end | Choosing → waiting → open: the old page fades at once and the new comes in, the sheet doesn't move, and a light haptic plays at each change | | |
@@ -253,7 +253,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 235 | Larger Text at the largest accessibility size; open Tonight while locked, while paused, and with Screen Time off | The time and the glyphs beside words grow together; the large mark is about twice its size; nothing truncates and the time doesn't move between states | | |
 | 236 | VoiceOver on Tonight after the free nights end | The state is read as "Not blocking", then "Dusk is off", then the line, as one header | | |
 | 237 | Open a Debug demo launch (`-TollDemo home-evening`) on a phone never asked for location | No location prompt appears | | |
-| 238 | With personal timing on (#171 or a debug switch) and Health chosen: open Dusk on a Monday afternoon, at least 90 min before the lock; don't open it again until next Monday afternoon; export the night log | Tonight's lock time is the same every night Monday to Sunday; every night of that week, away or not, has `policy` "held", one `hold_start` (that Monday) and the same `action_offset_min` and `action_prob`; from the next Monday, until Dusk is opened, Tonight shows the person's own time | | |
+| 238 | With personal timing on (from Tonight's offer or Settings › Sleep) and Health chosen: open Dusk on a Monday afternoon, at least 90 min before the lock; don't open it again until next Monday afternoon; export the night log | Tonight's lock time is the same every night Monday to Sunday; every night of that week, away or not, has `policy` "held", one `hold_start` (that Monday) and the same `action_offset_min` and `action_prob`; from the next Monday, until Dusk is opened, Tonight shows the person's own time | | |
 | 239 | Mid-week, with a start held 30 min earlier, set the buffer before sleep to fixed 75 in Settings › Sleep (outside the night) | That night goes back to 75 min before sleep with no earlier start; the next opening draws again with −30 not allowed | | |
 | 240 | With a start held, install the previous TestFlight build, open it, then reinstall this build | The previous build says changes can't be saved (minReader 5); after reinstalling, Tonight's lock is the week's start as before, with no new draw that week | | |
 | 241 | Open Your sleep on Monday at about 11:50, then again after 12:05 | Before noon the change line is last week's judgement; after noon it may change once, then holds through Sunday while the values move nightly | | |
@@ -273,6 +273,18 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 255 | Study on, outside its hours: switch it off and Save | Its row shows the dashed tile, grey title and "Off"; nothing locks at its next hours | | |
 | 256 | Settings › Activity log, in light | No white card; the page and cards match Settings | | |
 | 257 | Ready at AX5 | Only Done stays pinned; the free nights' segments and footnote scroll with the content | | |
+| 258 | Scroll the open card's details, fold it, open it again | It opens at the top of its details, with no visible jump on folding | | |
+| 259 | With the card's details fitting (no landmark, large phone), drag on the open card | Nothing scrolls or bounces inside it; the page behaves as before | | |
+| 260 | At AX5, open last night's card, scroll to its end and tap OK | OK ends the card and the card is put away; the header shows only "Last night" and the chevron | | |
+| 261 | At AX5, edit a block that's on, and let a block come on mid-edit | Only Save is pinned; Delete block and the note end the page; the note fades in at the end and nothing above it moves | | |
+| 262 | Health chosen; on the afternoon after the 7th night ends since setup, open Tonight | The card "Learn what helps your sleep" with "See how" and "Not now"; it isn't there the afternoon before, and never within an hour of the lock (D112) | | |
+| 263 | Skip Health at setup; open Tonight after 8 nights | No timing card; Settings › Sleep shows "Needs your sleep from Apple Health" with "Use Apple Health" | | |
+| 264 | Tap See how, then Turn on | The sheet closes and the card is gone for good; at least 90 min before the lock, this week's start is drawn; if it is held away from your own time, the line under the time says "30 min earlier (or later) this week, to learn what helps" and the time sits exactly where it does on other evenings | | |
+| 265 | Tap See how, then Cancel | The card stays offered that day and comes back on a later day | | |
+| 266 | Tap "Not now" on three different days | It never shows again and timing stays off; the switch is still in Settings › Sleep | | |
+| 267 | With a start held earlier, turn the switch off in Settings › Sleep and Save (outside the night) | That night is back at your own time and Tonight's reason line is gone; the row reads "Some weeks, up to 30 min earlier or later" | | |
+| 268 | Inside the night with a start held earlier, turn the switch off and Save | Tonight's lock holds until the morning; the next night is back at your own time | | |
+| 269 | VoiceOver on Tonight during a held week | The header reads "Apps lock at, 9:30 pm, 30 minutes earlier this week, to learn what helps your sleep, At home…" | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

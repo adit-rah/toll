@@ -49,7 +49,7 @@ The monitor's turn is a daily DeviceActivity interval from 12:01 to 12:16, `t.12
 
 ## Personal timing's start
 
-For a person who chose personal timing and Apple Health (D65), the sleep model moves the lock's start 30 minutes either way, or not at all, and holds it for a week, Monday to Sunday by the night's date (D66, D99). Bed and wake never move. Nobody can choose it yet: the offer and its words are their own ticket.
+For a person who chose personal timing and Apple Health (D65), the sleep model moves the lock's start 30 minutes either way, or not at all, and holds it for a week, Monday to Sunday by the night's date (D66, D99). Bed and wake never move. It's chosen from the one-time offer after the first week ([once-personal-timing.md](once-personal-timing.md)) or Settings › Sleep's switch ([settings.md](settings.md)), both needing Health; turning it on draws this week's start at once. While a held start isn't the person's own, Tonight's line under the time gives the reason in place of "N min before sleep" (`render: home-timing-held`).
 
 ```mermaid
 flowchart TD

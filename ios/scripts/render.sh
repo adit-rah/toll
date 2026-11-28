@@ -7,7 +7,8 @@
 #   SCENARIOS  one per line: `<scenario>` or `<scenario>: <axe step>; <axe step>…`
 #              (default: every scenario in ALL below). `motion <scenario>: <steps>` also films the
 #              steps into motion.mp4, and `wait <seconds>` is a step there (docs/renders.md, "Motion").
-#   VARIANTS   any of light dark ax5 dark-ax5 wordless dark-wordless, space-separated (default: light).
+#   VARIANTS   any of light dark ax5 dark-ax5 xxxl wordless dark-wordless, space-separated (default: light).
+#              xxxl is the largest size below the accessibility sizes.
 #              wordless draws every line of text as a placeholder bar (docs/design.md §5).
 #   UDID       the simulator to use (default: render-device.sh picks and boots one)
 #   XCODEBUILD_ARGS  extra xcodebuild arguments (CI passes its package cache)
@@ -18,7 +19,7 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 OUT=${1:-$ROOT/build/renders}
 DERIVED=$ROOT/build/render-derived
 BUNDLE=com.advan.toll
-ALL="welcome fit setup-sleep-found setup-sleep-weekends setup-sleep-ask setup-sleep-none setup-around setup-around-before setup-around-off screen-time screen-time-allowed screen-time-denied blocklist ready set-home set-home-off set-home-location set-home-always set-home-location-off set-home-set home-evening home-blocked home-away home-first-week home-last-night home-week home-paused home-location home-screen-time-off home-recovered home-read-only home-no-blocks home-morning home-morning-gap home-morning-away home-morning-card home-day home-strip-night home-strip-day home-pill-purchase home-pause-open home-anywhere home-card home-heads-up home-gap-week home-gap-offer purchase purchase-pending purchase-failed purchase-restore-none purchase-done settings settings-anywhere settings-heads-up-denied settings-while-using insights sleep-monday sleep-best sleep-sky-5 sleep-sky-7 sleep-sky-30 sleep-sky-100 home-morning-landmark sky-share blocks blocks-day block-new block-new-gym block-edit block-edit-on block-night door-choosing door-waiting door-open door-none home-before-bed home-before-bed-card before-bed before-bed-list before-bed-breathe before-bed-words settings-sleep sleep-sky-0 sleep-sky-180 sleep-sky-star sleep-sky-evening sleep-sky-night sleep-sky-morning sleep-sky-names ready-health home-fit-card fit-sheet fit-sheet-sleep fit-sheet-around settings-sleep-after home-morning-open home-morning-landmark-open home-morning-location home-morning-gap-week home-morning-flow home-morning-card-open home-night-hour home-night-hour-monday fit-sheet-around-fitted settings-how-it-works sleep-health-improving sleep-health-flat sleep-health-noisy sleep-dusk sleep-few home-morning-asleep home-morning-asleep-open home-morning-ask-open door-open-used home-pause-waiting home-held-home home-blocked-anywhere sleep-after-trial settings-screen-time-off settings-log welcome-running welcome-used welcome-bought blocks-many blocks-many-day block-place block-delete home-heads-up-on home-heads-up-denied blocks-off block-edit-off"
+ALL="welcome fit setup-sleep-found setup-sleep-weekends setup-sleep-ask setup-sleep-none setup-around setup-around-before setup-around-off screen-time screen-time-allowed screen-time-denied blocklist ready set-home set-home-off set-home-location set-home-always set-home-location-off set-home-set home-evening home-blocked home-away home-first-week home-last-night home-week home-paused home-location home-screen-time-off home-recovered home-read-only home-no-blocks home-morning home-morning-gap home-morning-away home-morning-card home-day home-strip-night home-strip-day home-pill-purchase home-pause-open home-anywhere home-card home-heads-up home-gap-week home-gap-offer purchase purchase-pending purchase-failed purchase-restore-none purchase-done settings settings-anywhere settings-heads-up-denied settings-while-using insights sleep-monday sleep-best sleep-sky-5 sleep-sky-7 sleep-sky-30 sleep-sky-100 home-morning-landmark sky-share blocks blocks-day block-new block-new-gym block-edit block-edit-on block-night door-choosing door-waiting door-open door-none home-before-bed home-before-bed-card before-bed before-bed-list before-bed-breathe before-bed-words settings-sleep sleep-sky-0 sleep-sky-180 sleep-sky-star sleep-sky-evening sleep-sky-night sleep-sky-morning sleep-sky-names ready-health home-fit-card fit-sheet fit-sheet-sleep fit-sheet-around settings-sleep-after home-morning-open home-morning-landmark-open home-morning-location home-morning-gap-week home-morning-flow home-morning-card-open home-night-hour home-night-hour-monday fit-sheet-around-fitted settings-how-it-works sleep-health-improving sleep-health-flat sleep-health-noisy sleep-dusk sleep-few home-morning-asleep home-morning-asleep-open home-morning-ask-open door-open-used home-pause-waiting home-held-home home-blocked-anywhere sleep-after-trial settings-screen-time-off settings-log welcome-running welcome-used welcome-bought blocks-many blocks-many-day block-place block-delete home-heads-up-on home-heads-up-denied blocks-off block-edit-off home-timing-card timing-sheet home-timing-held settings-sleep-timing-off settings-sleep-timing-on"
 SCENARIOS=${SCENARIOS:-$(printf '%s\n' $ALL)}
 VARIANTS=${VARIANTS:-light}
 SETTLE=${SETTLE:-12}
@@ -181,7 +182,11 @@ capture() {
 
 for variant in $VARIANTS; do
   case $variant in *dark*) appearance=dark ;; *) appearance=light ;; esac
-  case $variant in *ax5*) size=accessibility-extra-extra-extra-large ;; *) size=large ;; esac
+  case $variant in
+    *ax5*) size=accessibility-extra-extra-extra-large ;;
+    *xxxl*) size=extra-extra-extra-large ;;
+    *) size=large ;;
+  esac
   case $variant in *wordless*) wordless=YES ;; *) wordless=NO ;; esac
   xcrun simctl ui "$UDID" appearance "$appearance"
   xcrun simctl ui "$UDID" content_size "$size"

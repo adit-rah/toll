@@ -686,3 +686,28 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Assumed, for the founders:** off is refused inside the hours even when the block isn't locking (away, after the free nights, Screen Time off); the heads-up's answer shows once.
 - **Left:** the open landmark card under the tab bar (#162, narrowed).
 
+**D111. Last night's open card keeps to its room** (2026-11-28, #162; amends D93 and D96; details of D86 and D87).
+- **Capped, not moved.** Below accessibility sizes, the open card is never taller than the room between the state and the strip (20 pt from each). Past that, its header stays with "OK" and the fold, and the details scroll inside the card. The band and the strip stay where the folded row had them, so nothing runs under the tab bar and the state never moves (D86). Only when even the folded band can't fit there does it go under the state, as before.
+- **The cut edge fades** over 28 pt while more is below. The fade has no motion.
+- **One surface (D96):** the details keep one frame in both states, so opening changes only the card's height. Each opening starts at the top.
+- **A landmark follows the night.** In last night's details the landmark comes after the sentence and bar, before the taps and the week, on Tonight's card and in the strip's popover alike (D105).
+- **Chosen over** dropping the week's dots on landmark mornings, or folding "Screen time after bed" to one line. On iPhone 17 the open landmark card needs about 400 pt against about 250 of room, so neither fits alone; the cap fits every phone and size.
+- **At accessibility sizes,** "OK" leaves the open card's header, where it crowded "Last night" and the chevron, and ends the card.
+- **The block editor at accessibility sizes** pins only Save. Delete block and the note for a block that's on end the scrolling page, the note last, so its coming moves nothing (D87).
+- **Renders** gain an `xxxl` variant and a `device` choice (`docs/renders.md`).
+- **Assumed, for the founders:** the landmark's move up; OK at the card's end at accessibility sizes; the cut edge's fade.
+- **Resolves** D96's "Left open" about the band moving under the state (device row 179).
+- **Left:** the smallest phone at xxxL with a card above, where the folded band already can't fit and the open card still runs under the tab bar until the page scrolls; and the block editor's pinned note, Delete and Save at xxxL on the smallest phone (about 28% of the screen); both in #178.
+
+**D112. Personal timing is offered once, after the first week** (2026-11-28, #171; details of D65 and D107).
+- **The offer.** One-time flow #2, `personal-timing`, comes after #1 in the registry. It applies to a person who is set up, chose Apple Health, and hasn't turned timing on. It is ready once 7 nights have ended since setup (`timing.offerAfterNights`), however each went. It shows at calm times only, like D94's flows. Flows gain a `ready` predicate beside `applies`.
+- **The card and the sheet.** Each line says what it does, what it never does (the wake-up never moves; never more than 90 min before sleep, never after falling asleep), and where it's turned off. Turn on, or Keep my own time, answers it for good. Cancel leaves it offered. The third "Not now" leaves timing off.
+- **Tonight's reason.** While this week's start isn't the person's own, the line under the time reads "30 min earlier this week, to learn what helps". It takes the "N min before sleep" line's place, in label2 with `arrow.left.and.right`, so the time keeps its place (D105). It shows only before the lock.
+- **Settings › Sleep.** "Learn what helps your sleep" is a switch applied with Save. Its line says what it does, or this week's start once on. Without Health, the row says so and offers Health, which turns the switch on (still to be saved). Turning timing on draws this week's start straight away. Turning it off gives the next night back to the person's own time (D107), so it never ends a lock that's on.
+- **The rules** are `Flows.timing`, `HeldStart` and `TimingSetting`, tested in `TimingOfferTests`.
+- **Assumed, for the founders:**
+  - "The first week" is 7 nights ended since setup, not 7 nights with Health's sleep.
+  - Keep my own time answers the offer for good.
+  - A settled week (D66) gives the same "to learn what helps" reason until the insight is on screen.
+  - In a held week Tonight drops "N min before sleep" for the reason; the strip still draws the buffer.
+  - The row sits last in Settings › Sleep.

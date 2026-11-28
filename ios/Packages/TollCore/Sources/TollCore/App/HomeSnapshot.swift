@@ -92,6 +92,8 @@ public struct HomeSnapshot: Equatable, Sendable {
   /// Under "Apps lock at 10:15 pm": "15 min before bed" (D76). Nil with no gap, or when the hero
   /// isn't the lock to come.
   public var beforeBed: String?
+  /// This week's start isn't the person's own (D65, #171): its reason takes `beforeBed`'s line.
+  public var heldStart: HeldStart?
   /// In the gap before bed, with the helpers on: whole minutes until bed. Tonight's quiet "Before
   /// bed" capsule and its one card (D80); nil at any other time.
   public var untilBed: Int?
@@ -174,8 +176,9 @@ public struct HomeSnapshot: Equatable, Sendable {
     }
     gapCard = Self.gapCard(card, state: state, now: now, calendar: calendar, config: config)
     timeline = day.segments.isEmpty ? nil : day
-    if case .tonight = hero, state.lead > 0 {
-      beforeBed = Copy.Gap.beforeBed(state.lead)
+    if case .tonight = hero {
+      heldStart = HeldStart(state)
+      if state.lead > 0 { beforeBed = Copy.Gap.beforeBed(state.lead) }
     }
     freeNights = FreeNights(state: state, log: log, now: now, calendar: calendar, config: config)
     if case .off = hero { supply.refillDay = nil }

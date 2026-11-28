@@ -26,6 +26,8 @@ flowchart TD
   awayCheck -->|"no"| placeCheck{"Home set and location Always?"}
   placeCheck -->|"no: Anywhere"| anywhere["clock: Apps lock at … · N min before bed; Anywhere · starts in …<br/>render: home-anywhere"]
   placeCheck -->|"yes"| evening["clock: Apps lock at … · N min before bed; At home · starts in …<br/>render: home-evening"]
+  evening -.->|"personal timing holds this week's start away from the person's own (HeldStart, #171)"| heldLine["The same, the minutes-before-bed line replaced by its reason, in label2:<br/>timing glyph · 30 min earlier this week, to learn what helps; the time doesn't move<br/>render: home-timing-held"]
+  anywhere -.->|"the same"| heldLine
 
   off --> stCheck
   paused --> stCheck
@@ -114,7 +116,7 @@ flowchart TD
   answer -->|"no"| flow{"A one-time flow due today?"}
   answerOn --> review
   answerOff --> review
-  flow -->|"yes"| flowCard["The flow's card: Fit Dusk to your sleep, see once-fit-sleep.md<br/>render: home-morning-flow, home-fit-card"]
+  flow -->|"yes"| flowCard["The flow's card, the registry's first due: Fit Dusk to your sleep (once-fit-sleep.md),<br/>then Learn what helps your sleep (once-personal-timing.md)<br/>render: home-morning-flow, home-fit-card, home-timing-card"]
   flow -->|"no"| setup{"A night ended since setup, and an offer due:<br/>home, then the heads-up, then the gap offer?"}
   setup -->|"yes"| setupCard["Only when I'm home? · A heads-up before your night? · Lock apps 15 min before bed?<br/>render: home-card, home-heads-up, home-gap-offer"]
   setup -->|"no"| noCard
@@ -199,7 +201,7 @@ flowchart TD
 - **A night with Screen Time off shows last night's card only if Screen Time is back on**; while it's still off, the Screen Time state replaces everything, so that night's facts aren't shown.
 - **The card floats only until noon,** as the morning card did; after that, and after OK, the strip's start is the way back to it until the next lock.
 - **The row is folded each time Tonight appears** (a tab switch, or the app coming back from the background), so an open card never greets the person. OK is only in the open card: the folded row stays until noon.
-- **Where the open card goes:** it grows up from its row while its bottom edge stays 20 pt above the strip. Where it no longer fits there, it goes under the state and the screen scrolls (D86's last place), never under the bar, so it never jumps away from its row. A card above the row fades out while last night is open, so the open card never pushes it into the state or covers it.
+- **Where the open card goes:** it grows up from its row while its bottom edge stays 20 pt above the strip. It is never taller than the room between the state and the strip (20 pt from each): past that, its header stays and its details scroll inside the card (#162; `render: home-morning-landmark-open`). Only where even the folded row can't fit there does the band go under the state and the screen scroll (D86's last place), never under the bar, so it never jumps away from its row. A card above the row fades out while last night is open, so the open card never pushes it into the state or covers it.
 - **A problem and last night's row together:** the location note, a lost night's apps or a build that can't save sit above last night's row each morning. Screen Time off is the exception: the state says so and last night isn't shown at all.
 - **Monday's card on Tuesday morning:** it shows until Tuesday noon, as before, so a person who didn't open Dusk on Monday still sees it; that morning it sits over last night's row.
 - **A flow's calm and the band's calm differ:** `Flows.calm` keeps the last 20 minutes before the lock quiet, the band the last 60. The band is the stricter, so a flow is never shown inside the hour; `Flows.due` may still call one due there.

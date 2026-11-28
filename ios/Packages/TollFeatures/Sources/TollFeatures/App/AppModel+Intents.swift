@@ -35,11 +35,11 @@ extension AppModel {
     send(.edit, [.buffer(side, setting, target: target)])
   }
 
-  /// How the one-time flow went (`Flows`): shown, answered with the person's fit, or not now.
-  func flow(_ id: String, _ outcome: FlowRecord.Outcome, fit: Fit? = nil) {
+  /// How a one-time flow went (`Flows`): shown, answered with the person's commands (their fit,
+  /// personal timing on), or not now.
+  func flow(_ id: String, _ outcome: FlowRecord.Outcome, commands: [Command] = []) {
     guard let flow = Flows.registry.first(where: { $0.id == id }) else { return }
-    let answer: [Command] = fit.map { [.fit($0)] } ?? []
-    send(.edit, answer + [.flow(id: id, version: flow.version, outcome)])
+    send(.edit, commands + [.flow(id: id, version: flow.version, outcome)])
     if outcome != .shown { dueFlow = nil }
   }
 

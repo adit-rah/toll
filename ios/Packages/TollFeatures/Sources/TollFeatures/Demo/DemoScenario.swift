@@ -29,6 +29,13 @@
     /// The same step for someone whose weeks fitted their targets (#145).
     case fitSheetFitted = "fit-sheet-around-fitted"
     case settingsSleep = "settings-sleep"
+    /// Personal timing (#171, `DemoTiming`): its card on Tonight and its sheet, Tonight with this
+    /// week's start held earlier, and Settings › Sleep's switch with Health chosen, off and on.
+    case homeTimingCard = "home-timing-card"
+    case timingSheet = "timing-sheet"
+    case homeTimingHeld = "home-timing-held"
+    case settingsSleepTimingOff = "settings-sleep-timing-off"
+    case settingsSleepTimingOn = "settings-sleep-timing-on"
     /// Each side's small sheet: before sleep from onboarding, after waking from Settings › Sleep.
     case aroundBefore = "setup-around-before"
     case settingsSleepAfter = "settings-sleep-after"
@@ -293,7 +300,8 @@
       case .settings, .settingsAnywhere, .settingsHeadsUpDenied, .settingsWhileUsing,
         .settingsScreenTimeOff, .settingsHowItWorks:
         [.settings]
-      case .settingsSleep, .settingsSleepAfter: [.settings, .sleep]
+      case .settingsSleep, .settingsSleepAfter, .settingsSleepTimingOff, .settingsSleepTimingOn:
+        [.settings, .sleep]
       case .settingsLog: [.settings, .log]
       case .blockNew, .blockNewGym: [.block(nil)]
       case .blockEdit, .blockEditOn, .blockPlace, .blockDelete, .blockEditOff:
@@ -305,12 +313,13 @@
     /// The door and the purchase are sheets over Tonight.
     var presentsSheet: Bool {
       isDoor || rawValue.hasPrefix("purchase") || setHomePath != nil || helperSheet
-        || fitSheetPath != nil || self == .settingsHowItWorks
+        || fitSheetPath != nil || self == .settingsHowItWorks || self == .timingSheet
     }
     var isHome: Bool {
       rawValue.hasPrefix("home-") || rawValue.hasPrefix("sleep-") || rawValue.hasPrefix("block")
         || isDoor || rawValue.hasPrefix("purchase") || rawValue.hasPrefix("settings")
         || setHomePath != nil || self == .insights || helperSheet || fitSheetPath != nil
+        || self == .timingSheet
     }
   }
 

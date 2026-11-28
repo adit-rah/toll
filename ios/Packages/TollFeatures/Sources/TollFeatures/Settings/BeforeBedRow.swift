@@ -30,6 +30,8 @@ struct SleepSettingsView: View {
   @State private var helpers: Bool
   @State private var breath: Int
   @State private var editing: Gap.Side?
+  /// Personal timing's switch (#171), saved with the rest.
+  @State private var timing: Bool
   private let nightOn: Bool
 
   init(model: AppModel) {
@@ -50,6 +52,7 @@ struct SleepSettingsView: View {
     #endif
     _helpers = State(initialValue: model.state.helpers.on)
     _breath = State(initialValue: model.breathMinutes)
+    _timing = State(initialValue: model.state.timing.on)
     nightOn = snapshot.nightOn
   }
 
@@ -75,6 +78,16 @@ struct SleepSettingsView: View {
           Footnote(Copy.Gap.tonightStays).padding(.top, TollSpacing.underCard)
         }
         helpersCard.padding(.top, 12)
+        // Under the helpers: it's offered once after the first week, so it comes last (D65).
+        Card {
+          TimingRow(setting: TimingSetting(model.state, config: model.config), on: $timing) {
+            Task {
+              await model.askHealth()
+              timing = true
+            }
+          }
+        }
+        .padding(.top, 12)
       }
       .tollGutter()
       .padding(.bottom, 24)
@@ -130,6 +143,7 @@ struct SleepSettingsView: View {
     model.saveSleep(
       sleep, before: (before.setting, before.target), after: (after.setting, after.target),
       helpers: Helpers(on: helpers, breathMinutes: breath))
+    if model.state.health { model.setTiming(timing) }
   }
 }
 

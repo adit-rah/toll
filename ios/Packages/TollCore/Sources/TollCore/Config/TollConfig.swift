@@ -229,6 +229,11 @@ public struct TollConfig: Codable, Sendable, Equatable {
     /// A week's start is chosen only this long or more before the night's lock, so an earlier one
     /// still leaves the heads-up and Tonight's hour before the lock as they were (D68, `band`).
     public var chooseBeforeMinutes = 90
+    /// Offered once this many of the night's hours have ended since setup: the first week (D65).
+    public var offerAfterNights = 7
+
+    /// The most a week's start moves either way, for the words that promise it.
+    public var mostMinutes: Int { offsets.map(abs).max() ?? 0 }
   }
 
   public struct Sky: Codable, Sendable, Equatable {

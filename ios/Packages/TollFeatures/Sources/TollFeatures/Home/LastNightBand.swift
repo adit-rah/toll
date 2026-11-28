@@ -5,13 +5,21 @@ import TollUI
 /// Last night in Tonight's band each morning, folded to one quiet row (founder, 25 Nov; amends D91):
 /// the moon, "Last night", the night's outcome as a glyph and a few words, and a chevron. The whole
 /// row opens the full card, which grows up from it while its bottom edge stays above the strip; the
-/// header folds it again. "OK" lives only in the open card. Nothing is kept: the row is folded each
-/// time Tonight appears.
+/// header folds it again. "OK" lives only in the open card: in its header, or at accessibility sizes
+/// at its end. Nothing is kept: the row is folded each time Tonight appears.
 struct LastNightBand: View {
   let night: Morning
   @Binding var open: Bool
+  /// Below accessibility sizes the open card keeps to the room above the strip and its details
+  /// scroll inside it (#162); at accessibility sizes the page scrolls instead.
+  var scrollsInside = false
   let putAway: () -> Void
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.dynamicTypeSize) private var typeSize
+  /// Each opening starts at the top of the details, as nothing about the card is kept.
+  @State private var scroll = ScrollPosition(edge: .top)
+  @State private var moreBelow = false
+  private static let fade: CGFloat = 28
 
   private var shape: RoundedRectangle {
     RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
@@ -25,10 +33,7 @@ struct LastNightBand: View {
   var body: some View {
     FoldLayout(open: open) {
       header
-      LastNightDetails(night: night)
-        .padding(.top, 2)
-        .padding(.bottom, TollSpacing.noteCardVertical)
-        .shown(open, reduceMotion: reduceMotion)
+      details
     }
     .padding(.horizontal, TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
@@ -37,9 +42,55 @@ struct LastNightBand: View {
     .clipShape(shape)
   }
 
+  /// Under the header, which stays put while they scroll, so "OK" and the fold are always in reach.
+  /// The scroll view hugs the details when they fit, and nothing bounces.
+  @ViewBuilder private var details: some View {
+    let content = VStack(alignment: .leading, spacing: 0) {
+      LastNightDetails(night: night)
+      // At accessibility sizes "OK" beside "Last night" and the chevron crowded the header
+      // (#162), so it ends the card instead, where the review ends.
+      if typeSize.isAccessibilitySize { ok.padding(.top, 8) }
+    }
+    .padding(.top, 2)
+    .padding(.bottom, TollSpacing.noteCardVertical)
+    Group {
+      if scrollsInside {
+        ScrollView {
+          content
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollPosition($scroll)
+        .onScrollGeometryChange(for: Bool.self) { geometry in
+          geometry.visibleRect.maxY < geometry.contentSize.height - 1
+        } action: { _, more in
+          moreBelow = more
+        }
+        // While more is below, the cut edge fades, so it reads as a page that goes on rather than
+        // a card drawn short. It has no motion: it is there or not.
+        .mask {
+          VStack(spacing: 0) {
+            Color.black
+            LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+              .frame(height: moreBelow ? Self.fade : 0)
+          }
+        }
+      } else {
+        content
+      }
+    }
+    .shown(open, reduceMotion: reduceMotion)
+    .onChange(of: open) { _, open in
+      // Folded, the details have already faded out at once, so this jump is never seen.
+      guard !open else { return }
+      var instant = Transaction()
+      instant.disablesAnimations = true
+      withTransaction(instant) { scroll.scrollTo(edge: .top) }
+    }
+  }
+
   /// The row, and the open card's header: one button that opens or folds, with "OK" over it beside
-  /// the chevron once open. The chevron is one view in both, so it turns with the card instead of
-  /// being swapped for another.
+  /// the chevron once open, below accessibility sizes. The chevron is one view in both, so it turns
+  /// with the card instead of being swapped for another.
   private var header: some View {
     Button(action: toggle) {
       HStack(spacing: 8) {
@@ -56,13 +107,17 @@ struct LastNightBand: View {
     .accessibilityIdentifier("tonight.lastNight")
     // Over the room the row's status leaves; the two are never shown together.
     .overlay(alignment: .trailing) {
-      Button(Copy.Morning.ok, action: putAway)
-        .tollType(.action, TollColor.label2)
-        .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
-        .contentShape(Rectangle())
-        .padding(.trailing, Self.chevronWidth + 8)
-        .shown(open, reduceMotion: reduceMotion)
+      if !typeSize.isAccessibilitySize {
+        ok.padding(.trailing, Self.chevronWidth + 8).shown(open, reduceMotion: reduceMotion)
+      }
     }
+  }
+
+  private var ok: some View {
+    Button(Copy.Morning.ok, action: putAway)
+      .tollType(.action, TollColor.label2)
+      .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
+      .contentShape(Rectangle())
   }
 
   private static let chevronWidth: CGFloat = 14
@@ -166,13 +221,15 @@ extension View {
 
 /// The header over the details, at the size of the header alone while folded: the details keep
 /// their place under it, past the card's clipped bottom edge, so opening only changes the height.
-/// A layout rather than a measured height, so the first frame is already right.
+/// Offered less height than the open card needs, the details get what's left under the header, in
+/// both states, so they keep one frame (#162). A layout rather than a measured height, so the first
+/// frame is already right.
 private struct FoldLayout: Layout {
   let open: Bool
 
   func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
     let fit = ProposedViewSize(width: proposal.width, height: nil)
-    let heights = subviews.map { $0.sizeThatFits(fit).height }
+    let heights = Self.heights(subviews, width: proposal.width, room: proposal.height)
     let width = proposal.width ?? subviews.map { $0.sizeThatFits(fit).width }.max() ?? 0
     return CGSize(width: width, height: open ? heights.reduce(0, +) : heights.first ?? 0)
   }
@@ -181,12 +238,24 @@ private struct FoldLayout: Layout {
     in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()
   ) {
     var y = bounds.minY
-    for subview in subviews {
-      let height = subview.sizeThatFits(ProposedViewSize(width: bounds.width, height: nil)).height
+    let heights = Self.heights(subviews, width: bounds.width, room: proposal.height)
+    for (subview, height) in zip(subviews, heights) {
       subview.place(
         at: CGPoint(x: bounds.minX, y: y), anchor: .topLeading,
         proposal: ProposedViewSize(width: bounds.width, height: height))
       y += height
+    }
+  }
+
+  /// The header's own height, then the details' up to the room left under it.
+  private static func heights(_ subviews: Subviews, width: CGFloat?, room: CGFloat?) -> [CGFloat] {
+    let fit = ProposedViewSize(width: width, height: nil)
+    var left = room ?? .infinity
+    return subviews.enumerated().map { index, subview in
+      let natural = subview.sizeThatFits(fit).height
+      let height = index == 0 ? natural : min(natural, max(0, left))
+      left -= height
+      return height
     }
   }
 }
