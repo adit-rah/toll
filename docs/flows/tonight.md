@@ -90,7 +90,7 @@ What floats between the state and the strip (`TonightBand`). Every item has a ki
 | 1. Problem | Screen Time off, a build that can't save, a night without its apps, location short of Always | Any time, until fixed | Takes the card. Last night's row may sit under it |
 | 2. Night | Before bed's card; Monday's gap card | Before bed's: in the gap only. Monday's: from Monday noon until Tuesday noon, while nothing is locked, the hour before the lock included | Loses only to a problem. On Tuesday morning, last night's row sits under Monday's card |
 | 3. Flow | A one-time flow's card (D92) | At a calm time: nothing locked, free nights left or bought, not in the hour before the lock, not during the night | Loses to a problem or a night card, and waits a day. Last night's row may sit under it |
-| 4. Setup | Home, then the heads-up, then the gap offer (one at a time) | At a calm time, and only after a night has ended since setup | Loses to all of the above and waits for a calm time. Last night's row may sit under it |
+| 4. Setup | Home, then the heads-up, then the gap offer (one at a time); after the heads-up's Turn on, its answer once (#160) | At a calm time, and only after a night has ended since setup. The answer: until OK or the app goes to the background, held in memory | Loses to all of the above and waits for a calm time; the answer goes before a flow or the next offer. Last night's row may sit under it |
 | 5. Review | Last night's folded row | From the night's end until noon, until OK, never in the hour before the lock | Always the row, never the card: it sits under whichever card shows |
 
 From 60 minutes before the lock (`TollConfig.band.nightMinutes`) until the night ends, the band belongs to the night. Before the gap, it shows at most one card about the night (Monday's). In the gap, it shows Before bed's card, or nothing. Setup offers and flows wait for tomorrow. A problem still shows: it stays until fixed.
@@ -107,7 +107,12 @@ flowchart TD
   monday -->|"yes"| mondayCard["This week, apps lock 30 min before bed<br/>render: home-gap-week, home-night-hour-monday"]
   monday -->|"no"| calm{"A calm time: nothing locked, not the night,<br/>more than 60 min before the lock?"}
   calm -->|"no"| noCard
-  calm -->|"yes"| flow{"A one-time flow due today?"}
+  calm -->|"yes"| answer{"The heads-up's Turn on just answered by iOS?"}
+  answer -->|"allowed"| answerOn["Heads-up on, the bell's tile amber with a tick, its time, OK<br/>render: home-heads-up-on"]
+  answer -->|"refused"| answerOff["Notifications are off for Dusk, Open Settings, OK<br/>render: home-heads-up-denied"]
+  answer -->|"no"| flow{"A one-time flow due today?"}
+  answerOn --> review
+  answerOff --> review
   flow -->|"yes"| flowCard["The flow's card: Fit Dusk to your sleep, see once-fit-sleep.md<br/>render: home-morning-flow, home-fit-card"]
   flow -->|"no"| setup{"A night ended since setup, and an offer due:<br/>home, then the heads-up, then the gap offer?"}
   setup -->|"yes"| setupCard["Only when I'm home? · A heads-up before your night? · Lock apps 15 min before bed?<br/>render: home-card, home-heads-up, home-gap-offer"]

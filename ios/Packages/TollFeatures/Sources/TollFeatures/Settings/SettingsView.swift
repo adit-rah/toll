@@ -66,7 +66,7 @@ struct SettingsView: View {
         }
         SettingsSection(Copy.Settings.app) {
           Card {
-            SettingsRow(Copy.Settings.appearance, minHeight: 50) {
+            SettingsRow(Copy.Settings.appearance, symbol: .appearance) {
               AppearancePicker(selection: $appearance)
             }
             freeNights
@@ -76,7 +76,8 @@ struct SettingsView: View {
                 Task { await restore() }
               } label: {
                 SettingsRow(
-                  Copy.Settings.restore, detail: restored ? Copy.Settings.restored : nil)
+                  Copy.Settings.restore, detail: restored ? Copy.Settings.restored : nil,
+                  symbol: restored ? .purchased : .restore)
               }
               .buttonStyle(.plain)
               .disabled(restoring || restored)
@@ -88,13 +89,16 @@ struct SettingsView: View {
             Button {
               explaining = true
             } label: {
-              SettingsRow(Copy.Settings.howItWorks, glyph: true) { Chevron() }
+              SettingsRow(Copy.Settings.howItWorks, glyph: true, symbol: .howItWorks) { Chevron() }
             }
             .buttonStyle(.plain)
             // Rows that leave the app say so with the glyph; a row with nowhere to go isn't shown.
             if let privacy = AppLinks.privacy {
               Link(destination: privacy) {
-                SettingsRow(Copy.Settings.privacy, detail: Copy.Settings.privacyLine, glyph: true) {
+                SettingsRow(
+                  Copy.Settings.privacy, detail: Copy.Settings.privacyLine, glyph: true,
+                  symbol: .privacy
+                ) {
                   LeavesApp()
                 }
               }
@@ -102,12 +106,16 @@ struct SettingsView: View {
             }
             if let address = AppLinks.supportAddress, let support = AppLinks.support {
               Link(destination: support) {
-                SettingsRow(Copy.Settings.contact, detail: address, glyph: true) { LeavesApp() }
+                SettingsRow(
+                  Copy.Settings.contact, detail: address, glyph: true, symbol: .contact
+                ) { LeavesApp() }
               }
               .buttonStyle(.plain)
             }
             NavigationLink(value: HomeRoute.log) {
-              SettingsRow(Copy.Settings.log, detail: Copy.Settings.testingOnly, glyph: true) {
+              SettingsRow(
+                Copy.Settings.log, detail: Copy.Settings.testingOnly, glyph: true, symbol: .log
+              ) {
                 Chevron()
               }
             }
@@ -131,13 +139,16 @@ struct SettingsView: View {
 
   @ViewBuilder private var freeNights: some View {
     if model.state.trial.purchased {
-      SettingsRow(Copy.Settings.purchased, detail: Copy.Settings.purchasedDetail)
-    } else {
       SettingsRow(
-        Copy.Settings.freeNights,
-        detail: model.trialNight(now: Date()).map {
-          Copy.Settings.night($0, of: model.config.trial.nights)
-        }
+        Copy.Settings.purchased, detail: Copy.Settings.purchasedDetail, symbol: .purchased)
+    } else {
+      // The free nights as their segments, as on Tonight's pill (#168): all used once they end.
+      let nights = model.config.trial.nights
+      let night = model.trialNight(now: Date())
+      FreeNightsRow(
+        detail: night.map { Copy.Settings.night($0, of: nights) },
+        used: night.map { $0 - 1 } ?? (model.state.trial.entitled ? 0 : nights), total: nights,
+        tonight: night.map { $0 - 1 }
       ) {
         Button(Copy.Settings.once(model.price), action: openPurchase)
           .tollType(.link, TollColor.accent)

@@ -85,6 +85,20 @@ struct TonightBandView: View {
       TonightCardView(
         card: card, headsUp: home.headsUp, gap: home.gapCard, untilBed: home.untilBed,
         open: { actions.openCard(card) }, dismiss: { actions.dismissCard(card) })
+    // The offer's answer (#160): the bell on, with its time; or refused, the way to iOS Settings.
+    case .headsUpOn:
+      BandCard(
+        symbol: .headsUp, title: Copy.HeadsUp.isOn,
+        detail: Copy.HeadsUp.cardDetail(
+          time: home.headsUp.map { Copy.time($0.at) },
+          minutes: TollConfig.defaults.headsUp.leadMinutes),
+        action: nil, dismiss: Copy.HeadsUp.ok, done: true, open: {},
+        putAway: actions.headsUpSeen)
+    case .headsUpDenied:
+      BandCard(
+        symbol: .headsUp, title: Copy.HeadsUp.refused, detail: Copy.HeadsUp.refusedDetail,
+        action: Copy.HeadsUp.openSettings, dismiss: Copy.HeadsUp.ok, leaves: true,
+        open: actions.openNotificationSettings, putAway: actions.headsUpSeen)
     case .flow:
       // One-time flow #1, the one registered (#144): its own words, the offers' quiet card.
       BandCard(
@@ -110,4 +124,7 @@ struct TonightBandActions {
   var openFlow: () -> Void = {}
   var notNowFlow: () -> Void = {}
   var flowShown: () -> Void = {}
+  /// The heads-up's answer (#160): "OK" puts it away; refused, iOS Settings allows it.
+  var headsUpSeen: () -> Void = {}
+  var openNotificationSettings: () -> Void = {}
 }

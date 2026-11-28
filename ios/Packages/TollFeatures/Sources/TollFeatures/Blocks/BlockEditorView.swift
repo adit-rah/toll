@@ -119,6 +119,13 @@ struct BlockEditorView: View {
       .buttonStyle(.plain)
     }
     .padding(.top, model.isSleep ? TollSpacing.titleToContent : 12)
+    // Last and apart: a quiet card under the block's details, never above them (D105).
+    if model.savedSwitch != nil {
+      Card {
+        SwitchRow(isOn: $model.block.isOn, line: model.switchLine, locked: model.switchLocked)
+      }
+      .padding(.top, 12)
+    }
     notes
   }
 

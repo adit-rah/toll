@@ -32,6 +32,9 @@ struct HomeView: View {
   var openFlow: () -> Void = {}
   var notNowFlow: () -> Void = {}
   var flowShown: () -> Void = {}
+  /// The heads-up's answer in the band (#160): "OK", and iOS Settings when it was refused.
+  var headsUpSeen: () -> Void = {}
+  var openNotificationSettings: () -> Void = {}
   /// Demo renders open the strip on this segment's snippet: a block, or "lastNight" (docs/renders.md).
   var snippet: String?
   /// Demo renders open last night's card in the band.
@@ -164,7 +167,8 @@ struct HomeView: View {
         fixLocation: fixLocation, turnOnScreenTime: turnOnScreenTime,
         chooseNightApps: chooseNightApps, openCard: openCard, dismissCard: dismissCard,
         putAwayLastNight: putAwayLastNight, openFlow: openFlow, notNowFlow: notNowFlow,
-        flowShown: flowShown)
+        flowShown: flowShown, headsUpSeen: headsUpSeen,
+        openNotificationSettings: openNotificationSettings)
     )
     // Design §2.5: a card fades in place; nothing else moves.
     .animation(Motion.stateChange, value: home.band)

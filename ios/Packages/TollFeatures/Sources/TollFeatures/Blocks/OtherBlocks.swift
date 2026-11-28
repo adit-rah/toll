@@ -100,8 +100,13 @@ struct OtherBlockRow: View {
   let row: BlocksSnapshot.Row
 
   var body: some View {
-    BlockRowLayout(title: row.name) {
-      IconTile(.block(row.kind), accent: row.state == .on)
+    BlockRowLayout(title: row.name, faint: row.state == .off) {
+      // Off has its own shape (#161): dashed, as the strip draws what won't block.
+      if row.state == .off {
+        EmptyTile(.block(row.kind))
+      } else {
+        IconTile(.block(row.kind), accent: row.state == .on)
+      }
     } detail: {
       FactLine(row.facts.lines)
     } trailing: {
@@ -139,6 +144,8 @@ struct BlockState: View {
 /// trailing view, which moves under the text at accessibility sizes.
 private struct BlockRowLayout<Leading: View, Detail: View, Trailing: View>: View {
   let title: String
+  /// Off: the title steps down to `label2`, as a disabled title does (design §2.3).
+  var faint = false
   @ViewBuilder let leading: Leading
   @ViewBuilder let detail: Detail
   @ViewBuilder let trailing: Trailing
@@ -153,7 +160,7 @@ private struct BlockRowLayout<Leading: View, Detail: View, Trailing: View>: View
       HStack(spacing: TollSpacing.rowGap) {
         leading
         VStack(alignment: .leading, spacing: 1) {
-          Text(title).tollType(.rowTitle, TollColor.label)
+          Text(title).tollType(.rowTitle, faint ? TollColor.label2 : TollColor.label)
           detail
         }
         .fixedSize(horizontal: false, vertical: true)

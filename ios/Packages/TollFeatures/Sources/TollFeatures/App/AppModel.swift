@@ -19,6 +19,9 @@ public final class AppModel {
   public private(set) var location = LocationAccess.State.notDetermined
   /// iOS's answer for the heads-up (D68); nil until read, and nothing is scheduled or offered before.
   public internal(set) var notifications: NotificationPermission?
+  /// Tonight's heads-up offer was just answered with "Turn on" (#160): in memory only, so its
+  /// answer shows once, until "OK" or the app goes to the background.
+  var headsUpTurnedOn = false
   public let config = TollConfig.defaults
   /// The App Store's localized price once it answers (D34).
   public private(set) var price = Copy.fallbackPrice

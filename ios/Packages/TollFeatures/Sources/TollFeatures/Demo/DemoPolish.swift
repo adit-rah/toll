@@ -29,6 +29,13 @@
         night.place = nil
         state.pending[night.id] = .save(night)
       }
+      // Study switched off (#161): nothing of it is on, whatever its hours say.
+      if [.blocksOff, .blockEditOff].contains(scenario),
+        let study = state.blocks.firstIndex(where: { $0.id == BlockID("study") })
+      {
+        state.blocks[study].isOn = false
+        state.runtime.active[BlockID("study")] = nil
+      }
     }
   }
 #endif

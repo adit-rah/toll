@@ -112,8 +112,23 @@ public struct TollSymbol: Hashable, Sendable {
   /// row points up, the open card's header down, toward the row it folds back to.
   public static let unfold = TollSymbol("chevron.up")
   public static let fold = TollSymbol("chevron.down")
-  /// Sharing Your sky's picture, on a landmark morning only (D79).
+  /// Sharing Your sky's picture, on a landmark morning only (D79), and the testing log's night
+  /// records.
   public static let share = TollSymbol("square.and.arrow.up")
+
+  // Settings' App and Help rows (#168): each leads with its tile, as "Is everything working?" does
+  /// Dark, Light or Match iPhone.
+  public static let appearance = TollSymbol("circle.lefthalf.filled")
+  /// The free nights before the purchase, beside their segments.
+  public static let freeNights = TollSymbol("gift")
+  /// Restoring a purchase made on another phone or before a reinstall.
+  public static let restore = TollSymbol("arrow.clockwise")
+  /// How it works, Dusk's rules in a sheet.
+  public static let howItWorks = TollSymbol("questionmark.circle")
+  /// Writing to the founders.
+  public static let contact = TollSymbol("envelope")
+  /// The activity log, kept while Dusk is tested.
+  public static let log = TollSymbol("list.bullet.rectangle")
 
   // Your sleep's measures (#87, #88)
   /// Asleep, as Health measured it: falling asleep, and last night's sleep on its card.

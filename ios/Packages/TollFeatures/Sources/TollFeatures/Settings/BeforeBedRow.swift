@@ -175,9 +175,12 @@ struct BufferChoiceSheet: View {
   @Binding var choice: BufferChoice
   let config: TollConfig
   let close: () -> Void
+  /// The rows' width, for the minutes' bars at the night picture's scale (#168).
+  @State private var width: CGFloat = 0
 
   var body: some View {
     let limits = config.limits(side)
+    let scale = MinutesBar.scale(width: width)
     SheetPage(height: 520) {
       SheetTitle(side == .before ? Copy.Fit.before : Copy.Fit.after)
       SheetBody(side == .before ? Copy.Fit.beforeSheet : Copy.Fit.afterSheet)
@@ -196,23 +199,25 @@ struct BufferChoiceSheet: View {
         case .grows:
           Hairline()
           MinutesRow(
-            title: Copy.Fit.tonight, minutes: choice.minutes, range: 0...choice.target, step: 5
+            title: Copy.Fit.tonight, minutes: choice.minutes, range: 0...choice.target, step: 5,
+            scale: scale
           ) { choice.minutes = $0 }
           Hairline()
           MinutesRow(
             title: Copy.Fit.growsTo, minutes: choice.target, range: 0...limits.manualMax,
-            step: limits.manualStep
+            step: limits.manualStep, scale: scale
           ) { choice.target = max($0, choice.minutes) }
         case .fixed:
           Hairline()
           MinutesRow(
             title: Copy.Gap.fixedOption, minutes: choice.minutes, range: 0...limits.manualMax,
-            step: limits.manualStep
+            step: limits.manualStep, scale: scale
           ) { choice.minutes = $0 }
         case .none:
           EmptyView()
         }
       }
+      .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { width = $0 }
       .padding(.top, 16)
     } actions: {
       PrimaryButton(Copy.Fit.done, action: close)

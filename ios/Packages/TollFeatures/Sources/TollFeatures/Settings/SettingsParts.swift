@@ -79,6 +79,34 @@ extension SettingsRow where Trailing == EmptyView {
   }
 }
 
+/// Free nights in Settings' App card (#168): its tile, the title, the nights as segments (two rows
+/// of seven, tonight's ringed, as on Tonight's pill) and which night it is, then the purchase.
+struct FreeNightsRow<Trailing: View>: View {
+  let detail: String?
+  let used: Int
+  let total: Int
+  let tonight: Int?
+  @ViewBuilder let trailing: Trailing
+
+  var body: some View {
+    HStack(spacing: TollSpacing.rowGap) {
+      IconTile(.freeNights, accent: false)
+      AdaptiveStack(spacing: TollSpacing.rowGap) {
+        VStack(alignment: .leading, spacing: 6) {
+          RowText(title: Copy.Settings.freeNights, detail: detail)
+          FreeNights(used: used, total: total, tonight: tonight, spoken: detail ?? "")
+            .accessibilityHidden(true)
+        }
+        trailing
+      }
+    }
+    .padding(.vertical, 10)
+    .frame(minHeight: 60)
+    .contentShape(Rectangle())
+    .accessibilityElement(children: .combine)
+  }
+}
+
 /// Dark · Light · Match iPhone as the board draws it: 13 pt segments in a 32 pt track, the chosen
 /// one raised. Apple's segmented control is too wide to sit beside the row's title.
 struct AppearancePicker: View {

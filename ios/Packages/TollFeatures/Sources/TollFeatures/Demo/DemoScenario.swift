@@ -122,6 +122,9 @@
     case homeCard = "home-card"
     /// The heads-up card (#104): home set, the evening after the first night, iOS not asked yet.
     case homeHeadsUp = "home-heads-up"
+    /// Its answer after "Turn on" (#160): on, and refused in iOS's prompt.
+    case homeHeadsUpOn = "home-heads-up-on"
+    case homeHeadsUpDenied = "home-heads-up-denied"
     /// The gap before bed (D76): Monday evening after it grew from 15 to 30, and the one offer to an
     /// install from before it.
     case homeGapWeek = "home-gap-week"
@@ -164,6 +167,10 @@
     /// Study's place picker, and its delete sheet (#141).
     case blockPlace = "block-place"
     case blockDelete = "block-delete"
+    /// Study switched off (#161): on Blocks, and in its editor on a weekday at 11 am, inside its
+    /// hours, where turning it on waits for the next start.
+    case blocksOff = "blocks-off"
+    case blockEditOff = "block-edit-off"
     case doorChoosing = "door-choosing"
     case doorWaiting = "door-waiting"
     case doorOpen = "door-open"
@@ -250,7 +257,7 @@
     var notifications: NotificationPermission? {
       switch self {
       case .homeHeadsUp, .homeNightHour, .homeNightHourMonday: .notAsked
-      case .settingsHeadsUpDenied: .denied
+      case .settingsHeadsUpDenied, .homeHeadsUpDenied: .denied
       default: isHome ? .allowed : nil
       }
     }
@@ -268,7 +275,8 @@
     var newBlockKind: Block.Kind? { self == .blockNewGym ? .gym : nil }
     /// Weekday scenarios at 11 am, with Study on.
     var isDay: Bool {
-      [.homeDay, .homeStripDay, .blocksDay, .blocksManyDay, .blockEditOn].contains(self)
+      [.homeDay, .homeStripDay, .blocksDay, .blocksManyDay, .blockEditOn, .blockEditOff].contains(
+        self)
     }
     /// The segment whose snippet the strip opens on (D75): a block, or last night.
     var snippet: String? {
@@ -288,7 +296,8 @@
       case .settingsSleep, .settingsSleepAfter: [.settings, .sleep]
       case .settingsLog: [.settings, .log]
       case .blockNew, .blockNewGym: [.block(nil)]
-      case .blockEdit, .blockEditOn, .blockPlace, .blockDelete: [.block(BlockID("study"))]
+      case .blockEdit, .blockEditOn, .blockPlace, .blockDelete, .blockEditOff:
+        [.block(BlockID("study"))]
       case .blockNight: [.block(BlockID("sleep"))]
       default: []
       }

@@ -125,6 +125,7 @@
         : firstWeek
           || [.homeCard, .homeMorningCard, .homeMorningCardOpen, .homeHeadsUp, .homeMorningAskOpen]
             .contains(scenario)
+          || scenario.headsUpAnswered
           ? 1
           : scenario == .homeLastNight
             ? 13
