@@ -12,7 +12,7 @@ public struct StateLine: View {
   public enum Tone: Sendable {
     case accent, neutral, warn
 
-    var color: Color {
+    public var color: Color {
       switch self {
       case .accent: TollColor.accent
       case .neutral: TollColor.label2

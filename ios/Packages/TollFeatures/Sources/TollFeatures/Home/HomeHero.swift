@@ -2,8 +2,8 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// The state, centred (#72, rule 2): its glyph before an eyebrow that says what the big time means
-/// ("Apps lock at", "Apps locked until", D75), the big time, one line, the week's pauses as dots
+/// The state, centred (#72, rule 2): an eyebrow that says what the big time means ("Apps lock at",
+/// "Apps locked until", D75), the state's glyph and the big time, one line, the week's pauses as dots
 /// while locked, and "Pause" or "Lock again" as buttons. The glyph is big enough to tell the states
 /// apart with every word wiped (#74); when nothing will block it stands in for the time.
 struct HomeHero: View {
@@ -25,16 +25,26 @@ struct HomeHero: View {
   var body: some View {
     VStack(spacing: 6) {
       VStack(spacing: 6) {
-        if offSymbol == nil {
-          // The state's glyph leads its eyebrow, big enough to read alone (#74).
-          StateLine(eyebrow, symbol: state.symbol, tone: state.tone, prominent: true)
-        } else {
+        if offSymbol != nil {
           // Nothing will block: the mark stands in for the time and says so to VoiceOver.
           StateMark(state.symbol, tone: state.tone, large: true, spoken: Copy.Home.notBlocking)
           Text(eyebrow).tollType(.eyebrow, TollColor.label2)
+        } else if time != nil {
+          Text(eyebrow).tollType(.eyebrow, TollColor.label2)
+        } else {
+          StateLine(eyebrow, symbol: state.symbol, tone: state.tone, prominent: true)
         }
         if let time {
-          HeroTime(time)
+          // The state's glyph leads the big time, a little under its capitals (#74): the shape a
+          // glance meets first, with no tier of its own, so the time keeps its place (D86, D87).
+          HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Image(symbol: state.symbol).unredacted()
+              .tollGlyph(54, weight: .medium, relativeTo: .largeTitle)
+              .foregroundStyle(state.tone.color)
+              .dynamicTypeSize(...DynamicTypeSize.accessibility2)
+              .accessibilityHidden(true)
+            HeroTime(time)
+          }
           if let beforeBed {
             // The moon says before what, without the words (D76).
             HStack(alignment: .firstTextBaseline, spacing: 6) {
