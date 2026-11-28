@@ -627,3 +627,8 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Not shown yet:** the sleep model's insight beside the measures, which waits for personal timing (#155).
 - **Assumed, for the founders:** without Health, Time asleep becomes Nights locked; the first nights are the first 7 since setup, not Health's history from before Dusk.
 
+**D105. The most important thing on a screen is the first thing seen** (2026-11-28, founder: "what are the most important things on a given screen, are those things highlighted, or is something else dragging the attention away"). A design principle (design.md §1, principle 9) and a check every screen change runs before review (§1.1).
+- **Where it came from.** The wordless pass (#70) put Tonight's state glyph on its own above the eyebrow. It made the states tell apart without words, but the founder felt something was off. The glyph floated detached, it added a tier so the eye landed on the icon before the time, and it pushed the time down.
+- **The rule it settled for state glyphs:** with a time on screen, the glyph stays small and inline beside the eyebrow (as since D75), growing with Dynamic Type. Without a time (off, Screen Time off, no blocks), the glyph stands alone and large in the time's place. This covers evening, locked, away and the pause open.
+- **What it asks of reviews:** name the screen's one or two most important things, check the render shows them first, and demote whatever pulls the eye away, even something useful.
+
