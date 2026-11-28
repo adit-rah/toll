@@ -31,7 +31,7 @@ For each night the outcome is when the person fell asleep, in minutes from plann
 | What | Command |
 |---|---|
 | Unit tests | `uv run pytest` |
-| Pass criteria (about 3 min; includes a year of null nights) | `uv run python -m sim.criteria --people 2000 --safety-people 10000` |
+| Pass criteria (about 8 min; includes a year of null nights, alone and with the usual time moving) | `uv run python -m sim.criteria --people 2000 --safety-people 10000` |
 | Tuning sweep (about 20 min) | `uv run python -m sim.tune` |
 | Dampened start policies (about 5 min; `reports/dampening.md`) | `uv run python -m sim.dampen_sweep` |
 | The growing gap with personal timing (about 3 min; `reports/gap.md`) | `uv run python -m sim.gap_sweep marks --out reports/gap-sweep.json` |
@@ -59,23 +59,24 @@ The Health export is from the Health app: Profile › Export All Health Data, th
 
 CI (`.github/workflows/model.yml`) checks every step: the unit tests, that the committed files are exactly what the code exports, the checksum, that the Swift package holds the same files, the pass criteria, and the Swift tests on Linux. `ios.yml` runs the Swift tests again on macOS.
 
-## Results (sleep-model.v1)
+## Results (sleep-model.v2)
 
-2,000 simulated people per scenario, 8 weeks each; safety over 10,000; the null for a year over 2,000 (`reports/criteria.json`). v0's results, from the same command when it shipped, are beside them.
+2,000 simulated people per scenario, 8 weeks each; safety over 10,000; the null for a year over 2,000, alone and with the usual time moving (`reports/criteria.json`). v1's results, from the same command when it shipped, are beside them.
 
-| Check | Pass mark | v1 | v0 | |
+| Check | Pass mark | v2 | v1 | |
 |---|---|---|---|---|
-| Ranges are honest | 90% ranges hold the truth for 85–95%, every scenario | 89.8–93.5% | 89.1–93.3% | Pass |
-| Helps when people differ | Earlier sleep than always the plan | 5.4 min a night earlier (7.6 in weeks 5–8) | 5.8 min | Pass |
-| Little harm when they don't | At most 5 min a night worse | 0.3 min earlier | 0.5 min earlier | Pass |
-| No false insights | At most 5% shown an effect under the null, by night 56 | 3.2% | 3.7% | Pass |
-| No false insights over a year (#117) | The same, by night 364 | 3.9% (six other runs: 3.1–5.0%, mean 3.8%) | 11.1% (`longrun.md`) | Pass |
-| Learns fast enough (D66) | Half of people with an effect of 15 min or more, by night 56 | 53% (six other runs: 50–54%) | 56% | Pass |
-| Learns fast enough (spec) | Median person gets an insight by night 28 | 16% by night 28 | 13% | Waived (D53, D66) |
-| Calm | D66: the start changes about once in two weeks | 0.49 changes a week (differ) | 2.7 (`dampening.md`) | |
+| Ranges are honest | 90% ranges hold the truth for 85–95%, every scenario | 90.2–93.3% | 89.8–93.5% | Pass |
+| Helps when people differ | Earlier sleep than always the plan | 5.1 min a night earlier (7.0 in weeks 5–8) | 5.4 min (7.6) | Pass |
+| Little harm when they don't | At most 5 min a night worse | 0.3 min earlier | 0.3 min earlier | Pass |
+| No false insights | At most 5% shown an effect under the null, by night 56 | 2.3% | 3.2% | Pass |
+| No false insights over a year (#117) | The same, by night 364 | 2.6% (four other runs: 2.2–3.0%) | 3.9% | Pass |
+| No false insights while the usual time moves (#154) | The same, by night 364, with the wander, drift, wide and slow profiles (`sim/wander.py`) | 3.0, 3.0, 3.8, 3.8% | 12.3, 12.8, 85.8, 35.4% (`longrun.md`, section 7) | Pass |
+| Learns fast enough (D66) | Half of people with an effect of 15 min or more, by night 56 | 43% (four other runs: 38–44%) | 53% | Waived until the founders set a new mark (#154) |
+| Learns fast enough (spec) | Median person gets an insight by night 28 | 9% by night 28 | 16% | Waived (D53, D66) |
+| Calm | D66: the start changes about once in two weeks | 0.50 changes a week (differ) | 0.49 | |
 | Never unsafe | No start outside the allowed ones; wake time never moves | 0 and 0 in 476,209 block nights | 0 and 0 | Pass |
-| Same numbers on the phone | Every fixture passes | 17,422 values over 638 nights in 12 cases, identical on Linux | 8,853 over 323 | Pass |
-| Better than the base | Lower error after 3 weeks (replay) | Synthetic Health exports: 78% of people; founders' and pilot data pending | 78% | Not yet run on real data |
+| Same numbers on the phone | Every fixture passes | 28,143 values over 848 nights in 15 cases, identical on Linux | 17,422 over 638 | Pass |
+| Better than the base | Lower error after 3 weeks (replay) | Synthetic Health exports: 77.5% of people; founders' and pilot data pending | 78% | Not yet run on real data |
 
 ![Coverage](reports/figures/coverage.png)
 ![Benefit](reports/figures/benefit-by-week.png)

@@ -1,15 +1,15 @@
-"""Version 2: v1 with a usual time that can move from week to week, and a noise scale per person (#154).
+"""Version 2: v1 with ranges that stay honest when a person's usual time moves (#154).
 
-What changed from v1 (export/v1.py) and why:
-- schema 3.
-- intercept_week_sd: on a person's first usable night of a calendar week, the intercept's variance
-  grows by this squared for each week since their last usable night. v1 treated every night's noise
-  as independent, so a week whose usual time moved read as an effect of that week's held start
-  (reports/longrun.md, section 5).
-- noise_scale_prior_nights: each person's nights can be noisier or calmer than noise_sd; the scale is
-  learned from the residuals, starting from this many nights at noise_sd (`dusk_model.model`).
-- insight.zero_test_interval: with ranges that are honest about a moving usual time, the 98% test was
-  stricter than the 5% mark needs, so it is retuned to win back learning (reports/longrun.md, section 7).
+What changed from v1 (export/v1.py) and why (reports/longrun.md, section 7):
+- schema 3. v1 treated every night's noise as independent, so a week whose usual time moved read as
+  an effect of that week's held start (reports/longrun.md, section 5).
+- noise_scale_prior_nights = 5: each person's nights can be noisier than noise_sd, or move together
+  for days or weeks; the scale is learned from week sums of residuals, starting from this many nights
+  at noise_sd, and the zero tests are a t's over the weeks it rests on (`dusk_model.model`).
+- intercept_week_sd = 0: the intercept may wander between weeks (a Kalman step), but that cost more
+  learning than the scale for the same safety, so v2 leaves it off.
+- insight.zero_test_interval = 0.95: with honest ranges, the 98% test was stricter than the 5% mark
+  needs, so it is lowered to win back learning.
 Everything else is v1's.
 """
 

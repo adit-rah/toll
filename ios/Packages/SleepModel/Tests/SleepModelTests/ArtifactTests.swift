@@ -51,7 +51,8 @@ struct ArtifactTests {
 
   /// A cache written before schema 3 reads with no week and empty sums.
   @Test func anOldStateReadsWithoutTheNewFields() throws {
-    let old = Data(#"{"precision":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],"b":[0,0,0,0],"nights":3}"#.utf8)
+    let old = Data(
+      #"{"precision":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],"b":[0,0,0,0],"nights":3}"#.utf8)
     let state = try JSONDecoder().decode(PersonState.self, from: old)
     #expect(state.week == nil && state.scaleSum == 0 && state.weekNights == 0 && !state.shown)
     let again = try JSONDecoder().decode(

@@ -101,7 +101,8 @@ struct RebuildTests {
     let records = ModelCache.current(f.lines)
     let old = ModelCache.refreshed(nil, artifact: v1, policy: "fixed", records: records)
     #expect(old.cache.state.weekNights == 0 && old.cache.state.scaleSum == 0)
-    let after = ModelCache.refreshed(old.cache, artifact: f.artifact, policy: "fixed", records: records)
+    let after = ModelCache.refreshed(
+      old.cache, artifact: f.artifact, policy: "fixed", records: records)
     #expect(after.rebuilt)
     #expect(Self.same(after.cache.state, f.state))
     #expect(after.cache.state.week == f.state.week)
