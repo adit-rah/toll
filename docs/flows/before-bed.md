@@ -2,9 +2,9 @@
 
 **What it's for:** the apps lock a little before sleep and, since #144, stay locked a little after waking. Each buffer grows with the person toward its own target, week by week, unless they fix it. During the buffer before sleep Tonight offers three small helpers for the minutes until sleep. This chart covers how the buffers are set (onboarding, the one offer to an install from before D76, Monday's card, Settings › Sleep) and the helpers. People set up before #144 are offered the buffer after by [once-fit-sleep.md](once-fit-sleep.md).
 
-**Implements:** D76, D77 and D83 (the gap, its weekly rule, Monday's card, the offer to older installs), #127 (Monday's judgement runs with Dusk closed), #144 (the buffer after waking, each side's target, the same rule on both sides, a pause counting against the side it was asked in), D80 and D85 (the helpers, their card and capsule, Settings' switch), B-3 (a buffer changed during the night waits until it ends; targets and the helpers' switch apply at once).
+**Implements:** D66 and D99 (personal timing: the week's start, moved inside the buffer before sleep, #155), D76, D77 and D83 (the gap, its weekly rule, Monday's card, the offer to older installs), #127 (Monday's judgement runs with Dusk closed), #144 (the buffer after waking, each side's target, the same rule on both sides, a pause counting against the side it was asked in), D80 and D85 (the helpers, their card and capsule, Settings' switch), B-3 (a buffer changed during the night waits until it ends; targets and the helpers' switch apply at once).
 
-**Code:** `TollCore/App/GapRules.swift`, `WeekTurn.swift`, `GapSnapshot.swift`, `Domain/Gap.swift`, `TonightCard` (`gapWeek`, `gapOffer`, `beforeBed`), `HomeSnapshot.untilBed`; `TollFeatures/App/AppModel+Gap.swift`, `AppModel+Helpers.swift`, `Settings/BeforeBedRow.swift`, `BeforeBed/HelpersSheet.swift`, `TollData/Audio/BreathTone.swift`.
+**Code:** `TollCore/App/GapRules.swift`, `TimingRules.swift`, `Domain/Timing.swift`, `WeekTurn.swift`, `GapSnapshot.swift`, `Domain/Gap.swift`, `TonightCard` (`gapWeek`, `gapOffer`, `beforeBed`), `HomeSnapshot.untilBed`; `TollFeatures/App/AppModel+Gap.swift`, `AppModel+Helpers.swift`, `Settings/BeforeBedRow.swift`, `BeforeBed/HelpersSheet.swift`, `TollData/Audio/BreathTone.swift`.
 
 ## The gap
 
@@ -46,6 +46,35 @@ flowchart TD
 ```
 
 The monitor's turn is a daily DeviceActivity interval from 12:01 to 12:16, `t.1201-1216`, set by every saved reconcile while either buffer grows (`WeekTurn`). Its start and its end both reconcile, so a start before the first unlock after a restart still gets a second chance. On days other than Monday it changes nothing.
+
+## Personal timing's start
+
+For a person who chose personal timing and Apple Health (D65), the sleep model moves the lock's start 30 minutes either way, or not at all, and holds it for a week, Monday to Sunday by the night's date (D66, D99). Bed and wake never move. Nobody can choose it yet: the offer and its words are their own ticket.
+
+```mermaid
+flowchart TD
+  open(["Dusk opens: the nights are recorded, Health corrects them, model.json moves on"]) --> askCheck{"Personal timing and Health on, the night's lock not on<br/>and 90 min or more away, and no start held for that night's week?"}
+  askCheck -->|"no"| asIs(["The lock stays as it is"])
+  askCheck -->|"yes"| allowed["The starts the buffer before sleep allows:<br/>never after bed, never past 90, never earlier past 60 (D101)"]
+  allowed --> draw{"SleepModel.chooseStart: the latest hold, from state.json or the night log,<br/>still in this week and allowed?"}
+  draw -->|"yes: kept, nothing drawn"| inForce
+  draw -->|"no: drawn with the kept generator"| inForce[("state.json: timing.history gets the start from that night;<br/>timing.generator")]
+  inForce --> lockMoves2["Tonight: Apps lock at … · N min before sleep, the start included;<br/>the strip, the heads-ups to the week's end<br/>render: home-evening"]
+  inForce -.->|"the same reconcile"| moved2{{"DeviceActivity: the lock's schedule moves"}}
+
+  reconcile(["Any wake between nights: the app, the monitor's sweep or noon wake, the block screen"]) --> keep{"The next night still in the start's week, the buffer still allowing it,<br/>personal timing still on?"}
+  keep -->|"yes"| asIs
+  keep -->|"no"| plan[("state.json: no start from the next night: the plan")]
+  plan -.-> moved2
+  plan -.->|"the app's next opening"| askCheck
+
+  night(["A night ends"]) --> record[("nights.jsonl: policy held, hold_start, settled,<br/>the start's offset and chance, on every night of the week")]
+
+  classDef system stroke-dasharray: 5 3
+  class moved2 system
+```
+
+A change to the buffer before sleep that the start no longer fits gives that night back to the plan, and the app draws again for the rest of the week on its next opening. Nights the app isn't opened before run at the plan and are recorded "fixed". The noon wake (`WeekTurn`) also runs while a start is held, as a second chance after Sunday night's end.
 
 ## The helpers in the gap
 

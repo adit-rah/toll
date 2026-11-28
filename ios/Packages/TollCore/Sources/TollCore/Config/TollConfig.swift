@@ -213,6 +213,19 @@ public struct TollConfig: Codable, Sendable, Equatable {
     }
   }
 
+  /// Personal timing (D66, D99): the week's start the sleep model may choose around the plan.
+  public struct Timing: Codable, Sendable, Equatable {
+    public init() {}
+    /// Minutes from the plan, the artifact's actions (`sleep-model.v1`): earlier, the plan, later.
+    public var offsets = [-30, 0, 30]
+    /// Earlier only while the buffer before sleep is at most this, the target everyone grows toward
+    /// (D101): past it, an earlier start is a longer evening than anyone was offered.
+    public var earlierUpTo = 60
+    /// A week's start is chosen only this long or more before the night's lock, so an earlier one
+    /// still leaves the heads-up and Tonight's hour before the lock as they were (D68, `band`).
+    public var chooseBeforeMinutes = 90
+  }
+
   public struct Sky: Codable, Sendable, Equatable {
     public init() {}
     /// Nights the lock ran that make a quiet landmark morning, the only times the sky can be
@@ -278,6 +291,7 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public var health = Health()
   public var trends = Trends()
   public var suggestion = Suggestion()
+  public var timing = Timing()
   public var sky = Sky()
   public var helpers = Helpers()
   public var flows = OneTimeFlows()

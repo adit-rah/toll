@@ -17,4 +17,4 @@ Foundation only (no UIKit, HealthKit, Accelerate or simd), so `swift test --pack
 
 Never edit `Resources/sleep-model.v1.json` or the fixtures by hand: run `uv run python -m export` in `datascience/`, then `ios/scripts/sync-model.sh`. CI fails if they differ (`ios/scripts/sync-model.sh --check`) or the checksum is wrong (`ios/scripts/check-model-artifact.sh`).
 
-The app links it only to keep `model.json` (TollData's `ModelStore`, #140): nothing chooses a start or shows the insight yet, and the night records still say `policy` "fixed". What the app owes the model is listed in `docs/decisions.md` D52.
+The app links it to keep `model.json` (TollData's `ModelStore`, #140) and, for a person who chose personal timing, to choose the week's start (`ModelStore.choose`, #155); TollCore keeps that start in force for every process and logs it in the night records. Nothing shows the insight yet. What the app owes the model is listed in `docs/decisions.md` D52.
