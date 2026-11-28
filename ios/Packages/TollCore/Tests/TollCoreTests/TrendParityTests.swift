@@ -108,7 +108,7 @@ struct TrendParityTests {
         #expect(measure?.change.map { way($0.way) } == expected.change?.way, "\(fixture.name)")
         #expect(close(measure?.change?.by, expected.change?.d), "\(fixture.name)")
       case "steady":
-        let value = Stats.trimmed(Stats.deviations(recent.map(\.value)), rules.trim)
+        let value = Stats.trimmed(reader.deviations(recent), rules.trim)
         #expect(close(value, expected.value), "\(fixture.name)")
         #expect(close(Stats.median(recent.map(\.value)), expected.middle), "\(fixture.name)")
         let (found, then) = reader.looks(
@@ -152,5 +152,12 @@ struct TrendParityTests {
     #expect(rule["trim"]?.number == t.trim)
     #expect(rule["miss"]?.number == t.miss)
     #expect(rule["power"]?.number == t.spendPower)
+    #expect(rule["first_ratio"]?.number == t.firstNoiseRatio)
+    #expect(rule["around"]?.number == Double(t.steadyAround))
+    if case .text(let centre) = rule["centre"] {
+      #expect(centre == "local")
+    } else {
+      Issue.record()
+    }
   }
 }

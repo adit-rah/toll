@@ -30,8 +30,7 @@ extension Reader {
   }
 
   /// Every week's judgement up to the one in force now, oldest first, and the first nights' values.
-  /// For How steady (`steady`), each window's distances from its middle night are compared, over
-  /// two weeks.
+  /// For How steady (`steady`), each window's distances (`deviations`) are compared, over two weeks.
   func looks(_ series: NightSeries, floor: Double, lowerIsBetter: Bool, steady: Bool = false)
     -> (looks: [TrendLook], then: [Double])
   {
@@ -39,9 +38,11 @@ extension Reader {
     let least = steady ? rules.minSteadyRecent : rules.minRecent
     let window = steady ? rules.steadyNights : 7
     let ordered = series.sorted { $0.night < $1.night }
-    func center(_ values: [Double]) -> [Double] { steady ? Stats.deviations(values) : values }
+    func center(_ nights: NightSeries) -> [Double] {
+      steady ? deviations(nights) : nights.map(\.value)
+    }
     guard ordered.count >= size, let end = ordered.prefix(size).last?.night else { return ([], []) }
-    let then = center(ordered.prefix(size).map(\.value))
+    let then = center(Array(ordered.prefix(size)))
     var blocks = [then]
     var found: [TrendLook] = []
     var held: SleepTrends.Way?
@@ -51,14 +52,12 @@ extension Reader {
       let from = day(-window, from: monday)
       let later = ordered.filter { $0.night >= from && $0.night < monday && $0.night > end }
       if later.count >= least {
-        let after = center(later.map(\.value))
+        let after = center(later)
         // Weeks don't overlap, so every one judged adds to the person's noise; How steady's
         // windows do, so it reads its own two.
         if !steady { blocks.append(after) }
         let pool = steady ? [then, after] : blocks
-        let se = Stats.standardError(
-          Stats.pooledSpread(pool, trim: rules.trim), then.count, after.count, trim: rules.trim)
-        let df = Stats.degrees(pool, trim: rules.trim)
+        let (se, df) = error(pool, guarded: !steady)
         let d = Stats.trimmed(after, rules.trim) - Stats.trimmed(then, rules.trim)
         let look = found.count + 1
         let way: SleepTrends.Way = (d < 0) == lowerIsBetter ? .toward : .away
@@ -72,6 +71,48 @@ extension Reader {
       monday = day(7, from: monday)
     }
     return (found, then)
+  }
+
+  /// The difference's error and degrees of freedom: the pooled noise, unless the first nights were
+  /// clearly noisier than every week since (a person who calmed down). Pooled, the calm weeks would
+  /// then hide how unsure the first nights' level is, so each side takes its own noise, with Welch's
+  /// degrees of freedom (Yuen's test, #173).
+  func error(_ pool: [[Double]], guarded: Bool) -> (se: Double, df: Int) {
+    let trim = rules.trim
+    guard let then = pool.first, let after = pool.last else { return (0, 1) }
+    let pooled = (
+      se: Stats.standardError(
+        Stats.pooledSpread(pool, trim: trim), then.count, after.count, trim: trim),
+      df: Stats.degrees(pool, trim: trim)
+    )
+    guard guarded, rules.firstNoiseRatio > 0, pool.count >= 2 else { return pooled }
+    let since = Array(pool.dropFirst())
+    let first = Stats.pooledSpread([then], trim: trim)
+    let later = Stats.pooledSpread(since, trim: trim)
+    guard first > rules.firstNoiseRatio * later else { return pooled }
+    let a = Stats.share(then.count, trim) * first * first
+    let b = Stats.share(after.count, trim) * later * later
+    let df =
+      (a + b) * (a + b)
+      / (a * a / Double(Stats.degrees([then], trim: trim))
+        + b * b / Double(Stats.degrees(since, trim: trim)))
+    return ((a + b).squareRoot(), max(1, Int(df.rounded(.down))))
+  }
+
+  /// How steady's distances (#173): each night's from the middle of the nights within
+  /// `steadyAround` days of it, in the same window, so a usual time that moved between weeks, or
+  /// once inside the first nights, isn't read as unsteady nights. That's the level's line to say.
+  func deviations(_ nights: NightSeries) -> [Double] {
+    nights.map { night in
+      let around = nights.filter {
+        abs(days(from: night.night, to: $0.night)) <= rules.steadyAround
+      }
+      return abs(night.value - Stats.median(around.map(\.value)))
+    }
+  }
+
+  func days(from a: Date, to b: Date) -> Int {
+    calendar.dateComponents([.day], from: a, to: b).day ?? 0
   }
 
   /// The judgement the screen shows: the latest week's, if that week was judged.
@@ -98,12 +139,6 @@ enum Stats {
     guard !sorted.isEmpty else { return 0 }
     let mid = sorted.count / 2
     return sorted.count % 2 == 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
-  }
-
-  /// Each value's distance from the middle one.
-  static func deviations(_ values: [Double]) -> [Double] {
-    let middle = median(values)
-    return values.map { abs($0 - middle) }
   }
 
   /// How many values a trimmed mean sets aside at each end.
@@ -163,11 +198,13 @@ enum Stats {
   /// Of a difference of two trimmed means: each mean's error is the spread over (1 − 2g/n)·√n
   /// (Tukey and McLaughlin).
   static func standardError(_ spread: Double, _ a: Int, _ b: Int, trim: Double) -> Double {
-    func share(_ n: Int) -> Double {
-      let kept = Double(n - 2 * cut(n, trim))
-      return Double(n) / (kept * kept)
-    }
-    return spread * (share(a) + share(b)).squareRoot()
+    spread * (share(a, trim) + share(b, trim)).squareRoot()
+  }
+
+  /// A trimmed mean's variance over n nights, per unit of spread.
+  static func share(_ n: Int, _ trim: Double) -> Double {
+    let kept = Double(n - 2 * cut(n, trim))
+    return Double(n) / (kept * kept)
   }
 
   /// Acklam's rational approximation, as in `dusk_model/insights.py`.

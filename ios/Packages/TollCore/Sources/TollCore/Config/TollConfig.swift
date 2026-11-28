@@ -170,6 +170,10 @@ public struct TollConfig: Codable, Sendable, Equatable {
     /// this times k^−spendPower, so over every look it stays under 5% (`datascience/reports/trends.md`).
     public var miss = 0.02
     public var spendPower = 2.0
+    /// The first nights' own noise stands for their error once it is more than this times the
+    /// weeks' since: a person who calmed down isn't told of a change in level that isn't there
+    /// (#173). 0 never.
+    public var firstNoiseRatio = 1.5
     /// The smallest change worth saying, for times and minutes asleep.
     public var floorMinutes = 15.0
     /// For reaches a night.
@@ -181,6 +185,9 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var minSteady = 7
     public var minSteadyRecent = 10
     public var floorSteady = 10.0
+    /// Each night's steadiness is its distance from the middle of the nights this many days either
+    /// side of it, so a usual time that moves reads in Asleep by, not as unsteady nights (#173).
+    public var steadyAround = 3
     /// Each measure's chart: the last this many nights.
     public var chartNights = 14
   }

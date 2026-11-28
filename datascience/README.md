@@ -46,6 +46,7 @@ For each night the outcome is when the person fell asleep, in minutes from plann
 | The pause economy (`reports/pauses.md`, #61) | `uv run python -m economy.pauses grid --out reports/pauses-grid.json` |
 | Your sleep's trend rule's fixtures for TollCore (#165) | `uv run python -m trends.fixtures` |
 | The trend rule's false changes and power (about 15 min; `reports/trends.md`) | `uv run python -m trends.study final --people 3000 --out reports/trends-final.json` |
+| How often Health's late nights change a week's line (#173, about 2 min) | `uv run python -m trends.late --people 2000 --out reports/trends-late.json` |
 | The same on your own export's noise, kept off the repo | `uv run python -m trends.noise calibrate --aggregates mine.json --out profiles.json`, then `trends.study final --profiles profiles.json` |
 
 The Health export is from the Health app: Profile › Export All Health Data, then unzip it. Only sleep samples are read, and nothing leaves the laptop. Until the app logs night records, each night is replayed with the block at plan.
@@ -86,6 +87,20 @@ CI (`.github/workflows/model.yml`) checks every step: the unit tests, that the c
 ![Parity](reports/figures/parity.png)
 ![Replay](reports/figures/replay.png)
 ![False insights over a year](reports/figures/false-insights-year.png)
+
+## Results (Your sleep's trend rule, D108 with #173)
+
+3,000 invented people a cell over the seven profiles of `trends/noise.py` (`reports/trends-final.json`, `trends-173.json`, `trends-late.json`; the whole study is `reports/trends.md`).
+
+| Check | Mark | Result | D104's rule |
+|---|---|---|---|
+| No false change in level | At most 5% of people ever told of one, by week 26, level still or nights shuffled | 1.7–3.7% (three 4,000-person seeds: 1.4–4.1%) | 39–55% by week 12 |
+| The same while the night's noise halves | The same | 1.2–4.0% (seeds: 1.4–4.2%) | |
+| No false change in How steady | The same, level still, shuffled, wandering or shifted 60 min | 1.7–3.7% (seeds: 2.2–3.7%) | 16–28% by week 12 (still) |
+| Catches a real 30-minute shift from week 2 | (no mark) | 4–61% by week 12, by the noise; sim 32% | |
+| Lines changing in 12 weeks | D66's calm | 0.02–2.2 a person | 1.9–6.3 |
+| Health's late Sunday night | (no mark) | changes the week's way for 0.1–0.3% of judged weeks with no change, up to 5.9% at the test's edge | |
+| Same answer on the phone | Every fixture | 420 cases, identical (`TrendParityTests`) | |
 
 ## What the simulator can't tell us
 
