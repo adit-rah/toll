@@ -161,7 +161,7 @@ public struct ModelArtifact: Codable, Sendable, Equatable {
     schema: 3, version: "sleep-model.v2", features: featureNames,
     base: Base(theta: [15, 0, 30, 20]),
     prior: Prior(mean: [0, 0, 0, 0], sd: [20, 20, 20, 20]),
-    noiseSd: 30, forgetting: 0.99, interceptWeekSd: 0, noiseScalePriorNights: 7,
+    noiseSd: 30, forgetting: 0.99, interceptWeekSd: 0, noiseScalePriorNights: 5,
     actions: [-30, 0, 30],
     policy: Policy(
       minProb: 0.1, probDraws: 1000, holdNights: 7, settleAtInsight: true,

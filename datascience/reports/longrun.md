@@ -96,7 +96,7 @@ A stricter test doesn't fix background change. With the wander, false insights r
 
 The cause is the model, not the test. The model treats each night's noise as independent and lets the usual time move only through forgetting. When the usual time wanders for weeks, nights close together share an error, the posterior is too sure, and a held week's start lines up with a week's wander. Under the wander, coverage at night 56 is 85.9% in "differ" (85.7% at a year), at the bottom of the band.
 
-The fix would be to let the model's intercept wander too (a little process noise on the usual time each night, a Kalman step). That is a change to the model's update, so to the Swift package's arithmetic, and it will cost learning, because a held week's contrast is exactly what a wandering intercept explains away. It needs its own ticket, and how much real people's usual time wanders is something the pilot's night records can measure.
+The fix would be to let the model's intercept wander too (a little process noise on the usual time each night, a Kalman step). That is a change to the model's update, so to the Swift package's arithmetic, and it will cost learning, because a held week's contrast is exactly what a wandering intercept explains away. It needs its own ticket, and how much real people's usual time wanders is something the pilot's night records can measure. It got one (#154): section 7, `sleep-model.v2`.
 
 ## 6. What the policy does over a year (v1)
 
