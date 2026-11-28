@@ -12,18 +12,26 @@ struct TimingRow: View {
 
   var body: some View {
     if setting.kind == .needsHealth {
-      Button(action: useHealth) {
-        SettingsRow(Copy.Timing.row, detail: setting.detail, symbol: .timing) {
-          HStack(spacing: 6) {
-            Image(symbol: .health).unredacted()
-              .tollGlyph(13, weight: .semibold)
-              .accessibilityHidden(true)
-            Text(Copy.Fit.useHealth)
+      // The link under the words, as a card's action, so neither the title nor the link is
+      // squeezed into a column beside the other.
+      HStack(alignment: .top, spacing: TollSpacing.rowGap) {
+        IconTile(.timing, accent: false)
+        VStack(alignment: .leading, spacing: 0) {
+          RowText(title: Copy.Timing.row, detail: setting.detail)
+          Button(action: useHealth) {
+            HStack(spacing: 6) {
+              Image(symbol: .health).unredacted()
+                .tollGlyph(13, weight: .semibold)
+                .accessibilityHidden(true)
+              Text(Copy.Fit.useHealth)
+            }
+            .tollType(.link, TollColor.accent)
+            .frame(minHeight: TollSpacing.minTapTarget)
           }
-          .tollType(.link, TollColor.accent)
+          .buttonStyle(.tollPressable)
         }
       }
-      .buttonStyle(.tollPressable)
+      .padding(.top, 12)
     } else {
       Toggle(isOn: $on) {
         HStack(spacing: TollSpacing.rowGap) {
