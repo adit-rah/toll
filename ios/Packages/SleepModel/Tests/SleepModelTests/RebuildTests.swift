@@ -84,15 +84,30 @@ struct RebuildTests {
     let records = ModelCache.current(f.lines)
     let cache = ModelCache.refreshed(nil, artifact: f.artifact, policy: "fixed", records: records)
     var next = f.artifact
-    next.version = "sleep-model.v2"
+    next.version = "sleep-model.v3"
     next.forgetting = 0.97
     let after = ModelCache.refreshed(cache.cache, artifact: next, policy: "fixed", records: records)
     #expect(after.rebuilt)
-    #expect(after.cache.artifact.version == "sleep-model.v2")
+    #expect(after.cache.artifact.version == "sleep-model.v3")
     #expect(after.cache.state == SleepModel(artifact: next, nights: records).state)
   }
 
-  /// D92's path for this release: a cache built with sleep-model.v0 is rebuilt from every night
+  /// D92's path for this release: a cache built with sleep-model.v1 (no week, no sums) is rebuilt
+  /// from every night under v2, and comes out as Python's rebuild.
+  @Test func aV1CacheIsRebuiltUnderTheShippedArtifact() throws {
+    let f = try Self.fixture()
+    let v1 = try #require(try ParityTests.cases().first { $0.name == "v1-artifact" }).artifact
+    #expect(v1.version == "sleep-model.v1" && v1.schema == 2)
+    let records = ModelCache.current(f.lines)
+    let old = ModelCache.refreshed(nil, artifact: v1, policy: "fixed", records: records)
+    #expect(old.cache.state.weekNights == 0 && old.cache.state.scaleSum == 0)
+    let after = ModelCache.refreshed(old.cache, artifact: f.artifact, policy: "fixed", records: records)
+    #expect(after.rebuilt)
+    #expect(Self.same(after.cache.state, f.state))
+    #expect(after.cache.state.week == f.state.week)
+  }
+
+  /// A cache built with sleep-model.v0 is rebuilt from every night
   /// under the artifact this package ships, and comes out as Python's rebuild.
   @Test func aV0CacheIsRebuiltUnderTheShippedArtifact() throws {
     let f = try Self.fixture()

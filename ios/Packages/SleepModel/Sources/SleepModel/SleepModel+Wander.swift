@@ -6,8 +6,9 @@
 /// count of nights. When the nights are noisier, or the usual time moves for days or weeks, the sums
 /// grow: one week's residuals share a sign, and so do one week's and the next's. κ² is the forgetting
 /// sum of the squared week sums and of each week's sum times the week before's, over the forgetting
-/// count of their nights, with `noiseScalePriorNights` nights of 1 added, and never below 1. Every
-/// range is drawn from κ²Σ, and the zero tests use a t with the scale's weeks as degrees of freedom.
+/// count of their nights, with `noiseScalePriorNights` nights of 1 added; a cross term below 0
+/// counts as 0. Every range is drawn from κ²Σ, and since κ² rests on only as many looks as there are
+/// weeks, the zero tests are a t's with those weeks as degrees of freedom.
 extension SleepModel {
   /// κ², the current week included; 1 until the artifact learns the scale.
   var scale2: Double {
@@ -16,11 +17,8 @@ extension SleepModel {
     let s = state
     let squares = s.scaleSum + s.weekSum * s.weekSum
     let cross = s.scaleCross + s.weekSum * s.lastWeekSum
-    let k2 = (a0 + (squares + max(cross, 0.0))) / (a0 + (s.scaleNights + s.weekNights))
-    return max(k2, Self.scaleFloor)
+    return (a0 + (squares + max(cross, 0.0))) / (a0 + (s.scaleNights + s.weekNights))
   }
-
-  static let scaleFloor = 1.0
 
   /// The weeks of evidence κ² rests on, its prior included.
   var scaleWeeks: Double {

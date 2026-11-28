@@ -156,19 +156,20 @@ public struct ModelArtifact: Codable, Sendable, Equatable {
     return artifact
   }
 
-  /// sleep-model.v1's numbers; a test keeps them equal to the shipped file.
+  /// sleep-model.v2's numbers; a test keeps them equal to the shipped file.
   public static let builtIn = ModelArtifact(
-    schema: 2, version: "sleep-model.v1", features: featureNames,
+    schema: 3, version: "sleep-model.v2", features: featureNames,
     base: Base(theta: [15, 0, 30, 20]),
     prior: Prior(mean: [0, 0, 0, 0], sd: [20, 20, 20, 20]),
-    noiseSd: 30, forgetting: 0.99, actions: [-30, 0, 30],
+    noiseSd: 30, forgetting: 0.99, interceptWeekSd: 0, noiseScalePriorNights: 7,
+    actions: [-30, 0, 30],
     policy: Policy(
       minProb: 0.1, probDraws: 1000, holdNights: 7, settleAtInsight: true,
       settlePlanWithinMin: 15, settledExploreShare: 0.07),
     context: Context(lateHomeWithinMin: 60),
     usableNight: UsableNight(maxOnsetFromPlanMin: 240, residualClipMin: 90),
     insight: InsightRule(
-      interval: 0.9, zeroTestInterval: 0.98, maxWidthMin: 30, minNights: 14,
+      interval: 0.9, zeroTestInterval: 0.95, maxWidthMin: 30, minNights: 14,
       zeroTestSpendAfter: 30, zeroTestSpendPower: 2),
     sha256: "")
 }

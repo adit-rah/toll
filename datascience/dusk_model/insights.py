@@ -15,7 +15,6 @@ from .artifact import Params
 from .model import State, cholesky, effective, forward, mean
 
 KIND = "start_30_earlier"
-WIDEN_INTERVAL = True
 
 
 def normal_quantile(p: float) -> float:
@@ -100,8 +99,9 @@ def shown(state: State, params: Params) -> tuple[np.ndarray, np.ndarray, np.ndar
     people told about an effect that isn't there under 5% (reports/tuning.md), and it tightens as the
     nights add up (`zero_test_level`). An insight already showing stays while the untightened test
     holds, so a person isn't told something and then has it taken away only because time passed;
-    it is withdrawn quietly when even that fails (#117). When the noise's scale is learned, each
-    range is a t's, with the weeks the scale rests on as degrees of freedom (#154)."""
+    it is withdrawn quietly when even that fails (#117). When the noise's scale is learned, the zero
+    tests are a t's, with the weeks the scale rests on as degrees of freedom; the range shown stays
+    a normal's, so it stays a 90% range when the scale is right (#154)."""
     effect, sd = start_effect(state, params)
     z = normal_quantile(0.5 + params.interval / 2.0)
     strict = zero_test_z(state.nights, params)
@@ -109,7 +109,6 @@ def shown(state: State, params: Params) -> tuple[np.ndarray, np.ndarray, np.ndar
     if params.noise_scale_prior_nights > 0:
         nu = scale_weeks(state, params)
         strict, base = widen(strict, nu), widen(base, nu)
-        z = widen(z, nu) if WIDEN_INTERVAL else z
     low, high = effect - z * sd, effect + z * sd
     clear_strict = (effect - strict * sd > 0) | (effect + strict * sd < 0)
     clear_base = (effect - base * sd > 0) | (effect + base * sd < 0)

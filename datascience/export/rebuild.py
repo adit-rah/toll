@@ -14,7 +14,7 @@ import copy
 from dusk_model.artifact import Params
 from dusk_model.person import held, rebuild
 
-from . import v1
+from . import v2
 from .fixtures import simulated_nights
 
 SLEEP = ("sleep_onset", "wake", "asleep_min", "awake_min", "sleep_source")
@@ -88,7 +88,7 @@ def lines() -> list[dict]:
 
 def case() -> dict:
     """The log rebuilt under the artifact this build ships, and the hold the phone keeps tonight."""
-    a = v1.artifact()
+    a = v2.artifact()
     log = lines()
     person = rebuild(Params.from_artifact(a), log)
     return {"artifact": a, "lines": log, "state": person.state, "hold": held(log)}

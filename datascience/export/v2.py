@@ -18,9 +18,9 @@ from __future__ import annotations
 from . import v1
 
 VERSION = "sleep-model.v2"
-INTERCEPT_WEEK_SD = 10.0
-NOISE_SCALE_PRIOR_NIGHTS = 14.0
-ZERO_TEST_INTERVAL = 0.96
+INTERCEPT_WEEK_SD = 0.0
+NOISE_SCALE_PRIOR_NIGHTS = 7.0
+ZERO_TEST_INTERVAL = 0.95
 
 
 def artifact(**over) -> dict:

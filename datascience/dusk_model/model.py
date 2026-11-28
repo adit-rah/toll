@@ -19,8 +19,9 @@ calmer than `noise_sd`:
   moves for weeks, so do one week's and the next's. κ² is the forgetting sum of the squared week
   sums and of each week's sum times the week before's (a long-run variance with a lag of one week,
   as Newey and West weigh it), over the forgetting count of their nights, with
-  `noise_scale_prior_nights` nights of 1 added, and never below 1. Every range is drawn from κ²Σ
-  (`effective`): a week that moves together counts as fewer nights.
+  `noise_scale_prior_nights` nights of 1 added; a cross term below 0 counts as 0. Every range is
+  drawn from κ²Σ (`effective`): a week that moves together counts as fewer nights. κ² rests on only
+  as many looks as there are weeks, so the zero tests are a t's (`insights.widen`).
 The state carries the week of the last usable night (`week`, −1 before one), the folded sums
 (`scale_sum`, `scale_cross`, `scale_nights`), the current week's (`week_sum`, `week_nights`) and the
 week before's sum (`last_week_sum`).
@@ -35,7 +36,6 @@ import numpy as np
 from .artifact import Params
 
 N = 4
-SCALE_FLOOR = 1.0
 
 
 @dataclass
@@ -183,8 +183,7 @@ def scale2(state: State, params: Params) -> np.ndarray:
     t = state.week_sum
     squares = state.scale_sum + t * t
     cross = state.scale_cross + t * state.last_week_sum
-    k2 = (a0 + (squares + np.maximum(cross, 0.0))) / (a0 + (state.scale_nights + state.week_nights))
-    return np.maximum(k2, SCALE_FLOOR)
+    return (a0 + (squares + np.maximum(cross, 0.0))) / (a0 + (state.scale_nights + state.week_nights))
 
 
 def effective(state: State, params: Params) -> tuple[np.ndarray, np.ndarray]:
