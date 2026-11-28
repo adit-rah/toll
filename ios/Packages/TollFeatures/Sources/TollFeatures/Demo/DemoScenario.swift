@@ -36,6 +36,12 @@
     case homeTimingHeld = "home-timing-held"
     case settingsSleepTimingOff = "settings-sleep-timing-off"
     case settingsSleepTimingOn = "settings-sleep-timing-on"
+    /// The sleep model's insight (#189, `DemoInsight`): Tonight's week settled on it, and Your
+    /// sleep asleep sooner, later, and still learning.
+    case homeTimingSettled = "home-timing-settled"
+    case sleepInsightSooner = "sleep-insight-sooner"
+    case sleepInsightLater = "sleep-insight-later"
+    case sleepLearning = "sleep-learning"
     /// Each side's small sheet: before sleep from onboarding, after waking from Settings › Sleep.
     case aroundBefore = "setup-around-before"
     case settingsSleepAfter = "settings-sleep-after"

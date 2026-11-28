@@ -102,7 +102,8 @@ public struct HomeSnapshot: Equatable, Sendable {
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
     config: TollConfig = .defaults, screenTime: Bool = true,
     notifications: NotificationPermission = .allowed, history: [PastNight] = [],
-    readOnly: Bool = false, flow: String? = nil, headsUpTurnedOn: Bool = false
+    readOnly: Bool = false, flow: String? = nil, headsUpTurnedOn: Bool = false,
+    model: ModelReading? = nil
   ) {
     let sleep = state.sleepBlock
     screenTimeOff = state.setupFinishedAt != nil && !screenTime
@@ -177,7 +178,7 @@ public struct HomeSnapshot: Equatable, Sendable {
     gapCard = Self.gapCard(card, state: state, now: now, calendar: calendar, config: config)
     timeline = day.segments.isEmpty ? nil : day
     if case .tonight = hero {
-      heldStart = HeldStart(state)
+      heldStart = HeldStart(state, insight: model?.insight)
       if state.lead > 0 { beforeBed = Copy.Gap.beforeBed(state.lead) }
     }
     freeNights = FreeNights(state: state, log: log, now: now, calendar: calendar, config: config)

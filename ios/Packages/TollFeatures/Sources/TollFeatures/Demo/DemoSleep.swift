@@ -12,8 +12,9 @@
 
     var sleepStory: SleepStory? {
       switch self {
-      case .sleepHealthImproving, .homeMorningAsleep, .homeMorningAsleepOpen: .improving
-      case .sleepHealthFlat: .flat
+      case .sleepHealthImproving, .homeMorningAsleep, .homeMorningAsleepOpen, .sleepInsightSooner:
+        .improving
+      case .sleepHealthFlat, .sleepInsightLater, .sleepLearning: .flat
       case .sleepHealthNoisy: .noisy
       case .sleepDusk: .dusk
       case .sleepFew: .few
@@ -22,7 +23,7 @@
     }
 
     /// Nights since setup, all of them in the night log.
-    var sleepNights: Int? { sleepStory.map { $0 == .few ? 3 : 28 } }
+    var sleepNights: Int? { insightNights ?? sleepStory.map { $0 == .few ? 3 : 28 } }
   }
 
   extension DemoFixture {

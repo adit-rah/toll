@@ -48,6 +48,47 @@ extension Copy {
     public static func heldSpoken(_ offset: Int) -> String {
       "\(abs(offset)) minutes \(offset < 0 ? "earlier" : "later") this week, to learn what helps your sleep"
     }
+    /// A settled week (D66, #182): the start is the one the insight supports, and the line points
+    /// to it by the name of its place on Your sleep. No minutes here, so it never reads as a promise
+    /// for tonight.
+    public static func heldFound(_ offset: Int) -> String {
+      "\(moved(offset)) this week, from what \(name) found"
+    }
+    public static func heldFoundSpoken(_ offset: Int) -> String {
+      "\(abs(offset)) minutes \(offset < 0 ? "earlier" : "later") this week, from what \(name) found. It's on \(Tabs.sleep)."
+    }
+
+    /// Your sleep's insight (#189): the one sentence in the app that may say "because", since only
+    /// the start was randomized. Sooner or later, the range, and the nights it rests on.
+    public static let foundTitle = "What \(name) found"
+    public static func foundValue(_ minutes: Int, sooner: Bool) -> String {
+      "Asleep \(minutes) min \(sooner ? "sooner" : "later")"
+    }
+    public static func foundLine(sooner: Bool, earlier: Int) -> String {
+      "You fell asleep \(sooner ? "sooner" : "later") because apps locked \(earlier) min earlier."
+    }
+    public static func foundDetail(_ low: Int, _ high: Int, nights: Int) -> String {
+      let range = low == high ? "\(low)" : "\(low) to \(high)"
+      return "Likely \(range) min, from \(nights) nights"
+    }
+    public static func foundSpoken(
+      _ minutes: Int, sooner: Bool, earlier: Int, low: Int, high: Int, nights: Int
+    ) -> String {
+      let way = sooner ? "sooner" : "later"
+      let range = low == high ? "\(low)" : "\(low) to \(high)"
+      return
+        "Asleep \(minutes) minutes \(way). You fell asleep \(way) because apps locked \(earlier) minutes earlier. Likely \(range) minutes, from \(nights) nights."
+    }
+    /// With personal timing on and nothing found yet. It may find nothing, so it promises nothing.
+    public static func learning(nights: Int?) -> String {
+      let so =
+        switch nights ?? 0 {
+        case 0: ""
+        case 1: ", from 1 night so far"
+        case let n: ", from \(n) nights so far"
+        }
+      return "\(name) is still learning what helps your sleep\(so). Anything it finds shows here."
+    }
 
     static func moved(_ offset: Int) -> String {
       "\(abs(offset)) min \(offset < 0 ? "earlier" : "later")"

@@ -2,9 +2,10 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// Your sleep, the second tab (D63): it opens onto Your sky (D79), then how the person's nights
-/// are changing (#88), Apple's screen time after bed (#65), then this week as dots and a personal best when there is one (#103), then
-/// everything from the log on this phone.
+/// Your sleep, the second tab (D63): it opens onto Your sky (D79), then the sleep model's insight
+/// when it shows one (#189), how the person's nights are changing (#88), Apple's screen time after
+/// bed (#65), then this week as dots and a personal best when there is one (#103), then everything
+/// from the log on this phone.
 struct InsightsView: View {
   let sleep: YourSleep
   /// Demo renders open with the names shown or on a star's night (docs/renders.md).
@@ -24,8 +25,18 @@ struct InsightsView: View {
         VStack(alignment: .leading, spacing: 0) {
           SkyHeader(sleep: sleep, height: sky, initialFocus: initialFocus)
           VStack(alignment: .leading, spacing: 0) {
+            // The model's insight, when there is one, is the one result Dusk earns: it leads
+            // (#189, D105), and the measures follow.
+            if let finding = sleep.finding {
+              SectionHeader(Copy.Timing.foundTitle).padding(.top, 28)
+              FindingCard(finding: finding).padding(.top, TollSpacing.headerToCard)
+            }
             // The person's improvement leads (#85, #88); what Dusk did follows as context.
             SleepTrendsSection(trends: sleep.trends).padding(.top, 28)
+            // Still learning is not a result, so it stays quiet, under the measures.
+            if let learning = sleep.learning {
+              Footnote(learning, symbol: .timing).padding(.top, 12)
+            }
             // Apple's own count, after the measures it must never outshout (#65).
             AfterBedRow().padding(.top, 12)
             SectionHeader(sleep.weekTitle).padding(.top, 28)

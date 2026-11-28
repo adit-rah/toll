@@ -6,16 +6,23 @@ import Foundation
 public struct HeldStart: Equatable, Sendable {
   /// Minutes from the person's own start: negative is earlier.
   public var offset: Int
+  /// The week settled on what the model found (D66) and the insight is on Your sleep (#182): the
+  /// line points to it instead of to learning.
+  public var found: Bool
   public var text: String
   public var spoken: String
 
   /// The start in force is the one Tonight's time shows (`DuskState.lead`), so the line and the
-  /// time always agree.
-  public init?(_ state: DuskState) {
+  /// time always agree. A week drawn to learn says so even if an insight shows mid-week, and a
+  /// settled week whose insight stops holding goes back to it: until Sunday's night ends, its
+  /// start is only being tried.
+  public init?(_ state: DuskState, insight: ModelReading.Insight? = nil) {
     guard state.timing.on, let hold = state.timing.inForce, hold.offset != 0 else { return nil }
     offset = hold.offset
-    text = Copy.Timing.held(hold.offset)
-    spoken = Copy.Timing.heldSpoken(hold.offset)
+    found = hold.settled && insight?.supports(hold.offset) == true
+    text = found ? Copy.Timing.heldFound(hold.offset) : Copy.Timing.held(hold.offset)
+    spoken =
+      found ? Copy.Timing.heldFoundSpoken(hold.offset) : Copy.Timing.heldSpoken(hold.offset)
   }
 }
 

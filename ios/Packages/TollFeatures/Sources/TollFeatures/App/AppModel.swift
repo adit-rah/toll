@@ -15,6 +15,9 @@ public final class AppModel {
   public private(set) var log: [Transition] = []
   /// Every recorded night (D62), so Your sleep's counts outlive the log's trimming (#103).
   public internal(set) var history: [PastNight] = []
+  /// What the sleep model says (#189): its usable nights and its insight, if it shows one. Nil
+  /// until read.
+  public internal(set) var sleepModel: ModelReading?
   public private(set) var screenTime = ScreenTimeAuthorization.State.notDetermined
   public private(set) var location = LocationAccess.State.notDetermined
   /// iOS's answer for the heads-up (D68); nil until read, and nothing is scheduled or offered before.
@@ -72,6 +75,9 @@ public final class AppModel {
       }
     #endif
     clearTollLeftovers()
+    // Before the first frame, so Tonight's reason and Your sleep's insight don't change under the
+    // eye when the model's refresh lands.
+    sleepModel = ModelStore().reading()
     watchPlaces()
     Task {
       await Purchase.watch { [weak self] purchased in await self?.setPurchased(purchased) }
@@ -117,9 +123,9 @@ public final class AppModel {
       await previous?.value
       NightKeeper().keep(
         state, model: ModelStore.stamp, now: Date(), calendar: .current, config: config)
-      ModelStore().refresh()
+      let reading = ModelStore().refresh().flatMap { ModelStore.reading(of: $0) }
       let past = NightLog().past(calendar: .current)
-      await self?.show(history: past)
+      await self?.show(history: past, model: reading)
       // Health's sleep for the nights just recorded, once a watch has synced it (#144).
       await self?.correctNightsFromHealth()
       // Then personal timing's start, from a model that has seen those nights (D99).
@@ -127,8 +133,10 @@ public final class AppModel {
     }
   }
 
-  private func show(history: [PastNight]) {
+  private func show(history: [PastNight], model: ModelReading?) {
     self.history = history
+    // A cache that couldn't be had keeps what was read before.
+    if let model { sleepModel = model }
   }
 
   /// Every change goes through here.
