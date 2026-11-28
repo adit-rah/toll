@@ -71,7 +71,7 @@ A screen behind a tap is a scenario plus AXe steps, one per line of the `scenari
 home: tap --label "Settings" --wait-timeout 5
 insights: gesture scroll-down; gesture scroll-down
 ```
-Steps are AXe commands without `axe` and `--udid` (`tap --label`, `tap --id`, `gesture scroll-up|down`, `type 'text'`, `swipe …`). Find labels in a scenario's `ui.json`. For a state no tap reaches, add a scenario.
+Steps are AXe commands without `axe` and `--udid` (`tap --label`, `tap --id`, `gesture scroll-up|down`, `type 'text'`, `swipe …`). Where `gesture scroll-down` doesn't move a page (seen on the iPhone SE in Settings › Sleep), repeat `swipe --start-x 200 --start-y 440 --end-x 200 --end-y 90 --duration 0.15`; each swipe takes about 20 s on the runner, so split long lines across dispatches. Find labels in a scenario's `ui.json`. For a state no tap reaches, add a scenario.
 
 Demo scenarios run on a pinned clock (`DemoClock`): 11:40 pm for states inside Sleep's 10:30 pm – 7:00 am, 7:55 pm for the evening before it, 8:10 am for the mornings, whatever the runner's time; the fixture is in place before the first frame, and demos never reconcile against the real store. Door countdowns use the real clock.
 
