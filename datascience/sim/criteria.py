@@ -221,8 +221,11 @@ def main() -> None:
     ap.add_argument(
         "--waive",
         action="append",
-        default=["Learns fast enough"],
-        help="a check reported but not enforced: the spec's, replaced by D66's learning mark (decisions D53, D66)",
+        # The spec's, replaced by D66's learning mark (decisions D53, D66); and D66's, which v2 gives up
+        # for ranges that stay honest when the usual time moves (#154, reports/longrun.md section 7),
+        # until the founders set a new one.
+        default=["Learns fast enough", "Learns fast enough (decisions D66)"],
+        help="a check reported but not enforced",
     )
     args = ap.parse_args()
     params = Params.from_artifact(artifact.load(Path(args.artifact)))

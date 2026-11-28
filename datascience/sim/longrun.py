@@ -1,4 +1,4 @@
-"""False insights and learning over a year of nights, for v1 and the variants tuned for #117.
+"""False insights and learning over a year of nights, for v1, v2 and the variants tuned for #117 and #154.
 
     uv run python -m sim.longrun --people 1000 --out reports/longrun-sweep.json
     uv run python -m sim.longrun --people 2000 --seed 20261127 --only v0,d66,v1 --out reports/longrun-final.json
@@ -23,7 +23,7 @@ from pathlib import Path
 import numpy as np
 
 from dusk_model.artifact import Params
-from export import v0, v1
+from export import v0, v1, v2
 
 from .criteria import changes_per_week, first_insight_night
 from .run import NIGHTS, Run, run
@@ -56,6 +56,7 @@ VARIANTS: dict[str, dict | None] = {
     "spend20-1": {"zero_test_spend_after": 20, "zero_test_spend_power": 1.0},
     "spend30-2": {"zero_test_spend_after": 30, "zero_test_spend_power": 2.0},
     "v1": {},
+    "v2": {},  # export/v2.py itself (#154)
 }
 WANDER_KEYS = {
     "w": "intercept_week_sd",
@@ -78,6 +79,8 @@ def wander_variant(name: str) -> dict:
 
 
 def artifact_for(name: str) -> dict:
+    if name == "v2":
+        return v2.artifact()
     over = VARIANTS[name] if name in VARIANTS else wander_variant(name)
     return v0.artifact() if over is None else v1.artifact(**over)
 

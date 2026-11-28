@@ -70,7 +70,7 @@ def nights_of(params: Params, people: int, weeks: int, week_sd: float, seed: int
 def test_the_scale_stays_near_one_when_the_model_is_right_and_grows_when_weeks_move():
     calm = nights_of(V2, 400, 26, 0.0, seed=2)
     moving = nights_of(V2, 400, 26, 40.0, seed=2)
-    assert 1.0 <= float(np.median(calm)) < 1.4
+    assert 0.8 < float(np.median(calm)) < 1.25
     assert float(np.median(moving)) > 2.0
 
 
