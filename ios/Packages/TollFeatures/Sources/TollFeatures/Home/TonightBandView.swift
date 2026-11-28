@@ -99,13 +99,23 @@ struct TonightBandView: View {
         symbol: .headsUp, title: Copy.HeadsUp.refused, detail: Copy.HeadsUp.refusedDetail,
         action: Copy.HeadsUp.openSettings, dismiss: Copy.HeadsUp.ok, leaves: true,
         open: actions.openNotificationSettings, putAway: actions.headsUpSeen)
-    case .flow:
-      // One-time flow #1, the one registered (#144): its own words, the offers' quiet card.
-      BandCard(
-        symbol: .sleep, title: Copy.Fit.cardTitle, detail: Copy.Fit.cardDetail,
-        action: Copy.Fit.cardAction, dismiss: Copy.Home.notNow, open: actions.openFlow,
-        putAway: actions.notNowFlow
-      )
+    case .flow(let id):
+      // Each one-time flow in its own words, on the offers' quiet card: #1 Fit Dusk to your sleep
+      // (#144), #2 personal timing (#171).
+      Group {
+        if id == Flows.timing.id {
+          BandCard(
+            symbol: .timing, title: Copy.Timing.cardTitle,
+            detail: Copy.Timing.cardDetail(TollConfig.defaults.timing.mostMinutes),
+            action: Copy.Timing.cardAction, dismiss: Copy.Home.notNow, open: actions.openFlow,
+            putAway: actions.notNowFlow)
+        } else {
+          BandCard(
+            symbol: .sleep, title: Copy.Fit.cardTitle, detail: Copy.Fit.cardDetail,
+            action: Copy.Fit.cardAction, dismiss: Copy.Home.notNow, open: actions.openFlow,
+            putAway: actions.notNowFlow)
+        }
+      }
       .onAppear(perform: actions.flowShown)
     case .lastNight:
       EmptyView()

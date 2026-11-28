@@ -29,9 +29,11 @@ public struct TimingSetting: Equatable, Sendable {
   public var kind: Kind
   /// What the row says under its title: what it does, what it needs, or this week's start.
   public var detail: String
+  /// What it does, for a switch turned on or off and not saved yet.
+  public var about: String
 
   public init(_ state: DuskState, config: TollConfig = .defaults) {
-    let most = config.timing.mostMinutes
+    about = Copy.Timing.rowDetail(config.timing.mostMinutes)
     if !state.health {
       kind = .needsHealth
       detail = Copy.Timing.rowNeedsHealth
@@ -40,7 +42,7 @@ public struct TimingSetting: Equatable, Sendable {
       detail = Copy.Timing.thisWeek(state.timing.inForce?.offset ?? 0)
     } else {
       kind = .off
-      detail = Copy.Timing.rowDetail(most)
+      detail = about
     }
   }
 }

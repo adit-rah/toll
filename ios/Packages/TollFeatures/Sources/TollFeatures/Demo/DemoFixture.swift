@@ -274,6 +274,7 @@
         }
       }
       polish(scenario)
+      timing(scenario, now: now)
       log.sort { $0.at < $1.at }
       addSleep(scenario, now: now)
     }

@@ -11,6 +11,9 @@ struct HomeHero: View {
   let eyebrow: String
   /// "15 min before bed", under the lock's time (D76).
   var beforeBed: String?
+  /// This week's start isn't the person's own (#171): its reason takes that line, so the time
+  /// keeps its place (D105).
+  var held: HeldStart?
   var place: HomeSnapshot.HeroPlace?
   var supply: HomeSnapshot.Supply?
   let openDoor: (() -> Void)?
@@ -39,7 +42,17 @@ struct HomeHero: View {
         }
         if let time {
           HeroTime(time)
-          if let beforeBed {
+          if let held {
+            // Quieter than the time and its usual line: a reason, not a state (D105).
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+              Image(symbol: .timing).unredacted()
+                .tollGlyph(13, weight: .medium)
+                .foregroundStyle(TollColor.label2)
+                .accessibilityHidden(true)
+              Text(held.text).tollType(.heroLine, TollColor.label2)
+                .accessibilityLabel(held.spoken)
+            }
+          } else if let beforeBed {
             // The moon says before what, without the words (D76).
             HStack(alignment: .firstTextBaseline, spacing: 6) {
               Image(symbol: .sleep).unredacted()

@@ -57,7 +57,7 @@ struct FitFlowSheet: View {
           SleepTimesStep(draft: draft) { path.append(.around) }
         case .around:
           AroundStep(draft: draft, action: Copy.Fit.save) {
-            app.flow(Flows.fitSleep.id, .answered, fit: draft.fit)
+            app.flow(Flows.fitSleep.id, .answered, commands: [.fit(draft.fit)])
             close()
           }
         }
