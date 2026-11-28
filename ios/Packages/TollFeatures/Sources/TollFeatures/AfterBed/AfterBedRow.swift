@@ -6,7 +6,8 @@ import TollUI
 /// Apple's count of screen time after bed last night, in its own row (#65): Screen Time's hourglass
 /// and Dusk's words on a raised tile with Apple's 12 pt corners, and the number drawn by the report
 /// extension (`ios/Report`). Dusk can't read that number, so nothing compares it with Dusk's own
-/// (D46). Self-contained: it reads last night from the environment the tabs set, and shows nothing
+/// (D46). It sits under what it supports, so its words are body weight: never louder than last
+/// night's headline or Your sleep's measures (D105). Self-contained: it reads last night from the environment the tabs set, and shows nothing
 /// without Screen Time or a night that has ended.
 struct AfterBedRow: View {
   @Environment(\.afterBedNight) private var night
@@ -28,7 +29,7 @@ struct AfterBedRow: View {
             .frame(width: 20)
             .accessibilityHidden(true)
           VStack(alignment: .leading, spacing: 1) {
-            Text(Copy.AfterBed.title).tollType(.rowTitle, TollColor.label)
+            Text(Copy.AfterBed.title).tollType(.body, TollColor.label)
             Text(Copy.AfterBed.caption).tollType(.detail, TollColor.label2)
           }
           .fixedSize(horizontal: false, vertical: true)
@@ -54,7 +55,7 @@ struct AfterBedRow: View {
     #if DEBUG
       if DemoScenario.current != nil {
         Text(AfterBed.shown(360).text)
-          .tollType(.rowTitle, TollColor.label)
+          .tollType(.body, TollColor.label)
           .redacted(reason: .placeholder)
           .frame(
             maxWidth: .infinity, alignment: typeSize.isAccessibilitySize ? .leading : .trailing

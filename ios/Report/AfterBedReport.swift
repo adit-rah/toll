@@ -35,7 +35,8 @@ nonisolated struct AfterBedScene: DeviceActivityReportScene {
 }
 
 /// The number at the row's end (under its words at accessibility sizes), in the system's type so
-/// it scales with Dynamic Type.
+/// it scales with Dynamic Type, at the row's own size and weight so it stays quieter than the
+/// headline and the measures above it.
 struct AfterBedValue: View {
   let shown: AfterBedShown
   @Environment(\.dynamicTypeSize) private var typeSize
@@ -44,7 +45,7 @@ struct AfterBedValue: View {
 
   var body: some View {
     Text(shown.text)
-      .font(.body.weight(.semibold).monospacedDigit())
+      .font(.subheadline.monospacedDigit())
       .foregroundStyle(.primary)
       .lineLimit(1)
       .minimumScaleFactor(0.7)
