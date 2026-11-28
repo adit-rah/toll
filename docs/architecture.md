@@ -30,7 +30,7 @@ Rules that keep it that way:
 ## The model
 
 ```
-DuskState (schema 3, one coordinated JSON file in the App Group)
+DuskState (schema 5, one coordinated JSON file in the App Group)
 ├── blocks:   [Block]                     ≤ blocks.max, exactly one of kind .sleep
 ├── places:   [Place]                     shared by blocks; one is Home
 ├── presence: [PlaceID: Presence]         last word from region monitoring
@@ -41,6 +41,7 @@ DuskState (schema 3, one coordinated JSON file in the App Group)
 ├── trial:    Trial (start, purchased)
 ├── gap:      Gap                         minutes the night locks before bed, growing or fixed (D76)
 ├── flows:    [id: FlowRecord]            how each one-time flow last went (#140)
+├── timing:   Timing                      personal timing: chosen or not, the week's start in force (D99)
 └── runtime:  per-block active night and last end (B-4), clock anchor, scheduled windows
 ```
 
@@ -54,6 +55,7 @@ DuskState (schema 3, one coordinated JSON file in the App Group)
 - **Active block (B-1):** entitled, on, inside one of its schedule's occurrences, at its place (or it has none, or location is `.scheduleOnly`), and that occurrence started after the block's last end (B-4).
 - **Shield:** the union of active blocks' apps, sites and categories, or nothing while a pause is open (D67). One ManagedSettings store, so a pause lifts every block at once.
 - **The gap before bed (D76):** the night's stored hours are bed to wake; it runs, and is scheduled, from bed minus the gap. Each Monday at noon (the pauses' week) the week before is judged from a tally kept as it happens, at the monitor's daily noon wake if nothing reconciled earlier, so the new lock and heads-up apply that night with Dusk closed (#127): nights the lock ran, pauses started before bed, Screen Time off. A change while the night is on waits until it ends, like an edit.
+- **Personal timing (D66, D99):** for a person who chose it, the app draws a start with the sleep model (−30, 0 or +30 minutes from the plan, inside the buffer before sleep) and the engine holds it Monday to Sunday by the night's date, putting it in force or taking it out only between nights. Every process locks with it; the monitor never links the model.
 - **Edits (B-3):** edits to an active block, or to a place an active block uses, wait until that block ends. Everything else applies at once.
 - **Door, shown as "Pause" (D67):** every block's shield. 60 s wait, then 10 minutes on the clock (D31). It ends when its time is up, on "Lock again", or when no block is active. 3 a week, shared by all blocks, back to 3 when Monday's night starts (noon), none carried over.
 - **Limits:** iOS shields at most 50 apps and sites by name, so at most `blocks.maxApps` (40) across all blocks, as designed. At most 20 places (CLMonitor's limit). At most `schedule.maxWindows` distinct time windows, so window, sweep, door and turn schedules stay under DeviceActivity's 20 activities (8 × 2 + 2).

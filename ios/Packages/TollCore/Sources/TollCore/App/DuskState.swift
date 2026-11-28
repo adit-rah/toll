@@ -5,14 +5,23 @@ import Foundation
 /// `Migration` ("Data and its evolution" there).
 public struct DuskState: Codable, Hashable, Sendable {
   /// 1 was step 2's single-block file; 2 the blocks (D29); 3 added `minReader`, `writtenBy` and
-  /// `flows` (#140); 4 the buffer after sleep, each buffer's target and `health` (#144).
-  public static let schema = 4
+  /// `flows` (#140); 4 the buffer after sleep, each buffer's target and `health` (#144); 5 personal
+  /// timing, `timing` (D99, #155).
+  public static let schema = 5
   /// The oldest schema that may write over a file this build writes. A build below it reads the
   /// file and never writes it, so nothing it can't hold is lost. Raise it to `schema` when a build
   /// starts writing something an older one would misread, or drop to harm: a new enum case, or a
   /// field whose loss changes what happens.
   /// 4: a build from before #144 would drop the buffer after sleep, and end the night at wake.
+  /// 5 only while personal timing has something to keep (`reader`).
   public static let minReader = 4
+
+  /// The `minReader` this state is written with. A build from before #155 would drop personal
+  /// timing: the person's choice and the week's start, which the next night's record needs. A file
+  /// with nothing in it loses nothing, so a downgrade still saves for everyone else.
+  public var reader: Int {
+    timing.on || !timing.history.isEmpty ? 5 : DuskState.minReader
+  }
 
   public var schema = DuskState.schema
   public var minReader = DuskState.minReader
@@ -62,6 +71,8 @@ public struct DuskState: Codable, Hashable, Sendable {
   /// When the night was brought back from a night record because the file had lost it (#140):
   /// its apps couldn't come back, and Tonight says so until they're chosen.
   public var recoveredAt: Date?
+  /// Personal timing (D66, D99): whether the person chose it, and the week's start in force.
+  public var timing = Timing()
   public var runtime = RuntimeState()
 
   public init() {}
@@ -87,11 +98,15 @@ public struct DuskState: Codable, Hashable, Sendable {
   public var lockBlocks: [Block] { blocks.map(locking) }
 
   public func locking(_ block: Block) -> Block {
-    guard block.isSleep, gap.minutes > 0 || after.minutes > 0 else { return block }
+    guard block.isSleep, lead > 0 || after.minutes > 0 else { return block }
     var lock = block
-    lock.schedule = block.schedule.locking(before: gap.minutes, after: after.minutes)
+    lock.schedule = block.schedule.locking(before: lead, after: after.minutes)
     return lock
   }
+
+  /// Minutes the lock starts before sleep now: the buffer before, moved by the week's start when
+  /// personal timing holds one (D99). Never below 0: the lock never starts after bed.
+  public var lead: Int { max(0, gap.minutes - (timing.inForce?.offset ?? 0)) }
 
   /// One side's buffer.
   public subscript(side: Gap.Side) -> Gap {

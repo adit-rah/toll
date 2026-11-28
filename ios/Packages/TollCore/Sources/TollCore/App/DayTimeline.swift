@@ -178,8 +178,8 @@ public struct DayTimeline: Equatable, Sendable {
       )
     }
     let bed =
-      block.isSleep && state.gap.minutes > 0
-      ? occurrence.start.addingTimeInterval(TimeInterval(state.gap.minutes * 60)) : nil
+      block.isSleep && state.lead > 0
+      ? occurrence.start.addingTimeInterval(TimeInterval(state.lead * 60)) : nil
     let wake =
       block.isSleep && state.after.minutes > 0
       ? occurrence.end.addingTimeInterval(-TimeInterval(state.after.minutes * 60)) : nil

@@ -10,6 +10,7 @@ extension DuskState {
     case schema, minReader, writtenBy, blocks, places, presence, location, pending, pendingPlaces
     case door, doorAskedAt, unlocks, trial, setupFinishedAt, runtime, screenTimeAllowed
     case dismissedCards, lastNightSeen, headsUp, gap, after, health, helpers, flows, recoveredAt
+    case timing
   }
 
   public init(from decoder: Decoder) throws {
@@ -40,6 +41,7 @@ extension DuskState {
     helpers = c.lossy(.helpers, or: Helpers())
     flows = c.lossyMap(.flows)
     recoveredAt = c.lossy(.recoveredAt)
+    timing = c.lossy(.timing, or: Timing())
   }
 }
 

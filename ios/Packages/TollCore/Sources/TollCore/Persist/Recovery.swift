@@ -31,7 +31,23 @@ enum Recovery {
       state.after = .none(target: TollConfig.defaults.after.target)
       state.after.minutes = after ?? 0
       state.setupFinishedAt = now
+      restoreTiming(&state, from: record)
     }
+  }
+
+  /// Personal timing comes back with the week's start from a night it held one (D99): it needed
+  /// Health (D65), so that comes back on too. The engine lets the start go at its week's end.
+  static func restoreTiming(_ state: inout DuskState, from record: [String: Any]) {
+    guard record["policy"] as? String == NightRecordLine.held,
+      let start = record["hold_start"] as? String, Timing.week(start) != nil,
+      let offset = record["action_offset_min"] as? Int,
+      let prob = record["action_prob"] as? Double
+    else { return }
+    let hold = Timing.Hold(
+      start: start, offset: offset, prob: prob, settled: record["settled"] as? Bool ?? false)
+    state.timing.on = true
+    state.health = true
+    state.timing.history = [Timing.Entry(night: Date(timeIntervalSince1970: 0), hold: hold)]
   }
 
   /// Bed to wake, as the clock read them that night: the record's times are written in the phone's

@@ -152,7 +152,7 @@ enum GapRules {
     guard let lock = state.lockSleep?.schedule.occurrence(containing: date, calendar: calendar)
     else { return nil }
     return TimeWindow.Night(
-      start: lock.start.addingTimeInterval(TimeInterval(state.gap.minutes * 60)),
+      start: lock.start.addingTimeInterval(TimeInterval(state.lead * 60)),
       end: lock.end.addingTimeInterval(-TimeInterval(state.after.minutes * 60)))
   }
 }
