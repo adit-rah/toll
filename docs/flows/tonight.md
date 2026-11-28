@@ -27,6 +27,7 @@ flowchart TD
   placeCheck -->|"no: Anywhere"| anywhere["clock: Apps lock at … · N min before bed; Anywhere · starts in …<br/>render: home-anywhere"]
   placeCheck -->|"yes"| evening["clock: Apps lock at … · N min before bed; At home · starts in …<br/>render: home-evening"]
   evening -.->|"personal timing holds this week's start away from the person's own (HeldStart, #171)"| heldLine["The same, the minutes-before-bed line replaced by its reason, in label2:<br/>timing glyph · 30 min earlier this week, to learn what helps; the time doesn't move<br/>render: home-timing-held"]
+  heldLine -.->|"the week settled on the insight and it still shows (HeldStart.found, #182)"| foundLine["The same line: timing glyph · 30 min earlier this week, from what Dusk found<br/>render: home-timing-settled"]
   anywhere -.->|"the same"| heldLine
 
   off --> stCheck

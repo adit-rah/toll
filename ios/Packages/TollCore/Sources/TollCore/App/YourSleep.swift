@@ -61,10 +61,14 @@ public struct YourSleep: Equatable, Sendable {
   /// The person's improvement, the tab's lead under the sky (#87, #88): the four measures, each
   /// against their own first nights.
   public var trends: SleepTrends
+  /// The sleep model's insight, beside the measures (#189); nil until it shows.
+  public var finding: Finding?
+  /// With personal timing on and no insight yet: "Still learning what helps your sleep…".
+  public var learning: String?
 
   public init(
     state: DuskState, log: [Transition], history: [PastNight], now: Date, calendar: Calendar,
-    config: TollConfig = .defaults
+    config: TollConfig = .defaults, model: ModelReading? = nil
   ) {
     let sleep = state.sleepBlock
     let lines = log.sorted { $0.at < $1.at }
@@ -80,6 +84,7 @@ public struct YourSleep: Equatable, Sendable {
     self.now = now
     trends = SleepTrends(
       nights: past, health: state.health, now: now, calendar: calendar, config: config)
+    (finding, learning) = Self.finding(model, timingOn: state.timing.on)
     let ran = Set(past.filter(\.ran).map(\.night))
     let total = ran.count
     nights = total > 0 ? Copy.YourSleep.nights(total) : nil

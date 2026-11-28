@@ -299,6 +299,11 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 281 | iPhone 17, default size: Settings › Sleep | No tab bar. Save sits just above the home indicator, as in the block editor; the night picture, the hours and the buffers show above it | | |
 | 282 | iPhone SE, AX5: tap Fall asleep's time and, if a keypad shows, type a time | Save is still the bar's only button; nothing appears, leaves or changes places. Dismissing the keypad puts Save back at the bottom | | |
 | 283 | VoiceOver in Settings › Sleep | The back button reads "Settings". Save is the last element, after the timing row; no tab bar items are read | | |
+| 284 | Personal timing on, fewer than 28 usable nights: open Your sleep and scroll under the measures | "Dusk is still learning what helps your sleep, from N nights so far…" with the timing glyph; no "What Dusk found" (D118) | | |
+| 285 | On a phone whose model shows an insight, open Your sleep | "What Dusk found" sits under the sky, before Night by night, with the value, the sentence and the range; VoiceOver reads it as one element | | |
+| 286 | The same phone, in a week whose start settled on the insight: open Tonight in the evening before the lock | The line under the time reads "30 min earlier (later) this week, from what Dusk found", one line at the default size; the time sits where the learning line had it | | |
+| 287 | Force-quit and reopen Dusk in that week | The found wording shows from the first frame, with no swap from "to learn what helps" | | |
+| 288 | Turn personal timing off in Settings › Sleep and save | The learning footnote goes; an insight already shown stays on Your sleep; Tonight's reason is gone from the next night | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

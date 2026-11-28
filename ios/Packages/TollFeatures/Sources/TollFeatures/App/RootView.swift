@@ -78,7 +78,7 @@ struct LiveHome: View {
       tab: $tab, tonightPath: $path, blocksPath: $blocksPath, model: model,
       sleep: YourSleep(
         state: model.state, log: model.log, history: model.history, now: Date(),
-        calendar: .current),
+        calendar: .current, model: model.sleepModel),
       openPurchase: { buying = true }
     ) {
       TimelineView(.everyMinute) { context in
@@ -161,7 +161,8 @@ struct LiveHome: View {
       screenTime: model.screenTime == .approved,
       // Not read yet: no offer, rather than one that vanishes a moment later.
       notifications: model.notifications ?? .allowed, history: model.history,
-      readOnly: model.readOnly, flow: dueFlow(now), headsUpTurnedOn: model.headsUpTurnedOn)
+      readOnly: model.readOnly, flow: dueFlow(now), headsUpTurnedOn: model.headsUpTurnedOn,
+      model: model.sleepModel)
   }
 
   /// The one-time flow due now (`Flows.due`), read with the clock so the band follows the day:

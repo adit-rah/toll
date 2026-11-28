@@ -771,3 +771,24 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Typing never moves a button:** the page has no text field, and hiding the tab bar is fixed for the screen.
 - **Attention (D105).** The night picture and the hours come first; Save is the one pinned action, with no tab bar under it. Still open: at AX5 on the SE the title and its line take most of the first screen.
 - **Assumed, for the founders:** no tabs while Settings › Sleep is open, as in the block editor; Back to Settings brings them back.
+
+**D118. The sleep model's insight on Your sleep, and a settled week's reason on Tonight** (2026-11-28, #189, #182; details of D66, D104, D105 and D112; follows D113).
+- **What shows.** When the model shows its insight, Your sleep leads with it under the sky, before the measures, headed "What Dusk found":
+  - "Asleep N min sooner" or "Asleep N min later", with personal timing's glyph and the up-right or down-right glyph, as Asleep by marks its ways (never colour alone);
+  - "You fell asleep sooner (later) because apps locked 30 min earlier.";
+  - "Likely A to B min, from N nights": the model's 90% range, smaller end first. It never crosses zero, since the zero test that lets it show is stricter; an end that rounds to 0 shows as 1.
+  - It is the only sentence in the app that says "because", since only the start was randomized. A test scans every Copy literal for it.
+  - Never before 28 usable nights (D113).
+- **Still learning.** With personal timing on and no insight, a quiet footnote with the timing glyph sits under the measures: "Dusk is still learning what helps your sleep, from N nights so far. Anything it finds shows here." It promises nothing, since the model may find nothing. With timing off nothing is said, but an insight from earlier weeks still shows.
+- **Tonight.** A week whose start settled on the insight reads "30 min earlier (later) this week, from what Dusk found". That needs the hold to be `settled`, its offset on the insight's side, and the insight still showing. The line names where the insight is, not its minutes, so it never reads as a promise for tonight, and it fits `HeldStart`'s 46 characters. Every other held week keeps "to learn what helps": a week drawn to learn (even if the insight appears mid-week), a settled person's week of trying the other side, and a settled week whose insight stops holding.
+- **An insight that stops holding** (`PersonState.shown` falls away) leaves without a word: the learning footnote takes its place, and Tonight's line goes back to "to learn what helps".
+- **Layers.** TollData's `ModelStore.reading` reads `model.json` at launch, before the first frame, and after each refresh. A cache built by another artifact reads as nothing until it is rebuilt. It hands TollCore a plain `ModelReading`, kept in memory only; nothing new is stored and the schema is unchanged. TollFeatures and the extensions never import SleepModel.
+- **Attention (D105).** Your sleep: the sky first, then the insight, the one result Dusk earns, set at the measures' size so it doesn't outshout the sky; still learning is a footnote, not a result. Tonight: the time leads, and the reason stays in its quiet line.
+- **Assumed, for the founders:**
+  - Tonight points to the insight rather than restating its minutes.
+  - The later case is told as the model's fact about earlier starts, while that person's settled week locks later.
+  - The insight leads Your sleep, above the measures.
+  - The learning footnote shows whenever timing is on and nothing is found, including for people settled back at their own time.
+  - An insight still shows after timing is switched off.
+  - The range is the model's 90% range, worded "Likely".
+- **Left:** a render on the smallest phone; `HomeSnapshot.swift` and `DemoScenario.swift`, already over the 300-line guide, grew a little.

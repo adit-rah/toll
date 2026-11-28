@@ -24,14 +24,14 @@
         screenTime: scenario != .homeScreenTimeOff,
         notifications: scenario.notifications ?? .allowed, history: fixture.history,
         readOnly: scenario == .homeReadOnly, flow: scenario.flow,
-        headsUpTurnedOn: scenario.headsUpAnswered)
+        headsUpTurnedOn: scenario.headsUpAnswered, model: scenario.sleepModel)
       DuskTabs(
         tab: .constant(scenario.tab),
         tonightPath: .constant(scenario.tab == .tonight ? scenario.routes : []),
         blocksPath: .constant(scenario.tab == .blocks ? scenario.routes : []), model: app,
         sleep: YourSleep(
           state: fixture.state, log: fixture.log, history: fixture.history, now: now,
-          calendar: .current),
+          calendar: .current, model: scenario.sleepModel),
         openPurchase: {}
       ) {
         HomeView(
