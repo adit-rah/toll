@@ -184,12 +184,12 @@ struct Reader {
       spoken: Copy.Trends.spoken(kind, value: value, detail: detail, change: change?.line))
   }
 
-  /// How steady a time is: the trimmed mean distance of each night from the middle one, over two
-  /// weeks, compared on those distances (a robust Brown–Forsythe test).
+  /// How steady a time is: the trimmed mean distance of each night from the middle of the days
+  /// around it, over two weeks, compared on those distances (a robust Brown–Forsythe test).
   func spread(_ kind: SleepTrends.Kind, _ series: NightSeries) -> SleepTrends.Measure? {
     let recent = series.filter { isRecent($0.night, nights: rules.steadyNights) }
     guard recent.count >= rules.minSteady else { return nil }
-    let now = Stats.trimmed(Stats.deviations(recent.map(\.value)), rules.trim)
+    let now = Stats.trimmed(deviations(recent.sorted { $0.night < $1.night }), rules.trim)
     let middle = Stats.median(recent.map(\.value))
     let (found, then) = looks(
       series, floor: rules.floorSteady, lowerIsBetter: true, steady: true)

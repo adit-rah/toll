@@ -62,7 +62,26 @@ def test_the_test_grows_with_the_looks_and_a_said_change_is_kept():
 def test_how_steady_compares_two_weeks():
     nights = [(d, 700.0 + (40 if d % 2 else -40) * (1 if d < 14 else 0.2)) for d in range(42)]
     m = spread_measure(nights, 28)
-    assert m["change"]["way"] == TOWARD and abs(m["value"] - 8) < 1e-9 and abs(m["first"] - 40) < 1e-9
+    assert m["change"]["way"] == TOWARD and m["value"] < m["first"] / 4
+
+
+def test_how_steady_reads_each_night_against_the_days_around_it():
+    # A usual time that moved 60 min at night 8, or moves week to week, isn't a change in steadiness.
+    moved = weeks([720, 660, 660, 660, 660])
+    assert spread_measure(moved, 35)["change"]["way"] == STEADY
+    assert spread_measure(moved, 35, Rule(centre="window"))["change"]["way"] == TOWARD
+    moving = weeks([700, 700, 760, 700, 760, 700])
+    assert spread_measure(moving, 42)["change"]["way"] == STEADY
+    assert abs(spread_measure(weeks([700, 700]), 14)["value"] - spread_measure(weeks([700, 760]), 14)["value"]) < 5
+
+
+def test_a_first_week_noisier_than_every_week_since_keeps_its_own_noise():
+    calmer = weeks([720], [-20, 20, -20, 20, -20, 20, 0]) + [(7 + d, v) for d, v in weeks([690] * 6, [-3, 3, -3, 3, -3, 3, 0])]
+    assert level_measure(calmer, 49, 15.0, True, Rule(first_ratio=0))["change"]["way"] == TOWARD
+    assert level_measure(calmer, 49, 15.0, True)["change"]["way"] == STEADY
+    # The same nights in an even week: the pooled noise, as before.
+    found, _ = looks(weeks([720, 690, 690]), 21, 15.0, True, Rule())
+    assert [x.df for x in found] == [8, 12]
 
 
 def test_a_profile_still_has_no_wander_and_a_shuffle_no_level():

@@ -11,7 +11,8 @@ scenarios, per noise profile (`trends.noise`):
   moves of the level become night noise and nothing changes over time). Also held to 5%.
 - **wander**: the level moves as the profile says. A change against the first nights is then a true
   description; the study counts the claims made the wrong way, or larger than the level moved.
-- **shift 30 / 60**: still, then a real step earlier after the first week (or from week 6).
+- **shift 30 / 60**: still, then a real step earlier after the first week (or from week 6, or at
+  night 4 or 11, or on the first Monday at least a week in, as the lock moves: D97, D107).
 - **differ**: still, then a step of the simulator's "differ" effect (N(8, 15) minutes per 30 minutes
   of earlier lock, D97's growth of 30 minutes) from week 3.
 `today` is D104's rule (means, Welch's errors, z 2.2, judged every night) on the same nights.
@@ -29,10 +30,10 @@ from pathlib import Path
 import numpy as np
 
 from . import noise
-from .rule import STEADY, Rule, distances, looks
+from .rule import STEADY, Rule, centred, distances, looks
 
 WEEKS = (12, 26)
-SHIFT_FROM = {"early": 7, "week6": 35}
+SHIFT_FROM = {"early": 7, "night4": 3, "night11": 10, "week6": 35}
 
 
 def series_of(values: np.ndarray, start: int) -> list[tuple[int, float]]:
@@ -42,7 +43,9 @@ def series_of(values: np.ndarray, start: int) -> list[tuple[int, float]]:
 def person_looks(series, start: int, weeks: int, rule: Rule, steady: bool):
     now = start + 7 * weeks  # the morning after the last night: its Monday judges the last week
     if steady:
-        found, _ = looks(series, now, rule.floor_steady, True, rule, center=distances, window=rule.steady)
+        found, _ = looks(
+            series, now, rule.floor_steady, True, rule, center=lambda w: centred(w, rule.centre, rule.around), window=rule.steady
+        )
     else:
         found, _ = looks(series, now, rule.floor_minutes, True, rule)
     return found
@@ -90,16 +93,23 @@ def scenario_nights(profile: noise.Profile, scenario: str, people: int, weeks: i
         else:
             _, amount, when = scenario.split("-")
             size = np.full(people, -float(amount))
-            frm = SHIFT_FROM[when]
+            frm = SHIFT_FROM.get(when, 0)
         step = np.zeros_like(values)
         step[:, frm:] = size[:, None]
-        values = values + step
-        level = level + step
+        if not scenario.endswith("monday"):
+            values = values + step
+            level = level + step
     if scenario == "steadier":
         # Half the night's noise from week 3: really steadier.
         calm = noise.night_noise(replace(profile.still(), core=profile.core / 2, outlier=profile.outlier / 2), values.shape, gen)
         values = np.where(np.arange(values.shape[1]) >= 14, calm + np.where(np.isnan(values), np.nan, 0.0), values)
     starts = gen.integers(0, 7, people)
+    if scenario.startswith("shift") and scenario.endswith("monday"):
+        # The lock moves on a Monday (D97, D107): the first Monday at least a week in.
+        for p in range(people):
+            frm = 7 + (-(int(starts[p]) + 7)) % 7
+            values[p, frm:] += size[p]
+            level[p, frm:] += size[p]
     return values, level, starts
 
 
@@ -182,7 +192,10 @@ def latent(level: np.ndarray, start: int, monday: int, rule: Rule, steady: bool,
     return float(week.mean() - first.mean()) if len(week) else 0.0
 
 
-SCENARIOS = ["still", "shuffled", "wander", "shift-30-early", "shift-60-early", "shift-30-week6", "shift-60-week6", "differ", "steadier"]
+SCENARIOS = [
+    "still", "shuffled", "wander", "shift-30-early", "shift-60-early", "shift-30-week6", "shift-60-week6", "differ",
+    "steadier", "shift-60-monday",
+]
 
 
 def run(profiles: dict, rules: dict, people: int, seed: int, scenarios=SCENARIOS, with_today=True) -> dict:
@@ -215,6 +228,15 @@ SWEEP: dict[str, Rule] = {
     for miss in (0.02, 0.03, 0.04, 0.06)
     for power in (1.0, 1.5, 2.0)
 } | {"mad-m0.02-p2.0": Rule(spread="mad", miss=0.02, power=2.0), "b14-winsor-m0.04-p1.5": Rule(baseline=14, miss=0.04, power=1.5)}
+# #173: D108's rule, and each of its two changes alone or varied.
+SWEEP |= {
+    "d108": Rule(centre="window", first_ratio=0.0),
+    "steady-window": Rule(centre="window"),
+    "steady-halves": Rule(centre="halves"),
+    "first-pooled": Rule(first_ratio=0.0),
+    "first-ratio2": Rule(first_ratio=2.0),
+    "first-own": Rule(first_ratio=1e-9),
+}
 
 
 def main() -> None:

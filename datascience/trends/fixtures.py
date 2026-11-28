@@ -62,6 +62,14 @@ def named() -> list[dict]:
         {"name": "steadier over two weeks", "kind": "steady", "nights": steady_spread, "now": 28},
         {"name": "steadier, a week later", "kind": "steady", "nights": steady_spread, "now": 35},
         {"name": "too few for how steady", "kind": "steady", "nights": steady_spread[:6], "now": 7},
+        {
+            "name": "calmer since the first week: its own noise stands",
+            "kind": "level",
+            "nights": weeks([720], [-20, 20, -20, 20, -20, 20, 0]) + weeks([690] * 6, [-3, 3, -3, 3, -3, 3, 0], start=7),
+            "now": 49,
+        },
+        {"name": "a usual time that moved in the first nights isn't steadier", "kind": "steady", "nights": weeks([720, 660, 660, 660, 660]), "now": 35},
+        {"name": "a usual time that moves week to week isn't less steady", "kind": "steady", "nights": weeks([700, 700, 760, 700, 760, 700]), "now": 42},
         {"name": "nights locked: one more", "kind": "locked", "nights": [[d, 0.0 if d in (2, 4, 5) else 1.0] for d in range(14)], "now": 14},
     ]
 
