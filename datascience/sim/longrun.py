@@ -27,14 +27,14 @@ from export import v0, v1, v2
 
 from .criteria import changes_per_week, first_insight_night
 from .run import NIGHTS, Run, run
-from .wander import make_world
+from .wander import PROFILES, make_world
 
 YEAR = 364
 WEEKS = (8, 12, 26, 52)
 # Each scenario's seed is the run's seed plus its place here, so new ones go at the end (`sim.wander`).
 SCENARIOS = [
     "null", "null+wander", "null+drift", "differ", "differ+wander", "differ+drift", "same",
-    "null+wide", "null+slow", "differ+wide", "differ+slow",
+    *(f"null+{p}" for p in PROFILES), *(f"differ+{p}" for p in PROFILES),
 ]
 
 NO_SPEND = {"zero_test_spend_after": 0, "zero_test_spend_power": 0.0}
@@ -64,17 +64,20 @@ WANDER_KEYS = {
     "z": "zero_test_interval",
     "n": "zero_test_spend_after",
     "p": "zero_test_spend_power",
+    "m": "min_nights",
+    "x": "max_width_min",
 }
 
 
 def wander_variant(name: str) -> dict:
     """#154's variants by name, on v1: "w10-k14-z96" lets the intercept wander 10 minutes a week,
     learns the noise's scale with 14 nights of 1, and uses a 96% zero test. `z` is in percent; `n`
-    and `p` are the zero test's spending (`zero_test_spend_after`, `zero_test_spend_power`)."""
+    and `p` are the zero test's spending (`zero_test_spend_after`, `zero_test_spend_power`), and `m` the
+    usable nights before any insight (`min_nights`), and `x` the widest shown range (`max_width_min`)."""
     over: dict = {}
     for part in name.split("-"):
         key, value = WANDER_KEYS[part[0]], float(part[1:])
-        over[key] = value / 100.0 if part[0] == "z" else int(value) if part[0] == "n" else value
+        over[key] = value / 100.0 if part[0] == "z" else int(value) if part[0] in "nm" else value
     return over
 
 

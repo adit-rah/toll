@@ -169,7 +169,7 @@ public struct ModelArtifact: Codable, Sendable, Equatable {
     context: Context(lateHomeWithinMin: 60),
     usableNight: UsableNight(maxOnsetFromPlanMin: 240, residualClipMin: 90),
     insight: InsightRule(
-      interval: 0.9, zeroTestInterval: 0.95, maxWidthMin: 30, minNights: 14,
+      interval: 0.9, zeroTestInterval: 0.945, maxWidthMin: 30, minNights: 28,
       zeroTestSpendAfter: 30, zeroTestSpendPower: 2),
     sha256: "")
 }

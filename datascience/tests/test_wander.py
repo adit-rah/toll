@@ -26,7 +26,7 @@ def test_the_old_wander_is_unchanged():
 
 
 def test_a_profile_sets_the_level_by_calendar_week():
-    level = sim_wander.weekly_level(sim_wander.PROFILES["slow"], 5, 30, seed=3)
+    level = sim_wander.weekly_level(sim_wander.PROFILES["l20-r0.95"], 5, 30, seed=3)
     assert level.shape == (5, 30)
     for week in range(4):
         block = level[:, 7 * week : 7 * week + 7]
@@ -34,12 +34,12 @@ def test_a_profile_sets_the_level_by_calendar_week():
     assert not np.allclose(level[:, 0], level[:, 7])
 
 
-def test_the_wide_profile_has_heavy_tailed_nights():
-    w = sim_wander.make_world("null+wide", 300, 4, nights=7 * 20)
+def test_a_heavy_tailed_profile_has_heavy_tailed_nights():
+    w = sim_wander.make_world("null+l45-r0.6-t15-150", 300, 4, nights=7 * 20)
     deviation = w.noise.reshape(300, 20, 7)
     deviation = deviation - np.median(deviation, axis=2, keepdims=True)
     beyond = float((np.abs(deviation) > 90).mean())
-    assert 0.1 < beyond < 0.3
+    assert 0.05 < beyond < 0.2
 
 
 def test_wander_keeps_the_mean_and_adds_to_the_intercept_variance():

@@ -76,7 +76,7 @@ struct ArtifactTests {
     try a.validate()
     #expect(a.policy.hold == 1 && !a.policy.settles)
     #expect(a.insight.zeroTestLevel(nights: 500) == 0.98)
-    #expect(ModelArtifact.builtIn.insight.zeroTestLevel(nights: 30) == 0.95)
+    #expect(ModelArtifact.builtIn.insight.zeroTestLevel(nights: 30) == 0.945)
     #expect(ModelArtifact.builtIn.insight.zeroTestLevel(nights: 160) > 0.997)
   }
 

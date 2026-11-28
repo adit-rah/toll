@@ -21,13 +21,15 @@ from dusk_model.night import features
 from dusk_model.timing import policy_name
 from export.versions import SHIPPED
 
+from .profiles import PROFILES as WANDER_PROFILES
 from .records import records
 from .run import ACTIONS, NIGHTS, World, run, world
 from .scenarios import SCENARIOS
 
+LEARNING_MARK = 0.4
 LONG_NIGHTS = 364  # a year: the insight is checked every night for as long as Dusk is used (#117)
 # The null for a year, alone and with the person's usual time moving (#154, `sim.wander`).
-LONG_SCENARIOS = ("null", "null+wander", "null+drift", "null+wide", "null+slow")
+LONG_SCENARIOS = ("null", "null+wander", "null+drift", *(f"null+{p}" for p in WANDER_PROFILES))
 
 
 def first_insight_night(shown: np.ndarray) -> np.ndarray:
@@ -181,9 +183,11 @@ def checks(out: dict) -> list[dict]:
     ]
     big = [r for r in s["differ"]["first_insight_by_effect"] if r["effect_low"] >= 15]
     big_share = sum(r["shown_by_56"] * r["people"] for r in big) / max(1, sum(r["people"] for r in big))
+    # D66 set half; the founders lowered it to 40% with v2, whose ranges stay honest when the usual
+    # time moves (#154, reports/longrun.md section 7).
     rows.append(("Learns fast enough (decisions D66)", "differ",
-                 "at least half of people with a true effect of 15 min or more get an insight by night 56",
-                 big_share >= 0.5, round(big_share, 3)))
+                 "at least 40% of people with a true effect of 15 min or more get an insight by night 56",
+                 big_share >= LEARNING_MARK, round(big_share, 3)))
     if "long_run" in out:
         lr = out["long_run"]
         rows.append(("No false insights over a year (#117)", f"null, {lr['nights']} nights",
@@ -221,11 +225,8 @@ def main() -> None:
     ap.add_argument(
         "--waive",
         action="append",
-        # The spec's, replaced by D66's learning mark (decisions D53, D66); and D66's, which v2 gives up
-        # for ranges that stay honest when the usual time moves (#154, reports/longrun.md section 7),
-        # until the founders set a new one.
-        default=["Learns fast enough", "Learns fast enough (decisions D66)"],
-        help="a check reported but not enforced",
+        default=["Learns fast enough"],
+        help="a check reported but not enforced: the spec's, replaced by D66's learning mark (decisions D53, D66)",
     )
     args = ap.parse_args()
     params = Params.from_artifact(artifact.load(Path(args.artifact)))

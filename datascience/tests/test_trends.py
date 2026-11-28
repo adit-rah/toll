@@ -67,7 +67,7 @@ def test_how_steady_compares_two_weeks():
 
 def test_a_profile_still_has_no_wander_and_a_shuffle_no_level():
     gen = np.random.default_rng(1)
-    p = noise.GRID["heavy-40"]
+    p = noise.GRID["t15-150-l90-r0.2"]
     _, level = noise.nights(p.still(), 3, 4, gen)
     assert not level.any()
     values, level = noise.nights(p, 3, 4, gen, shuffle=True)
