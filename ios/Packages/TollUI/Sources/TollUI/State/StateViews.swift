@@ -7,7 +7,6 @@ public struct StateLine: View {
   let symbol: TollSymbol
   let text: String
   let tone: Tone
-  let prominent: Bool
 
   public enum Tone: Sendable {
     case accent, neutral, warn
@@ -21,32 +20,26 @@ public struct StateLine: View {
     }
   }
 
-  /// `prominent` draws the glyph at 19 pt (Tonight's state, #74), big enough to tell the states
-  /// apart with every word wiped, without making the line any taller: the big time under it keeps
-  /// its place (D86, D87).
-  public init(_ text: String, symbol: TollSymbol, tone: Tone = .neutral, prominent: Bool = false) {
+  public init(_ text: String, symbol: TollSymbol, tone: Tone = .neutral) {
     self.text = text
     self.symbol = symbol
     self.tone = tone
-    self.prominent = prominent
   }
 
   public var body: some View {
-    HStack(spacing: prominent ? 8 : 6) {
+    HStack(spacing: 6) {
       Image(symbol: symbol).unredacted()
-        .tollGlyph(prominent ? 19 : 13, weight: .semibold, relativeTo: .caption)
+        .tollGlyph(13, weight: .semibold, relativeTo: .caption)
         .foregroundStyle(tone.color)
-        // Centred on the line and drawn past it, so the line keeps the eyebrow's height.
-        .frame(height: prominent ? 0 : nil)
         .accessibilityHidden(true)
       Text(text).tollType(.eyebrow, TollColor.label2)
     }
   }
 }
 
-/// A state as a shape on its own, centred over its eyebrow (#74): Ready's tick, and Tonight's
-/// state when nothing will block, where there's no time and the mark is drawn at 64 pt to stand in
-/// for it (design §2.6). No tile behind it: a filled square reads as a button. Hidden from
+/// A state as a shape on its own, centred over its eyebrow (#74): Ready's tick, and Tonight's state
+/// when it shows no time, where the glyph stands alone (64 pt in the time's stead when nothing will
+/// block, design §2.6). No tile behind it: a filled square reads as a button. Hidden from
 /// VoiceOver; the eyebrow and the time say it.
 public struct StateMark: View {
   let symbol: TollSymbol

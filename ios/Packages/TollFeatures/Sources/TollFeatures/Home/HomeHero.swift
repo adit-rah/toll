@@ -4,8 +4,8 @@ import TollUI
 
 /// The state, centred (#72, rule 2): its glyph before an eyebrow that says what the big time means
 /// ("Apps lock at", "Apps locked until", D75), the big time, one line, the week's pauses as dots
-/// while locked, and "Pause" or "Lock again" as buttons. The glyph is big enough to tell the states
-/// apart with every word wiped (#74); when nothing will block it stands in for the time.
+/// while locked, and "Pause" or "Lock again" as buttons. With no time to show, the glyph stands
+/// alone and large over the eyebrow (#74), at 64 pt when nothing will block.
 struct HomeHero: View {
   let hero: HomeSnapshot.Hero
   let eyebrow: String
@@ -25,12 +25,16 @@ struct HomeHero: View {
   var body: some View {
     VStack(spacing: 6) {
       VStack(spacing: 6) {
-        if offSymbol == nil {
-          // The state's glyph leads its eyebrow, big enough to read alone (#74).
-          StateLine(eyebrow, symbol: state.symbol, tone: state.tone, prominent: true)
+        if time != nil {
+          // With a time, the time is the shape a glance meets: the state's glyph stays small,
+          // before the eyebrow, and the time keeps its place (founder, #74; D86, D87).
+          StateLine(eyebrow, symbol: state.symbol, tone: state.tone)
         } else {
-          // Nothing will block: the mark stands in for the time and says so to VoiceOver.
-          StateMark(state.symbol, tone: state.tone, large: true, spoken: Copy.Home.notBlocking)
+          // With no time, the glyph stands alone and large (#74). Nothing will block: it stands in
+          // for the time at 64 pt and says so to VoiceOver.
+          StateMark(
+            state.symbol, tone: state.tone, large: offSymbol != nil,
+            spoken: offSymbol == nil ? nil : Copy.Home.notBlocking)
           Text(eyebrow).tollType(.eyebrow, TollColor.label2)
         }
         if let time {
