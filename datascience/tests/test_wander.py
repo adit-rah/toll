@@ -26,7 +26,7 @@ def test_the_old_wander_is_unchanged():
 
 
 def test_a_profile_sets_the_level_by_calendar_week():
-    level = sim_wander.weekly_level(sim_wander.PROFILES["l20-r0.95"], 5, 30, seed=3)
+    level = sim_wander.weekly_level(sim_wander.PROFILES["l20-r0.97"], 5, 30, seed=3)
     assert level.shape == (5, 30)
     for week in range(4):
         block = level[:, 7 * week : 7 * week + 7]

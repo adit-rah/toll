@@ -123,7 +123,7 @@ A variant's name says what it changes on v1 (`sim.longrun.wander_variant`): `w` 
 
 ### How much a usual time moves
 
-Section 5's wander (sd 15 minutes, a memory of about 4 weeks) and drift were guesses. `sim/profiles.py` adds a grid of nine invented profiles that bracket how much people's usual time moves. Its range was checked against a real Health export (n=1, private); none of the profiles is that export. In each, the usual time is set week by week, Monday to Sunday, by an AR(1) across weeks, so a week's level lines up with a held week's start: the hard case. The grid crosses a level of sd 20, 45 or 90 minutes with a memory from one week to the next of 0.2, 0.6 or 0.95 (all four corners and the middle), and four of the nine put heavy tails on the nights: 15% or 40% of nights drawn with sd 150 or 240 minutes in place of the simulator's own nightly noise. A name says it: `l90-r0.2-t40-240` is level sd 90, memory 0.2, 40% of nights with sd 240.
+Section 5's wander (sd 15 minutes, a memory of about 4 weeks) and drift were guesses. `sim/profiles.py` adds a grid of nine invented profiles that bracket how much people's usual time moves. Its range was checked against a real Health export (n=1, private); none of the profiles is that export. In each, the usual time is set week by week, Monday to Sunday, by an AR(1) across weeks, so a week's level lines up with a held week's start: the hard case. The grid crosses a level of sd 20, 45 or 90 minutes with a memory from one week to the next of 0.2, 0.6 or 0.97 (all four corners and the middle), and four of the nine put heavy tails on the nights: 15% or 40% of nights drawn with sd 150 or 240 minutes in place of the simulator's own nightly noise. A name says it: `l90-r0.2-t40-240` is level sd 90, memory 0.2, 40% of nights with sd 240.
 
 2,000 null people per scenario, seed 20261127 (`longrun-wander.json`), the share ever shown an insight by week 8 / 12 / 26 / 52:
 
@@ -133,17 +133,17 @@ Section 5's wander (sd 15 minutes, a memory of about 4 weeks) and drift were gue
 | + wander (section 5) | 6.0 / 7.5 / 10.1 / 12.3 | **2.0 / 2.2 / 2.4 / 2.4** |
 | + drift | 4.4 / 5.1 / 7.2 / 12.8 | **2.4 / 2.8 / 2.9 / 2.9** |
 | + l20-r0.2 | 17.6 / 21.3 / 25.1 / 28.6 | **4.0 / 4.5 / 4.6 / 4.6** |
-| + l20-r0.95 | 4.5 / 5.4 / 7.2 / 11.2 | **2.3 / 2.5 / 2.5 / 2.6** |
+| + l20-r0.97 | 3.9 / 4.6 / 5.5 / 8.5 | **2.1 / 2.4 / 2.4 / 2.4** |
 | + l45-r0.6 | 34.5 / 46.1 / 65.8 / 80.0 | **3.3 / 3.5 / 3.6 / 3.6** |
 | + l90-r0.2 | 55.5 / 68.7 / 86.0 / 96.0 | **0.6 / 0.7 / 0.7 / 0.7** |
-| + l90-r0.95 | 18.2 / 27.6 / 51.2 / 73.0 | **1.9 / 2.1 / 2.4 / 2.4** |
+| + l90-r0.97 | 12.6 / 19.4 / 38.1 / 59.1 | **1.5 / 1.8 / 1.9 / 2.1** |
 | + l45-r0.6-t15-150 | 36.2 / 46.8 / 65.0 / 76.6 | **2.3 / 2.6 / 2.7 / 2.7** |
-| + l20-r0.95-t40-150 | 20.2 / 23.9 / 29.9 / 35.9 | **3.8 / 4.2 / 4.3 / 4.3** |
+| + l20-r0.97-t40-150 | 20.1 / 23.6 / 29.2 / 34.1 | **3.5 / 4.0 / 4.2 / 4.2** |
 | + l90-r0.2-t40-240 | 46.0 / 57.8 / 76.3 / 88.8 | **0.7 / 0.8 / 0.9 / 0.9** |
-| + l90-r0.95-t15-240 | 21.8 / 30.9 / 52.7 / 72.9 | **1.8 / 2.1 / 2.2 / 2.2** |
+| + l90-r0.97-t15-240 | 16.6 / 23.6 / 42.2 / 61.6 | **1.8 / 2.1 / 2.4 / 2.5** |
 | same (an effect of 3 minutes) | 4.4 / 4.9 / 5.1 / 5.2 | 3.0 / 3.2 / 3.3 / 3.3 |
 
-**v2's worst case across the grid is 4.6% within a year** (l20-r0.2) in this run, 3.9% in the 1,000-person sweep, and 3.9% at most over four more seeds of 2,000 (`longrun-wander-seeds.json`: means 0.6–3.6% per profile; null 2.3%, wander 2.6%, drift 2.6%). In the pass criteria's own run it is 4.0% (l20-r0.95-t40-150). At night 56, v1's 90% range held the truth for 33–91% of null people across the grid; v2's for 86–93%.
+**v2's worst case across the grid is 4.6% within a year** (l20-r0.2) in this run, 3.9% in the 1,000-person sweep, and 3.9% at most over four more seeds of 2,000 (`longrun-wander-seeds.json`: means 0.6–3.6% per profile; null 2.3%, wander 2.6%, drift 2.6%). In the pass criteria's own run it is 3.9% (l20-r0.2 and l20-r0.97-t40-150). At night 56, v1's 90% range held the truth for 33–92% of null people across the grid; v2's for 86–94%.
 
 The hardest profiles for v2 are the mild ones, not the wild ones: with a level of sd 90 nobody's range gets narrow enough to show an insight, but a level of sd 20 moves little enough that a week's start can look like its cause.
 

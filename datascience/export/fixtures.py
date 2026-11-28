@@ -153,7 +153,7 @@ def all_cases() -> list[dict]:
         case("v0-artifact", v0.artifact(), simulated_nights("differ", 22, a=v0.artifact()), seed=12),
         case("v1-artifact", v1.artifact(), simulated_nights("differ", 23, a=v1.artifact()), seed=13),
         case("tails-12-weeks", a, simulated_nights("null+l90-r0.2-t40-240", 24, nights=84), seed=14),
-        case("memory-gap-weeks", quick, gap_weeks(simulated_nights("differ+l20-r0.95", 25, nights=84)), seed=15),
+        case("memory-gap-weeks", quick, gap_weeks(simulated_nights("differ+l20-r0.97", 25, nights=84)), seed=15),
     ]
     return cases
 

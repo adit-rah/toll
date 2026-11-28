@@ -29,13 +29,13 @@ class Profile:
 
 GRID = [
     Profile(20.0, 0.2),
-    Profile(20.0, 0.95),
+    Profile(20.0, 0.97),
     Profile(45.0, 0.6),
     Profile(90.0, 0.2),
-    Profile(90.0, 0.95),
+    Profile(90.0, 0.97),
     Profile(45.0, 0.6, tail=0.15, tail_sd=150.0),
-    Profile(20.0, 0.95, tail=0.4, tail_sd=150.0),
+    Profile(20.0, 0.97, tail=0.4, tail_sd=150.0),
     Profile(90.0, 0.2, tail=0.4, tail_sd=240.0),
-    Profile(90.0, 0.95, tail=0.15, tail_sd=240.0),
+    Profile(90.0, 0.97, tail=0.15, tail_sd=240.0),
 ]
 PROFILES = {p.name: p for p in GRID}

@@ -48,12 +48,12 @@ class Profile:
 # across a level of sd 20, 45 or 90 with a short, middle or long memory. None is a person's export.
 GRID: dict[str, Profile] = {
     "sim": Profile(core=30.0, wander=15.0, memory=0.78),
-    "g20-l45-r0.95": Profile(core=20.0, wander=45.0, memory=0.95, missing=0.02),
+    "g20-l45-r0.97": Profile(core=20.0, wander=45.0, memory=0.97, missing=0.02),
     "g45-l20-r0.2": Profile(core=45.0, wander=20.0, memory=0.2, missing=0.05),
     "g45-l90-r0.6": Profile(core=45.0, wander=90.0, memory=0.6, missing=0.05),
     "t15-150-l90-r0.2": Profile(core=30.0, share=0.15, outlier=150.0, wander=90.0, memory=0.2, missing=0.05),
     "t40-240-l45-r0.6": Profile(core=30.0, share=0.4, outlier=240.0, wander=45.0, memory=0.6, missing=0.1),
-    "t40-150-l20-r0.95": Profile(core=20.0, share=0.4, outlier=150.0, wander=20.0, memory=0.95, missing=0.05),
+    "t40-150-l20-r0.97": Profile(core=20.0, share=0.4, outlier=150.0, wander=20.0, memory=0.97, missing=0.05),
 }
 
 

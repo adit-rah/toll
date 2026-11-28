@@ -1,9 +1,9 @@
 {
  "people": 3000,
  "profiles": {
-  "g20-l45-r0.95": {
+  "g20-l45-r0.97": {
    "core": 20.0,
-   "memory": 0.95,
+   "memory": 0.97,
    "missing": 0.02,
    "outlier": 0.0,
    "share": 0.0,
@@ -41,9 +41,9 @@
    "share": 0.15,
    "wander": 90.0
   },
-  "t40-150-l20-r0.95": {
+  "t40-150-l20-r0.97": {
    "core": 20.0,
-   "memory": 0.95,
+   "memory": 0.97,
    "missing": 0.05,
    "outlier": 150.0,
    "share": 0.4,
@@ -60,7 +60,7 @@
  },
  "rules": {
   "chosen": {
-   "g20-l45-r0.95": {
+   "g20-l45-r0.97": {
     "differ": {
      "level": {
       "ever_claim_by_12": 0.17466666666666666,
@@ -223,34 +223,34 @@
     },
     "shuffled": {
      "level": {
-      "ever_claim_by_12": 0.038,
-      "ever_claim_by_26": 0.03933333333333333,
-      "flips_per_person_12": 0.05266666666666667,
+      "ever_claim_by_12": 0.037333333333333336,
+      "ever_claim_by_26": 0.03833333333333333,
+      "flips_per_person_12": 0.052333333333333336,
       "overstated_by_12": 0.0,
       "right_by_12": 0.0,
       "right_by_26": 0.0,
       "right_by_4": 0.0,
       "right_by_8": 0.0,
-      "share_of_weeks_claimed_12": 0.004358267366361292,
-      "today_ever_by_12": 0.548,
-      "today_flips_per_person_12": 2.548,
-      "today_share_of_days": 0.05077228303451562,
-      "wrong_way_by_12": 0.038
+      "share_of_weeks_claimed_12": 0.004269323134394734,
+      "today_ever_by_12": 0.5463333333333333,
+      "today_flips_per_person_12": 2.5326666666666666,
+      "today_share_of_days": 0.050107904274475486,
+      "wrong_way_by_12": 0.037333333333333336
      },
      "steady": {
-      "ever_claim_by_12": 0.023333333333333334,
-      "ever_claim_by_26": 0.024,
-      "flips_per_person_12": 0.028333333333333332,
+      "ever_claim_by_12": 0.02266666666666667,
+      "ever_claim_by_26": 0.023,
+      "flips_per_person_12": 0.02666666666666667,
       "overstated_by_12": 0.0,
       "right_by_12": 0.0,
       "right_by_26": 0.0,
       "right_by_4": 0.0,
       "right_by_8": 0.0,
-      "share_of_weeks_claimed_12": 0.0042471042471042475,
-      "today_ever_by_12": 0.255,
-      "today_flips_per_person_12": 0.9026666666666666,
-      "today_share_of_days": 0.024698499798908043,
-      "wrong_way_by_12": 0.023333333333333334
+      "share_of_weeks_claimed_12": 0.003825903825903826,
+      "today_ever_by_12": 0.254,
+      "today_flips_per_person_12": 0.8986666666666666,
+      "today_share_of_days": 0.024103487981312222,
+      "wrong_way_by_12": 0.02266666666666667
      }
     },
     "steadier": {
@@ -319,33 +319,33 @@
     },
     "wander": {
      "level": {
-      "ever_claim_by_12": 0.6186666666666667,
-      "ever_claim_by_26": 0.841,
-      "flips_per_person_12": 0.99,
-      "overstated_by_12": 0.02666666666666667,
-      "right_by_12": 0.6183333333333333,
-      "right_by_26": 0.841,
-      "right_by_4": 0.24933333333333332,
-      "right_by_8": 0.46266666666666667,
-      "share_of_weeks_claimed_12": 0.2547005003997276,
-      "today_ever_by_12": 0.9793333333333333,
-      "today_flips_per_person_12": 4.939333333333333,
-      "today_share_of_days": 0.44672598990496365,
-      "wrong_way_by_12": 0.0036666666666666666
+      "ever_claim_by_12": 0.4723333333333333,
+      "ever_claim_by_26": 0.7256666666666667,
+      "flips_per_person_12": 0.7453333333333333,
+      "overstated_by_12": 0.027,
+      "right_by_12": 0.4713333333333333,
+      "right_by_26": 0.725,
+      "right_by_4": 0.17233333333333334,
+      "right_by_8": 0.33566666666666667,
+      "share_of_weeks_claimed_12": 0.17573209368430404,
+      "today_ever_by_12": 0.9543333333333334,
+      "today_flips_per_person_12": 5.023666666666666,
+      "today_share_of_days": 0.3677674015596419,
+      "wrong_way_by_12": 0.005
      },
      "steady": {
-      "ever_claim_by_12": 0.019333333333333334,
-      "ever_claim_by_26": 0.021,
-      "flips_per_person_12": 0.02666666666666667,
+      "ever_claim_by_12": 0.015333333333333332,
+      "ever_claim_by_26": 0.016666666666666666,
+      "flips_per_person_12": 0.02266666666666667,
       "overstated_by_12": 0.0,
       "right_by_12": 0.0,
       "right_by_26": 0.0,
       "right_by_4": 0.0,
       "right_by_8": 0.0,
-      "share_of_weeks_claimed_12": 0.00290809712343646,
-      "today_ever_by_12": 0.2916666666666667,
-      "today_flips_per_person_12": 1.036,
-      "today_share_of_days": 0.028814456290448837,
+      "share_of_weeks_claimed_12": 0.002347500087593287,
+      "today_ever_by_12": 0.237,
+      "today_flips_per_person_12": 0.8386666666666667,
+      "today_share_of_days": 0.022116624954520898,
       "wrong_way_by_12": 0.0
      }
     }
@@ -1527,7 +1527,7 @@
      }
     }
    },
-   "t40-150-l20-r0.95": {
+   "t40-150-l20-r0.97": {
     "differ": {
      "level": {
       "ever_claim_by_12": 0.029,
@@ -1690,34 +1690,34 @@
     },
     "shuffled": {
      "level": {
-      "ever_claim_by_12": 0.018666666666666668,
-      "ever_claim_by_26": 0.022333333333333334,
+      "ever_claim_by_12": 0.018333333333333333,
+      "ever_claim_by_26": 0.021666666666666667,
       "flips_per_person_12": 0.028,
       "overstated_by_12": 0.0,
       "right_by_12": 0.0,
       "right_by_26": 0.0,
       "right_by_4": 0.0,
       "right_by_8": 0.0,
-      "share_of_weeks_claimed_12": 0.002930008670433821,
-      "today_ever_by_12": 0.4103333333333333,
-      "today_flips_per_person_12": 1.667,
-      "today_share_of_days": 0.03316712032497031,
-      "wrong_way_by_12": 0.018666666666666668
+      "share_of_weeks_claimed_12": 0.0028403145274613567,
+      "today_ever_by_12": 0.4066666666666667,
+      "today_flips_per_person_12": 1.661,
+      "today_share_of_days": 0.03290832713307978,
+      "wrong_way_by_12": 0.018333333333333333
      },
      "steady": {
-      "ever_claim_by_12": 0.012333333333333333,
-      "ever_claim_by_26": 0.014,
-      "flips_per_person_12": 0.015,
+      "ever_claim_by_12": 0.011,
+      "ever_claim_by_26": 0.012,
+      "flips_per_person_12": 0.014,
       "overstated_by_12": 0.0,
       "right_by_12": 0.0,
       "right_by_26": 0.0,
       "right_by_4": 0.0,
       "right_by_8": 0.0,
-      "share_of_weeks_claimed_12": 0.0019533330965656854,
-      "today_ever_by_12": 0.26966666666666667,
-      "today_flips_per_person_12": 0.895,
-      "today_share_of_days": 0.034062812205236395,
-      "wrong_way_by_12": 0.012333333333333333
+      "share_of_weeks_claimed_12": 0.0018112725077245445,
+      "today_ever_by_12": 0.27266666666666667,
+      "today_flips_per_person_12": 0.89,
+      "today_share_of_days": 0.03405164955991271,
+      "wrong_way_by_12": 0.011
      }
     },
     "steadier": {
@@ -1786,19 +1786,19 @@
     },
     "wander": {
      "level": {
-      "ever_claim_by_12": 0.020666666666666667,
-      "ever_claim_by_26": 0.035666666666666666,
-      "flips_per_person_12": 0.03333333333333333,
-      "overstated_by_12": 0.007333333333333333,
-      "right_by_12": 0.018,
-      "right_by_26": 0.03233333333333333,
-      "right_by_4": 0.011,
-      "right_by_8": 0.015333333333333332,
-      "share_of_weeks_claimed_12": 0.003555741476678519,
-      "today_ever_by_12": 0.457,
-      "today_flips_per_person_12": 2.009,
-      "today_share_of_days": 0.045602726360521414,
-      "wrong_way_by_12": 0.0033333333333333335
+      "ever_claim_by_12": 0.01633333333333333,
+      "ever_claim_by_26": 0.027666666666666666,
+      "flips_per_person_12": 0.025333333333333333,
+      "overstated_by_12": 0.007,
+      "right_by_12": 0.013333333333333334,
+      "right_by_26": 0.024,
+      "right_by_4": 0.007666666666666666,
+      "right_by_8": 0.011,
+      "share_of_weeks_claimed_12": 0.0025099351600083664,
+      "today_ever_by_12": 0.443,
+      "today_flips_per_person_12": 1.864,
+      "today_share_of_days": 0.04003532800947013,
+      "wrong_way_by_12": 0.0036666666666666666
      },
      "steady": {
       "ever_claim_by_12": 0.009666666666666667,
@@ -1810,9 +1810,9 @@
       "right_by_4": 0.0,
       "right_by_8": 0.0,
       "share_of_weeks_claimed_12": 0.0013124290578887627,
-      "today_ever_by_12": 0.254,
-      "today_flips_per_person_12": 0.8726666666666667,
-      "today_share_of_days": 0.02921713491146069,
+      "today_ever_by_12": 0.25266666666666665,
+      "today_flips_per_person_12": 0.8706666666666667,
+      "today_share_of_days": 0.0291780447080241,
       "wrong_way_by_12": 0.0
      }
     }
