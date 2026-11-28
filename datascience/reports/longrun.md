@@ -143,7 +143,7 @@ Section 5's wander (sd 15 minutes, a memory of about 4 weeks) and drift were gue
 | + l90-r0.97-t15-240 | 16.6 / 23.6 / 42.2 / 61.6 | **1.8 / 2.1 / 2.4 / 2.5** |
 | same (an effect of 3 minutes) | 4.4 / 4.9 / 5.1 / 5.2 | 3.0 / 3.2 / 3.3 / 3.3 |
 
-**v2's worst case across the grid is 4.6% within a year** (l20-r0.2) in this run, 3.9% in the 1,000-person sweep, and 3.9% at most over four more seeds of 2,000 (`longrun-wander-seeds.json`: means 0.6–3.6% per profile; null 2.3%, wander 2.6%, drift 2.6%). In the pass criteria's own run it is 3.9% (l20-r0.2 and l20-r0.97-t40-150). At night 56, v1's 90% range held the truth for 33–92% of null people across the grid; v2's for 86–94%.
+**v2's worst case across the grid is 4.6% within a year** (l20-r0.2) in this run, 4.6% in the 1,000-person sweep (l20-r0.97-t40-150), and 3.9% at most over four more seeds of 2,000 (`longrun-wander-seeds.json`: means 0.6–3.6% per profile; null 2.3%, wander 2.6%, drift 2.6%). In the pass criteria's own run it is 3.9% (l20-r0.2 and l20-r0.97-t40-150). At night 56, v1's 90% range held the truth for 33–92% of null people across the grid; v2's for 86–94%.
 
 The hardest profiles for v2 are the mild ones, not the wild ones: with a level of sd 90 nobody's range gets narrow enough to show an insight, but a level of sd 20 moves little enough that a week's start can look like its cause.
 
@@ -160,17 +160,17 @@ The hardest profiles for v2 are the mild ones, not the wild ones: with a level o
 | *A noise scale from week sums; zero tests a t's* | | | | | | |
 | 98% zero test (`w0-k5-z98`) | 0.3 | 0.5 | 0.3 | 2.0 | 23.2 | 22.1 |
 | 96% (`w0-k5-z96`) | 1.7 | 2.4 | 1.6 | 5.0 | 34.9 | 29.8 |
-| 95% (`w0-k5-z95`) | 2.5 | 3.2 | 2.4 | 5.9 | 38.6 | 32.2 |
-| 94% (`w0-k5-z94`) | 3.9 | 3.9 | 3.2 | 7.5 | 42.2 | 34.5 |
-| 95%, and the intercept wanders 3 min (`w3-k5-z95`) | 2.2 | 2.8 | 2.2 | 5.4 | 37.6 | 32.0 |
-| 95%, shown range under 25 min (`w0-k5-z95-x25`) | 2.4 | 3.0 | 2.3 | 4.7 | 33.8 | 31.0 |
+| 95% (`w0-k5-z95`) | 2.5 | 3.2 | 2.4 | 6.5 | 38.6 | 32.2 |
+| 94% (`w0-k5-z94`) | 3.9 | 3.9 | 3.2 | 7.9 | 42.2 | 34.5 |
+| 95%, and the intercept wanders 3 min (`w3-k5-z95`) | 2.2 | 2.8 | 2.2 | 5.5 | 37.6 | 32.0 |
+| 95%, shown range under 25 min (`w0-k5-z95-x25`) | 2.4 | 3.0 | 2.3 | 5.2 | 33.8 | 31.0 |
 | *Waiting for more usable nights before any insight* | | | | | | |
-| 95%, 21 nights (`w0-k5-z95-m21`) | 2.4 | 2.6 | 2.3 | 4.9 | 38.4 | 32.1 |
-| 95%, 28 nights (`w0-k5-z95-m28`) | 2.1 | 2.7 | 2.1 | 3.6 | 36.8 | 31.6 |
-| 94%, 28 nights (`w0-k5-z94-m28`) | 2.7 | 3.1 | 2.5 | 4.4 | 39.2 | 34.1 |
-| 94%, 28 nights, scale from 7 nights (`w0-k7-z94-m28`) | 2.7 | 3.0 | 2.6 | 4.8 | 38.6 | 34.2 |
-| 94%, 35 nights (`w0-k5-z94-m35`) | 1.3 | 2.0 | 1.3 | 2.8 | 32.7 | 32.7 |
-| **94.5%, 28 nights (v2)** | **2.3** | **2.8** | **2.3** | **3.9** | **38.4** | **32.6** |
+| 95%, 21 nights (`w0-k5-z95-m21`) | 2.4 | 2.6 | 2.3 | 5.2 | 38.4 | 32.1 |
+| 95%, 28 nights (`w0-k5-z95-m28`) | 2.1 | 2.7 | 2.1 | 4.1 | 36.8 | 31.6 |
+| 94%, 28 nights (`w0-k5-z94-m28`) | 2.7 | 3.1 | 2.5 | 4.8 | 39.2 | 34.1 |
+| 94%, 28 nights, scale from 7 nights (`w0-k7-z94-m28`) | 2.7 | 3.0 | 2.6 | 4.9 | 38.6 | 34.2 |
+| 94%, 35 nights (`w0-k5-z94-m35`) | 1.3 | 2.0 | 1.3 | 3.2 | 32.7 | 32.7 |
+| **94.5%, 28 nights (v2)** | **2.3** | **2.8** | **2.3** | **4.6** | **38.4** | **32.6** |
 
 The noise scale runs from 5 nights of κ = 1 throughout: in an earlier sweep on two hand-made profiles (not kept), 5 nights adapted sooner than 7 or 14 at no cost to learning.
 
@@ -179,7 +179,7 @@ The noise scale runs from 5 nights of κ = 1 throughout: in an earlier sweep on 
 - **A wandering intercept is the textbook fix, and a costly one.** A held week's contrast is exactly what a moving usual time explains away, so the wander costs learning in everyone, including people whose time holds still: 10 minutes a week takes the D66 mark from 50% to 36% and still lets 72% of the grid's worst profile through. No one size fits.
 - **The fix has to be per person, and the residuals show who needs it.** If the model is right, each night's residual divided by its predicted sd is independent with variance 1, so a week's sum of them, squared, averages the week's count of nights. When a person's nights are noisier, or their usual time moves for days or weeks, a week's residuals share a sign and the sums grow; with a slow wander, so do the products of one week's sum and the next's. Their ratio to the nights (a long-run variance with one week's lag, as Newey and West weigh it) is the person's noise scale κ². Every range is drawn from κ²Σ, so a week that moves together counts as fewer nights, and a person whose time holds still keeps about v1's ranges.
 - **The scale rests on weeks, not nights.** Each week's sum is one look at κ², so in the first weeks it is a guess. The zero tests are a Student t's, with the scale's weeks (its prior included) as degrees of freedom. The 90% range shown stays a normal's, so it stays a 90% range when the scale is right: every scenario's range holds the truth for 90–92% at night 56 (`criteria.json`), inside the 85–95% band. Holding κ² at 1 or more, tried in the earlier sweep, made calm people's ranges too wide (null coverage above 95%) and cost learning for little gain.
-- **What was left came early.** With the scale and the t, most false insights on the mild profiles came before week 8, while the scale rests on a few weeks. Waiting for 28 usable nights (about five weeks) before any insight holds them for less learning than a stricter test: 94.5% and 28 nights has a lower grid worst case than a 96% test from 14 nights (3.9% against 5.0%) and learns 3.5 points more.
+- **What was left came early.** With the scale and the t, most false insights on the mild profiles came before week 8, while the scale rests on a few weeks. Waiting for 28 usable nights (about five weeks) before any insight holds them for less learning than a stricter test: 94.5% and 28 nights has a lower grid worst case than a 96% test from 14 nights (4.6% against 5.0%) and learns 3.5 points more.
 - **Chosen (v2): no intercept wander, κ² from 5 nights of 1, a 94.5% zero test that tightens after 30 usable nights as before, and no insight before 28 usable nights.** The intercept's wander stays in the artifact (`intercept_week_sd`) and both models, at 0.
 
 ### What it costs
@@ -194,12 +194,12 @@ From `longrun-wander.json`, 2,000 people, "differ" unless named:
 | Shown with the wrong sign within a year | 0.2% | 0.2% |
 | Sleep benefit over the year, min a night | −8.4 | −8.1 |
 | Start changes a week | 0.28 | 0.31 |
-| Across the grid: D66 mark | 32.5–58.9% | 0.7–35.2% |
-| Across the grid: wrong sign within a year | 1.1–49.3% | 0.1–0.8% |
+| Across the grid: D66 mark | 31.1–58.9% | 0.7–36.0% |
+| Across the grid: wrong sign within a year | 0.7–49.3% | 0.1–0.8% |
 
 - **The D66 learning mark is now 40%,** the founders' call for v2 (half before, D66): ranges that stay honest when the usual time moves learn less. v2 measures 41.7% in the pass criteria's own run (v1 52.6%), and 38.4–43.1% over the six other runs here (mean of four seeds 41.9%), so the 40% line sits inside its spread. The pass criteria enforce it again.
-- **Where the usual time moves, many of v1's insights were noise.** Across the grid v1 showed an insight to 52–96% of "differ" people within a year, and up to half saw one with the wrong sign (l90-r0.2: 49%). v2 shows one to 1–28%, which is about what that much movement allows, and the wrong way to under 1%. A person whose time swings like that gets no insight, and is told nothing false.
-- **The start moves more for people whose time moves.** Fewer of them settle (none to 46% of null people across the grid at the end of the year, against 61–70% under v1), so their start keeps exploring: 0.41–0.50 changes a week, against D66's 0.5. Calm people are unchanged (0.33).
+- **Where the usual time moves, many of v1's insights were noise.** Across the grid v1 showed an insight to 49–96% of "differ" people within a year, and up to half saw one with the wrong sign (l90-r0.2: 49%). v2 shows one to 1–30%, which is about what that much movement allows, and the wrong way to under 1%. A person whose time swings like that gets no insight, and is told nothing false.
+- **The start moves more for people whose time moves.** Fewer of them settle (none to 50% of null people across the grid at the end of the year, against 61–69% under v1), so their start keeps exploring: 0.39–0.50 changes a week, against D66's 0.5. Calm people are unchanged (0.33).
 - **No insight before 28 usable nights** means nobody sees one by night 28 (v1: 16%). That mark was already waived (D53, D66).
 - **The sleep benefit barely moves:** −8.1 against −8.4 min a night in "differ", and −5.0 against −5.4 over 8 weeks in the pass criteria. It doesn't depend on the insight.
 

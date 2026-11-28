@@ -1,9 +1,9 @@
 {
  "people": 4000,
  "profiles": {
-  "g20-l45-r0.95": {
+  "g20-l45-r0.97": {
    "core": 20.0,
-   "memory": 0.95,
+   "memory": 0.97,
    "missing": 0.02,
    "outlier": 0.0,
    "share": 0.0,
@@ -41,9 +41,9 @@
    "share": 0.15,
    "wander": 90.0
   },
-  "t40-150-l20-r0.95": {
+  "t40-150-l20-r0.97": {
    "core": 20.0,
-   "memory": 0.95,
+   "memory": 0.97,
    "missing": 0.05,
    "outlier": 150.0,
    "share": 0.4,
@@ -60,30 +60,30 @@
  },
  "rules": {
   "winsor-m0.02-p2.0": {
-   "g20-l45-r0.95": {
+   "g20-l45-r0.97": {
     "shuffled": {
      "level": {
-      "ever_claim_by_12": 0.037,
-      "ever_claim_by_26": 0.03775,
-      "flips_per_person_12": 0.05725,
+      "ever_claim_by_12": 0.034,
+      "ever_claim_by_26": 0.03525,
+      "flips_per_person_12": 0.05225,
       "overstated_by_12": 0.0,
       "right_by_12": 0.0,
       "right_by_26": 0.0,
       "right_by_4": 0.0,
       "right_by_8": 0.0,
-      "share_of_weeks_claimed_12": 0.005134474327628362,
-      "wrong_way_by_12": 0.037
+      "share_of_weeks_claimed_12": 0.004623249611024672,
+      "wrong_way_by_12": 0.034
      },
      "steady": {
       "ever_claim_by_12": 0.01875,
       "ever_claim_by_26": 0.0195,
-      "flips_per_person_12": 0.0275,
+      "flips_per_person_12": 0.0245,
       "overstated_by_12": 0.0,
       "right_by_12": 0.0,
       "right_by_26": 0.0,
       "right_by_4": 0.0,
       "right_by_8": 0.0,
-      "share_of_weeks_claimed_12": 0.003550949550213057,
+      "share_of_weeks_claimed_12": 0.003287916250197275,
       "wrong_way_by_12": 0.01875
      }
     },
@@ -347,31 +347,31 @@
      }
     }
    },
-   "t40-150-l20-r0.95": {
+   "t40-150-l20-r0.97": {
     "shuffled": {
      "level": {
-      "ever_claim_by_12": 0.01675,
+      "ever_claim_by_12": 0.0165,
       "ever_claim_by_26": 0.02325,
-      "flips_per_person_12": 0.024,
+      "flips_per_person_12": 0.02325,
       "overstated_by_12": 0.0,
       "right_by_12": 0.0,
       "right_by_26": 0.0,
       "right_by_4": 0.0,
       "right_by_8": 0.0,
       "share_of_weeks_claimed_12": 0.002263863361276729,
-      "wrong_way_by_12": 0.01675
+      "wrong_way_by_12": 0.0165
      },
      "steady": {
-      "ever_claim_by_12": 0.01225,
-      "ever_claim_by_26": 0.013,
-      "flips_per_person_12": 0.0145,
+      "ever_claim_by_12": 0.01375,
+      "ever_claim_by_26": 0.0145,
+      "flips_per_person_12": 0.0165,
       "overstated_by_12": 0.0,
       "right_by_12": 0.0,
       "right_by_26": 0.0,
       "right_by_4": 0.0,
       "right_by_8": 0.0,
       "share_of_weeks_claimed_12": 0.0020218143123171056,
-      "wrong_way_by_12": 0.01225
+      "wrong_way_by_12": 0.01375
      }
     },
     "still": {

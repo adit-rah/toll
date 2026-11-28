@@ -21,7 +21,7 @@ for s in 101 202 303; do uv run python -m trends.study sweep --people 4000 --see
 
 `trends/noise.py` draws a person's nights as a weekly level that wanders (an AR(1) from week to week) plus each night's noise (a contaminated normal: most nights `core` minutes either side, a share of them much further), with nights missing. It also measures the aggregates a Health export is described by (spread within a week, the share of nights far from their week's median, the median change from night to night, the spread and memory of the weekly median) and fits a profile to them (`calibrate`).
 
-The public study runs seven profiles (`noise.GRID`), invented to bracket how people's nights and usual time move, with the same grid idea as the sleep model's simulator (`sim/profiles.py`): the simulator's nights (30 min, E-006, with its 15-minute wander and that wander's weekly memory), Gaussian nights of 20 or 45 minutes, and heavy tails (15% or 40% of nights with sd 150 or 240), across a weekly level of sd 20, 45 or 90 minutes with a memory of 0.2, 0.6 or 0.95. A name says it: `t40-240-l45-r0.6` is 40% of nights with sd 240, a level of sd 45, memory 0.6; `g45` is Gaussian nights of 45 minutes. None is a person's export. **Checked against a real Health export (n=1, private):** the generator was fitted to that export's aggregates for two kinds of Health source, D104's rule on the fitted nights gave what a replay of the export gave, and the rule below holds the 5% mark on those profiles too. The export's numbers stay off this repo.
+The public study runs seven profiles (`noise.GRID`), invented to bracket how people's nights and usual time move, with the same grid idea as the sleep model's simulator (`sim/profiles.py`): the simulator's nights (30 min, E-006, with its 15-minute wander and that wander's weekly memory), Gaussian nights of 20 or 45 minutes, and heavy tails (15% or 40% of nights with sd 150 or 240), across a weekly level of sd 20, 45 or 90 minutes with a memory of 0.2, 0.6 or 0.97. A name says it: `t40-240-l45-r0.6` is 40% of nights with sd 240, a level of sd 45, memory 0.6; `g45` is Gaussian nights of 45 minutes. None is a person's export. **Checked against a real Health export (n=1, private):** the generator was fitted to that export's aggregates for two kinds of Health source, D104's rule on the fitted nights gave what a replay of the export gave, and the rule below holds the 5% mark on those profiles too. The export's numbers stay off this repo.
 
 ## What "false" means
 
@@ -38,11 +38,11 @@ People ever shown a change with no change in level, % (the mark is 5):
 
 | Profile | Asleep by / Time asleep: still, 12 wk / 26 wk | shuffled, 26 wk | How steady: still / shuffled, 26 wk | D104's rule, still, 12 wk (level / How steady) |
 |---|---|---|---|---|
-| g20-l45-r0.95 | 3.0 / 3.2 | 3.9 | 1.5 / 2.4 | 50.7 / 16.4 |
+| g20-l45-r0.97 | 3.0 / 3.2 | 3.8 | 1.5 / 2.3 | 50.7 / 16.4 |
 | g45-l20-r0.2 | 3.4 / 3.5 | 3.8 | 1.5 / 1.7 | 54.3 / 26.9 |
 | g45-l90-r0.6 | 3.5 / 3.6 | 3.8 | 1.7 / 2.5 | 54.6 / 25.5 |
 | t15-150-l90-r0.2 | 2.8 / 3.3 | 3.5 | 1.2 / 1.9 | 40.8 / 18.3 |
-| t40-150-l20-r0.95 | 1.6 / 2.3 | 2.2 | 1.2 / 1.4 | 41.1 / 27.4 |
+| t40-150-l20-r0.97 | 1.6 / 2.3 | 2.2 | 1.2 / 1.2 | 41.1 / 27.4 |
 | t40-240-l45-r0.6 | 1.8 / 2.5 | 2.9 | 1.5 / 1.5 | 38.5 / 27.9 |
 | sim | 3.2 / 3.4 | 3.9 | 2.0 / 1.7 | 50.9 / 24.3 |
 
@@ -52,11 +52,11 @@ People told of a real change the right way, %:
 
 | Profile | 30 min from week 2: by wk 4 / 12 | 60 min from week 2: by wk 4 / 12 | 30 min from week 6: by wk 12 | 60 min from week 6: by wk 12 | differ: right / wrong way, 12 wk | Half the noise from week 3: How steady by wk 12 |
 |---|---|---|---|---|---|---|
-| g20-l45-r0.95 | 58.1 / 65.9 | 98.5 / 99.7 | 39.4 | 97.9 | 16.6 / 1.2 | 10.6 |
+| g20-l45-r0.97 | 58.1 / 65.9 | 98.5 / 99.7 | 39.4 | 97.9 | 16.6 / 1.2 | 10.6 |
 | g45-l20-r0.2 | 12.9 / 14.9 | 43.3 / 51.8 | 4.7 | 28.4 | 4.5 / 1.4 | 12.0 |
 | g45-l90-r0.6 | 12.5 / 14.6 | 42.2 / 49.7 | 4.8 | 30.4 | 5.1 / 1.8 | 12.4 |
 | t15-150-l90-r0.2 | 17.5 / 19.7 | 57.2 / 64.8 | 6.0 | 40.3 | 4.4 / 1.1 | 8.1 |
-| t40-150-l20-r0.95 | 8.9 / 10.1 | 32.6 / 36.2 | 2.3 | 11.7 | 2.6 / 0.4 | 1.8 |
+| t40-150-l20-r0.97 | 8.9 / 10.1 | 32.6 / 36.2 | 2.3 | 11.7 | 2.6 / 0.4 | 1.8 |
 | t40-240-l45-r0.6 | 3.4 / 4.2 | 14.5 / 16.9 | 1.2 | 4.2 | 2.0 / 0.7 | 1.5 |
 | sim | 29.5 / 34.3 | 83.5 / 90.1 | 11.8 | 72.4 | 7.5 / 1.8 | 16.2 |
 
@@ -66,11 +66,11 @@ When the level wanders (not a null):
 
 | Profile | Told of a change by wk 12 | the wrong way | about a move under half the floor | Lines changing per person in 12 wk: weekly / D104's nightly |
 |---|---|---|---|---|
-| g20-l45-r0.95 | 61.9 | 0.4 | 2.7 | 0.99 / 4.94 |
+| g20-l45-r0.97 | 47.2 | 0.5 | 2.7 | 0.75 / 5.02 |
 | g45-l20-r0.2 | 14.3 | 0.8 | 1.0 | 0.26 / 4.56 |
 | g45-l90-r0.6 | 87.1 | 0.1 | 0.2 | 1.97 / 5.27 |
 | t15-150-l90-r0.2 | 84.0 | 0.2 | 0.2 | 2.27 / 6.31 |
-| t40-150-l20-r0.95 | 2.1 | 0.3 | 0.7 | 0.03 / 2.01 |
+| t40-150-l20-r0.97 | 1.6 | 0.4 | 0.7 | 0.03 / 1.86 |
 | t40-240-l45-r0.6 | 12.8 | 0.5 | 0.1 | 0.22 / 3.22 |
 | sim | 12.9 | 0.8 | 1.5 | 0.22 / 4.49 |
 
@@ -82,7 +82,7 @@ The worst null over the seven profiles at 26 weeks, and power at 12 weeks, %:
 
 | Rule | Level, worst null | How steady, worst null | sim: 30 min from week 2 | sim: 60 min from week 6 | t15-150-l90-r0.2: 60 min from week 2 |
 |---|---|---|---|---|---|
-| **winsor, 0.02, k^−2 (chosen)** | 5.6 | 2.5 | 33 | 71 | 63 |
+| **winsor, 0.02, k^−2 (chosen)** | 5.6 | 2.2 | 33 | 71 | 63 |
 | winsor, 0.02, k^−1.5 | 6.8 | 2.8 | 40 | 83 | 69 |
 | winsor, 0.03, k^−2 | 7.0 | 3.4 | 39 | 76 | 69 |
 | winsor, 0.04, k^−2 | 8.8 | 4.4 | 45 | 79 | 73 |

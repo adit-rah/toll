@@ -70,7 +70,7 @@ CI (`.github/workflows/model.yml`) checks every step: the unit tests, that the c
 | Little harm when they don't | At most 5 min a night worse | 0.4 min earlier | 0.3 min earlier | Pass |
 | No false insights | At most 5% shown an effect under the null, by night 56 | 1.7% | 3.2% | Pass |
 | No false insights over a year (#117) | The same, by night 364 | 2.0% (four other runs: 1.8–3.0%) | 3.9% | Pass |
-| No false insights while the usual time moves (#154) | The same, by night 364, with the wander, the drift and each of nine invented profiles (`sim/profiles.py`) | wander 2.4%, drift 2.8%, the profiles 0.3–4.0% | 12.3%, 12.8%, 11–96% (`longrun.md`, section 7) | Pass |
+| No false insights while the usual time moves (#154) | The same, by night 364, with the wander, the drift and each of nine invented profiles (`sim/profiles.py`) | wander 2.4%, drift 2.8%, the profiles 0.3–3.9% | 12.3%, 12.8%, 9–96% (`longrun.md`, section 7) | Pass |
 | Learns fast enough (D66, lowered to 40% for v2) | 40% of people with an effect of 15 min or more get an insight by night 56 (half before v2) | 41.7% (six other runs: 38.4–43.1%) | 52.6% | Pass |
 | Learns fast enough (spec) | Median person gets an insight by night 28 | None by night 28 (no insight before 28 usable nights) | 16% | Waived (D53, D66) |
 | Calm | D66: the start changes about once in two weeks | 0.51 changes a week (differ) | 0.49 | |

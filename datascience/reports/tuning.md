@@ -45,7 +45,7 @@ v1 keeps every number above. What changed, and why:
 ## sleep-model.v2 (#154)
 
 v2 keeps v1's numbers, except where named. What changed, and why (`longrun.md`, section 7):
-- **Each person's noise has a scale** (`noise_scale_prior_nights` 5), learned from week sums of residuals with one week's lag, and every range is drawn from the scaled covariance. With v1, a usual time that moved from week to week read as an effect of that week's held start: across the simulator's grid of how much a usual time moves (`sim/profiles.py`), 11–96% of null people saw a false insight within a year.
+- **Each person's noise has a scale** (`noise_scale_prior_nights` 5), learned from week sums of residuals with one week's lag, and every range is drawn from the scaled covariance. With v1, a usual time that moved from week to week read as an effect of that week's held start: across the simulator's grid of how much a usual time moves (`sim/profiles.py`), 9–96% of null people saw a false insight within a year.
 - **The zero tests are a Student t's**, with the weeks the scale rests on as degrees of freedom, since early on it rests on few.
 - **The base zero test is 94.5%** (`zero_test_interval`, was 98%): with honest ranges, 98% was stricter than the 5% mark needs. The shown range is still the 90% one, and an insight showing still keeps the untightened test.
 - **No insight before 28 usable nights** (`min_nights`, was 14): most of the false insights left came in the first weeks, while the scale rests on few; waiting holds them for less learning than a stricter test.
