@@ -27,6 +27,9 @@ public struct TollSymbol: Hashable, Sendable {
   public static let open = TollSymbol("lock.open")
   /// Apple Health, where Dusk can read past sleep (#144).
   public static let health = TollSymbol("heart.text.square")
+  /// Personal timing (D65, #171): the week's lock may start a little either way. Its offer, its
+  /// switch in Settings › Sleep, and Tonight's line when this week's start isn't the person's own.
+  public static let timing = TollSymbol("arrow.left.and.right")
   /// Before bed's helpers in the gap (D80): tomorrow's list on paper, the breathing tone, the word
   /// game with eyes closed. The capsule that opens them is the gap's own `beforeBed`.
   public static let list = TollSymbol("pencil")
