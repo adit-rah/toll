@@ -80,7 +80,7 @@ flowchart TD
   class firstPicker,picker system
 ```
 
-The tab bar hides on the editor so Save can sit at the bottom. At accessibility sizes only Save is pinned; Delete block and the note for a block that's on end the scrolling page, the note last, so its coming moves nothing (#162; `render: ax5/block-edit-on`). Saving a place moves it for every block that uses it (`savePlace` keeps its id); a move of a place an active block uses waits like an edit.
+The tab bar hides on the editor so Save can sit at the bottom. At accessibility sizes, and at xxxL on a phone under 700 pt tall (the SE), only Save is pinned (#178); Delete block and the note for a block that's on end the scrolling page, the note last, so its coming moves nothing (#162; `render: ax5/block-edit-on`). Saving a place moves it for every block that uses it (`savePlace` keeps its id); a move of a place an active block uses waits like an edit.
 
 ## Doubts
 - **The switch waits for Save,** like every other change in the editor; a block switched off or on has no other place to say so than its row on Blocks.

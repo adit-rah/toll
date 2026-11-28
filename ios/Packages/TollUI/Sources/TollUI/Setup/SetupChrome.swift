@@ -123,6 +123,27 @@ enum HomeIndicator {
   }
 }
 
+/// Whether a pinned bar keeps only its main button, the rest of it ending the scrolling page: at
+/// accessibility sizes, and at the largest size below them on a phone too short for the whole bar
+/// (iPhone SE), where it covered more than a quarter of the screen (#162, #178). Keyed on the
+/// window, not the room the keyboard leaves, so typing never moves a button.
+public enum PinnedBar {
+  /// Phones shorter than this (points) are the small ones: the SE is 667, the next is 812.
+  static let shortScreen: CGFloat = 700
+
+  @MainActor public static func keepsOnlyMain(_ typeSize: DynamicTypeSize) -> Bool {
+    if typeSize.isAccessibilitySize { return true }
+    return typeSize >= .xxxLarge && windowHeight < shortScreen
+  }
+
+  @MainActor private static var windowHeight: CGFloat {
+    let windows = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .flatMap(\.windows)
+    return (windows.first(where: \.isKeyWindow) ?? windows.first)?.bounds.height ?? shortScreen
+  }
+}
+
 extension View {
   /// A pushed screen draws its own title under the bar (`ScreenTitle(kind: .pushed)`); the bar keeps
   /// only Apple's back button. The title still names the screen on the next one's back button.

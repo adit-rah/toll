@@ -24,6 +24,7 @@ struct SleepRow: View {
 struct SleepSettingsView: View {
   let model: AppModel
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.dynamicTypeSize) private var typeSize
   @State private var draft: FitDraft
   @State private var before: BufferChoice
   @State private var after: BufferChoice
@@ -120,20 +121,35 @@ struct SleepSettingsView: View {
       .tint(TollColor.accent)
       .padding(.vertical, 8)
       .frame(minHeight: 54)
-      if helpers {
-        Stepper(value: $breath, in: model.config.helpers.breathRange) {
-          HStack(spacing: 8) {
-            Image(symbol: .breathe).unredacted()
-              .font(.system(size: 15, weight: .medium))
-              .foregroundStyle(TollColor.label2)
-              .accessibilityHidden(true)
-            Text(Copy.Helpers.breathLength(breath)).tollType(.rowTitle, TollColor.label)
-          }
+      if helpers { breathRow }
+    }
+  }
+
+  /// The tone's minutes beside Apple's − / +; at accessibility sizes the control goes under the
+  /// words, as `CardRow` puts a switch, so no word breaks beside it (#181).
+  @ViewBuilder private var breathRow: some View {
+    let words = HStack(spacing: 8) {
+      Image(symbol: .breathe).unredacted()
+        .font(.system(size: 15, weight: .medium))
+        .foregroundStyle(TollColor.label2)
+        .accessibilityHidden(true)
+      Text(Copy.Helpers.breathLength(breath)).tollType(.rowTitle, TollColor.label)
+    }
+    let range = model.config.helpers.breathRange
+    Group {
+      if typeSize.isAccessibilitySize {
+        // The stepper keeps the words as its label, so VoiceOver reads one adjustable row.
+        VStack(alignment: .leading, spacing: 8) {
+          words.fixedSize(horizontal: false, vertical: true).accessibilityHidden(true)
+          Stepper(value: $breath, in: range) { words }.labelsHidden()
         }
-        .padding(.vertical, 8)
-        .frame(minHeight: 54)
+        .frame(maxWidth: .infinity, alignment: .leading)
+      } else {
+        Stepper(value: $breath, in: range) { words }
       }
     }
+    .padding(.vertical, 8)
+    .frame(minHeight: 54)
   }
 
   private func save() {
