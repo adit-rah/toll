@@ -52,12 +52,29 @@ class Rule:
     min_steady_recent: int = 10
     floor_steady: float = 10.0
     trim: float = 0.2
-    miss: float = 0.05
+    miss: float = 0.02
     power: float = 2.0
-    spread: str = "winsor"  # the study's alternatives: "mad", "sd"
+    spread: str = "winsor"  # the study's alternative: "mad"
 
-    def z(self, look: int) -> float:
-        return normal_quantile(1.0 - self.miss * look**-self.power / 2.0)
+    def z(self, look: int, df: int) -> float:
+        """The k-th look's test: Student's t with the pooled nights' degrees of freedom, so the
+        first looks, with two weeks of noise to go on, aren't taken as surer than they are."""
+        return t_quantile(1.0 - self.miss * look**-self.power / 2.0, df)
+
+
+def t_quantile(p: float, df: int) -> float:
+    """Student's t from the normal quantile by the Cornish–Fisher expansion (Hill, 1970): within
+    0.1% of the exact value from 8 degrees of freedom, the fewest a look has."""
+    z = normal_quantile(p)
+    n = float(max(df, 1))
+    z2 = z * z
+    return z * (
+        1
+        + (z2 + 1) / (4 * n)
+        + ((5 * z2 + 16) * z2 + 3) / (96 * n * n)
+        + (((3 * z2 + 19) * z2 + 17) * z2 - 15) / (384 * n**3)
+        + ((((79 * z2 + 776) * z2 + 1482) * z2 - 1920) * z2 - 945) / (92160 * n**4)
+    )
 
 
 Series = Sequence[tuple[int, float]]
@@ -100,7 +117,7 @@ def pooled_spread(blocks: Sequence[Sequence[float]], rule: Rule) -> float:
             m = sum(w) / len(w)
             residuals += [x - m for x in w]
         else:
-            m = trimmed(block, rule.trim) if rule.spread == "mad" else sum(block) / len(block)
+            m = trimmed(block, rule.trim)
             residuals += [x - m for x in block]
     if not residuals:
         return 0.0
@@ -110,6 +127,11 @@ def pooled_spread(blocks: Sequence[Sequence[float]], rule: Rule) -> float:
         return mad if mad > 0 else math.sqrt(math.pi / 2) * sum(abs(r) for r in residuals) / len(residuals)
     count = len(residuals) - sum(1 for b in blocks if len(b) >= 2)
     return math.sqrt(sum(r * r for r in residuals) / max(1, count))
+
+
+def degrees(blocks: Sequence[Sequence[float]], trim: float) -> int:
+    """The pooled spread's degrees of freedom: each block's kept nights, less one (Yuen's)."""
+    return max(1, sum(len(b) - 2 * cut(len(b), trim) - 1 for b in blocks if len(b) >= 2))
 
 
 def cut(n: int, trim: float) -> int:
@@ -141,6 +163,7 @@ class Look:
     d: float
     se: float
     z: float
+    df: int
     way: str
 
 
@@ -183,18 +206,19 @@ def looks(
                 blocks.append(after)
             pool = blocks if window == 7 else [then, after]
             se = standard_error(pooled_spread(pool, rule), len(then), len(after), rule)
+            df = degrees(pool, rule.trim)
             d = trimmed(after, rule.trim) - trimmed(then, rule.trim)
-            z = rule.z(k)
+            z = rule.z(k, df)
             clears = abs(d) >= floor
             w = way(d, lower_is_better)
-            if clears and held == w and abs(d) >= rule.z(1) * se:
+            if clears and held == w and abs(d) >= rule.z(1, df) * se:
                 result = w
             elif clears and abs(d) >= z * se:
                 result = w
             else:
                 result = STEADY
             held = result if result != STEADY else None
-            out.append(Look(monday, k, d, se, z, result))
+            out.append(Look(monday, k, d, se, z, df, result))
         monday += 7
     return out, then
 

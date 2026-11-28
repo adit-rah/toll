@@ -2,9 +2,10 @@ import Foundation
 
 /// Your sleep's measures (#87): when sleep began, how long it lasted, how steady its time is, and
 /// how often the phone was reached for after the lock. Each compares the person's first nights with
-/// their last week, and says a change only when it is larger than both a floor and their own night
-/// to night noise (`TollConfig.Trends`). With too few nights a measure says nothing. Without Health's
-/// sleep, Dusk's own nights stand in, named as what they are. Pure and tested.
+/// the last judged week (`TrendWeeks`, #165), and says a change only when it is larger than both a
+/// floor and their own night to night noise (`TollConfig.Trends`). With too few nights a measure says
+/// nothing. Without Health's sleep, Dusk's own nights stand in, named as what they are. Pure and
+/// tested.
 public struct SleepTrends: Equatable, Sendable {
   public enum Kind: String, Sendable, CaseIterable {
     case asleepBy, timeAsleep, steadiness, reaches
@@ -22,6 +23,8 @@ public struct SleepTrends: Equatable, Sendable {
   public struct Change: Equatable, Sendable {
     public var way: Way
     public var line: String
+    /// The judged week against the first nights, in the measure's own units.
+    public var by: Double
   }
 
   /// A range of values on the chart; a line when `low == high`.
@@ -85,7 +88,7 @@ public struct SleepTrends: Equatable, Sendable {
     let rules = config.trends
     let reader = Reader(
       past: past, anchor: calendar.startOfDay(for: now.addingTimeInterval(-12 * 3600)),
-      calendar: calendar, rules: rules)
+      calendar: calendar, rules: rules, weekday: config.unlocks.refillWeekday)
     let onsets = reader.series { night in
       night.slept.map { reader.minutesFromNoon($0.onset, night: night.night) }
     }
@@ -137,6 +140,8 @@ struct Reader {
   let anchor: Date
   let calendar: Calendar
   let rules: TollConfig.Trends
+  /// The day a week starts on (D99's, the pauses' refill day): the trend lines are judged then.
+  let weekday: Int
 
   func series(_ value: (PastNight) -> Double?) -> NightSeries {
     past.compactMap { night in value(night).map { (night.night, $0) } }
@@ -153,27 +158,21 @@ struct Reader {
     return night >= from && night <= anchor
   }
 
-  /// A measure that's an average a night: falling asleep, the minutes asleep, reaches.
+  /// A measure that's an average a night: falling asleep, the minutes asleep, reaches. The value is
+  /// the last week's trimmed mean; the change is the judged week's.
   func mean(_ kind: SleepTrends.Kind, _ series: NightSeries, lowerIsBetter: Bool, floor: Double)
     -> SleepTrends.Measure?
   {
     let recent = series.filter { isRecent($0.night) }
     guard recent.count >= rules.minShow else { return nil }
-    let now = Stats.mean(recent.map(\.value))
-    let first = Array(series.prefix(rules.baselineNights))
-    let later = recent.filter { $0.night > (first.last?.night ?? .distantFuture) }
-    var change: SleepTrends.Change?
-    var firstLevel: Double?
-    if first.count == rules.baselineNights, later.count >= rules.minRecent {
-      let then = first.map(\.value)
-      let after = later.map(\.value)
-      let d = Stats.mean(after) - Stats.mean(then)
-      firstLevel = Stats.mean(then)
-      let way = Stats.way(
-        d, se: Stats.standardError(then, after), z: rules.z, floor: floor,
-        lowerIsBetter: lowerIsBetter)
-      change = SleepTrends.Change(
-        way: way, line: Copy.Trends.change(kind, by: d, way: way, first: first.count))
+    let now = Stats.trimmed(recent.map(\.value), rules.trim)
+    let (found, then) = looks(series, floor: floor, lowerIsBetter: lowerIsBetter)
+    let look = inForce(found)
+    let firstLevel = look.map { _ in Stats.trimmed(then, rules.trim) }
+    let change = look.map { look in
+      SleepTrends.Change(
+        way: look.way, line: Copy.Trends.change(kind, by: look.d, way: look.way, first: then.count),
+        by: look.d)
     }
     let value = Copy.Trends.value(kind, now, calendar: calendar, anchor: anchor)
     let detail = Copy.Trends.detail(kind, nights: recent.count)
@@ -185,30 +184,27 @@ struct Reader {
       spoken: Copy.Trends.spoken(kind, value: value, detail: detail, change: change?.line))
   }
 
-  /// How steady a time is: the average distance of each night from the middle one, over two weeks,
-  /// compared on those distances (a Brown–Forsythe test).
+  /// How steady a time is: the trimmed mean distance of each night from the middle one, over two
+  /// weeks, compared on those distances (a robust Brown–Forsythe test).
   func spread(_ kind: SleepTrends.Kind, _ series: NightSeries) -> SleepTrends.Measure? {
     let recent = series.filter { isRecent($0.night, nights: rules.steadyNights) }
     guard recent.count >= rules.minSteady else { return nil }
-    let nowDevs = Stats.deviations(recent.map(\.value))
-    let now = Stats.mean(nowDevs)
+    let now = Stats.trimmed(Stats.deviations(recent.map(\.value)), rules.trim)
     let middle = Stats.median(recent.map(\.value))
-    let first = Array(series.prefix(rules.steadyNights))
-    let later = recent.filter { $0.night > (first.last?.night ?? .distantFuture) }
-    var change: SleepTrends.Change?
-    var firstBand: SleepTrends.Band?
-    if first.count == rules.steadyNights, later.count >= rules.minSteadyRecent {
-      let then = Stats.deviations(first.map(\.value))
-      let after = Stats.deviations(later.map(\.value))
-      let d = Stats.mean(after) - Stats.mean(then)
-      let thenMiddle = Stats.median(first.map(\.value))
-      firstBand = .init(low: thenMiddle - Stats.mean(then), high: thenMiddle + Stats.mean(then))
-      let way = Stats.way(
-        d, se: Stats.standardError(then, after), z: rules.z, floor: rules.floorSteady,
-        lowerIsBetter: true)
-      change = SleepTrends.Change(
-        way: way,
-        line: Copy.Trends.steadyChange(from: Stats.mean(then), way: way, first: first.count))
+    let (found, then) = looks(
+      series, floor: rules.floorSteady, lowerIsBetter: true, steady: true)
+    let look = inForce(found)
+    let firstSpread = Stats.trimmed(then, rules.trim)
+    let firstMiddle = Stats.median(
+      series.sorted { $0.night < $1.night }.prefix(rules.steadyNights).map(\.value))
+    let firstBand = look.map { _ in
+      SleepTrends.Band(low: firstMiddle - firstSpread, high: firstMiddle + firstSpread)
+    }
+    let change = look.map { look in
+      SleepTrends.Change(
+        way: look.way,
+        line: Copy.Trends.steadyChange(from: firstSpread, way: look.way, first: then.count),
+        by: look.d)
     }
     let value = Copy.Trends.spread(now)
     let detail = Copy.Trends.detail(kind, nights: recent.count)
@@ -221,24 +217,29 @@ struct Reader {
   }
 
   /// The nights the lock ran, of the last seven, against the first seven: counts, not a sample, so
-  /// only the floor applies.
+  /// only the floor applies. Judged on the same week as the others.
   func nightsLocked() -> SleepTrends.Measure? {
-    let series = series { $0.ran ? 1 : 0 }
+    let series = series { $0.ran ? 1 : 0 }.sorted { $0.night < $1.night }
     let recent = series.filter { isRecent($0.night) }
     guard recent.count >= rules.minShow else { return nil }
     let ran = Int(recent.map(\.value).reduce(0, +))
     let first = Array(series.prefix(rules.baselineNights))
-    let later = recent.filter { $0.night > (first.last?.night ?? .distantFuture) }
+    let judged = monday(of: anchor)
+    let from = day(-7, from: judged)
+    let later = series.filter {
+      $0.night >= from && $0.night < judged && $0.night > (first.last?.night ?? .distantFuture)
+    }
     var change: SleepTrends.Change?
     if first.count == rules.baselineNights, later.count >= rules.minRecent {
-      // Out of seven either way, so an evening's six ended nights compare too.
+      // Out of seven either way, so a week with six nights recorded compares too.
       let d =
         (Stats.mean(later.map(\.value)) - Stats.mean(first.map(\.value)))
         * Double(rules.baselineNights)
       let way: SleepTrends.Way =
         abs(d) < rules.floorNights ? .steady : d > 0 ? .toward : .away
       change = .init(
-        way: way, line: Copy.Trends.change(.nightsLocked, by: d, way: way, first: first.count))
+        way: way, line: Copy.Trends.change(.nightsLocked, by: d, way: way, first: first.count),
+        by: d)
     }
     let value = Copy.Trends.of(ran, recent.count)
     let detail = Copy.Trends.detail(.nightsLocked, nights: recent.count)
@@ -275,44 +276,5 @@ struct Reader {
     return SleepTrends.Chart(
       style: style, values: values, first: first, recent: recent,
       recentColumns: min(count, columns ?? rules.recentNights))
-  }
-}
-
-/// The few statistics the trends need.
-enum Stats {
-  static func mean(_ values: [Double]) -> Double {
-    values.isEmpty ? 0 : values.reduce(0, +) / Double(values.count)
-  }
-
-  static func variance(_ values: [Double]) -> Double {
-    guard values.count > 1 else { return 0 }
-    let m = mean(values)
-    return values.map { ($0 - m) * ($0 - m) }.reduce(0, +) / Double(values.count - 1)
-  }
-
-  static func median(_ values: [Double]) -> Double {
-    let sorted = values.sorted()
-    guard !sorted.isEmpty else { return 0 }
-    let mid = sorted.count / 2
-    return sorted.count % 2 == 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
-  }
-
-  /// Each value's distance from the middle one.
-  static func deviations(_ values: [Double]) -> [Double] {
-    let middle = median(values)
-    return values.map { abs($0 - middle) }
-  }
-
-  /// Welch's: the standard error of a difference of two means with unequal spreads.
-  static func standardError(_ a: [Double], _ b: [Double]) -> Double {
-    (variance(a) / Double(max(1, a.count)) + variance(b) / Double(max(1, b.count))).squareRoot()
-  }
-
-  /// A change counts when it clears both the floor and `z` standard errors.
-  static func way(_ d: Double, se: Double, z: Double, floor: Double, lowerIsBetter: Bool)
-    -> SleepTrends.Way
-  {
-    guard abs(d) >= floor, abs(d) >= z * se else { return .steady }
-    return (d < 0) == lowerIsBetter ? .toward : .away
   }
 }

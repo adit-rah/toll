@@ -39,7 +39,7 @@ extension Reader {
     let least = steady ? rules.minSteadyRecent : rules.minRecent
     let window = steady ? rules.steadyNights : 7
     let ordered = series.sorted { $0.night < $1.night }
-    let center: ([Double]) -> [Double] = steady ? Stats.distances : { $0 }
+    func center(_ values: [Double]) -> [Double] { steady ? Stats.deviations(values) : values }
     guard ordered.count >= size, let end = ordered.prefix(size).last?.night else { return ([], []) }
     let then = center(ordered.prefix(size).map(\.value))
     var blocks = [then]
@@ -55,16 +55,17 @@ extension Reader {
         // Weeks don't overlap, so every one judged adds to the person's noise; How steady's
         // windows do, so it reads its own two.
         if !steady { blocks.append(after) }
+        let pool = steady ? [then, after] : blocks
         let se = Stats.standardError(
-          Stats.pooledSpread(steady ? [then, after] : blocks, trim: rules.trim), then.count,
-          after.count, trim: rules.trim)
+          Stats.pooledSpread(pool, trim: rules.trim), then.count, after.count, trim: rules.trim)
+        let df = Stats.degrees(pool, trim: rules.trim)
         let d = Stats.trimmed(after, rules.trim) - Stats.trimmed(then, rules.trim)
         let look = found.count + 1
         let way: SleepTrends.Way = (d < 0) == lowerIsBetter ? .toward : .away
         let clears = abs(d) >= floor
         let result: SleepTrends.Way =
-          clears && held == way && abs(d) >= z(1) * se
-          ? way : clears && abs(d) >= z(look) * se ? way : .steady
+          clears && held == way && abs(d) >= z(1, df: df) * se
+          ? way : clears && abs(d) >= z(look, df: df) * se ? way : .steady
         held = result == .steady ? nil : result
         found.append(TrendLook(monday: monday, look: look, d: d, way: result))
       }
@@ -78,9 +79,11 @@ extension Reader {
     found.last.flatMap { $0.monday == monday(of: anchor) ? $0 : nil }
   }
 
-  /// The k-th look's test: its miss chance is the first's, shrinking as k^−spendPower.
-  func z(_ look: Int) -> Double {
-    Stats.normalQuantile(1 - rules.miss * pow(Double(look), -rules.spendPower) / 2)
+  /// The k-th look's test: its miss chance is the first's, shrinking as k^−spendPower, on Student's
+  /// t with the pooled nights' degrees of freedom, so the first looks, with two weeks of noise to go
+  /// on, aren't taken as surer than they are.
+  func z(_ look: Int, df: Int) -> Double {
+    Stats.tQuantile(1 - rules.miss * pow(Double(look), -rules.spendPower) / 2, df: df)
   }
 }
 
@@ -102,8 +105,6 @@ enum Stats {
     let middle = median(values)
     return values.map { abs($0 - middle) }
   }
-
-  static func distances(_ values: [Double]) -> [Double] { deviations(values) }
 
   /// How many values a trimmed mean sets aside at each end.
   static func cut(_ n: Int, _ trim: Double) -> Int { Int((trim * Double(n) + 1e-9).rounded(.down)) }
@@ -137,6 +138,26 @@ enum Stats {
       count += kept.count - 1
     }
     return count > 0 ? (squares / Double(count)).squareRoot() : 0
+  }
+
+  /// The pooled spread's degrees of freedom: each block's kept nights, less one (Yuen's).
+  static func degrees(_ blocks: [[Double]], trim: Double) -> Int {
+    max(
+      1, blocks.filter { $0.count >= 2 }.map { $0.count - 2 * cut($0.count, trim) - 1 }.reduce(0, +)
+    )
+  }
+
+  /// Student's t from the normal quantile by the Cornish–Fisher expansion (Hill, 1970), as in
+  /// `datascience/trends/rule.py`: within 0.1% from 8 degrees of freedom, the fewest a look has.
+  static func tQuantile(_ p: Double, df: Int) -> Double {
+    let z = normalQuantile(p)
+    let n = Double(max(df, 1))
+    let z2 = z * z
+    let first = (z2 + 1) / (4 * n)
+    let second = ((5 * z2 + 16) * z2 + 3) / (96 * n * n)
+    let third = (((3 * z2 + 19) * z2 + 17) * z2 - 15) / (384 * n * n * n)
+    let fourth = ((((79 * z2 + 776) * z2 + 1482) * z2 - 1920) * z2 - 945) / (92160 * n * n * n * n)
+    return z * (1 + first + second + third + fourth)
   }
 
   /// Of a difference of two trimmed means: each mean's error is the spread over (1 − 2g/n)·√n

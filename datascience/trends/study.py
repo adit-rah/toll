@@ -207,12 +207,11 @@ def load_profiles(path: str | None) -> dict[str, noise.Profile]:
 
 
 SWEEP: dict[str, Rule] = {
-    f"b{b}-{spread}-m{miss}-p{power}": Rule(baseline=b, spread=spread, miss=miss, power=power)
-    for b in (7, 14)
-    for spread in ("winsor", "mad")
-    for miss in (0.01, 0.02, 0.04)
-    for power in (0.5, 1.0, 2.0)
-}
+    f"{spread}-m{miss}-p{power}": Rule(spread=spread, miss=miss, power=power)
+    for spread in ("winsor",)
+    for miss in (0.02, 0.03, 0.04, 0.06)
+    for power in (1.0, 1.5, 2.0)
+} | {"mad-m0.02-p2.0": Rule(spread="mad", miss=0.02, power=2.0), "b14-winsor-m0.04-p1.5": Rule(baseline=14, miss=0.04, power=1.5)}
 
 
 def main() -> None:
