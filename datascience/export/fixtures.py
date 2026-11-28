@@ -19,9 +19,10 @@ from dusk_model.person import PersonModel, SeededRNG
 from dusk_model.rng import SplitMix64
 from dusk_model.timing import policy_name
 from sim.records import records
-from sim.run import NIGHTS, run, world
+from sim.run import NIGHTS, run
+from sim.wander import make_world
 
-from . import v0, v1
+from . import v0, v1, v2
 
 
 def case(
@@ -74,8 +75,8 @@ def case(
 def simulated_nights(
     scenario: str, seed: int, person: int = 0, fade: bool = False, a: dict | None = None, nights: int = NIGHTS
 ) -> list[dict]:
-    params = Params.from_artifact(a or v1.artifact())
-    w = world(scenario, person + 1, seed, fade, nights=nights)
+    params = Params.from_artifact(a or v2.artifact())
+    w = make_world(scenario + ("+fade" if fade else ""), person + 1, seed, nights=nights)
     r = run(w, params, "thompson", seed)
     return records(w, r, person, params.version, policy_name(params), seed)
 
@@ -114,10 +115,18 @@ def changing_limits(count: int) -> list[list[int]]:
     return [[-30, 0, 30] if t < 9 else [0, 30] if t < 25 else [-30, 0] for t in range(count)]
 
 
+def gap_weeks(nights: list[dict]) -> list[dict]:
+    """Nights with weeks 4 and 5 missing from the log (a phone left off), so the usual time wanders
+    over three weeks at once."""
+    return nights[:21] + nights[35:]
+
+
 def all_cases() -> list[dict]:
-    a = v1.artifact()
+    a = v2.artifact()
     # Small enough numbers that 8 weeks settle at the insight, at the plan, and explore when settled.
-    quick = v1.artifact(
+    quick = v2.artifact(
+        intercept_week_sd=8.0,
+        noise_scale_prior_nights=7.0,
         hold_nights=3,
         settle_plan_within_min=20.0,
         settled_explore_share=0.3,
@@ -142,6 +151,9 @@ def all_cases() -> list[dict]:
         case("limits-change", a, simulated_nights("differ", 20)[:35], seed=10, allowed_nights=changing_limits(35)),
         case("16-weeks", a, simulated_nights("differ", 18, nights=112), seed=11),
         case("v0-artifact", v0.artifact(), simulated_nights("differ", 22, a=v0.artifact()), seed=12),
+        case("v1-artifact", v1.artifact(), simulated_nights("differ", 23, a=v1.artifact()), seed=13),
+        case("tails-12-weeks", a, simulated_nights("null+l90-r0.2-t40-240", 24, nights=84), seed=14),
+        case("memory-gap-weeks", quick, gap_weeks(simulated_nights("differ+l20-r0.97", 25, nights=84)), seed=15),
     ]
     return cases
 
@@ -167,6 +179,13 @@ def check_nonempty(cases: list[dict]) -> None:
     pairs = [(a, b) for c in cases for a, b in zip(c["steps"], c["steps"][1:])]
     if not any(a["state"]["shown"] and not b["state"]["shown"] for a, b in pairs):
         raise AssertionError("no fixture withdraws an insight")
+    states = [s["state"] for c in cases for s in c["steps"]]
+    if not any(st.get("scale_cross", 0.0) > 0 and st.get("scale_sum", 0.0) > 2 * st.get("scale_nights", 0.0) for st in states):
+        raise AssertionError("no fixture learns a noise scale above 1")
+    gap = next(c for c in cases if c["name"] == "memory-gap-weeks")
+    weeks = [s["state"]["week"] for s in gap["steps"] if s["used"]]
+    if not any(b - a > 1 for a, b in zip(weeks, weeks[1:])):
+        raise AssertionError("no fixture's intercept wanders over more than one week")
     limits = next(c for c in cases if c["name"] == "limits-change")
     starts = [s["choice"]["hold_start"] for s in limits["steps"]]
     if not any(datetime.fromisoformat(s).weekday() != 0 for s in starts):

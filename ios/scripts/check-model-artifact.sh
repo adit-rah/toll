@@ -5,9 +5,10 @@
 #   ios/scripts/check-model-artifact.sh [artifact.json ...]
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
-# Schema 1 is sleep-model.v0's; 2 added the held start (D66) and the zero test's spending (#117).
-schemas="1|2"
-[ $# -gt 0 ] || set -- "$root/ios/Packages/SleepModel/Sources/SleepModel/Resources/sleep-model.v1.json"
+# Schema 1 is sleep-model.v0's; 2 added the held start (D66) and the zero test's spending (#117); 3 the
+# usual time moving between weeks and the noise's scale (#154).
+schemas="1|2|3"
+[ $# -gt 0 ] || set -- "$root/ios/Packages/SleepModel/Sources/SleepModel/Resources/sleep-model.v2.json"
 if command -v sha256sum >/dev/null; then sha=(sha256sum); else sha=(shasum -a 256); fi
 status=0
 for file in "$@"; do

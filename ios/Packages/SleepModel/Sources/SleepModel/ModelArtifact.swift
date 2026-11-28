@@ -70,6 +70,11 @@ public struct ModelArtifact: Codable, Sendable, Equatable {
   public var prior: Prior
   public var noiseSd: Double
   public var forgetting: Double
+  /// Schema 3 (#154): nil before, when the usual time never moves between weeks and everyone's
+  /// nights are as noisy as `noiseSd`. Minutes the intercept may move a week (sd), and the nights of
+  /// κ = 1 the noise's scale starts from (0 learns none).
+  public var interceptWeekSd: Double? = nil
+  public var noiseScalePriorNights: Double? = nil
   public var actions: [Int]
   public var policy: Policy
   public var context: Context
@@ -82,11 +87,13 @@ public struct ModelArtifact: Codable, Sendable, Equatable {
     case sha256
     case noiseSd = "noise_sd"
     case usableNight = "usable_night"
+    case interceptWeekSd = "intercept_week_sd"
+    case noiseScalePriorNights = "noise_scale_prior_nights"
   }
 
-  public static let schemaVersion = 2
-  /// Schema 1 is sleep-model.v0's, still read as v0 behaved.
-  public static let schemas = 1...2
+  public static let schemaVersion = 3
+  /// Schema 1 is sleep-model.v0's, still read as v0 behaved; schema 2 is v1's.
+  public static let schemas = 1...3
   public static let featureNames = ["intercept", "offset_per_30", "weekend", "late"]
 
   public enum Invalid: Error, Equatable {
@@ -119,6 +126,14 @@ public struct ModelArtifact: Codable, Sendable, Equatable {
         insight.zeroTestSpendAfter != nil, insight.zeroTestSpendPower != nil
       else { throw Invalid.shape("schema 2 fields") }
     }
+    if schema >= 3 {
+      guard interceptWeekSd != nil, noiseScalePriorNights != nil else {
+        throw Invalid.shape("schema 3 fields")
+      }
+    }
+    guard (interceptWeekSd ?? 0) >= 0, (noiseScalePriorNights ?? 0) >= 0 else {
+      throw Invalid.shape("intercept_week_sd or noise_scale_prior_nights")
+    }
     let share = policy.settledExploreShare ?? 0
     guard policy.hold >= 1, (policy.settlePlanWithinMin ?? 0) >= 0, share >= 0, share <= 1,
       (insight.zeroTestSpendAfter ?? 0) >= 0, (insight.zeroTestSpendPower ?? 0) >= 0
@@ -134,26 +149,27 @@ public struct ModelArtifact: Codable, Sendable, Equatable {
   /// The artifact shipped in the package, or the built-in defaults if it is missing or invalid, so
   /// the block never depends on the model.
   public static func bundled() -> ModelArtifact {
-    guard let url = Bundle.module.url(forResource: "sleep-model.v1", withExtension: "json"),
+    guard let url = Bundle.module.url(forResource: "sleep-model.v2", withExtension: "json"),
       let data = try? Data(contentsOf: url),
       let artifact = try? decode(data)
     else { return builtIn }
     return artifact
   }
 
-  /// sleep-model.v1's numbers; a test keeps them equal to the shipped file.
+  /// sleep-model.v2's numbers; a test keeps them equal to the shipped file.
   public static let builtIn = ModelArtifact(
-    schema: 2, version: "sleep-model.v1", features: featureNames,
+    schema: 3, version: "sleep-model.v2", features: featureNames,
     base: Base(theta: [15, 0, 30, 20]),
     prior: Prior(mean: [0, 0, 0, 0], sd: [20, 20, 20, 20]),
-    noiseSd: 30, forgetting: 0.99, actions: [-30, 0, 30],
+    noiseSd: 30, forgetting: 0.99, interceptWeekSd: 0, noiseScalePriorNights: 5,
+    actions: [-30, 0, 30],
     policy: Policy(
       minProb: 0.1, probDraws: 1000, holdNights: 7, settleAtInsight: true,
       settlePlanWithinMin: 15, settledExploreShare: 0.07),
     context: Context(lateHomeWithinMin: 60),
     usableNight: UsableNight(maxOnsetFromPlanMin: 240, residualClipMin: 90),
     insight: InsightRule(
-      interval: 0.9, zeroTestInterval: 0.98, maxWidthMin: 30, minNights: 14,
+      interval: 0.9, zeroTestInterval: 0.945, maxWidthMin: 30, minNights: 28,
       zeroTestSpendAfter: 30, zeroTestSpendPower: 2),
     sha256: "")
 }

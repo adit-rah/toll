@@ -42,14 +42,18 @@ class Profile:
         return replace(self, wander=0.0)
 
 
-# Public stress profiles: the simulator's nights (E-006), wide Gaussian nights, and heavy tails, each
-# with a short and a long memory of the level. None of them is a person's export.
+# Public stress profiles, invented to bracket how people's nights and usual time move (the same grid
+# idea as sim/profiles.py): the simulator's nights (E-006, its wander's weekly memory e^(-1/4)),
+# Gaussian nights of 20 and 45 minutes, and heavy tails (15% or 40% of nights with sd 150 or 240),
+# across a level of sd 20, 45 or 90 with a short, middle or long memory. None is a person's export.
 GRID: dict[str, Profile] = {
-    "sim": Profile(core=30.0, wander=15.0, memory=0.85),
-    "gauss-20": Profile(core=20.0, wander=40.0, memory=0.95, missing=0.02),
-    "gauss-45": Profile(core=45.0, wander=40.0, memory=0.95, missing=0.05),
-    "heavy-40": Profile(core=40.0, share=0.2, outlier=180.0, wander=50.0, memory=0.3, missing=0.05),
-    "heavy-70": Profile(core=70.0, share=0.25, outlier=240.0, wander=80.0, memory=0.4, missing=0.1),
+    "sim": Profile(core=30.0, wander=15.0, memory=0.78),
+    "g20-l45-r0.97": Profile(core=20.0, wander=45.0, memory=0.97, missing=0.02),
+    "g45-l20-r0.2": Profile(core=45.0, wander=20.0, memory=0.2, missing=0.05),
+    "g45-l90-r0.6": Profile(core=45.0, wander=90.0, memory=0.6, missing=0.05),
+    "t15-150-l90-r0.2": Profile(core=30.0, share=0.15, outlier=150.0, wander=90.0, memory=0.2, missing=0.05),
+    "t40-240-l45-r0.6": Profile(core=30.0, share=0.4, outlier=240.0, wander=45.0, memory=0.6, missing=0.1),
+    "t40-150-l20-r0.97": Profile(core=20.0, share=0.4, outlier=150.0, wander=20.0, memory=0.97, missing=0.05),
 }
 
 

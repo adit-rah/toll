@@ -1,8 +1,8 @@
 """Choosing tonight's block start for people who opted in: Thompson sampling with a floor.
 
-The chance each start would win is estimated from `prob_draws` draws of w ~ N(μ, Σ). Mixing that with
-a uniform choice, p' = (1 − K·floor)·p + floor, guarantees every allowed start at least the floor. One
-more uniform then picks the start from p', so the logged chance is exactly the one used.
+The chance each start would win is estimated from `prob_draws` draws of w ~ N(μ, κ²Σ) (`model.effective`).
+Mixing that with a uniform choice, p' = (1 − K·floor)·p + floor, guarantees every allowed start at least
+the floor. One more uniform then picks the start from p', so the logged chance is exactly the one used.
 
 Every call takes the same number of draws (4 normals per draw, then one uniform) whatever is allowed,
 so a person's stream stays in step with Swift's.
@@ -13,7 +13,7 @@ from __future__ import annotations
 import numpy as np
 
 from .artifact import Params
-from .model import State, backward, base, cholesky, dot, mean
+from .model import State, backward, base, cholesky, dot, effective, mean
 from .night import Context
 from .rng import SplitMix64Batch
 
@@ -34,8 +34,9 @@ def win_probabilities(
 ) -> np.ndarray:
     """(P, K): share of draws in which each allowed action predicts the earliest sleep."""
     draws = params.prob_draws
-    L = cholesky(state.precision)
-    mu = mean(L, state.b)
+    lam, b = effective(state, params)
+    L = cholesky(lam)
+    mu = mean(L, b)
     z = rng.normal(draws * 4).reshape(state.people, draws, 4)
     w = mu[:, None, :] + backward(L, z)
     counts = np.zeros(phi.shape[:2])

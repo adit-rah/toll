@@ -221,7 +221,7 @@ public struct TollConfig: Codable, Sendable, Equatable {
   /// Personal timing (D66, D99): the week's start the sleep model may choose around the plan.
   public struct Timing: Codable, Sendable, Equatable {
     public init() {}
-    /// Minutes from the plan, the artifact's actions (`sleep-model.v1`): earlier, the plan, later.
+    /// Minutes from the plan, the artifact's actions (`sleep-model.v2`): earlier, the plan, later.
     public var offsets = [-30, 0, 30]
     /// Earlier only while the buffer before sleep is at most this, the target everyone grows toward
     /// (D101): past it, an earlier start is a longer evening than anyone was offered.

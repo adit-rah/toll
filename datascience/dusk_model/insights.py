@@ -12,7 +12,7 @@ import math
 import numpy as np
 
 from .artifact import Params
-from .model import State, cholesky, forward, mean
+from .model import State, cholesky, effective, forward, mean
 
 KIND = "start_30_earlier"
 
@@ -42,9 +42,10 @@ def normal_quantile(p: float) -> float:
 
 
 def start_effect(state: State, params: Params) -> tuple[np.ndarray, np.ndarray]:
-    """Each person's estimate and its posterior sd."""
-    L = cholesky(state.precision)
-    mu = mean(L, state.b)
+    """Each person's estimate and its posterior sd (from κ²Σ, `model.effective`)."""
+    lam, b = effective(state, params)
+    L = cholesky(lam)
+    mu = mean(L, b)
     unit = np.zeros_like(state.b)
     unit[:, 1] = 1.0
     v = forward(L, unit)
@@ -75,18 +76,40 @@ def zero_test_z(nights: np.ndarray, params: Params) -> np.ndarray:
     return out
 
 
+def widen(z, nu: np.ndarray) -> np.ndarray:
+    """A Student t quantile with nu degrees of freedom from the normal one, z: the Cornish–Fisher
+    series to 1/ν⁴ (Abramowitz and Stegun 26.7.5). Swift carries the same code."""
+    z2 = z * z
+    g1 = (z2 + 1.0) * z / 4.0
+    g2 = ((5.0 * z2 + 16.0) * z2 + 3.0) * z / 96.0
+    g3 = (((3.0 * z2 + 19.0) * z2 + 17.0) * z2 - 15.0) * z / 384.0
+    g4 = ((((79.0 * z2 + 776.0) * z2 + 1482.0) * z2 - 1920.0) * z2 - 945.0) * z / 92160.0
+    return z + (g1 + (g2 + (g3 + g4 / nu) / nu) / nu) / nu
+
+
+def scale_weeks(state: State, params: Params) -> np.ndarray:
+    """How many weeks of evidence the noise's scale rests on, its prior included: the t's degrees
+    of freedom, since each week's sum is one look at κ² (`model.scale2`)."""
+    return (params.noise_scale_prior_nights + (state.scale_nights + state.week_nights)) / 7.0
+
+
 def shown(state: State, params: Params) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Whether each person sees the insight: enough nights, a narrow shown range, and a stricter
     range clear of zero. Checking every night is many looks; the stricter range keeps the share of
     people told about an effect that isn't there under 5% (reports/tuning.md), and it tightens as the
     nights add up (`zero_test_level`). An insight already showing stays while the untightened test
     holds, so a person isn't told something and then has it taken away only because time passed;
-    it is withdrawn quietly when even that fails (#117)."""
+    it is withdrawn quietly when even that fails (#117). When the noise's scale is learned, the zero
+    tests are a t's, with the weeks the scale rests on as degrees of freedom; the range shown stays
+    a normal's, so it stays a 90% range when the scale is right (#154)."""
     effect, sd = start_effect(state, params)
     z = normal_quantile(0.5 + params.interval / 2.0)
-    low, high = effect - z * sd, effect + z * sd
     strict = zero_test_z(state.nights, params)
     base = normal_quantile(0.5 + params.zero_test_interval / 2.0)
+    if params.noise_scale_prior_nights > 0:
+        nu = scale_weeks(state, params)
+        strict, base = widen(strict, nu), widen(base, nu)
+    low, high = effect - z * sd, effect + z * sd
     clear_strict = (effect - strict * sd > 0) | (effect + strict * sd < 0)
     clear_base = (effect - base * sd > 0) | (effect + base * sd < 0)
     ok = (

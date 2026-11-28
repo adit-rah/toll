@@ -205,7 +205,7 @@ def run(w: World, base: Params, policy: Policy, seed: int, draws: int = 300) -> 
         measured = np.round((onset + w.measure[:, t]) * 60.0) / 60.0
         usable = home & ~w.missing[:, t] & ~w.tz_changed[:, t] & (np.abs(measured) <= params.max_onset_from_plan_min)
         phi = np.column_stack([np.ones(count), offset / 30.0, w.weekend[:, t], w.late_seen[:, t]]).astype(float)
-        update(state, phi, measured, usable, params)
+        update(state, phi, measured, usable, params, week=np.full(count, t // 7))
         ok, effect, low, high = shown(state, params)
 
         out["offset"][:, t], out["prob"][:, t] = offset, prob

@@ -17,7 +17,7 @@ from dusk_model.artifact import Params
 from dusk_model.insights import shown
 from dusk_model.model import prior_state, update
 from dusk_model.rng import SplitMix64Batch
-from dusk_model.timing import Holds, choose, day_number
+from dusk_model.timing import Holds, choose, day_number, week_of
 
 from .scenarios import People, draw, response, true_effect
 
@@ -133,7 +133,7 @@ def run(w: World, params: Params, policy: str, seed: int = 0) -> Run:
         measured = np.round((onset + w.measure[:, t]) * 60.0) / 60.0
         usable = home & ~w.missing[:, t] & ~w.tz_changed[:, t] & (np.abs(measured) <= params.max_onset_from_plan_min)
         phi = np.column_stack([np.ones(count), offset / 30.0, w.weekend[:, t], w.late_seen[:, t]]).astype(float)
-        update(state, phi, measured, usable, params)
+        update(state, phi, measured, usable, params, week=np.full(count, (first + t) // 7))
         ok, effect, low, high = shown(state, params)
         out["offset"][:, t], out["prob"][:, t], out["true_onset"][:, t] = offset, prob, onset
         out["measured"][:, t] = measured

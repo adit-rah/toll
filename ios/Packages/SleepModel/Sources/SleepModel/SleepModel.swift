@@ -1,31 +1,3 @@
-/// One person's adapter: the precision matrix Λ (row by row), the vector b, the usable nights, and
-/// whether the insight showed after the last of them (an insight showing keeps a laxer test, #117).
-/// The app keeps the night records too, so a new base can rebuild this in one pass.
-public struct PersonState: Codable, Sendable, Equatable {
-  public var precision: [Double]
-  public var b: [Double]
-  public var nights: Int
-  public var shown: Bool
-
-  public init(precision: [Double], b: [Double], nights: Int, shown: Bool = false) {
-    self.precision = precision
-    self.b = b
-    self.nights = nights
-    self.shown = shown
-  }
-
-  enum CodingKeys: String, CodingKey { case precision, b, nights, shown }
-
-  /// A state written before `shown` (sleep-model.v0's caches) reads as not shown.
-  public init(from decoder: any Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    precision = try c.decode([Double].self, forKey: .precision)
-    b = try c.decode([Double].self, forKey: .b)
-    nights = try c.decode(Int.self, forKey: .nights)
-    shown = try c.decodeIfPresent(Bool.self, forKey: .shown) ?? false
-  }
-}
-
 /// A frozen base f(x, a) = θ·φ plus the person's 4 numbers w, learned one night at a time
 /// (model spec, section 3). Same steps, in the same order, as `dusk_model/model.py`.
 public struct SleepModel: Sendable {
@@ -60,10 +32,10 @@ public struct SleepModel: Sendable {
 
   func base(_ phi: [Double]) -> Double { Linear4.dot(artifact.base.theta, phi) }
 
-  var factor: [Double] { Linear4.cholesky(state.precision) }
+  var factor: [Double] { Linear4.cholesky(effective.precision) }
 
   /// μ = Λ⁻¹ b.
-  func mean(_ l: [Double]) -> [Double] { Linear4.backward(l, Linear4.forward(l, state.b)) }
+  func mean(_ l: [Double]) -> [Double] { Linear4.backward(l, Linear4.forward(l, effective.b)) }
 
   /// False if the night was skipped (see `SkipReason`).
   @discardableResult
@@ -83,22 +55,28 @@ public struct SleepModel: Sendable {
       }
       for i in 0..<4 { b[i] = prior.b[i] + artifact.forgetting * (b[i] - prior.b[i]) }
     }
+    let week = Day.number(night.night).map { Day.period($0, 7) }
+    var next = wandered(&lam, &b, phi: phi, r: r, week: week)
     for i in 0..<4 {
       for j in 0..<4 { lam[i * 4 + j] = lam[i * 4 + j] + (phi[i] * phi[j]) / s2 }
     }
     for i in 0..<4 { b[i] = b[i] + (phi[i] * r) / s2 }
-    state = PersonState(precision: lam, b: b, nights: state.nights + 1, shown: state.shown)
+    next.precision = lam
+    next.b = b
+    next.nights = state.nights + 1
+    next.week = week ?? state.week
+    state = next
     state.shown = insightCheck().shown
     return true
   }
 
   /// Onset in minutes from planned bedtime if the block starts `offset` minutes from plan:
-  /// mean f + φᵀμ, sd √(φᵀΣφ + σ²).
+  /// mean f + φᵀμ, sd √(φᵀΣφ + κ²σ²), with Σ already κ²Λ⁻¹.
   public func predict(_ context: NightContext, offset: Int) -> (mean: Double, sd: Double) {
     let l = factor
     let phi = Self.phi(offset: offset, context)
     let m = base(phi) + Linear4.dot(phi, mean(l))
     let v = Linear4.forward(l, phi)
-    return (m, (Linear4.dot(v, v) + artifact.noiseSd * artifact.noiseSd).squareRoot())
+    return (m, (Linear4.dot(v, v) + scale2 * (artifact.noiseSd * artifact.noiseSd)).squareRoot())
   }
 }

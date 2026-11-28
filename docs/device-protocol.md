@@ -285,6 +285,9 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 267 | With a start held earlier, turn the switch off in Settings › Sleep and Save (outside the night) | That night is back at your own time and Tonight's reason line is gone; the row reads "Some weeks, up to 30 min earlier or later" | | |
 | 268 | Inside the night with a start held earlier, turn the switch off and Save | Tonight's lock holds until the morning; the next night is back at your own time | | |
 | 269 | VoiceOver on Tonight during a held week | The header reads "Apps lock at, 9:30 pm, 30 minutes earlier this week, to learn what helps your sleep, At home…" | | |
+| 270 | Install a v2 build over a v1 build with personal timing on and some nights recorded; open Dusk | No crash; `model.json` names `sleep-model.v2` and is rebuilt from the night log; Tonight's start this week is unchanged (D113) | | |
+| 271 | Then reinstall the v1 build and open it | No crash; Tonight shows its lock, and personal timing goes on drawing or falls back to your own time | | |
+| 272 | Personal timing on, Health chosen, over the first four weeks | No insight is shown before 28 nights with Health's sleep | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

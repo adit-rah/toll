@@ -6,7 +6,7 @@ import Testing
 struct ArtifactTests {
   @Test func shippedArtifactDecodesAndMatchesBuiltIn() throws {
     let shipped = ModelArtifact.bundled()
-    #expect(shipped.version == "sleep-model.v1")
+    #expect(shipped.version == "sleep-model.v2")
     #expect(shipped.schema == ModelArtifact.schemaVersion)
     #expect(shipped.sha256?.count == 64)
     var withoutHash = shipped
@@ -21,8 +21,14 @@ struct ArtifactTests {
     a.actions = [-30, 30]
     #expect(throws: ModelArtifact.Invalid.self) { try a.validate() }
     a = .builtIn
-    a.schema = 3
-    #expect(throws: ModelArtifact.Invalid.schema(3)) { try a.validate() }
+    a.schema = 4
+    #expect(throws: ModelArtifact.Invalid.schema(4)) { try a.validate() }
+    a = .builtIn
+    a.noiseScalePriorNights = nil
+    #expect(throws: ModelArtifact.Invalid.self) { try a.validate() }
+    a = .builtIn
+    a.interceptWeekSd = -1
+    #expect(throws: ModelArtifact.Invalid.self) { try a.validate() }
     #expect(throws: (any Error).self) { try ModelArtifact.decode(Data("{}".utf8)) }
     a = .builtIn
     a.policy.holdNights = nil
@@ -30,6 +36,34 @@ struct ArtifactTests {
     a = .builtIn
     a.policy.settledExploreShare = 1.5
     #expect(throws: ModelArtifact.Invalid.self) { try a.validate() }
+  }
+
+  /// sleep-model.v1's artifact (schema 2) still reads, as v1 behaved: no wander, no noise scale.
+  @Test func aSchemaTwoArtifactReadsAsV1() throws {
+    var a = ModelArtifact.builtIn
+    a.schema = 2
+    a.interceptWeekSd = nil
+    a.noiseScalePriorNights = nil
+    try a.validate()
+    let model = SleepModel(artifact: a)
+    #expect(model.scale2 == 1)
+  }
+
+  /// A cache written before schema 3 reads with no week and empty sums.
+  @Test func anOldStateReadsWithoutTheNewFields() throws {
+    let old = Data(
+      #"{"precision":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],"b":[0,0,0,0],"nights":3}"#.utf8)
+    let state = try JSONDecoder().decode(PersonState.self, from: old)
+    #expect(state.week == nil && state.scaleSum == 0 && state.weekNights == 0 && !state.shown)
+    let again = try JSONDecoder().decode(
+      PersonState.self, from: try JSONEncoder().encode(state))
+    #expect(again == state)
+  }
+
+  /// The t quantile from the normal one: close to tables at 10 and 30 degrees of freedom.
+  @Test func widenGivesStudentT() {
+    #expect(abs(widen(1.959964, 10) - 2.228139) < 2e-3)
+    #expect(abs(widen(2.326348, 30) - 2.457262) < 1e-3)
   }
 
   /// sleep-model.v0's artifact (schema 1) still reads, as v0 behaved: a start every night, never
@@ -42,7 +76,7 @@ struct ArtifactTests {
     try a.validate()
     #expect(a.policy.hold == 1 && !a.policy.settles)
     #expect(a.insight.zeroTestLevel(nights: 500) == 0.98)
-    #expect(ModelArtifact.builtIn.insight.zeroTestLevel(nights: 30) == 0.98)
+    #expect(ModelArtifact.builtIn.insight.zeroTestLevel(nights: 30) == 0.945)
     #expect(ModelArtifact.builtIn.insight.zeroTestLevel(nights: 160) > 0.997)
   }
 

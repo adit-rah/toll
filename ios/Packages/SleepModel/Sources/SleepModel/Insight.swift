@@ -15,7 +15,7 @@ public struct Insight: Codable, Sendable, Equatable {
 }
 
 extension SleepModel {
-  /// The start effect and its posterior sd.
+  /// The start effect and its posterior sd, from κ²Σ.
   public func startEffect() -> (minutes: Double, sd: Double) {
     let l = factor
     let v = Linear4.forward(l, [0, 1, 0, 0])
@@ -39,14 +39,21 @@ extension SleepModel {
   }
 
   /// The insight rule's numbers whether or not it shows; personal timing settles on them (`Hold`).
+  /// When the noise's scale is learned (#154), the zero tests are a t's, with the weeks the scale
+  /// rests on as degrees of freedom; the range shown stays a normal's.
   func insightCheck() -> (shown: Bool, effect: Double, low: Double, high: Double) {
     let (effect, sd) = startEffect()
     let rule = artifact.insight
     let z = normalQuantile(0.5 + rule.interval / 2.0)
+    var strict = normalQuantile(0.5 + rule.zeroTestLevel(nights: state.nights) / 2.0)
+    var base = normalQuantile(0.5 + rule.zeroTestInterval / 2.0)
+    if (artifact.noiseScalePriorNights ?? 0) > 0 {
+      let nu = scaleWeeks
+      strict = widen(strict, nu)
+      base = widen(base, nu)
+    }
     let low = effect - z * sd
     let high = effect + z * sd
-    let strict = normalQuantile(0.5 + rule.zeroTestLevel(nights: state.nights) / 2.0)
-    let base = normalQuantile(0.5 + rule.zeroTestInterval / 2.0)
     func clear(_ z: Double) -> Bool { effect - z * sd > 0 || effect + z * sd < 0 }
     let shown =
       state.nights >= rule.minNights && high - low < rule.maxWidthMin

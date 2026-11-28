@@ -174,6 +174,12 @@ def day_number(night: str | date) -> int:
     return (day - EPOCH).days
 
 
+def week_of(night: str | date) -> int:
+    """The calendar week a night falls in, Monday to Sunday, as whole weeks since EPOCH: the unit the
+    model's intercept wanders by (#154), whatever the artifact's hold."""
+    return day_number(night) // 7
+
+
 def hold_of(record: dict) -> dict | None:
     """The hold a night record carries, if a held policy chose its start: what the phone keeps to the
     hold's end, and what a rebuild restores. None for "fixed" and "thompson" nights."""

@@ -1,0 +1,509 @@
+{
+ "runs": [
+  {
+   "seed": 101,
+   "people": 2000,
+   "nights": 364
+  },
+  {
+   "seed": 202,
+   "people": 2000,
+   "nights": 364
+  },
+  {
+   "seed": 303,
+   "people": 2000,
+   "nights": 364
+  },
+  {
+   "seed": 404,
+   "people": 2000,
+   "nights": 364
+  }
+ ],
+ "variants": {
+  "v2": {
+   "null": {
+    "ever_shown_by_week_8": [
+     0.0205,
+     0.0135,
+     0.029,
+     0.02
+    ],
+    "ever_shown_by_week_52": [
+     0.0215,
+     0.018,
+     0.0305,
+     0.0225
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.9275,
+     0.92,
+     0.919,
+     0.921
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.02075,
+    "ever_shown_by_week_52_mean": 0.023125,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.921875,
+    "benefit_mean": 0.0
+   },
+   "null+wander": {
+    "ever_shown_by_week_8": [
+     0.023,
+     0.0225,
+     0.025,
+     0.0225
+    ],
+    "ever_shown_by_week_52": [
+     0.026,
+     0.025,
+     0.0285,
+     0.0255
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.9185,
+     0.9135,
+     0.913,
+     0.9165
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.02325,
+    "ever_shown_by_week_52_mean": 0.02625,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.915375,
+    "benefit_mean": 0.0
+   },
+   "null+drift": {
+    "ever_shown_by_week_8": [
+     0.0195,
+     0.024,
+     0.0225,
+     0.023
+    ],
+    "ever_shown_by_week_52": [
+     0.023,
+     0.0265,
+     0.025,
+     0.0275
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.909,
+     0.922,
+     0.9195,
+     0.914
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.02225,
+    "ever_shown_by_week_52_mean": 0.025500000000000002,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.916125,
+    "benefit_mean": 0.0
+   },
+   "differ": {
+    "ever_shown_by_week_8": [
+     0.2225,
+     0.1925,
+     0.2025,
+     0.2165
+    ],
+    "ever_shown_by_week_52": [
+     0.353,
+     0.3315,
+     0.335,
+     0.3435
+    ],
+    "big_effect_by_56": [
+     0.43149807938540335,
+     0.39466666666666667,
+     0.41838134430727025,
+     0.42948717948717946
+    ],
+    "coverage_night_56": [
+     0.886,
+     0.9035,
+     0.8955,
+     0.892
+    ],
+    "benefit": [
+     -8.266624346323118,
+     -7.735939947239019,
+     -7.617045064737245,
+     -7.796828119310908
+    ],
+    "ever_shown_by_week_8_mean": 0.20850000000000002,
+    "ever_shown_by_week_52_mean": 0.34075,
+    "big_effect_by_56_mean": 0.4185083174616299,
+    "coverage_night_56_mean": 0.8942499999999999,
+    "benefit_mean": -7.854109369402573
+   },
+   "null+l20-r0.2": {
+    "ever_shown_by_week_8": [
+     0.0305,
+     0.0285,
+     0.0335,
+     0.033
+    ],
+    "ever_shown_by_week_52": [
+     0.034,
+     0.0335,
+     0.038,
+     0.0365
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.8985,
+     0.8915,
+     0.884,
+     0.9
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.031375,
+    "ever_shown_by_week_52_mean": 0.035500000000000004,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.8935,
+    "benefit_mean": 0.0
+   },
+   "null+l20-r0.97": {
+    "ever_shown_by_week_8": [
+     0.0225,
+     0.0195,
+     0.019,
+     0.022
+    ],
+    "ever_shown_by_week_52": [
+     0.026,
+     0.0245,
+     0.0205,
+     0.027
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.917,
+     0.925,
+     0.9205,
+     0.9205
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.020749999999999998,
+    "ever_shown_by_week_52_mean": 0.0245,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.9207500000000001,
+    "benefit_mean": 0.0
+   },
+   "null+l45-r0.6": {
+    "ever_shown_by_week_8": [
+     0.0275,
+     0.023,
+     0.033,
+     0.0265
+    ],
+    "ever_shown_by_week_52": [
+     0.03,
+     0.0265,
+     0.039,
+     0.031
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.882,
+     0.874,
+     0.878,
+     0.8835
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.0275,
+    "ever_shown_by_week_52_mean": 0.031625,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.879375,
+    "benefit_mean": 0.0
+   },
+   "null+l90-r0.2": {
+    "ever_shown_by_week_8": [
+     0.0045,
+     0.005,
+     0.006,
+     0.004
+    ],
+    "ever_shown_by_week_52": [
+     0.0065,
+     0.006,
+     0.006,
+     0.005
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.8715,
+     0.8535,
+     0.8775,
+     0.8675
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.004875,
+    "ever_shown_by_week_52_mean": 0.005875000000000001,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.8675,
+    "benefit_mean": 0.0
+   },
+   "null+l90-r0.97": {
+    "ever_shown_by_week_8": [
+     0.015,
+     0.015,
+     0.0145,
+     0.0185
+    ],
+    "ever_shown_by_week_52": [
+     0.0205,
+     0.0245,
+     0.0195,
+     0.0285
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.907,
+     0.899,
+     0.8995,
+     0.8885
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.01575,
+    "ever_shown_by_week_52_mean": 0.02325,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.8985,
+    "benefit_mean": 0.0
+   },
+   "null+l45-r0.6-t15-150": {
+    "ever_shown_by_week_8": [
+     0.025,
+     0.024,
+     0.0305,
+     0.026
+    ],
+    "ever_shown_by_week_52": [
+     0.0275,
+     0.028,
+     0.035,
+     0.0295
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.8895,
+     0.8845,
+     0.8735,
+     0.8845
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.026375,
+    "ever_shown_by_week_52_mean": 0.03,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.883,
+    "benefit_mean": 0.0
+   },
+   "null+l20-r0.97-t40-150": {
+    "ever_shown_by_week_8": [
+     0.026,
+     0.027,
+     0.025,
+     0.027
+    ],
+    "ever_shown_by_week_52": [
+     0.0295,
+     0.0345,
+     0.0295,
+     0.0355
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.882,
+     0.89,
+     0.906,
+     0.9005
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.02625,
+    "ever_shown_by_week_52_mean": 0.03225,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.894625,
+    "benefit_mean": 0.0
+   },
+   "null+l90-r0.2-t40-240": {
+    "ever_shown_by_week_8": [
+     0.009,
+     0.0065,
+     0.0085,
+     0.009
+    ],
+    "ever_shown_by_week_52": [
+     0.0115,
+     0.009,
+     0.01,
+     0.011
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.8595,
+     0.848,
+     0.8655,
+     0.8735
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.00825,
+    "ever_shown_by_week_52_mean": 0.010374999999999999,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.861625,
+    "benefit_mean": 0.0
+   },
+   "null+l90-r0.97-t15-240": {
+    "ever_shown_by_week_8": [
+     0.014,
+     0.0215,
+     0.019,
+     0.018
+    ],
+    "ever_shown_by_week_52": [
+     0.0235,
+     0.028,
+     0.024,
+     0.025
+    ],
+    "big_effect_by_56": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "coverage_night_56": [
+     0.896,
+     0.9025,
+     0.897,
+     0.8945
+    ],
+    "benefit": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ever_shown_by_week_8_mean": 0.018125,
+    "ever_shown_by_week_52_mean": 0.025125,
+    "big_effect_by_56_mean": null,
+    "coverage_night_56_mean": 0.8975,
+    "benefit_mean": 0.0
+   }
+  }
+ }
+}

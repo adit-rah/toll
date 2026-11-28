@@ -41,3 +41,13 @@ v1 keeps every number above. What changed, and why:
 - **The start policy** is D66's held, settling week, from `dampening.md`: `hold_nights` 7, settle at the insight (`settle_at_insight`), settle at the plan once the 90% range is inside ±15 (`settle_plan_within_min`), and about one settled week in 14 draws again (`settled_explore_share` 0.07).
 - **The zero test tightens after 30 usable nights** (`zero_test_spend_after` 30, `zero_test_spend_power` 2), from `longrun.md`. With the 98% test alone, D66's policy tells about 10% of null people about an effect within a year. Tightening keeps that at 3.8% on average over six runs, and the D66 learning mark at 52%.
 - **An insight already showing keeps the 98% test**, so it isn't withdrawn only because time passed (`longrun.md`, section 4).
+
+## sleep-model.v2 (#154)
+
+v2 keeps v1's numbers, except where named. What changed, and why (`longrun.md`, section 7):
+- **Each person's noise has a scale** (`noise_scale_prior_nights` 5), learned from week sums of residuals with one week's lag, and every range is drawn from the scaled covariance. With v1, a usual time that moved from week to week read as an effect of that week's held start: across the simulator's grid of how much a usual time moves (`sim/profiles.py`), 9–96% of null people saw a false insight within a year.
+- **The zero tests are a Student t's**, with the weeks the scale rests on as degrees of freedom, since early on it rests on few.
+- **The base zero test is 94.5%** (`zero_test_interval`, was 98%): with honest ranges, 98% was stricter than the 5% mark needs. The shown range is still the 90% one, and an insight showing still keeps the untightened test.
+- **No insight before 28 usable nights** (`min_nights`, was 14): most of the false insights left came in the first weeks, while the scale rests on few; waiting holds them for less learning than a stricter test.
+- **The intercept can wander between weeks** (`intercept_week_sd`), in both models, but v2 sets it to 0: it cost more learning than the scale for the same safety.
+- The cost: the D66 learning mark falls from 52.6% to 41.7% in the pass criteria (38.4–43.1% over six other runs). The founders lowered the mark to 40% for v2, and the pass criteria enforce it.

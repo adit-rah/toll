@@ -711,3 +711,16 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - A settled week (D66) gives the same "to learn what helps" reason until the insight is on screen.
   - In a held week Tonight drops "N min before sleep" for the reason; the strip still draws the buffer.
   - The row sits last in Settings › Sleep.
+
+**D113. Sleep model v2: a ranged noise scale, Student-t zero tests and a learning mark of 40%** (2026-11-28, #154, #165; amends D66 and D99; the founders accepted v2 and its cost).
+- **Why.** v1's ranges assumed a person's usual time holds still. Under realistic weekly wander it showed false insights to up to 86% of people within a year (#154).
+- **v2** (`sleep-model.v2`, artifact schema 3):
+  - The noise scale is estimated from weekly sums (Newey–West, κ²), from 5 nights.
+  - The zero tests use Student t, with a base of 94.5%.
+  - No insight before 28 usable nights (was 14).
+  - `intercept_week_sd` is built in and set to 0.
+- **Result.** Within a year, false insights stay between 1.9% and 4.6% across the plain null, wander, drift and nine invented profiles (`sim/profiles.py`), against 9–96% for v1. Wrong-sign insights fall under 1%.
+- **The cost.** Fewer people with a real effect see an insight. D66's learning mark (an effect of 15 min or more shows an insight by night 56) is lowered from half to 40% for v2, the founders' call. The pass criteria measure 41.7% and CI enforces it; six other runs give 38.4–43.1%, so the mark sits inside v2's spread. The spec's night-28 check stays waived.
+- **The invented profiles** bracket how much people's usual time moves: level sd {20, 45, 90} min, weekly memory {0.2, 0.6, 0.97}, and heavy-tail shares {0, 15%, 40%}. Their range was checked against a real Health export (n=1, private). By the founders' choice none sits within 10% of it. The trends study's grid (D108) follows the same idea, and its rule and fixtures are unchanged.
+- **Assumed, for the founders:** no insight before 28 usable nights.
+- **Left:** re-measuring how much usual times move on the pilot's nights (#183).

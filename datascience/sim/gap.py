@@ -199,7 +199,7 @@ def run(w: World, base: Params, v: Variant, seed: int, draws: int = 300, policy:
         usable = lock & ~w.missing[:, t] & ~w.tz_changed[:, t] & (np.abs(measured) <= params.max_onset_from_plan_min)
         x = (offset - np.where(lock, gap, 0.0)) / 30.0 if v.feature == "bed" else offset / 30.0
         phi = np.column_stack([np.ones(count), x, w.weekend[:, t], w.late_seen[:, t]]).astype(float)
-        update(state, phi, measured, usable, params)
+        update(state, phi, measured, usable, params, week=np.full(count, t // 7))
         ok, effect, low, high = shown(state, params)
 
         start = offset - gap
