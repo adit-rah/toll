@@ -19,6 +19,8 @@ struct LastNightBand: View {
   @Environment(\.dynamicTypeSize) private var typeSize
   /// Each opening starts at the top of the details, as nothing about the card is kept.
   @State private var scroll = ScrollPosition(edge: .top)
+  @State private var moreBelow = false
+  private static let fade: CGFloat = 28
 
   private var shape: RoundedRectangle {
     RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
@@ -59,6 +61,20 @@ struct LastNightBand: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollPosition($scroll)
+        .onScrollGeometryChange(for: Bool.self) { geometry in
+          geometry.visibleRect.maxY < geometry.contentSize.height - 1
+        } action: { _, more in
+          moreBelow = more
+        }
+        // While more is below, the cut edge fades, so it reads as a page that goes on rather than
+        // a card drawn short. It has no motion: it is there or not.
+        .mask {
+          VStack(spacing: 0) {
+            Color.black
+            LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+              .frame(height: moreBelow ? Self.fade : 0)
+          }
+        }
       } else {
         content
       }
