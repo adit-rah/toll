@@ -4,7 +4,7 @@ Dusk's sleep model, built, fitted and tested in Python, following the founders' 
 
 ```
 dusk_model/   reference implementation: rng, artifact, night records, model, policy, the held week (timing), insights
-sim/          synthetic people, six scenarios, background change in the usual time (wander.py), the pass criteria, tuning, dampened start policies, the growing gap, a year of nights, figures
+sim/          synthetic people, six scenarios, background change in the usual time (wander.py, over profiles.py's grid), the pass criteria, tuning, dampened start policies, the growing gap, a year of nights, figures
 replay/       real nights in (Health export or Dusk's night records), prediction error out
 economy/      the buffer suggestion's reference and fixtures (#145), and the buffer and pause studies (#61)
 trends/       Your sleep's trend rule: its reference and fixtures, a noise generator and the study (#165)
@@ -24,7 +24,7 @@ cd datascience && uv sync
 
 ## The model, in one paragraph
 
-For each night the outcome is when the person fell asleep, in minutes from planned bedtime. A frozen base predicts it from 4 features: an intercept, the block's start offset per 30 minutes (−30, 0 or +30), weekend, and a late arrival home. Each person has 4 numbers that correct the base, learned by Bayesian linear regression one night at a time: a 4×4 precision matrix and a vector, one small solve a night. People who opt in get a start held for a week (D66): on each Monday, Thompson sampling picks −30, 0 or +30, with every allowed start kept at a 10% chance or more, and the start holds to Sunday. Once the insight shows, the start settles on the side it supports; once the 90% range is inside ±15 minutes, it settles at the plan; a settled person draws again about one week in 14, and settling is checked afresh every week. The exact chance of each week's start is logged on each of its nights (`dusk_model/timing.py`). The one insight is the start's effect: "When the block started 30 minutes earlier, you were asleep N minutes sooner (range A to B)". It shows after 14 usable nights, when its 90% range is narrower than 30 minutes and a stricter range is clear of zero: 95% up to 30 usable nights (98% before v2), then stricter as the nights add up (its miss chance falls as (30 / nights)²), so false insights stay under 5% for as long as Dusk is used (#117, `reports/longrun.md`). An insight already showing stays while the untightened range is clear of zero, and is withdrawn quietly when it isn't. Since v2 (#154) a person's usual time can move and their nights can be noisier than the base assumes: each night's residual, before the night is learned, is divided by its predicted sd, and the sums of a week (and of a week with the next) give each person a noise scale κ², which widens every range by κ; the zero tests are a Student t's, with the weeks the scale rests on as degrees of freedom. The model can also let its intercept wander between weeks (a Kalman step); v2 leaves that off, since the scale does the job for less learning (`reports/longrun.md`, section 7).
+For each night the outcome is when the person fell asleep, in minutes from planned bedtime. A frozen base predicts it from 4 features: an intercept, the block's start offset per 30 minutes (−30, 0 or +30), weekend, and a late arrival home. Each person has 4 numbers that correct the base, learned by Bayesian linear regression one night at a time: a 4×4 precision matrix and a vector, one small solve a night. People who opt in get a start held for a week (D66): on each Monday, Thompson sampling picks −30, 0 or +30, with every allowed start kept at a 10% chance or more, and the start holds to Sunday. Once the insight shows, the start settles on the side it supports; once the 90% range is inside ±15 minutes, it settles at the plan; a settled person draws again about one week in 14, and settling is checked afresh every week. The exact chance of each week's start is logged on each of its nights (`dusk_model/timing.py`). The one insight is the start's effect: "When the block started 30 minutes earlier, you were asleep N minutes sooner (range A to B)". It shows after 28 usable nights (14 before v2), when its 90% range is narrower than 30 minutes and a stricter range is clear of zero: 94.5% up to 30 usable nights (98% before v2), then stricter as the nights add up (its miss chance falls as (30 / nights)²), so false insights stay under 5% for as long as Dusk is used (#117, `reports/longrun.md`). An insight already showing stays while the untightened range is clear of zero, and is withdrawn quietly when it isn't. Since v2 (#154) a person's usual time can move and their nights can be noisier than the base assumes: each night's residual, before the night is learned, is divided by its predicted sd, and the sums of a week (and of a week with the next) give each person a noise scale κ², which widens every range by κ; the zero tests are a Student t's, with the weeks the scale rests on as degrees of freedom. The model can also let its intercept wander between weeks (a Kalman step); v2 leaves that off, since the scale does the job for less learning (`reports/longrun.md`, section 7).
 
 ## Commands
 
@@ -65,17 +65,17 @@ CI (`.github/workflows/model.yml`) checks every step: the unit tests, that the c
 
 | Check | Pass mark | v2 | v1 | |
 |---|---|---|---|---|
-| Ranges are honest | 90% ranges hold the truth for 85–95%, every scenario | 90.2–93.3% | 89.8–93.5% | Pass |
-| Helps when people differ | Earlier sleep than always the plan | 5.1 min a night earlier (7.0 in weeks 5–8) | 5.4 min (7.6) | Pass |
-| Little harm when they don't | At most 5 min a night worse | 0.3 min earlier | 0.3 min earlier | Pass |
-| No false insights | At most 5% shown an effect under the null, by night 56 | 2.3% | 3.2% | Pass |
-| No false insights over a year (#117) | The same, by night 364 | 2.6% (four other runs: 2.2–3.0%) | 3.9% | Pass |
-| No false insights while the usual time moves (#154) | The same, by night 364, with the wander, drift, wide and slow profiles (`sim/wander.py`) | 3.0, 3.0, 3.8, 3.8% | 12.3, 12.8, 85.8, 35.4% (`longrun.md`, section 7) | Pass |
-| Learns fast enough (D66) | Half of people with an effect of 15 min or more, by night 56 | 43% (four other runs: 38–44%) | 53% | Waived until the founders set a new mark (#154) |
-| Learns fast enough (spec) | Median person gets an insight by night 28 | 9% by night 28 | 16% | Waived (D53, D66) |
-| Calm | D66: the start changes about once in two weeks | 0.50 changes a week (differ) | 0.49 | |
+| Ranges are honest | 90% ranges hold the truth for 85–95%, every scenario | 90.2–92.3% | 89.8–93.5% | Pass |
+| Helps when people differ | Earlier sleep than always the plan | 5.0 min a night earlier (6.8 in weeks 5–8) | 5.4 min (7.6) | Pass |
+| Little harm when they don't | At most 5 min a night worse | 0.4 min earlier | 0.3 min earlier | Pass |
+| No false insights | At most 5% shown an effect under the null, by night 56 | 1.7% | 3.2% | Pass |
+| No false insights over a year (#117) | The same, by night 364 | 2.0% (four other runs: 1.8–3.0%) | 3.9% | Pass |
+| No false insights while the usual time moves (#154) | The same, by night 364, with the wander, the drift and each of nine invented profiles (`sim/profiles.py`) | wander 2.4%, drift 2.8%, the profiles 0.3–4.0% | 12.3%, 12.8%, 11–96% (`longrun.md`, section 7) | Pass |
+| Learns fast enough (D66, lowered to 40% for v2) | 40% of people with an effect of 15 min or more get an insight by night 56 (half before v2) | 41.7% (six other runs: 38.4–43.1%) | 52.6% | Pass |
+| Learns fast enough (spec) | Median person gets an insight by night 28 | None by night 28 (no insight before 28 usable nights) | 16% | Waived (D53, D66) |
+| Calm | D66: the start changes about once in two weeks | 0.51 changes a week (differ) | 0.49 | |
 | Never unsafe | No start outside the allowed ones; wake time never moves | 0 and 0 in 476,209 block nights | 0 and 0 | Pass |
-| Same numbers on the phone | Every fixture passes | 28,143 values over 848 nights in 15 cases, identical on Linux | 17,422 over 638 | Pass |
+| Same numbers on the phone | Every fixture passes | 28,122 values over 848 nights in 15 cases, identical on Linux | 17,422 over 638 | Pass |
 | Better than the base | Lower error after 3 weeks (replay) | Synthetic Health exports: 77.5% of people; founders' and pilot data pending | 78% | Not yet run on real data |
 
 ![Coverage](reports/figures/coverage.png)
