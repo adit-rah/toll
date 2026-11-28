@@ -294,6 +294,11 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 276 | iPhone 17 at the same size: the same | The bar holds the note, Delete block and Save, as before | | |
 | 277 | AX5, Settings › Sleep with helpers on: change Breathing tone with − / +; then with VoiceOver, swipe up and down on it | "Breathing tone · 3 min" has no broken word, and the − / + sit under it. VoiceOver reads one adjustable row with the minutes; the change applies on Save | | |
 | 278 | AX5: edit a block inside its hours | The switch sits under "Can be turned off after …", dimmed; VoiceOver reads "On, Can be turned off after …", dimmed | | |
+| 279 | iPhone SE, AX5: Tonight › Settings › Sleep | The tab bar leaves with the push. Only Save is pinned, about 15% of the screen. The first screen shows the title, its line and the whole "10:30 pm – 7:00 am"; scrolled to the end, "Learn what helps your sleep" ends above Save (D117) | | |
+| 280 | Then change Fall asleep and tap Save; open it again and tap Back | Save returns to Settings and the tab bar comes back. Back also brings it back and changes nothing | | |
+| 281 | iPhone 17, default size: Settings › Sleep | No tab bar. Save sits just above the home indicator, as in the block editor; the night picture, the hours and the buffers show above it | | |
+| 282 | iPhone SE, AX5: tap Fall asleep's time and, if a keypad shows, type a time | Save is still the bar's only button; nothing appears, leaves or changes places. Dismissing the keypad puts Save back at the bottom | | |
+| 283 | VoiceOver in Settings › Sleep | The back button reads "Settings". Save is the last element, after the timing row; no tab bar items are read | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
