@@ -7,6 +7,7 @@ dusk_model/   reference implementation: rng, artifact, night records, model, pol
 sim/          synthetic people, six scenarios, background change in the usual time (wander.py), the pass criteria, tuning, dampened start policies, the growing gap, a year of nights, figures
 replay/       real nights in (Health export or Dusk's night records), prediction error out
 economy/      the buffer suggestion's reference and fixtures (#145), and the buffer and pause studies (#61)
+trends/       Your sleep's trend rule: its reference and fixtures, a noise generator and the study (#165)
 export/       writes the artifacts (v0.py, v1.py, v2.py), the parity fixtures and the rebuild fixture; compares the Swift package (parity.py)
 artifacts/    every exported version, kept; fixtures.jsonl; rebuild.json (a night log and the state rebuilt from it)
 reports/      criteria.json, tuning.md, figures/
@@ -43,6 +44,9 @@ For each night the outcome is when the person fell asleep, in minutes from plann
 | The buffer suggestion's fixtures for TollCore (#145) | `uv run python -m economy.fixtures` |
 | The buffer suggestion in the simulator (`reports/buffers.md`) | `uv run python -m economy.buffers --people 2000 --out reports/buffers-final.json` |
 | The pause economy (`reports/pauses.md`, #61) | `uv run python -m economy.pauses grid --out reports/pauses-grid.json` |
+| Your sleep's trend rule's fixtures for TollCore (#165) | `uv run python -m trends.fixtures` |
+| The trend rule's false changes and power (about 15 min; `reports/trends.md`) | `uv run python -m trends.study final --people 3000 --out reports/trends-final.json` |
+| The same on your own export's noise, kept off the repo | `uv run python -m trends.noise calibrate --aggregates mine.json --out profiles.json`, then `trends.study final --profiles profiles.json` |
 
 The Health export is from the Health app: Profile › Export All Health Data, then unzip it. Only sleep samples are read, and nothing leaves the laptop. Until the app logs night records, each night is replayed with the block at plan.
 

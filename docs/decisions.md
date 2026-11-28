@@ -649,3 +649,25 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Data** (D92): schema 5 adds `timing`, and step 4 → 5 writes it off. minReader is 5 only while timing holds anything, so a downgrade still saves for everyone else. A lost state file brings back timing, Health and the start from the latest held record.
 - **The app only.** The monitor would need the model and a person's state brought up to date from the whole night log, against its size budget. `TollConfig.timing.offsets` must equal the artifact's actions; a test checks it, so a new artifact with other actions allows no new start until the config follows.
 
+**D108. Your sleep's change lines are judged weekly, robustly, and spent over time** (2026-11-28, #165; amends D104's trend rule).
+- **Why.** Re-judged every day, D104's rule told about half of people with no real change of an "earlier" or "later" at some point within 12 weeks. That was measured on simulated heavy-tailed nights and on a real Health export (n=1, private). Real nights are noisier and wander more than the simulator assumed (#154).
+- **Weekly.** The line is judged on the week that ended before the latest Monday noon (D99 and D100's week), and held until the next. Values and charts still move nightly. Nothing is stored. A week with fewer than 5 nights shows no line until the next Monday.
+- **Robust.** 20% trimmed means. The person's noise is pooled within weeks, winsorized, over every judged week, so one wild night can't make or hide a change.
+- **Spent over time.** The k-th look needs a miss chance of 0.02/k² (Student's t, Yuen's degrees of freedom), plus D104's floors. A change said the week before, the same way, is kept at the first look's test.
+- **Result.**
+  - With no change in level, 2.9–4.3% of people are ever told of one within 26 weeks across the public stress profiles (`datascience/reports/trends.md`).
+  - Replayed on the private export, in shuffled order: at most about 5% within 12 weeks, against D104's 46%.
+  - A line changes about once or twice in 12 weeks.
+  - Power for a real 30-minute shift is 5–66% by 12 weeks, depending on the noise.
+- **The baseline stays the first nights,** because the line names them (D104). A level that wanders is described truly, not counted as false.
+- **Reference:** `datascience/trends/`, with 417 parity fixtures.
+- **Left:** #173 (How steady after an early shift, a change in noise alone, Health's late correction) and #174 (the last-reach stand-in, which needs Dusk's own nights beside Health).
+
+**D109. Apple's screen time after bed, in its own row** (2026-11-28, #65; amends D5, follows D46 and D104; the founder confirmed `com.advan.toll.Report` has Family Controls (Distribution) and App Groups).
+- **A fifth target (amends D5).** `Report/` (`TollReport`, `com.advan.toll.Report`) is a DeviceActivityReport extension. It is the one more `project.pbxproj` edit the pivot needed. It imports only TollCore and never TollData, and adds no DeviceActivity monitored activity.
+- **What it shows:** last night, bed to wake. That is the night's stored hours without the buffers, starting at setup for a night set up part-way (`AfterBed.lastNight`). It counts this iPhone only, every segment added up.
+- **The number is Apple's.** iOS draws it inside Dusk, and Dusk can't read it, so it is never compared with Dusk's numbers, stored, or used in a rule. It fills the place D46 held for Apple's tile, as its own row rather than a third column.
+- **Where it sits.** At the foot of last night's open card, after the last 7 nights. On Your sleep, after "Night by night" and before the week. Only with Screen Time on and a night that has ended.
+- **How it looks.** A raised tile with 12 pt corners (Apple's look), Screen Time's hourglass growing with the text, "Screen time after bed" and "Last night, from Screen Time", with the number at the end (or under the words at accessibility sizes). Body weight for the words and the number, so it never outshouts the card's headline or the measures (D105).
+- **Assumed, for the founders:** last night only, not the week; the row hides without Screen Time rather than offering to turn it on.
+

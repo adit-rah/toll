@@ -3,9 +3,9 @@ import Testing
 
 @testable import TollCore
 
-/// Your sleep's measures (#87): the person's first nights against their last week, a change said
-/// only when it clears a floor and their own noise, nothing said with too few nights, and Dusk's
-/// own stand-ins without Health's sleep.
+/// Your sleep's measures (#87): the person's first nights against the last judged week, a change
+/// said only when it clears a floor and their own noise and held until the next Monday noon (#165),
+/// nothing said with too few nights, and Dusk's own stand-ins without Health's sleep.
 struct SleepTrendsTests {
   func plain(_ text: String) -> String { text.replacingOccurrences(of: "\u{202F}", with: " ") }
 
@@ -27,8 +27,9 @@ struct SleepTrendsTests {
       pauses: pauses)
   }
 
-  /// The morning after the 28th's night: the last seven are the 22nd to the 28th.
-  let morning = date(2026, 11, 29, 9)
+  /// Tuesday morning, after Monday the 30th's night: the last seven are the 24th to the 30th, and
+  /// the judged week is Monday the 23rd's.
+  let morning = date(2026, 12, 1, 9)
 
   func trends(_ nights: [PastNight], health: Bool = true) -> SleepTrends {
     SleepTrends(nights: nights, health: health, now: morning, calendar: london)
@@ -38,14 +39,15 @@ struct SleepTrendsTests {
     trends.measures.first { $0.kind == kind }
   }
 
-  /// Fourteen nights: the first seven at `first` minutes after 11 pm, the last seven at `last`,
-  /// each night `noise` minutes either side in turn, so each week's average is exact.
+  /// Two weeks from Monday the 16th and last night: the first seven at `first` minutes after 11 pm,
+  /// the rest at `last`, each night `noise` minutes either side in turn, so every seven nights'
+  /// average is exact.
   func twoWeeks(first: Int, last: Int, noise: Int = 10, asleep: (Int, Int) = (450, 450))
     -> [PastNight]
   {
-    (15...28).map { day in
-      let late = day <= 21
-      let wobble = [-noise, noise, -noise, noise, -noise, noise, 0][(day - 15) % 7]
+    (16...30).map { day in
+      let late = day <= 22
+      let wobble = [-noise, noise, -noise, noise, -noise, noise, 0][(day - 16) % 7]
       return night(
         day, onset: (late ? first : last) + wobble, asleep: late ? asleep.0 : asleep.1)
     }
@@ -77,6 +79,30 @@ struct SleepTrendsTests {
     #expect(noisy.change?.way == .steady)
   }
 
+  /// The line is judged at Monday noon and held all week, while the value moves each night; before
+  /// the first Monday after the first week, there is no line.
+  @Test func theLineIsJudgedOnceAWeek() throws {
+    let nights = twoWeeks(first: 45, last: 15)
+    let tuesday = try #require(measure(trends(nights), .asleepBy)?.change)
+    let saturday = SleepTrends(
+      nights: nights, health: true, now: date(2026, 12, 5, 9), calendar: london)
+    #expect(measure(saturday, .asleepBy)?.change == tuesday)
+    #expect(measure(saturday, .asleepBy)?.detail == "On average, last 3 nights")
+    let sundayBefore = SleepTrends(
+      nights: nights, health: true, now: date(2026, 11, 30, 11), calendar: london)
+    #expect(measure(sundayBefore, .asleepBy)?.change == nil)
+  }
+
+  /// One wild night is set aside: it neither makes a change nor hides one.
+  @Test func oneWildNightIsSetAside() throws {
+    var flat = twoWeeks(first: 30, last: 30)
+    flat[10] = night(26, onset: -270)
+    #expect(measure(trends(flat), .asleepBy)?.change?.way == .steady)
+    var moved = twoWeeks(first: 45, last: 15)
+    moved[10] = night(26, onset: 315)
+    #expect(measure(trends(moved), .asleepBy)?.change?.way == .toward)
+  }
+
   /// Later is said too, as a plain fact against the person's own first nights.
   @Test func aLaterTimeIsAFact() throws {
     let later = try #require(measure(trends(twoWeeks(first: 0, last: 40)), .asleepBy))
@@ -96,8 +122,8 @@ struct SleepTrendsTests {
 
   /// Too few nights: nothing at all; a few: values without a comparison.
   @Test func tooFewNightsSayNothing() throws {
-    #expect(trends([night(27, onset: 30), night(28, onset: 20)]).isEmpty)
-    let three = trends((26...28).map { night($0, onset: 30) })
+    #expect(trends([night(29, onset: 30), night(30, onset: 20)]).isEmpty)
+    let three = trends((28...30).map { night($0, onset: 30) })
     let asleepBy = try #require(measure(three, .asleepBy))
     #expect(asleepBy.change == nil)
     #expect(asleepBy.detail == "On average, last 3 nights")
@@ -107,7 +133,7 @@ struct SleepTrendsTests {
 
   /// How steady: two weeks against the first two, on each night's distance from the middle one.
   @Test func steadierIsSaidAsTheFirstSpread() throws {
-    let nights = (1...28).map { day in
+    let nights = (1...30).map { day in
       night(day, onset: 30 + (day % 2 == 0 ? 1 : -1) * (day <= 14 ? 40 : 8))
     }
     let steady = try #require(measure(trends(nights), .steadiness))
@@ -119,21 +145,22 @@ struct SleepTrendsTests {
 
   /// Fewer reaches for a locked app, with the pauses beside them as context.
   @Test func fewerReachesWithPauses() throws {
-    let nights = (15...28).map { day in
-      night(day, onset: 30, reaches: day <= 21 ? 4 + day % 2 : 1, pauses: day == 27 ? 2 : 0)
+    let nights = (16...30).map { day in
+      night(day, onset: 30, reaches: day <= 22 ? 4 + day % 2 : 1, pauses: day == 27 ? 2 : 0)
     }
     let reaches = try #require(measure(trends(nights), .reaches))
     #expect(reaches.value == "1")
     #expect(reaches.change?.way == .toward)
-    #expect(reaches.change?.line == "3.6 fewer a night than your first 7 nights")
+    // The first week's 4, 5, 4, 5, 4, 5, 4 without its highest and lowest: 4.4.
+    #expect(reaches.change?.line == "3.4 fewer a night than your first 7 nights")
     #expect(reaches.context == "2 pauses in the last 7 nights")
   }
 
   /// Without Health's sleep, Dusk's own nights stand in, named as what they are; whether Health
   /// was chosen decides only the note.
   @Test func withoutHealthDusksOwnNightsStandIn() throws {
-    let nights = (15...28).map { day in
-      night(day, reaches: 2, reach: day <= 21 ? 50 : 10, ran: day != 25)
+    let nights = (16...30).map { day in
+      night(day, reaches: 2, reach: day <= 22 ? 50 : 10, ran: day != 26)
     }
     let dusk = trends(nights, health: false)
     #expect(dusk.source == .dusk)
@@ -151,7 +178,7 @@ struct SleepTrendsTests {
 
   /// Health's sleep wins once the last week has a few nights of it.
   @Test func healthLeadsWhenItHasTheNights() {
-    let nights = (15...28).map { night($0, onset: $0 >= 26 ? 30 : nil, reach: 10) }
+    let nights = (16...30).map { night($0, onset: $0 >= 28 ? 30 : nil, reach: 10) }
     #expect(trends(nights).source == .health)
     #expect(trends(nights).measures.first?.kind == .asleepBy)
   }

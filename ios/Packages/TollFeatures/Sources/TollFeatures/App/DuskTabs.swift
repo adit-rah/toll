@@ -44,5 +44,10 @@ struct DuskTabs<Tonight: View>: View {
       }
     }
     .tint(TollColor.accent)
+    // Apple's report needs Screen Time, and a night that has ended (#65).
+    .environment(
+      \.afterBedNight,
+      model.screenTime == .approved
+        ? AfterBed.lastNight(model.state, now: model.now, calendar: .current) : nil)
   }
 }

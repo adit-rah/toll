@@ -256,6 +256,15 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 238 | With personal timing on (#171 or a debug switch) and Health chosen: open Dusk on a Monday afternoon, at least 90 min before the lock; don't open it again until next Monday afternoon; export the night log | Tonight's lock time is the same every night Monday to Sunday; every night of that week, away or not, has `policy` "held", one `hold_start` (that Monday) and the same `action_offset_min` and `action_prob`; from the next Monday, until Dusk is opened, Tonight shows the person's own time | | |
 | 239 | Mid-week, with a start held 30 min earlier, set the buffer before sleep to fixed 75 in Settings › Sleep (outside the night) | That night goes back to 75 min before sleep with no earlier start; the next opening draws again with −30 not allowed | | |
 | 240 | With a start held, install the previous TestFlight build, open it, then reinstall this build | The previous build says changes can't be saved (minReader 5); after reinstalling, Tonight's lock is the week's start as before, with no new draw that week | | |
+| 241 | Open Your sleep on Monday at about 11:50, then again after 12:05 | Before noon the change line is last week's judgement; after noon it may change once, then holds through Sunday while the values move nightly | | |
+| 242 | Open Your sleep on two evenings in the same week | The change line is the same both times, even if a night between was unusual | | |
+| 243 | Let Health's Sunday-night sleep arrive after Monday noon (open Dusk late on Monday) | The line may change once that afternoon, then holds for the week | | |
+| 244 | Install the TestFlight build with TollReport | It signs and installs (Family Controls Distribution and App Groups on `com.advan.toll.Report`) | | |
+| 245 | The morning after a night with some phone use in Sleep's hours, open last night's card | "Screen time after bed" shows a number at the card's foot; note how long it takes to appear and whether it ever stays blank | | |
+| 246 | Same, on Your sleep | The same number in the row under the measures, before This week | | |
+| 247 | Compare with iOS Settings › Screen Time for those hours (iPhone only) | About the same; note any gap, and whether it counts the buffers (it shouldn't) | | |
+| 248 | Screen Time off for Dusk; or the evening after setup, before a first night has ended | No row on either screen | | |
+| 249 | VoiceOver on the row, and AX5 | "Screen time after bed, last night, from Screen Time", then the number as "N hours N minutes"; at AX5 the number sits under the words, the hourglass grows, nothing is cut off | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
