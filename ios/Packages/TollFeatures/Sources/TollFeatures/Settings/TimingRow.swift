@@ -33,18 +33,18 @@ struct TimingRow: View {
       }
       .padding(.top, 12)
     } else {
-      Toggle(isOn: $on) {
-        HStack(spacing: TollSpacing.rowGap) {
-          IconTile(.timing, accent: false)
-          // This week's start while it's on as saved; what it does once the switch has moved.
-          RowText(
-            title: Copy.Timing.row,
-            detail: on == (setting.kind == .on) ? setting.detail : setting.about)
-        }
+      // A card row, so at accessibility sizes the switch goes under the words, as weekends' does.
+      // This week's start while it's on as saved; what it does once the switch has moved.
+      CardRow(
+        Copy.Timing.row, detail: on == (setting.kind == .on) ? setting.detail : setting.about,
+        size: .list
+      ) {
+        IconTile(.timing, accent: false)
+      } trailing: {
+        Toggle(Copy.Timing.row, isOn: $on)
+          .labelsHidden()
+          .tint(TollColor.accent)
       }
-      .tint(TollColor.accent)
-      .padding(.vertical, 8)
-      .frame(minHeight: 60)
     }
   }
 }
