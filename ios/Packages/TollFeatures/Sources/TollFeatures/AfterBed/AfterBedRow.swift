@@ -24,9 +24,9 @@ struct AfterBedRow: View {
       layout {
         HStack(spacing: 12) {
           Image(symbol: .screenTime).unredacted()
-            .font(.system(size: 17, weight: .medium))
+            .tollGlyph(17, weight: .medium, relativeTo: .subheadline)
             .foregroundStyle(TollColor.label2)
-            .frame(width: 20)
+            .frame(minWidth: 20)
             .accessibilityHidden(true)
           VStack(alignment: .leading, spacing: 1) {
             Text(Copy.AfterBed.title).tollType(.body, TollColor.label)
