@@ -135,7 +135,7 @@ struct LastNightBand: View {
 
   private func glyph(_ symbol: TollSymbol) -> some View {
     Image(symbol: symbol).unredacted()
-      .font(.system(size: 13, weight: .semibold))
+      .tollGlyph(13, weight: .semibold)
       .foregroundStyle(TollColor.label2)
       .accessibilityHidden(true)
   }

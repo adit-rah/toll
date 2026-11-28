@@ -23,14 +23,14 @@ struct OtherBlockLine: View {
           .accessibilityHidden(true)
         Text(line.text).tollType(.heroLine, TollColor.label2)
       }
-      .font(.system(size: 13, weight: .semibold))
+      .tollGlyph(13, weight: .semibold)
       .foregroundStyle(TollColor.label2)
       .accessibilityElement(children: .combine)
       if line.offersPause {
         Button(action: openDoor) {
           HStack(spacing: 6) {
             Image(symbol: .unlock).unredacted()
-              .font(.system(size: 13, weight: .semibold))
+              .tollGlyph(13, weight: .semibold)
               .accessibilityHidden(true)
             Text(Copy.Home.pause)
           }

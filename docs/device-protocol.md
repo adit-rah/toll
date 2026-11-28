@@ -250,6 +250,9 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 232 | Tap "See how you slept" and choose Don't Allow | Nothing breaks; Your sleep shows the Health-empty note; turning access on later in Health › Sharing › Apps › Dusk takes effect at the next foreground | | |
 | 233 | VoiceOver on each card under Night by night | One sentence each: the name, the value, what it is, and the change | | |
 | 234 | AX5 on Your sleep | Each card's tile sits above its text; nothing is cut off | | |
+| 235 | Larger Text at the largest accessibility size; open Tonight while locked, while paused, and with Screen Time off | The time and the glyphs beside words grow together; the large mark is about twice its size; nothing truncates and the time doesn't move between states | | |
+| 236 | VoiceOver on Tonight after the free nights end | The state is read as "Not blocking", then "Dusk is off", then the line, as one header | | |
+| 237 | Open a Debug demo launch (`-TollDemo home-evening`) on a phone never asked for location | No location prompt appears | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

@@ -8,24 +8,24 @@
 
 ## What the state shows
 
-The checks run in this order (`HomeSnapshot.hero`, then the Screen Time override). The night's times are the lock's: bed minus the gap. Last night never takes the state's place: it is a row in Tonight's band each morning and a segment at the strip's start all day (below).
+The checks run in this order (`HomeSnapshot.hero`, then the Screen Time override). Each state's glyph is named first in each box: placed by design §1.1's rule for state glyphs (small before the eyebrow with a time; alone and large without, 64 pt when nothing will block, #74), so the states tell apart with every word wiped (#74). The night's times are the lock's: bed minus the gap. Last night never takes the state's place: it is a row in Tonight's band each morning and a segment at the strip's start all day (below).
 
 ```mermaid
 flowchart TD
   open(["Tonight appears, every minute, or after any change"]) --> entitled{"Free nights left, or bought?"}
-  entitled -->|"no"| off["Dusk is off, this morning or since; Turn Dusk back on card<br/>render: home-paused"]
+  entitled -->|"no"| off["power at 64 pt: Dusk is off, this morning or since; Turn Dusk back on card<br/>render: home-paused"]
   entitled -->|"yes"| nightOn{"The night's block on now?"}
   nightOn -->|"yes"| pauseOpen{"A pause open?"}
-  pauseOpen -->|"yes"| paused["Paused until …, then locked until 7:00 am; Lock again<br/>render: home-pause-open"]
-  pauseOpen -->|"no"| locked["Apps locked until …; You're home (or nothing with home not set); the pauses as dots; Pause<br/>render: home-blocked, home-blocked-anywhere, home-pause-waiting"]
+  pauseOpen -->|"yes"| paused["pause: Paused until …, then lock: locked until 7:00 am; Lock again<br/>render: home-pause-open"]
+  pauseOpen -->|"no"| locked["lock: Apps locked until …; You're home (or nothing with home not set); the pauses as dots; Pause<br/>render: home-blocked, home-blocked-anywhere, home-pause-waiting"]
   locked -.->|"Only when I'm home changed tonight (held, B-3)"| lockedHeld["… · Anywhere from the next night (or Only at home from the next night)<br/>render: home-held-home"]
   nightOn -->|"no"| hasNight{"A night block with a next start?"}
-  hasNight -->|"no"| noNight["Your night: Set your night<br/>render: home-no-blocks"]
+  hasNight -->|"no"| noNight["moon: Your night: Set your night<br/>render: home-no-blocks"]
   hasNight -->|"yes"| awayCheck{"Home set, location Always,<br/>inside the lock's hours, not home?"}
-  awayCheck -->|"yes"| away["Night ends at …: Apps lock when you're home<br/>render: home-away"]
+  awayCheck -->|"yes"| away["figure.walk: Night ends at …: house: Apps lock when you're home<br/>render: home-away"]
   awayCheck -->|"no"| placeCheck{"Home set and location Always?"}
-  placeCheck -->|"no: Anywhere"| anywhere["Apps lock at … · N min before bed; Anywhere · starts in …<br/>render: home-anywhere"]
-  placeCheck -->|"yes"| evening["Apps lock at … · N min before bed; At home · starts in …<br/>render: home-evening"]
+  placeCheck -->|"no: Anywhere"| anywhere["clock: Apps lock at … · N min before bed; Anywhere · starts in …<br/>render: home-anywhere"]
+  placeCheck -->|"yes"| evening["clock: Apps lock at … · N min before bed; At home · starts in …<br/>render: home-evening"]
 
   off --> stCheck
   paused --> stCheck
@@ -35,7 +35,7 @@ flowchart TD
   anywhere --> stCheck
   evening --> stCheck
   stCheck{"Set up, Screen Time not allowed,<br/>and free or bought?"}
-  stCheck -->|"yes"| stOff["Screen Time is off (the state and the note)<br/>render: home-screen-time-off"]
+  stCheck -->|"yes"| stOff["warning triangle at 64 pt: Screen Time is off (the state and the note)<br/>render: home-screen-time-off"]
   stCheck -->|"no"| shown(["The state as decided above"])
 ```
 

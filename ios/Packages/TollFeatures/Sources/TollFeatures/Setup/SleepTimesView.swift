@@ -15,7 +15,9 @@ struct SleepTimesStep: View {
         NightPictureView(picture: picture).padding(.top, 24)
       }
       SleepTimesCard(draft: draft).padding(.top, 20)
-      Footnote(note).padding(.top, TollSpacing.underCard)
+      // Health's tile on the times it found, so found and asked differ without the words (#76).
+      Footnote(note, symbol: draft.estimate == nil ? nil : .health)
+        .padding(.top, TollSpacing.underCard)
     } actions: {
       PrimaryButton(Copy.Setup.continue, action: next)
         .disabled(!draft.schedule.isValid)

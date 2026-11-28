@@ -24,7 +24,7 @@ struct PillView: View {
           .accessibilityHidden(true)
         }
         Text(pill.text)
-        Image(symbol: .forward).unredacted().font(.system(size: 10, weight: .bold))
+        Image(symbol: .forward).unredacted().tollGlyph(10, weight: .bold)
           .accessibilityHidden(true)
       }
       .tollType(

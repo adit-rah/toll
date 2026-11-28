@@ -2,9 +2,10 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// The state, centred (#72, rule 2): its glyph and an eyebrow that says what the big time means
-/// ("Apps lock at", "Apps locked until", D75), the big time (or the state's glyph when nothing will
-/// block), one line, the week's pauses as dots while locked, and "Pause" or "Lock again" as buttons.
+/// The state, centred (#72, rule 2): its glyph before an eyebrow that says what the big time means
+/// ("Apps lock at", "Apps locked until", D75), the big time, one line, the week's pauses as dots
+/// while locked, and "Pause" or "Lock again" as buttons. With no time to show, the glyph stands
+/// alone and large over the eyebrow (#74), at 64 pt when nothing will block.
 struct HomeHero: View {
   let hero: HomeSnapshot.Hero
   let eyebrow: String
@@ -24,29 +25,31 @@ struct HomeHero: View {
   var body: some View {
     VStack(spacing: 6) {
       VStack(spacing: 6) {
-        StateLine(eyebrow, symbol: state.symbol, tone: state.tone)
+        if time != nil {
+          // With a time, the time is the shape a glance meets: the state's glyph stays small,
+          // before the eyebrow, and the time keeps its place (founder, #74; D86, D87).
+          StateLine(eyebrow, symbol: state.symbol, tone: state.tone)
+        } else {
+          // With no time, the glyph stands alone and large (#74). Nothing will block: it stands in
+          // for the time at 64 pt and says so to VoiceOver.
+          StateMark(
+            state.symbol, tone: state.tone, large: offSymbol != nil,
+            spoken: offSymbol == nil ? nil : Copy.Home.notBlocking)
+          Text(eyebrow).tollType(.eyebrow, TollColor.label2)
+        }
         if let time {
           HeroTime(time)
           if let beforeBed {
             // The moon says before what, without the words (D76).
             HStack(alignment: .firstTextBaseline, spacing: 6) {
               Image(symbol: .sleep).unredacted()
-                .font(.system(size: 13, weight: .medium))
+                .tollGlyph(13, weight: .medium)
                 .foregroundStyle(TollColor.accent)
                 .accessibilityHidden(true)
               Text(beforeBed).tollType(.heroLine, TollColor.label)
             }
           }
-        } else if let off = offSymbol {
-          // Nothing will block: the biggest shape on screen says so, not two words (#72). No tile
-          // behind it: a filled square reads as a button, and this isn't one (the audit).
-          Image(symbol: off).unredacted()
-            .font(.system(size: 44, weight: .light))
-            .foregroundStyle(TollColor.label2)
-            .frame(width: 64, height: 64)
-            .padding(.vertical, 6)
-            .accessibilityLabel(Copy.Home.notBlocking)
-        } else {
+        } else if offSymbol == nil {
           Text(Copy.Home.noBlocks)
             .tollType(TollType(size: 40, lineHeight: 46, weight: .semibold, style: .largeTitle))
             .foregroundStyle(TollColor.label)
@@ -55,11 +58,12 @@ struct HomeHero: View {
           HStack(alignment: .firstTextBaseline, spacing: 6) {
             if let placeSymbol {
               Image(symbol: placeSymbol).unredacted()
-                .font(.system(size: 13, weight: .medium))
+                .tollGlyph(13, weight: .medium)
                 .foregroundStyle(TollColor.label2)
                 .accessibilityHidden(true)
             }
             Text(detail).tollType(.heroLine, TollColor.label2)
+              .fixedSize(horizontal: false, vertical: true)
           }
         }
       }
@@ -116,7 +120,7 @@ struct HomeHero: View {
     Button(action: action) {
       HStack(spacing: 6) {
         Image(symbol: symbol).unredacted()
-          .font(.system(size: 13, weight: .semibold))
+          .tollGlyph(13, weight: .semibold)
           .accessibilityHidden(true)
         Text(title)
       }
@@ -158,7 +162,8 @@ struct HomeHero: View {
   }
 
   /// Where the night runs, before the line: home or anywhere before it starts; while locked, only
-  /// home, since the line then says "You're home". Away is already said by the glyph.
+  /// home, since the line then says "You're home". Away and paused keep their lines bare, so the
+  /// words stay where they were (D105).
   private var placeSymbol: TollSymbol? {
     switch hero {
     case .tonight: place.map { $0 == .home ? .home : .anywhere }

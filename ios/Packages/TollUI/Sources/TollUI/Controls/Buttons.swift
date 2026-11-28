@@ -187,7 +187,7 @@ public struct DestructiveQuiet: View {
   public var body: some View {
     Button(role: .destructive, action: action) {
       HStack(spacing: 8) {
-        Image(symbol: .delete).unredacted().font(.system(size: 15, weight: .semibold))
+        Image(symbol: .delete).unredacted().tollGlyph(15, weight: .semibold)
           .accessibilityHidden(true)
         Text(title)
       }
@@ -212,7 +212,7 @@ public struct SettingsLink: View {
       HStack(spacing: 6) {
         Text(title)
         Image(symbol: .openSettings).unredacted()
-          .font(.system(size: 13, weight: .semibold))
+          .tollGlyph(13, weight: .semibold)
           .accessibilityHidden(true)
       }
     }

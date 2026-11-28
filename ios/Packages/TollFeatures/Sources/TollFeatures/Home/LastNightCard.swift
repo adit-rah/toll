@@ -61,7 +61,7 @@ struct LastNightDetails: View {
       if let putDown = night.putDown {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
           Image(symbol: .phoneDown).unredacted()
-            .font(.system(size: 13, weight: .medium))
+            .tollGlyph(13, weight: .medium)
             .foregroundStyle(TollColor.label2)
             .accessibilityHidden(true)
           Text(putDown)
@@ -152,7 +152,7 @@ private struct NightBar: View {
 
   private func glyph(_ symbol: TollSymbol) -> some View {
     Image(symbol: symbol).unredacted()
-      .font(.system(size: 12, weight: .semibold))
+      .tollGlyph(12, weight: .semibold)
       .foregroundStyle(TollColor.label2)
   }
 }

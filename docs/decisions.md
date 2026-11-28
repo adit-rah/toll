@@ -632,3 +632,11 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **The rule it settled for state glyphs:** with a time on screen, the glyph stays small and inline beside the eyebrow (as since D75), growing with Dynamic Type. Without a time (off, Screen Time off, no blocks), the glyph stands alone and large in the time's place. This covers evening, locked, away and the pause open.
 - **What it asks of reviews:** name the screen's one or two most important things, check the render shows them first, and demote whatever pulls the eye away, even something useful.
 
+**D106. Every screen passes the wordless test** (2026-11-28, #70, #74, #76, #79, #124; the founder picked per screen, which set D105's glyph rule).
+- **Tonight.** With a time on screen, main's small glyph stays before the eyebrow and the big time keeps its place (founder; checked equal y on every timed state). With no time, the glyph stands alone and large: the 64 pt mark replaces the time when nothing will block (off, Screen Time off), and a 26 pt moon sits over "Your night" when there is none. The read-only note gets its own glyph (`exclamationmark.arrow.triangle.2.circlepath`) and the recovered note the apps grid, instead of borrowing location.slash.
+- **Onboarding.** Welcome draws a moon with a lock above its words (dropped on phones too small for it). Times found in Health carry Health's glyph. Ready's tick is a mark over its eyebrow and its pauses are dots. Set home with location denied says so in a degraded note.
+- **Settings.** "Is everything working?" leads each row with the tile of what it checks; "Turn on" carries the leaves-the-app glyph.
+- **Dynamic Type.** Glyphs beside words grow with the text (`tollGlyph`); a large mark grows up to 2× (1.5× at 64 pt). Glyphs inside fixed geometry (the strip, night dots) and the gear keep their size. The hero's line wraps.
+- **No copy changed.**
+- **Left:** Settings' App and Help cards are still words only; the around sheet's minutes read only as digits; Ready's pinned bar covers much of its content at AX5 (#168).
+
