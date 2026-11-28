@@ -2,7 +2,7 @@ import SwiftUI
 import TollCore
 import TollUI
 
-/// The state, centred (#72, rule 2): its glyph over an eyebrow that says what the big time means
+/// The state, centred (#72, rule 2): its glyph before an eyebrow that says what the big time means
 /// ("Apps lock at", "Apps locked until", D75), the big time, one line, the week's pauses as dots
 /// while locked, and "Pause" or "Lock again" as buttons. The glyph is big enough to tell the states
 /// apart with every word wiped (#74); when nothing will block it stands in for the time.
@@ -25,11 +25,14 @@ struct HomeHero: View {
   var body: some View {
     VStack(spacing: 6) {
       VStack(spacing: 6) {
-        // Nothing will block: the mark stands in for the time and says so to VoiceOver.
-        StateMark(
-          state.symbol, tone: state.tone, large: offSymbol != nil,
-          spoken: offSymbol == nil ? nil : Copy.Home.notBlocking)
-        Text(eyebrow).tollType(.eyebrow, TollColor.label2)
+        if offSymbol == nil {
+          // The state's glyph leads its eyebrow, big enough to read alone (#74).
+          StateLine(eyebrow, symbol: state.symbol, tone: state.tone, prominent: true)
+        } else {
+          // Nothing will block: the mark stands in for the time and says so to VoiceOver.
+          StateMark(state.symbol, tone: state.tone, large: true, spoken: Copy.Home.notBlocking)
+          Text(eyebrow).tollType(.eyebrow, TollColor.label2)
+        }
         if let time {
           HeroTime(time)
           if let beforeBed {
