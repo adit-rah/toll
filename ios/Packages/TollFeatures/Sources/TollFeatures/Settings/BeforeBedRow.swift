@@ -104,6 +104,9 @@ struct SleepSettingsView: View {
       }
     }
     .tollPushed(Copy.Fit.sheetTitle)
+    // An editor, as the block editor is (D73): Save takes the tab bar's place, so on the smallest
+    // phone at accessibility sizes the two don't cover a third of the screen (#186).
+    .toolbar(.hidden, for: .tabBar)
     .tollBottomBar {
       PrimaryButton(Copy.Fit.save) {
         save()
