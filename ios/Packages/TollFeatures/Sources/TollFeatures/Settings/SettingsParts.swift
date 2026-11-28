@@ -125,6 +125,7 @@ struct AppearanceRow: View {
           title
           AppearancePicker(selection: $selection)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
       }
     }
     .padding(.vertical, 8)
