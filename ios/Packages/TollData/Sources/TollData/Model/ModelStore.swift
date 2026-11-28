@@ -15,8 +15,8 @@ public struct ModelStore: Sendable {
     self.nights = nights
   }
 
-  /// What the app stamps its night records with: the artifact this build runs. No model chooses the
-  /// start yet, so the policy is fixed.
+  /// What the app stamps its night records with: the artifact this build runs, and "fixed" for
+  /// nights on their plan; a night personal timing held a start for says "held" (#155).
   public static let stamp = ModelStamp.fixed(ModelArtifact.bundled().version)
 
   /// Folds in the nights recorded since, or rebuilds; written, atomically, only when it changed.

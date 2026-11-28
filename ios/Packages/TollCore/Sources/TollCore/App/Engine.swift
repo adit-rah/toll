@@ -90,6 +90,11 @@ public enum Engine {
       state.helpers.breathMinutes = helpers.breath(config)
     case .headsUp(let on):
       state.headsUp = on
+    case .timing(let on):
+      state.timing.on = on
+    case .hold(let hold, let generator):
+      TimingRules.choose(
+        hold, generator: generator, &state, now: now, calendar: calendar, config: config)
     case .presence(let id, let presence):
       state.presence[id] = presence
     case .location(let mode):
@@ -140,7 +145,8 @@ public enum Engine {
     var active = activeOccurrences(state, now: now, calendar: calendar)
     let edited = applyPending(&state, active: active)
     let gapChanged = GapRules.applyHeld(&state, active: active, now: now, calendar: calendar)
-    if edited || gapChanged {
+    let timed = TimingRules.advance(&state, now: now, calendar: calendar, config: config)
+    if edited || gapChanged || timed {
       noteEnds(&state, now: now, calendar: calendar)
       active = activeOccurrences(state, now: now, calendar: calendar)
     }

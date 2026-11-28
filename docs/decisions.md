@@ -640,3 +640,12 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **No copy changed.**
 - **Left:** Settings' App and Help cards are still words only; the around sheet's minutes read only as digits; Ready's pinned bar covers much of its content at AX5 (#168).
 
+**D107. Personal timing on the phone, built and off until offered** (2026-11-28, #155; details of D66, D99, D101).
+- **Off for everyone until the offer exists** (D65: offered once after the first week, needs Health, can be turned off; #171). `timing` in `state.json` holds the switch, the start in force by night, and the generator.
+- **The week's start.** For a person with timing and Health on, the app draws the start with `SleepModel.chooseStart` on opening. It draws for the next night that hasn't started, 90 minutes or more before its lock, with the person's model brought up to date by last night and Health's correction. Every process locks with it. It is put in force or let go only between nights (B-3).
+- **Within the buffers.** The start moves only the lock, from bed minus the buffer before sleep. It never starts after bed, never more than 90 minutes before sleep, and never earlier while the buffer before sleep is above 60 (D101). Wake and the buffer after waking never move.
+- **A week holds one start,** Monday to Sunday by the night's date. It is let go when Sunday's night ends, with the noon wake (D100) as a second chance. A buffer change the start no longer fits, or switching timing off, gives the next night back to the person's own time. A week the app isn't opened in runs at the person's own time and is recorded "fixed".
+- **Records** (no format raise): every night of a hold writes `policy` "held", `hold_start`, `settled`, and the hold's offset and chance, whether or not the lock ran. `gap_min` stays the buffer's setting; the lock started at bed − `gap_min` + `action_offset_min`. The buffer suggestion (D101) reads a held night's buffer as `gap_min − action_offset_min`.
+- **Data** (D92): schema 5 adds `timing`, and step 4 → 5 writes it off. minReader is 5 only while timing holds anything, so a downgrade still saves for everyone else. A lost state file brings back timing, Health and the start from the latest held record.
+- **The app only.** The monitor would need the model and a person's state brought up to date from the whole night log, against its size budget. `TollConfig.timing.offsets` must equal the artifact's actions; a test checks it, so a new artifact with other actions allows no new start until the config follows.
+

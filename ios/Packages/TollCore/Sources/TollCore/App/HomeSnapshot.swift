@@ -174,8 +174,8 @@ public struct HomeSnapshot: Equatable, Sendable {
     }
     gapCard = Self.gapCard(card, state: state, now: now, calendar: calendar, config: config)
     timeline = day.segments.isEmpty ? nil : day
-    if case .tonight = hero, state.gap.minutes > 0 {
-      beforeBed = Copy.Gap.beforeBed(state.gap.minutes)
+    if case .tonight = hero, state.lead > 0 {
+      beforeBed = Copy.Gap.beforeBed(state.lead)
     }
     freeNights = FreeNights(state: state, log: log, now: now, calendar: calendar, config: config)
     if case .off = hero { supply.refillDay = nil }
