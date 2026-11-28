@@ -763,3 +763,11 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **D113:** no insight before 28 usable nights.
 - **D114:** How steady's new middle, with values about 10% smaller; the 1.5× guard; accepting Health's late night.
 - **D115:** xxxL is the line on phones under 700 pt; the strip stays partly under the tab bar in that one state.
+
+**D117. Settings › Sleep hides the tab bar, as every editor does** (2026-11-28, #186; details of D73 and D115).
+- **What.** Settings › Sleep is an editor: Save applies, Back leaves things as they were. Like the block editor (D73), it hides the tab bar, and Save is pinned in its place at every size and on every phone. Its bar already held only Save, so `PinnedBar`'s rule (D115) changes nothing here.
+- **Result.** On the iPhone SE at AX5 the bottom went from 28% of the screen (Save and the tab bar) to 15%, and the first screen shows the whole hours. At the default size: 24% → 12% on the SE, 17% → 11% on iPhone 17.
+- **Chosen over** ending the page with Save at accessibility sizes on short phones. Save would sit several screens below the hours, past the buffers, the helpers and timing, and Back would drop an edit that wasn't saved. Every other editor keeps its main button pinned.
+- **Typing never moves a button:** the page has no text field, and hiding the tab bar is fixed for the screen.
+- **Attention (D105).** The night picture and the hours come first; Save is the one pinned action, with no tab bar under it. Still open: at AX5 on the SE the title and its line take most of the first screen.
+- **Assumed, for the founders:** no tabs while Settings › Sleep is open, as in the block editor; Back to Settings brings them back.
