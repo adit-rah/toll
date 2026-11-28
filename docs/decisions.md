@@ -649,3 +649,17 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Data** (D92): schema 5 adds `timing`, and step 4 → 5 writes it off. minReader is 5 only while timing holds anything, so a downgrade still saves for everyone else. A lost state file brings back timing, Health and the start from the latest held record.
 - **The app only.** The monitor would need the model and a person's state brought up to date from the whole night log, against its size budget. `TollConfig.timing.offsets` must equal the artifact's actions; a test checks it, so a new artifact with other actions allows no new start until the config follows.
 
+**D108. Your sleep's change lines are judged weekly, robustly, and spent over time** (2026-11-28, #165; amends D104's trend rule).
+- **Why.** Re-judged every day, D104's rule told about half of people with no real change of an "earlier" or "later" at some point within 12 weeks. That was measured on simulated heavy-tailed nights and on a real Health export (n=1, private). Real nights are noisier and wander more than the simulator assumed (#154).
+- **Weekly.** The line is judged on the week that ended before the latest Monday noon (D99 and D100's week), and held until the next. Values and charts still move nightly. Nothing is stored. A week with fewer than 5 nights shows no line until the next Monday.
+- **Robust.** 20% trimmed means. The person's noise is pooled within weeks, winsorized, over every judged week, so one wild night can't make or hide a change.
+- **Spent over time.** The k-th look needs a miss chance of 0.02/k² (Student's t, Yuen's degrees of freedom), plus D104's floors. A change said the week before, the same way, is kept at the first look's test.
+- **Result.**
+  - With no change in level, 2.9–4.3% of people are ever told of one within 26 weeks across the public stress profiles (`datascience/reports/trends.md`).
+  - Replayed on the private export, in shuffled order: at most about 5% within 12 weeks, against D104's 46%.
+  - A line changes about once or twice in 12 weeks.
+  - Power for a real 30-minute shift is 5–66% by 12 weeks, depending on the noise.
+- **The baseline stays the first nights,** because the line names them (D104). A level that wanders is described truly, not counted as false.
+- **Reference:** `datascience/trends/`, with 417 parity fixtures.
+- **Left:** #173 (How steady after an early shift, a change in noise alone, Health's late correction) and #174 (the last-reach stand-in, which needs Dusk's own nights beside Health).
+
