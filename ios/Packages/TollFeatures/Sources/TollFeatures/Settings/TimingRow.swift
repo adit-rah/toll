@@ -19,11 +19,13 @@ struct TimingRow: View {
         VStack(alignment: .leading, spacing: 0) {
           RowText(title: Copy.Timing.row, detail: setting.detail)
           Button(action: useHealth) {
-            HStack(spacing: 6) {
+            // On the first line's baseline and flush left, so at accessibility sizes the link
+            // wraps as text does, not centred round its glyph.
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
               Image(symbol: .health).unredacted()
                 .tollGlyph(13, weight: .semibold)
                 .accessibilityHidden(true)
-              Text(Copy.Fit.useHealth)
+              Text(Copy.Fit.useHealth).multilineTextAlignment(.leading)
             }
             .tollType(.link, TollColor.accent)
             .frame(minHeight: TollSpacing.minTapTarget)

@@ -289,6 +289,11 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 271 | Then reinstall the v1 build and open it | No crash; Tonight shows its lock, and personal timing goes on drawing or falls back to your own time | | |
 | 272 | Personal timing on, Health chosen, over the first four weeks | No insight is shown before 28 nights with Health's sleep | | |
 | 273 | With Health on, open Your sleep on Monday after 12:00 before the watch has synced Sunday night; let it sync, then open Dusk again | The week's lines may change once (a line appears, or the minutes change) and not again that week; How steady reads "± N min" as before (D114) | | |
+| 274 | iPhone SE, at the default size and at the largest size below the accessibility sizes, a morning with the home offer above last night's row: open last night, scroll its details, fold it | The offer fades in place. The open card takes exactly the offer's and the row's room under the state, with "OK" and the fold in its header; its details scroll inside, the cut edge fading while more is below. The state, the band and the strip don't move, and the strip can be reached by scrolling the page (D115) | | |
+| 275 | iPhone SE at that largest size: edit a block while it's on; tap Name and type | Only "Save for after …" is pinned; Delete block, then "… is on until …", end the page. Nothing moves between the bar and the page while the keyboard is up | | |
+| 276 | iPhone 17 at the same size: the same | The bar holds the note, Delete block and Save, as before | | |
+| 277 | AX5, Settings › Sleep with helpers on: change Breathing tone with − / +; then with VoiceOver, swipe up and down on it | "Breathing tone · 3 min" has no broken word, and the − / + sit under it. VoiceOver reads one adjustable row with the minutes; the change applies on Save | | |
+| 278 | AX5: edit a block inside its hours | The switch sits under "Can be turned off after …", dimmed; VoiceOver reads "On, Can be turned off after …", dimmed | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

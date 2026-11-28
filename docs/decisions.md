@@ -743,3 +743,16 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - how often Health's Sunday sleep arrives after Monday noon;
   - how often a real first week passes the 1.5× guard;
   - how the ±3-day middle behaves on weekday/weekend patterns.
+
+**D115. The smallest phone at large text: opening never moves anything, and the editor pins only Save** (2026-11-28, #178, #181; details of D86, D87, D93 and D111).
+- **Last night under the state keeps the folded band's room.** On the iPhone SE with a card above, at the default size and at xxxL, even the folded band (a card and last night's row) can't fit between the state and the strip, so it goes under the state, as before (D86's last place).
+  - Opened, it is never taller than the folded band: it grows over the card's room while the card fades (D94), and its details scroll inside (D111). Opening moves nothing: not the state, the band or the strip.
+  - Before, the open card on the SE at the default size pushed the strip off the screen (y 733); now it stays at 532.
+- **The strip can still sit partly under the tab bar there.** On the SE the bar, the state, the folded band and the strip are taller than the screen, so the strip sits where the folded band puts it and the page scrolls to it. This was so when folded; opening no longer makes it worse. Chosen over folding the card above or shrinking the state by text size.
+- **The editor's bar on the smallest phone.** At xxxL on a phone under 700 pt tall (the SE), the block editor pins only Save, as at accessibility sizes (D111). Delete block and the note for a block that's on end the page, the note last.
+  - On the SE at xxxL the bar went from 30% of the screen to 12%. Taller phones keep note, Delete and Save at xxxL (25% on iPhone 17).
+  - The rule reads the window's height, not the room the keyboard leaves, so typing never moves a button (`PinnedBar`).
+- **Words stay whole at accessibility sizes.** Settings › Sleep's "Breathing tone" − / + and a block's on/off switch go under their words, as `CardRow` does for switches. Each control keeps its words as its label, so VoiceOver reads one row. Timing's "Use Apple Health" wraps flush left, its glyph on the first line.
+- **Attention (D105).** Tonight on the SE: the state is seen first and stays put; the open card sits under it, the faded card leaves no outline. The editor on the SE at xxxL: the block's details and Save fill the screen; the red Delete and the note move to the page's end.
+- **Assumed, for the founders:** xxxL is the line (the SE's bar is about 29% at every size below it, kept because the note explains why Save says "for after …"); the line is 700 pt (the SE is 667, the next phone 812); the strip stays partly under the tab bar in this one state.
+- **Left:** Settings › Sleep at AX5 on the SE, where its pinned Save and the tab bar take about 30% of the screen (a different bar, not this issue). An open card with no card above in the same fallback would show only its header; no current phone or size reaches it.

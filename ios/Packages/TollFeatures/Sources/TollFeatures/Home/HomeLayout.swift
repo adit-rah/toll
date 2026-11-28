@@ -89,13 +89,18 @@ struct HomeLayout: Layout {
       }
       let keepsToStrip = subviews[index][HomeNoteKeepsToStripKey.self]
       let room = baseStripY - Gap.toStrip - heroBottom - Gap.toHero
-      if keepsToStrip, room > 0 {
-        let capped = subviews[index].sizeThatFits(ProposedViewSize(width: width, height: room))
-        if capped.height <= room {
+      if keepsToStrip {
+        let capped = subviews[index].sizeThatFits(
+          ProposedViewSize(width: width, height: max(room, 0)))
+        if room > 0, capped.height <= room {
           result.heights[index] = capped.height
           result.bands.append(.bottom)
           continue
         }
+        // Even folded it can't fit there, so it goes under the state, at the least it can be:
+        // the folded band's own room (#178). Open, it grows over the card's room and scrolls
+        // inside, so the strip under it stays put too.
+        result.heights[index] = capped.height
       }
       let note = result.heights[index]
       let band = Self.band(

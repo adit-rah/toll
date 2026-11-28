@@ -153,9 +153,10 @@ struct BlockEditorView: View {
     if let refusal = model.refusal {
       NoteCard(refusal, severity: .broken).padding(.top, 12)
     }
-    if typeSize.isAccessibilitySize {
-      // At accessibility sizes the bar keeps only Save, so it doesn't cover the page (#162): Delete
-      // and the note end the page instead, the note last, so its coming moves nothing above it.
+    if onlySavePinned {
+      // At accessibility sizes, and at xxxL on the smallest phone, the bar keeps only Save, so it
+      // doesn't cover the page (#162, #178): Delete and the note end the page instead, the note
+      // last, so its coming moves nothing above it.
       VStack(alignment: .leading, spacing: 12) {
         if !model.isNew && !model.isSleep { delete }
         if let note = model.activeNote {
@@ -173,10 +174,11 @@ struct BlockEditorView: View {
 
   /// The note for a block that's on sits at the top of the pinned bar, over Save, which says when the
   /// edit applies (B-3): when the block comes on mid-edit the bar grows upward and nothing on the page
-  /// or in the bar moves (#133, design §2.5). At accessibility sizes only Save is pinned.
+  /// or in the bar moves (#133, design §2.5). Where the whole bar would cover too much of the
+  /// screen, only Save is pinned (`PinnedBar`).
   private var actions: some View {
     VStack(spacing: 0) {
-      if !typeSize.isAccessibilitySize {
+      if !onlySavePinned {
         if let note = model.activeNote {
           NoteCard(note, symbol: .blocked)
             .padding(.bottom, 12)
@@ -197,6 +199,8 @@ struct BlockEditorView: View {
     }
     .animation(Motion.stateChange, value: model.activeNote)
   }
+
+  private var onlySavePinned: Bool { PinnedBar.keepsOnlyMain(typeSize) }
 
   private var saveTitle: String {
     if model.isNew { return Copy.Blocks.save }
