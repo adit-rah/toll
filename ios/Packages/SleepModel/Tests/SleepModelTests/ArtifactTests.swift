@@ -6,7 +6,7 @@ import Testing
 struct ArtifactTests {
   @Test func shippedArtifactDecodesAndMatchesBuiltIn() throws {
     let shipped = ModelArtifact.bundled()
-    #expect(shipped.version == "sleep-model.v1")
+    #expect(shipped.version == "sleep-model.v2")
     #expect(shipped.schema == ModelArtifact.schemaVersion)
     #expect(shipped.sha256?.count == 64)
     var withoutHash = shipped

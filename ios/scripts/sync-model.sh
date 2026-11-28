@@ -7,9 +7,9 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 from="$root/datascience/artifacts"
 pkg="$root/ios/Packages/SleepModel"
-artifact="$from/sleep-model.v1.json"
+artifact="$from/sleep-model.v2.json"
 pairs=(
-  "$artifact:$pkg/Sources/SleepModel/Resources/sleep-model.v1.json"
+  "$artifact:$pkg/Sources/SleepModel/Resources/sleep-model.v2.json"
   "$from/fixtures.jsonl:$pkg/Tests/SleepModelTests/Fixtures/fixtures.jsonl"
   "$from/rebuild.json:$pkg/Tests/SleepModelTests/Fixtures/rebuild.json"
 )

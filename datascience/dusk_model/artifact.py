@@ -14,8 +14,8 @@ from pathlib import Path
 
 import numpy as np
 
-SCHEMA = 2
-SCHEMAS = (1, 2)
+SCHEMA = 3
+SCHEMAS = (1, 2, 3)
 FEATURES = ["intercept", "offset_per_30", "weekend", "late"]
 _SHA_FIELD = re.compile(r'"sha256": "[0-9a-f]*"')
 
@@ -48,6 +48,10 @@ class Params:
     settled_explore_share: float = 0.0
     zero_test_spend_after: int = 0
     zero_test_spend_power: float = 0.0
+    # Schema 3 (#154). Earlier artifacts read as v1 did: the usual time never moves between weeks, and
+    # every person's nights are as noisy as `noise_sd`.
+    intercept_week_sd: float = 0.0
+    noise_scale_prior_nights: float = 0.0
 
     @property
     def settles(self) -> bool:
@@ -74,6 +78,7 @@ class Params:
             max_width_min=float(a["insight"]["max_width_min"]),
             min_nights=int(a["insight"]["min_nights"]),
             **_schema2(a),
+            **_schema3(a),
         )
 
 
@@ -93,6 +98,14 @@ def _schema2(a: dict) -> dict:
         "zero_test_spend_after": int(insight.get("zero_test_spend_after", 0)),
         "zero_test_spend_power": float(insight.get("zero_test_spend_power", 0.0)),
     }
+
+
+SCHEMA3 = ("intercept_week_sd", "noise_scale_prior_nights")
+
+
+def _schema3(a: dict) -> dict:
+    """The fields schema 3 added (#154), top level beside `noise_sd`; absent before, and then 0."""
+    return {k: float(a.get(k, 0.0)) for k in SCHEMA3}
 
 
 def validate(a: dict) -> None:
@@ -122,6 +135,12 @@ def validate(a: dict) -> None:
         missing += [k for k in SCHEMA2_INSIGHT if k not in a["insight"]]
         if missing:
             raise ValueError("schema 2 needs " + ", ".join(missing))
+    if a["schema"] >= 3:
+        missing = [k for k in SCHEMA3 if k not in a]
+        if missing:
+            raise ValueError("schema 3 needs " + ", ".join(missing))
+    if min(_schema3(a).values()) < 0:
+        raise ValueError("intercept_week_sd and noise_scale_prior_nights must be at least 0")
     more = _schema2(a)
     if more["hold_nights"] < 1:
         raise ValueError("hold_nights must be positive")

@@ -10,7 +10,7 @@ from .model import State, predict, prior_state, update
 from .night import Context, features, latest, phi
 from .policy import choose_one
 from .rng import SplitMix64Batch
-from .timing import Holds, choose, day_number, hold_of, period
+from .timing import Holds, choose, day_number, hold_of, period, week_of
 
 
 class SeededRNG:
@@ -33,6 +33,13 @@ class PersonModel:
             self._state.b[0] = np.array(state["b"], dtype=float)
             self._state.nights[0] = int(state["nights"])
             self._state.shown[0] = bool(state.get("shown", False))
+            self._state.week[0] = -1 if state.get("week") is None else int(state["week"])
+            self._state.scale_sum[0] = float(state.get("scale_sum", 0.0))
+            self._state.scale_nights[0] = float(state.get("scale_nights", 0.0))
+            self._state.week_sum[0] = float(state.get("week_sum", 0.0))
+            self._state.week_nights[0] = float(state.get("week_nights", 0.0))
+            self._state.last_week_sum[0] = float(state.get("last_week_sum", 0.0))
+            self._state.scale_cross[0] = float(state.get("scale_cross", 0.0))
 
     @property
     def state(self) -> dict:
@@ -47,6 +54,7 @@ class PersonModel:
             np.array([f.y]),
             np.array([f.usable]),
             self.params,
+            week=np.array([week_or_none(record.get("night"))]),
         )
         return f.usable, f.skip
 
@@ -98,6 +106,14 @@ class PersonModel:
 
     def insights(self) -> list[dict]:
         return insight_rules.insights(self._state, self.params)
+
+
+def week_or_none(night) -> int:
+    """The night's calendar week, or −1 if it isn't a date (Swift's `Day.number` gives nil)."""
+    try:
+        return week_of(night)
+    except (TypeError, ValueError):
+        return -1
 
 
 def rebuild(params: Params, records: list[dict]) -> PersonModel:

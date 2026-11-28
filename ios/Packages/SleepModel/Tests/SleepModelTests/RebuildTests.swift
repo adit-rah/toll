@@ -106,7 +106,7 @@ struct RebuildTests {
     let after = ModelCache.refreshed(
       old.cache, artifact: ModelArtifact.bundled(), policy: "fixed", records: records)
     #expect(after.rebuilt)
-    #expect(after.cache.artifact.version == "sleep-model.v1")
+    #expect(after.cache.artifact.version == "sleep-model.v2")
     #expect(Self.same(after.cache.state, f.state))
   }
 

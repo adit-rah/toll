@@ -26,14 +26,16 @@ from dusk_model.artifact import Params
 from export import v0, v1
 
 from .criteria import changes_per_week, first_insight_night
-from .dampen_sweep import make_world as drifted_world
 from .run import NIGHTS, Run, run
+from .wander import make_world
 
 YEAR = 364
 WEEKS = (8, 12, 26, 52)
-SCENARIOS = ["null", "null+wander", "null+drift", "differ", "differ+wander", "differ+drift", "same"]
-WANDER_SD = 15.0
-WANDER_DAYS = 28.0
+# Each scenario's seed is the run's seed plus its place here, so new ones go at the end (`sim.wander`).
+SCENARIOS = [
+    "null", "null+wander", "null+drift", "differ", "differ+wander", "differ+drift", "same",
+    "null+wide", "null+slow", "differ+wide", "differ+slow",
+]
 
 NO_SPEND = {"zero_test_spend_after": 0, "zero_test_spend_power": 0.0}
 VARIANTS: dict[str, dict | None] = {
@@ -55,29 +57,29 @@ VARIANTS: dict[str, dict | None] = {
     "spend30-2": {"zero_test_spend_after": 30, "zero_test_spend_power": 2.0},
     "v1": {},
 }
+WANDER_KEYS = {
+    "w": "intercept_week_sd",
+    "k": "noise_scale_prior_nights",
+    "z": "zero_test_interval",
+    "n": "zero_test_spend_after",
+    "p": "zero_test_spend_power",
+}
+
+
+def wander_variant(name: str) -> dict:
+    """#154's variants by name, on v1: "w10-k14-z96" lets the intercept wander 10 minutes a week,
+    learns the noise's scale with 14 nights of 1, and uses a 96% zero test. `z` is in percent; `n`
+    and `p` are the zero test's spending (`zero_test_spend_after`, `zero_test_spend_power`)."""
+    over: dict = {}
+    for part in name.split("-"):
+        key, value = WANDER_KEYS[part[0]], float(part[1:])
+        over[key] = value / 100.0 if part[0] == "z" else int(value) if part[0] == "n" else value
+    return over
 
 
 def artifact_for(name: str) -> dict:
-    over = VARIANTS[name]
+    over = VARIANTS[name] if name in VARIANTS else wander_variant(name)
     return v0.artifact() if over is None else v1.artifact(**over)
-
-
-def make_world(scenario: str, people: int, seed: int, nights: int):
-    """`sim.dampen_sweep`'s scenarios, plus "+wander": the usual onset wanders and comes back, an AR(1)
-    with sd 15 minutes and a 4-week memory. Over a year the random-walk drift wanders about 38 minutes,
-    which is the 8-week stress carried past where it means anything; the wander is the year-long one."""
-    name, _, twist = scenario.partition("+")
-    if twist != "wander":
-        return drifted_world(scenario, people, seed, nights=nights)
-    w = drifted_world(name, people, seed, nights=nights)
-    rho = float(np.exp(-1.0 / WANDER_DAYS))
-    steps = np.random.default_rng([seed, 8]).normal(0.0, WANDER_SD * np.sqrt(1 - rho * rho), w.noise.shape)
-    level = np.zeros(people)
-    start = np.random.default_rng([seed, 9]).normal(0.0, WANDER_SD, people)
-    for t in range(nights):
-        level = start if t == 0 else rho * level + steps[:, t]
-        w.noise[:, t] = w.noise[:, t] + level
-    return w
 
 
 def summarize(w, r: Run, nights: int) -> dict:

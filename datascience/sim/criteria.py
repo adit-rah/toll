@@ -26,6 +26,8 @@ from .run import ACTIONS, NIGHTS, World, run, world
 from .scenarios import SCENARIOS
 
 LONG_NIGHTS = 364  # a year: the insight is checked every night for as long as Dusk is used (#117)
+# The null for a year, alone and with the person's usual time moving (#154, `sim.wander`).
+LONG_SCENARIOS = ("null", "null+wander", "null+drift", "null+wide", "null+slow")
 
 
 def first_insight_night(shown: np.ndarray) -> np.ndarray:
@@ -93,12 +95,15 @@ def changes_per_week(r) -> float:
     return float(changes.mean() / (nights / 7))
 
 
-def long_run(params: Params, people: int, seed: int, nights: int = LONG_NIGHTS) -> dict:
-    """The null scenario for a year: the share ever shown an insight, week by week."""
-    w = world("null", people, seed, nights=nights)
+def long_run(params: Params, people: int, seed: int, nights: int = LONG_NIGHTS, scenario: str = "null") -> dict:
+    """A null scenario for a year: the share ever shown an insight, week by week."""
+    from .wander import make_world  # sim.wander reads this module through sim.dampen_sweep
+
+    w = make_world(scenario, people, seed, nights=nights)
     r = run(w, params, "thompson", seed)
     first = first_insight_night(r.shown)
     return {
+        "scenario": scenario,
         "people": people,
         "nights": nights,
         "ever_shown_by_week": [float((first <= 7 * (k + 1)).mean()) for k in range(nights // 7)],
@@ -152,6 +157,9 @@ def evaluate(
         out["safety"] = safety(params, safety_people, seed, params.version)
     if long_people:
         out["long_run"] = long_run(params, long_people, seed + 200)
+        out["long_runs"] = {
+            s: long_run(params, long_people, seed + 200 + i, scenario=s) for i, s in enumerate(LONG_SCENARIOS) if s != "null"
+        }
     out["checks"] = checks(out)
     return out
 
@@ -179,6 +187,10 @@ def checks(out: dict) -> list[dict]:
     if "long_run" in out:
         lr = out["long_run"]
         rows.append(("No false insights over a year (#117)", f"null, {lr['nights']} nights",
+                     "a non-zero effect ever shown to at most 5% of people",
+                     lr["ever_shown"] <= 0.05, lr["ever_shown"]))
+    for scenario, lr in out.get("long_runs", {}).items():
+        rows.append((f"No false insights over a year, {scenario.split('+')[1]} (#154)", f"{scenario}, {lr['nights']} nights",
                      "a non-zero effect ever shown to at most 5% of people",
                      lr["ever_shown"] <= 0.05, lr["ever_shown"]))
     if "safety" in out:
