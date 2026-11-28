@@ -163,8 +163,13 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var minShow = 3
     /// A change is compared only with this many recent values, apart from the first nights.
     public var minRecent = 5
-    /// How many standard errors a change must clear.
-    public var z = 2.2
+    /// Each value and comparison is a mean with this share of the highest and lowest nights set
+    /// aside, so one wild night can't make or hide a change (#165).
+    public var trim = 0.2
+    /// The chance of saying a change that isn't there at the first weekly look; the k-th look's is
+    /// this times k^−spendPower, so over every look it stays under 5% (`datascience/reports/trends.md`).
+    public var miss = 0.02
+    public var spendPower = 2.0
     /// The smallest change worth saying, for times and minutes asleep.
     public var floorMinutes = 15.0
     /// For reaches a night.
