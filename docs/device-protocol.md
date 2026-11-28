@@ -288,6 +288,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 270 | Install a v2 build over a v1 build with personal timing on and some nights recorded; open Dusk | No crash; `model.json` names `sleep-model.v2` and is rebuilt from the night log; Tonight's start this week is unchanged (D113) | | |
 | 271 | Then reinstall the v1 build and open it | No crash; Tonight shows its lock, and personal timing goes on drawing or falls back to your own time | | |
 | 272 | Personal timing on, Health chosen, over the first four weeks | No insight is shown before 28 nights with Health's sleep | | |
+| 273 | With Health on, open Your sleep on Monday after 12:00 before the watch has synced Sunday night; let it sync, then open Dusk again | The week's lines may change once (a line appears, or the minutes change) and not again that week; How steady reads "± N min" as before (D114) | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

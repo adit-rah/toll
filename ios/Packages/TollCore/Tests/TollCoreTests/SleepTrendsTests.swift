@@ -131,16 +131,28 @@ struct SleepTrendsTests {
     #expect(measure(three, .steadiness) == nil)
   }
 
-  /// How steady: two weeks against the first two, on each night's distance from the middle one.
+  /// How steady: two weeks against the first two, on each night's distance from the middle of
+  /// the days around it.
   @Test func steadierIsSaidAsTheFirstSpread() throws {
+    let wobble = [-1, 1, -0.5, 0.5, 0, 1, -1]
     let nights = (1...30).map { day in
-      night(day, onset: 30 + (day % 2 == 0 ? 1 : -1) * (day <= 14 ? 40 : 8))
+      night(day, onset: 30 + Int(wobble[day % 7] * (day <= 14 ? 40 : 8)))
     }
     let steady = try #require(measure(trends(nights), .steadiness))
-    #expect(steady.value == "± 8 min")
+    #expect(steady.value == "± 6 min")
     #expect(steady.change?.way == .toward)
-    #expect(steady.change?.line == "From ± 40 min in your first 14 nights")
-    #expect(steady.spoken.contains("within 8 min"))
+    #expect(steady.change?.line == "From ± 30 min in your first 14 nights")
+    #expect(steady.spoken.contains("within 6 min"))
+  }
+
+  /// A usual time that moved an hour in the first nights is the level's change, not steadier
+  /// nights (#173).
+  @Test func aUsualTimeThatMovedIsntSteadier() throws {
+    let wobble = [-10, 10, -10, 10, -10, 10, 0]
+    let nights = (1...30).map { day in night(day, onset: (day <= 7 ? 90 : 30) + wobble[day % 7]) }
+    let trends = trends(nights)
+    #expect(measure(trends, .steadiness)?.change?.way == .steady)
+    #expect(measure(trends, .asleepBy)?.change?.way == .toward)
   }
 
   /// Fewer reaches for a locked app, with the pauses beside them as context.
