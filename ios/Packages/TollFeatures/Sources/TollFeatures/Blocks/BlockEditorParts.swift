@@ -98,11 +98,24 @@ struct SwitchRow: View {
   let line: String?
   let locked: Bool
 
+  @Environment(\.dynamicTypeSize) private var typeSize
+
+  /// At accessibility sizes the switch goes under the words, as `CardRow` puts it, rather than
+  /// squeezing "Can be turned off after 5:00 pm" to a word a line (#178). The switch keeps the
+  /// words as its label, so VoiceOver reads one row either way.
   var body: some View {
-    Toggle(isOn: $isOn) {
-      HStack(spacing: TollSpacing.rowGap) {
-        IconTile(.off, accent: isOn)
-        RowText(title: Copy.Blocks.on, detail: line)
+    let words = HStack(spacing: TollSpacing.rowGap) {
+      IconTile(.off, accent: isOn)
+      RowText(title: Copy.Blocks.on, detail: line)
+    }
+    Group {
+      if typeSize.isAccessibilitySize {
+        VStack(alignment: .leading, spacing: 8) {
+          words.accessibilityHidden(true)
+          Toggle(isOn: $isOn) { words }.labelsHidden()
+        }
+      } else {
+        Toggle(isOn: $isOn) { words }
       }
     }
     .tint(TollColor.accent)
