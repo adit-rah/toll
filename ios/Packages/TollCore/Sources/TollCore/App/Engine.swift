@@ -35,6 +35,11 @@ public enum Engine {
       state.setupFinishedAt = now
     case .saveBlock(let block):
       if let error = validate(block, in: state, config: config) { return error }
+      if let error = BlockSwitch.save(
+        block, over: state.block(block.id), in: &state, now: now, calendar: calendar)
+      {
+        return error
+      }
       if state.runtime.active[block.id] != nil {
         state.pending[block.id] = .save(block)
       } else {
