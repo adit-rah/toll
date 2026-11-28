@@ -161,15 +161,13 @@ struct HomeHero: View {
     }
   }
 
-  /// The line's glyph. Where the night runs: home or anywhere before it starts; while locked, only
-  /// home, since the line then says "You're home"; away, the home it waits for ("Apps lock when
-  /// you're home", #74). While paused, the lock that comes back ("Then locked until 7:00 am").
+  /// Where the night runs, before the line: home or anywhere before it starts; while locked, only
+  /// home, since the line then says "You're home". Away and paused keep their lines bare, so the
+  /// words stay where they were (D105).
   private var placeSymbol: TollSymbol? {
     switch hero {
     case .tonight: place.map { $0 == .home ? .home : .anywhere }
     case .blocked: place == .home ? .home : nil
-    case .away: .home
-    case .paused: .blocked
     default: nil
     }
   }
