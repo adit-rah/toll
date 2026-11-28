@@ -62,7 +62,7 @@ public struct DuskStore: StatePort {
       let value = body(&state, access)
       if access == .saved {
         state.schema = DuskState.schema
-        state.minReader = DuskState.minReader
+        state.minReader = state.reader
         state.writtenBy = build
         if (try? Self.encoder.encode(state)).map(writer.replace(with:)) != true {
           access = .readOnly
@@ -136,7 +136,7 @@ public struct DuskStore: StatePort {
     else { return Reading(state: DuskState(), schema: nil) }
     var current = state
     current.schema = DuskState.schema
-    current.minReader = DuskState.minReader
+    current.minReader = current.reader
     return Reading(
       state: current, schema: schema, writable: minReader <= DuskState.schema, lost: lost)
   }

@@ -39,11 +39,27 @@ public struct HeadsUp: Hashable, Sendable {
     if case .save(let draft) = state.pending[sleep.id] { sleep = draft }
     guard sleep.isOn else { return [] }
     // Every night after now uses the gap as it will be: a change held through tonight counts.
-    return nights(
+    let plan = nights(
       sleep.schedule.locking(before: state.gap.upcoming, after: state.after.upcoming),
       trial: state.trial, screenTime: screenTime,
       now: now, after: tonightEnds,
       calendar: calendar, config: config)
+    // Personal timing's start runs to the end of its week (D99); the nights after use the plan.
+    guard let hold = state.timing.inForce, let week = Timing.week(hold.start),
+      Timing.allowed(before: state.gap.upcoming, config: config).contains(hold.offset)
+    else { return plan }
+    let held = nights(
+      sleep.schedule.locking(
+        before: max(0, state.gap.upcoming - hold.offset), after: state.after.upcoming),
+      trial: state.trial, screenTime: screenTime, now: now, after: tonightEnds,
+      calendar: calendar, config: config)
+    func inHold(_ headsUp: HeadsUp) -> Bool {
+      Timing.week(NightRecordLine.key(nightKey(headsUp.start, calendar), calendar: calendar))
+        == week
+    }
+    return Array(
+      (held.filter(inHold) + plan.filter { !inHold($0) }).sorted { $0.at < $1.at }
+        .prefix(config.headsUp.nightsAhead))
   }
 
   /// The rule: the next `nightsAhead` nights of `schedule` that start after `after` (or now), each

@@ -119,6 +119,8 @@ public final class AppModel {
       await self?.show(history: past)
       // Health's sleep for the nights just recorded, once a watch has synced it (#144).
       await self?.correctNightsFromHealth()
+      // Then personal timing's start, from a model that has seen those nights (D99).
+      await self?.chooseStart()
     }
   }
 

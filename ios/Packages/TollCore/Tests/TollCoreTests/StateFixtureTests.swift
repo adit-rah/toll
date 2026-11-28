@@ -11,10 +11,10 @@ struct StateFixtureTests {
   static let past = [
     "v1", "v2-01-blocks", "v2-02-door-app", "v2-03-screen-time", "v2-04-only-at-place",
     "v2-05-pause", "v2-06-cards", "v2-07-heads-up", "v2-08-gap", "v2-09-helpers",
-    "v2-10-last-night", "v3",
+    "v2-10-last-night", "v3", "v4",
   ]
   /// The current format; a new schema adds its own and moves this one into `past`.
-  static let newest = "v4"
+  static let newest = "v5"
   /// A past shape under a newer label: a build from before #140 writes back the `schema` it read,
   /// so after a downgrade its own shape says 3. It has no `minReader`.
   static let relabelled = [
@@ -66,7 +66,7 @@ struct StateFixtureTests {
       #expect(state.gap.mode == .grows)
       #expect(!state.gap.offered)
     }
-    if name == Self.newest {
+    if name >= "v4" {
       // Fitted to sleep (#144): the buffer after, both targets, and Health.
       #expect(state.gap.target == 75)
       #expect(state.after == Self.full().after)
@@ -82,6 +82,14 @@ struct StateFixtureTests {
     }
     if name >= "v2-09" { #expect(state.helpers.breathMinutes == 5) }
     if name >= "v2-10" { #expect(state.lastNightSeen == date(2026, 11, 16, 0)) }
+    if name == Self.newest {
+      // Personal timing (#155): chosen, the week's start in force, the generator kept.
+      #expect(state.timing == Self.full().timing)
+      #expect(state.minReader == 5)
+    } else {
+      #expect(state.timing == Timing())
+      #expect(state.minReader == DuskState.minReader)
+    }
     let again = try DuskStore.encoder.encode(state)
     #expect(DuskStore.decode(again) == state)
   }
@@ -124,7 +132,7 @@ struct StateFixtureTests {
     return []
   }
 
-  /// A state with every field set, as `v4.json` holds it.
+  /// A state with every field set, as `v5.json` holds it.
   static func full() -> DuskState {
     var state = setUp()
     state.places.append(libraryPlace)
@@ -147,7 +155,7 @@ struct StateFixtureTests {
     state.doorAskedAt = date(2026, 11, 17, 23)
     state.runtime.scheduledDoor = date(2026, 11, 17, 23, 1)
     state.dismissedCards = ["home"]
-    state.gap = .newInstall()
+    state.gap = .growing(from: 15, to: 60)
     state.gap.history = [.init(night: date(2026, 11, 17, 0), minutes: 15)]
     state.gap.pending = .grows(30)
     state.gap.change = Gap.Change(week: date(2026, 11, 16, 0), from: 15, to: 30)
@@ -167,6 +175,14 @@ struct StateFixtureTests {
     state.recoveredAt = date(2026, 11, 17, 9)
     state.flows["example"] = FlowRecord(
       version: 1, outcome: .notNow, at: date(2026, 11, 17, 10), notNow: 1)
+    state.timing.on = true
+    state.timing.history = [
+      Timing.Entry(
+        night: date(2026, 11, 16, 0),
+        hold: Timing.Hold(start: "2026-11-16", offset: -30, prob: 0.4, settled: false)),
+      Timing.Entry(night: date(2026, 11, 23, 0), hold: nil),
+    ]
+    state.timing.generator = "18446744073709551557"
     state.writtenBy = "0.9.0 (42)"
     return state
   }
