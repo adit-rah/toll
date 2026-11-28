@@ -70,6 +70,8 @@ struct LiveHome: View {
   @State private var helpersUp = false
   /// One-time flow #1, "Fit Dusk to your sleep", from its card (#144).
   @State private var fitting = false
+  /// One-time flow #2, personal timing, from its card (#171).
+  @State private var offeringTiming = false
 
   var body: some View {
     DuskTabs(
@@ -115,7 +117,9 @@ struct LiveHome: View {
           putAwayLastNight: { model.putAwayLastNight($0) },
           // Pushed on Tonight, so Back returns to the strip it came from (D75).
           openBlock: { path.append(.block($0)) },
-          openFlow: { fitting = true },
+          openFlow: {
+            if dueFlow(Date()) == Flows.timing.id { offeringTiming = true } else { fitting = true }
+          },
           notNowFlow: { if let id = dueFlow(Date()) { model.flow(id, .notNow) } },
           flowShown: { if let id = dueFlow(Date()) { model.flow(id, .shown) } },
           headsUpSeen: { model.headsUpTurnedOn = false },
@@ -123,6 +127,9 @@ struct LiveHome: View {
         )
         .sheet(isPresented: $settingHome) { SetHomeFlow(app: model) { settingHome = false } }
         .sheet(isPresented: $fitting) { FitFlowSheet(app: model) { fitting = false } }
+        .sheet(isPresented: $offeringTiming) {
+          TimingOfferSheet(app: model) { offeringTiming = false }
+        }
         .sheet(isPresented: $helpersUp) { HelpersSheet(model: model) { helpersUp = false } }
       }
     }

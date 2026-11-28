@@ -118,7 +118,7 @@ struct HomeView: View {
     VStack(spacing: 0) {
       // Tonight's state all day; last night is a card to review, never the hero (founder, 25 Nov).
       HomeHero(
-        hero: home.hero, eyebrow: home.eyebrow, beforeBed: home.beforeBed,
+        hero: home.hero, eyebrow: home.eyebrow, beforeBed: home.beforeBed, held: home.heldStart,
         place: home.heroPlace, supply: home.supply,
         openDoor: (home.unlocksLeft ?? 0) > 0 ? openDoor : nil, lockAgain: lockAgain,
         setNight: home.setNight.map { night -> () -> Void in { openBlock(night) } },

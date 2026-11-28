@@ -21,9 +21,9 @@ struct FlowTests {
     Flows.due(state, now: now, calendar: london, registry: [sample])?.id
   }
 
-  @Test func theRegistryHoldsFitSleepAlone() {
-    #expect(Flows.registry.map(\.id) == ["fit-sleep"])
-    // Set up after #144: nothing to ask.
+  @Test func theRegistryHoldsFitSleepThenPersonalTiming() {
+    #expect(Flows.registry.map(\.id) == ["fit-sleep", "personal-timing"])
+    // Set up after #144, without Health: nothing to ask.
     #expect(Flows.due(state, now: date(2026, 11, 17, 15), calendar: london) == nil)
   }
 

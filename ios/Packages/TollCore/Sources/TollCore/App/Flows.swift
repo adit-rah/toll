@@ -9,16 +9,22 @@ public struct OneTimeFlow: Sendable, Identifiable {
   public var version: Int
   /// Whether this person needs it, from the state alone: set up before a build, no answer yet.
   public var applies: @Sendable (DuskState) -> Bool
+  /// Whether it's time yet, for a flow that waits on the person's nights (the first week, D65).
+  public var ready: @Sendable (DuskState, Date, Calendar, TollConfig) -> Bool
   /// What the state becomes if it's put off for good, chosen so nothing changes for the person.
   public var defaults: @Sendable (DuskState) -> [Command]
 
   public init(
     id: String, version: Int, applies: @escaping @Sendable (DuskState) -> Bool,
+    ready: @escaping @Sendable (DuskState, Date, Calendar, TollConfig) -> Bool = { _, _, _, _ in
+      true
+    },
     defaults: @escaping @Sendable (DuskState) -> [Command]
   ) {
     self.id = id
     self.version = version
     self.applies = applies
+    self.ready = ready
     self.defaults = defaults
   }
 }
@@ -52,7 +58,7 @@ public struct FlowRecord: Codable, Hashable, Sendable {
 
 public enum Flows {
   /// Every flow this build can ask, in the order they'd show.
-  public static let registry: [OneTimeFlow] = [fitSleep]
+  public static let registry: [OneTimeFlow] = [fitSleep, timing]
 
   /// #1, "Fit Dusk to your sleep" (#144): people set up before the buffers around sleep are asked
   /// for their sleep and both buffers once. Their night is as it was until they answer; put off
@@ -76,7 +82,7 @@ public enum Flows {
     }
     guard calm(state, now: now, calendar: calendar, config: config) else { return nil }
     return registry.first { flow in
-      guard flow.applies(state) else { return false }
+      guard flow.applies(state), flow.ready(state, now, calendar, config) else { return false }
       guard let record = state.flows[flow.id], record.version >= flow.version else { return true }
       return !record.done
     }

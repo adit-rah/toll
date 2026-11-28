@@ -76,7 +76,8 @@ struct FitFlowTests {
     #expect(apply(.flow(id: "fit-sleep", version: 1, .answered), &state, now) == nil)
     #expect(state.lockSleep?.schedule.windows == [TimeWindow(start: time(23, 5), end: time(7, 20))])
     #expect(!state.after.offered)
-    #expect(Flows.due(state, now: date(2026, 11, 28, 15), calendar: london) == nil)
+    // With Health chosen and weeks of nights behind them, personal timing is the next to ask (#171).
+    #expect(Flows.due(state, now: date(2026, 11, 28, 15), calendar: london)?.id == Flows.timing.id)
   }
 
   @Test func putOffForGoodItLeavesTheNightAsItWas() throws {

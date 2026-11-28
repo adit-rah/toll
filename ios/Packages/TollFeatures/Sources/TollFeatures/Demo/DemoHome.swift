@@ -58,6 +58,7 @@
           PurchaseSheet(model: app, home: home, outcome: .nothingToRestore)
         case .purchaseDone: PurchaseSheet(model: app, home: home, outcome: .purchased)
         case .settingsHowItWorks: HowItWorks(config: app.config)
+        case .timingSheet: TimingOfferSheet(app: app) {}
         case _ where scenario.setHomePath != nil:
           DemoSetHome(app: app, path: scenario.setHomePath ?? [])
         case _ where scenario.fitSheetPath != nil:

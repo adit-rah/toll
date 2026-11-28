@@ -16,4 +16,18 @@ extension AppModel {
     guard let command else { return }
     send(.foreground, [command])
   }
+
+  /// The offer's answer (#171): on, or the person's own time kept. Either answers it for good.
+  func answerTiming(_ on: Bool) {
+    flow(Flows.timing.id, .answered, commands: on ? [.timing(true)] : [])
+    if on { Task { await chooseStart() } }
+  }
+
+  /// Settings › Sleep's switch, applied on Save (D65: it can be turned off at any time). Off, the
+  /// next night is back at the person's own time; on, this week's start is drawn now.
+  func setTiming(_ on: Bool) {
+    guard on != state.timing.on else { return }
+    send(.edit, [.timing(on)])
+    if on { Task { await chooseStart() } }
+  }
 }
