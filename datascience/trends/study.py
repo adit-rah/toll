@@ -29,7 +29,7 @@ from pathlib import Path
 import numpy as np
 
 from . import noise
-from .rule import STEADY, Rule, distances, looks, median
+from .rule import STEADY, Rule, distances, looks
 
 WEEKS = (12, 26)
 SHIFT_FROM = {"early": 7, "week6": 35}
@@ -115,7 +115,7 @@ def judge(job: tuple) -> dict:
         ever = {w: 0 for w in WEEKS}
         right = {w: 0 for w in (4, 8, 12, 26)}
         wrong = over = flips = shown = judged = 0
-        today_ever = today_days = today_false_days = 0
+        today_ever = today_days = today_false_days = today_flips = 0
         for p in range(people):
             start = int(starts[p])
             s = series_of(values[p], start)
@@ -132,7 +132,7 @@ def judge(job: tuple) -> dict:
                         first_right = week
                     if week <= 12 and not math.isnan(truth):
                         was_wrong |= truth * look.d <= 0
-                        was_over |= truth * look.d > 0 and abs(truth) < floor / 2
+                        was_over |= not steady and truth * look.d > 0 and abs(truth) < floor / 2
                 if week <= 12:
                     judged += 1
                     shown += look.way != STEADY
@@ -150,6 +150,7 @@ def judge(job: tuple) -> dict:
                 today_days += len(days)
                 today_false_days += false_days
                 today_ever += false_days > 0
+                today_flips += sum(1 for a, b in zip(days, days[1:]) if a[1] != b[1])
         cell = {
             **{f"ever_claim_by_{w}": ever[w] / people for w in WEEKS},
             **{f"right_by_{w}": right[w] / people for w in right},
@@ -161,18 +162,20 @@ def judge(job: tuple) -> dict:
         if with_today:
             cell["today_ever_by_12"] = today_ever / people
             cell["today_share_of_days"] = today_false_days / max(1, today_days)
+            cell["today_flips_per_person_12"] = today_flips / people
         out["steady" if steady else "level"] = cell
     return out
 
 
 def latent(level: np.ndarray, start: int, monday: int, rule: Rule, steady: bool, scenario: str) -> float:
     """How far the truth moved between the first nights and the judged nights: a level's minutes; for
-    How steady, −1 once the judged nights are all steadier, 0 when nothing changed, NaN when the level
-    wanders (its spread over two weeks then moves too, and there is no plain truth to hold it to)."""
+    How steady, −1 once the judged nights are all steadier, 0 while none are, NaN for a window across
+    the change or when the level wanders (its spread over two weeks then moves too, and there is no
+    plain truth to hold it to)."""
     i = monday - start
     if steady:
         if scenario == "steadier":
-            return -1.0 if i - rule.steady >= 14 else 0.0
+            return -1.0 if i - rule.steady >= 14 else 0.0 if i <= 14 else float("nan")
         return float("nan") if scenario == "wander" else 0.0
     first = level[: rule.baseline]
     week = level[max(0, i - 7) : i]
