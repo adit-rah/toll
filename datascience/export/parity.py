@@ -23,6 +23,8 @@ def pairs(py: dict, sw: dict):
             yield "precision", x, y
         for x, y in zip(a["state"]["b"], b["state"]["b"]):
             yield "b", x, y
+        for key in ("scale_sum", "scale_cross", "scale_nights", "week_sum", "week_nights", "last_week_sum"):
+            yield "scale", a["state"][key], b["state"][key]
         for p, q in zip(a["predictions"], b["predictions"]):
             yield "mean", p["mean"], q["mean"]
             yield "sd", p["sd"], q["sd"]

@@ -44,6 +44,13 @@ struct ParityTests {
       .map { try JSONDecoder().decode(Case.self, from: $0) }
   }
 
+  /// Every number in a state, the noise scale's sums included (#154).
+  static func numbers(_ s: PersonState) -> [Double] {
+    s.precision + s.b + [
+      s.scaleSum, s.scaleCross, s.scaleNights, s.weekSum, s.weekNights, s.lastWeekSum,
+    ]
+  }
+
   static func close(_ a: Double, _ b: Double) -> Bool {
     abs(a - b) <= 1e-9 * max(1, abs(b))
   }
@@ -79,7 +86,8 @@ struct ParityTests {
       #expect(got.rngState == want.rngState, "\(at) generator")
       #expect(got.state.nights == want.state.nights, "\(at) nights")
       #expect(got.state.shown == want.state.shown, "\(at) shown")
-      for (g, w) in zip(got.state.precision + got.state.b, want.state.precision + want.state.b) {
+      #expect(got.state.week == want.state.week, "\(at) week")
+      for (g, w) in zip(Self.numbers(got.state), Self.numbers(want.state)) {
         #expect(Self.close(g, w), "\(at) state \(g) vs \(w)")
       }
       for (g, w) in zip(got.predictions, want.predictions) {
