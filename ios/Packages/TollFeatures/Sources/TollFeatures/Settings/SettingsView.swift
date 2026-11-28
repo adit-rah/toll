@@ -66,9 +66,7 @@ struct SettingsView: View {
         }
         SettingsSection(Copy.Settings.app) {
           Card {
-            SettingsRow(Copy.Settings.appearance, symbol: .appearance) {
-              AppearancePicker(selection: $appearance)
-            }
+            AppearanceRow(selection: $appearance)
             freeNights
             // An action, not a place: no chevron. Gone once bought, except to say it worked.
             if !model.state.trial.purchased || restored {

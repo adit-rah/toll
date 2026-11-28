@@ -107,6 +107,37 @@ struct FreeNightsRow<Trailing: View>: View {
   }
 }
 
+/// Appearance with its tile (#168): the picker beside the title while both fit on one line, else
+/// under it, so the title never breaks mid-word.
+struct AppearanceRow: View {
+  @Binding var selection: Appearance
+
+  var body: some View {
+    HStack(spacing: TollSpacing.rowGap) {
+      IconTile(.appearance, accent: false)
+      ViewThatFits(in: .horizontal) {
+        HStack(spacing: 8) {
+          title.fixedSize()
+          Spacer(minLength: 0)
+          AppearancePicker(selection: $selection)
+        }
+        VStack(alignment: .leading, spacing: 8) {
+          title
+          AppearancePicker(selection: $selection)
+        }
+      }
+    }
+    .padding(.vertical, 8)
+    .frame(minHeight: 60)
+  }
+
+  private var title: some View {
+    Text(Copy.Settings.appearance)
+      .tollType(.rowTitle, TollColor.label)
+      .fixedSize(horizontal: false, vertical: true)
+  }
+}
+
 /// Dark · Light · Match iPhone as the board draws it: 13 pt segments in a 32 pt track, the chosen
 /// one raised. Apple's segmented control is too wide to sit beside the row's title.
 struct AppearancePicker: View {
