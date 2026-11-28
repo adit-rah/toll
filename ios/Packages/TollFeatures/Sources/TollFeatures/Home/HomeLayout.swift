@@ -9,8 +9,10 @@ struct HomeRoleKey: LayoutValueKey {
   static let defaultValue = HomeRole.hero
 }
 
-/// A note that grows up from its row (last night's card) keeps to the strip: when it no longer
-/// fits above the strip it goes under the state, never under the bar.
+/// A note that grows up from its row (last night's card) keeps to the strip: it is offered only the
+/// room between the state and the strip, and scrolls its details inside it (#162), so opening it
+/// never moves the band or the strip. Only when even its folded row can't fit there does it go
+/// under the state, never under the bar.
 struct HomeNoteKeepsToStripKey: LayoutValueKey {
   static let defaultValue = false
 }
@@ -85,10 +87,20 @@ struct HomeLayout: Layout {
         result.bands.append(nil)
         continue
       }
+      let keepsToStrip = subviews[index][HomeNoteKeepsToStripKey.self]
+      let room = baseStripY - Gap.toStrip - heroBottom - Gap.toHero
+      if keepsToStrip, room > 0 {
+        let capped = subviews[index].sizeThatFits(ProposedViewSize(width: width, height: room))
+        if capped.height <= room {
+          result.heights[index] = capped.height
+          result.bands.append(.bottom)
+          continue
+        }
+      }
       let note = result.heights[index]
       let band = Self.band(
         note: note, barBottom: bar, heroTop: heroY, heroBottom: heroBottom, stripTop: baseStripY,
-        underBar: !subviews[index][HomeNoteKeepsToStripKey.self])
+        underBar: !keepsToStrip)
       result.bands.append(band)
       if band == .flow {
         stripY = max(stripY, heroBottom + Gap.toHero + note + Gap.belowHero)
@@ -101,7 +113,7 @@ struct HomeLayout: Layout {
         case (.bar, _): 0
         case (.hero, _): heroY
         case (.strip, _): stripY
-        case (.note, .bottom?): baseStripY - Gap.toStrip - heights[index]
+        case (.note, .bottom?): baseStripY - Gap.toStrip - result.heights[index]
         case (.note, .top?): bar + Gap.underBar
         case (.note, _): heroBottom + Gap.toHero
         }
