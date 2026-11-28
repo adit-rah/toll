@@ -124,7 +124,7 @@ struct HomeWeekTests {
   }
 
   /// With Screen Time off nothing blocked, whatever the engine thought: the night is named, not a
-  /// blocked night and not a miss, and it still counts toward the free week (#60).
+  /// blocked night and not a miss, and it still counts toward the free nights (#60).
   @Test func screenTimeOffNightsAreLoggedAsSuch() {
     var log = nights([11, 12, 13, 15, 16])
     var noAccess = line(date(2026, 11, 14, 22, 30), .windowStart, active: [sleep])

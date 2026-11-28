@@ -106,8 +106,8 @@ struct TrialTests {
     log.append(line(date(2026, 11, 5, 23, 3), .doorLocked))
     // After the trial, nothing counts.
     log.append(line(date(2026, 11, 16, 23), .blockScreen))
-    let day15 = FreeWeek(state: s, log: log, now: date(2026, 11, 15, 15), calendar: london)
-    let day27 = FreeWeek(state: s, log: log, now: date(2026, 11, 27, 15), calendar: london)
+    let day15 = FreeNights(state: s, log: log, now: date(2026, 11, 15, 15), calendar: london)
+    let day27 = FreeNights(state: s, log: log, now: date(2026, 11, 27, 15), calendar: london)
     #expect(day15 == day27)
     #expect(day15?.bars.count == 14)
     #expect(day15?.nightsBlocked == 13)
@@ -116,7 +116,7 @@ struct TrialTests {
     #expect(day15?.unlocksUsed == 1)
   }
 
-  /// A reinstall after the free week isn't promised another (#46, P-4).
+  /// A reinstall after the free nights isn't promised another (#46, P-4).
   @Test func setupOffersWhatThisPhoneHasLeft() {
     let sleep = WeeklySchedule.everyDay(usual)
     let now = date(2026, 11, 20, 15)

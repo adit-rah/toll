@@ -4,7 +4,7 @@
 
 **Implements:** P-1 to P-4, D7 (the deal stated in full), D23 (entitlement worked out at every wake), D33 (selling only when nothing blocks), D34 (the price), D50 (setup promises only what's left), D74 (Off, not "Paused"), D78 and D82 (14 nights, both Keychain copies, earliest wins), D84 (the sheet hides zeros; "Purchase restored."), D87 (outcomes keep the offer's height).
 
-**Code:** `TollCore/Domain/Trial.swift`, `TrialStart.swift`; `Engine.reconcile` (`Trial.isEntitled`); `HomeSnapshot.pill`, `FreeWeek`; `TollData/Purchase/Purchase.swift` (`Purchase`, `TrialClock`), `Keychain/Keychain.swift`; `TollFeatures/Purchase/PurchaseSheet.swift`; `AppModel.start`, `foreground`, `buy`, `restore`, `setPurchased`; `Settings/SettingsView.swift` (Free nights, Restore).
+**Code:** `TollCore/Domain/Trial.swift`, `TrialStart.swift`; `Engine.reconcile` (`Trial.isEntitled`); `HomeSnapshot.pill`, `FreeNights`; `TollData/Purchase/Purchase.swift` (`Purchase`, `TrialClock`), `Keychain/Keychain.swift`; `TollFeatures/Purchase/PurchaseSheet.swift`; `AppModel.start`, `foreground`, `buy`, `restore`, `setPurchased`; `Settings/SettingsView.swift` (Free nights, Restore).
 
 ## The free nights and their end
 
