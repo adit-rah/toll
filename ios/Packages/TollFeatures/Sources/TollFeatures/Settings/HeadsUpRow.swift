@@ -10,7 +10,7 @@ struct HeadsUpRow: View {
   var body: some View {
     if model.notifications == .denied {
       Button(action: openSystemSettings) {
-        SettingsRow(Copy.HeadsUp.row, detail: Copy.HeadsUp.rowDenied) {
+        SettingsRow(Copy.HeadsUp.row, detail: Copy.HeadsUp.rowDenied, symbol: .headsUp) {
           HStack(spacing: 6) {
             Text(Copy.HeadsUp.openSettings)
             Image(symbol: .openSettings).unredacted()
@@ -23,13 +23,16 @@ struct HeadsUpRow: View {
       .buttonStyle(.plain)
     } else {
       Toggle(isOn: on) {
-        RowText(
-          title: Copy.HeadsUp.row,
-          detail: Copy.HeadsUp.rowDetail(minutes: model.config.headsUp.leadMinutes))
+        HStack(spacing: TollSpacing.rowGap) {
+          IconTile(.headsUp, accent: false)
+          RowText(
+            title: Copy.HeadsUp.row,
+            detail: Copy.HeadsUp.rowDetail(minutes: model.config.headsUp.leadMinutes))
+        }
       }
       .tint(TollColor.accent)
       .padding(.vertical, 8)
-      .frame(minHeight: 54)
+      .frame(minHeight: 60)
     }
   }
 

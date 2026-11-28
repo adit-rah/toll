@@ -10,7 +10,9 @@ struct SleepRow: View {
 
   var body: some View {
     NavigationLink(value: HomeRoute.sleep) {
-      SettingsRow(Copy.Fit.row, detail: BeforeBed.sleepRow(model.state)) { Chevron() }
+      SettingsRow(Copy.Fit.row, detail: BeforeBed.sleepRow(model.state), symbol: .sleep) {
+        Chevron()
+      }
     }
     .buttonStyle(.plain)
   }

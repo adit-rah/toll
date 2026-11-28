@@ -25,14 +25,22 @@ struct LastNightCard: View {
 /// the seven nights.
 struct LastNightDetails: View {
   let night: Morning
+  @Environment(\.askHealth) private var askHealth
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       VStack(alignment: .leading, spacing: 0) {
-        Text(night.headline)
+        // Health's sleep leads when there is some (#88); the lock is then the line under the bar.
+        Text(night.asleep?.line ?? night.headline)
           .tollType(.rowTitle, TollColor.label)
           .fixedSize(horizontal: false, vertical: true)
         NightBar(morning: night).padding(.top, 10)
+        if night.asleep != nil {
+          Text(night.headline)
+            .tollType(.detail, TollColor.label2)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 8)
+        }
         if let open = night.openLine {
           Text(open)
             .tollType(.detail, TollColor.label2)
@@ -41,11 +49,19 @@ struct LastNightDetails: View {
         }
       }
       .accessibilityElement(children: .ignore)
-      .accessibilityLabel(night.spoken)
+      .accessibilityLabel(
+        [night.asleep?.spoken, night.spoken].compactMap { $0 }.joined(separator: ". "))
+      // Once, the morning after the first night, for someone who skipped Health (#86).
+      if night.asksHealth, let askHealth {
+        HealthLink(title: Copy.Morning.seeHowYouSlept, action: askHealth).padding(.top, 6)
+      }
+      if night.healthEmpty {
+        Footnote(Copy.Morning.healthEmpty, symbol: .health).padding(.top, 10)
+      }
       if let putDown = night.putDown {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
           Image(symbol: .phoneDown).unredacted()
-            .font(.system(size: 13, weight: .medium))
+            .tollGlyph(13, weight: .medium)
             .foregroundStyle(TollColor.label2)
             .accessibilityHidden(true)
           Text(putDown)
@@ -111,6 +127,21 @@ private struct NightBar: View {
       .frame(height: 10)
       // The buffers around sleep striped (#144): three parts by texture, not colour.
       .overlay { BufferStripes(sleep: morning.sleep) }
+      // Health's sleep as a thin line under the lock, at its own place in the night (#88).
+      .overlay(alignment: .bottomLeading) {
+        if let asleep = morning.asleep {
+          GeometryReader { proxy in
+            Capsule()
+              .fill(TollColor.label)
+              .frame(
+                width: max(4, proxy.size.width * (asleep.span.end - asleep.span.start)), height: 3
+              )
+              .offset(x: proxy.size.width * asleep.span.start, y: 14)
+          }
+          .accessibilityHidden(true)
+        }
+      }
+      .padding(.bottom, morning.asleep == nil ? 0 : 7)
       glyph(.sun)
     }
     // Room over the bar for the pause's mark, only when there is one.
@@ -122,7 +153,7 @@ private struct NightBar: View {
 
   private func glyph(_ symbol: TollSymbol) -> some View {
     Image(symbol: symbol).unredacted()
-      .font(.system(size: 12, weight: .semibold))
+      .tollGlyph(12, weight: .semibold)
       .foregroundStyle(TollColor.label2)
   }
 }

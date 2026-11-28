@@ -32,21 +32,26 @@ struct SettingsRow<Trailing: View>: View {
   /// A small trailing glyph (a chevron, the leaves-the-app arrow) stays beside the title at
   /// accessibility sizes instead of sitting alone on a line of its own (the audit).
   let glyph: Bool
+  /// What the row is about, as a tile before it (#79): the wordless test reads a list of rows by
+  /// their tiles, so "Is everything working?" names each thing it checks.
+  let symbol: TollSymbol?
   let trailing: Trailing
 
   init(
     _ title: String, detail: String? = nil, minHeight: CGFloat? = nil, glyph: Bool = false,
-    @ViewBuilder trailing: () -> Trailing
+    symbol: TollSymbol? = nil, @ViewBuilder trailing: () -> Trailing
   ) {
     self.title = title
     self.detail = detail
     self.minHeight = minHeight
     self.glyph = glyph
+    self.symbol = symbol
     self.trailing = trailing()
   }
 
   var body: some View {
-    Group {
+    HStack(spacing: TollSpacing.rowGap) {
+      if let symbol { IconTile(symbol, accent: false) }
       if glyph {
         HStack(spacing: TollSpacing.rowGap) {
           RowText(title: title, detail: detail)
@@ -60,15 +65,17 @@ struct SettingsRow<Trailing: View>: View {
       }
     }
     .padding(.vertical, 8)
-    .frame(minHeight: minHeight ?? (detail == nil ? 46 : 54))
+    .frame(minHeight: minHeight ?? (symbol != nil ? 60 : detail == nil ? 46 : 54))
     .contentShape(Rectangle())
     .accessibilityElement(children: .combine)
   }
 }
 
 extension SettingsRow where Trailing == EmptyView {
-  init(_ title: String, detail: String? = nil, minHeight: CGFloat? = nil) {
-    self.init(title, detail: detail, minHeight: minHeight) { EmptyView() }
+  init(
+    _ title: String, detail: String? = nil, minHeight: CGFloat? = nil, symbol: TollSymbol? = nil
+  ) {
+    self.init(title, detail: detail, minHeight: minHeight, symbol: symbol) { EmptyView() }
   }
 }
 

@@ -86,7 +86,7 @@ public struct HomeSnapshot: Equatable, Sendable {
   /// With no night to show, the night's editor is the way forward (the audit's dead end).
   public var setNight: BlockID?
   /// The free nights' facts, for the purchase sheet.
-  public var freeWeek: FreeWeek?
+  public var freeNights: FreeNights?
   public var otherBlock: OtherBlock?
   /// Under "Apps lock at 10:15 pm": "15 min before bed" (D76). Nil with no gap, or when the hero
   /// isn't the lock to come.
@@ -154,6 +154,8 @@ public struct HomeSnapshot: Equatable, Sendable {
           state: state, log: log, history: history, now: now, calendar: calendar)
         night.landmark =
           NightsRan.sky(ran, state: state, now: now, calendar: calendar, config: config).landmark
+        night.read(
+          history: history, health: state.health, first: ran.count == 1, calendar: calendar)
       }
       if let sleep { day.add(lastNight: night, sleep: sleep.id) }
       facts.lastNight = true
@@ -173,7 +175,7 @@ public struct HomeSnapshot: Equatable, Sendable {
     if case .tonight = hero, state.gap.minutes > 0 {
       beforeBed = Copy.Gap.beforeBed(state.gap.minutes)
     }
-    freeWeek = FreeWeek(state: state, log: log, now: now, calendar: calendar, config: config)
+    freeNights = FreeNights(state: state, log: log, now: now, calendar: calendar, config: config)
     if case .off = hero { supply.refillDay = nil }
     if !screenTimeOff {
       otherBlock = Self.otherBlock(state, hero: hero, unlocksLeft: unlocksLeft, calendar: calendar)
@@ -258,7 +260,7 @@ public struct HomeSnapshot: Equatable, Sendable {
       offersPause: !heroOffersPause && state.door == nil && (unlocksLeft ?? 0) > 0)
   }
 
-  /// The free week's last night ended this morning (the canvas's "ended this morning").
+  /// The free nights' last night ended this morning (the canvas's "ended this morning").
   static func trialEndedToday(
     _ state: DuskState, now: Date, calendar: Calendar, config: TollConfig
   ) -> Bool {

@@ -87,7 +87,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 69 | Weekday-only night, Saturday afternoon | "Apps lock Monday at" | | |
 | 70 | During the night, Pause, wait out the 60 s, swipe the sheet down | Hero "Paused until hh:mm · Then locked until 7:00 am" with Lock again; the sheet closes freely; Lock again locks; after 10 min "Apps locked until" returns with the app closed | | |
 | 71 | Leave home during the night | "Night ends at 7:00 am · Apps lock when you're home"; no pill | | |
-| 72 | In the free week, tap the pill | Purchase sheet; the pill dims on press; VoiceOver reads its hint | | |
+| 72 | In the free nights, tap the pill | Purchase sheet; the pill dims on press; VoiceOver reads its hint | | |
 | 73 | On a weekday, tap the night, Study and Gym on the strip; tap Edit | Each snippet is right; Edit opens that block's editor and Back reads "Tonight" | | |
 | 74 | VoiceOver across the strip | "Now, …", then one element per segment with its snippet and an "Edit …" action | | |
 | 75 | AX5: tap the night | The snippet opens as a sheet and scrolls; the state is above any card | | |
@@ -240,6 +240,19 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 222 | Open Set home with location denied, then allowed | "Open Settings" and "This is home" sit at the same height | | |
 | 223 | Restore on Welcome | The card turns to Purchased and "Set up Dusk" doesn't move | | |
 | 224 | A landmark morning, at the default size and at AX5 | The tile shows last night's moon in its corner, clear of the shape | | |
+| 225 | Edit a block with 5 apps; pick one more in Apple's picker | Three icons show; a newly arrived icon fades in and rises; icons already there don't move | | |
+| 226 | With 4 other blocks, open Blocks and tap the group | Its rows fade in as the card grows; the chevron turns; New block and the limits stay put. With Reduce Motion, a crossfade | | |
+| 227 | Open Blocks while Study is on | The group is already open; a tap folds it to "Study on until 5:00 pm" with a lock | | |
+| 228 | Save an edit to a block that's on | Its row says "Changes apply at …" in amber with a clock until the block ends | | |
+| 229 | With a watch and Health chosen, open Dusk the morning after a night, after the watch has synced | The row reads "Asleep … h … m" matching Health's sleep; the open card's times match Health's first and last asleep | | |
+| 230 | Health chosen, no watch | The row reads "Locked …"; Your sleep shows Phone down by and the others, with "Health has no sleep for these nights…" | | |
+| 231 | Skip Health at setup; the morning after the first locked night, open last night's card | "See how you slept" shows; it opens iOS's Health sheet (sleep only); after Allow, the card leads with sleep if the watch has it, and the link is gone. The next morning there is no link | | |
+| 232 | Tap "See how you slept" and choose Don't Allow | Nothing breaks; Your sleep shows the Health-empty note; turning access on later in Health › Sharing › Apps › Dusk takes effect at the next foreground | | |
+| 233 | VoiceOver on each card under Night by night | One sentence each: the name, the value, what it is, and the change | | |
+| 234 | AX5 on Your sleep | Each card's tile sits above its text; nothing is cut off | | |
+| 235 | Larger Text at the largest accessibility size; open Tonight while locked, while paused, and with Screen Time off | The time and the glyphs beside words grow together; the large mark is about twice its size; nothing truncates and the time doesn't move between states | | |
+| 236 | VoiceOver on Tonight after the free nights end | The state is read as "Not blocking", then "Dusk is off", then the line, as one header | | |
+| 237 | Open a Debug demo launch (`-TollDemo home-evening`) on a phone never asked for location | No location prompt appears | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |

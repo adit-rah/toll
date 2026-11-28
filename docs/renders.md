@@ -48,9 +48,9 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `home-before-bed` · `home-before-bed-card` · `before-bed` · `before-bed-list` · `before-bed-breathe` · `before-bed-words` | The helpers before sleep (D80), at 10:15 pm in a 30-minute gap: Tonight's "Before sleep" capsule, its one card, the sheet's three choices and each page (the tone drawn as playing, with no sound). Settings' switch and the breath's length are on `settings-sleep` |
 | `home-gap-week` · `home-gap-offer` | The gap before bed (D76): Monday evening after the gap grew from 15 to 30 minutes ("Keep 15"), and the one card offering the gap to an install from before it |
 | `purchase` · `settings` · `settings-anywhere` · `settings-heads-up-denied` · `settings-while-using` · `insights` | The purchase sheet, Settings (with home set, and not set; with notifications denied, the heads-up row offers iOS Settings; with location While Using, the Location row does) and Your sleep |
-| `blocks` · `blocks-day` | The Blocks tab (the night, Study and Gym), in the evening and on a weekday at 11 am with Study on |
-| `block-new` · `block-new-gym` | New block: the kinds, then Gym picked with its default hours and no apps yet (the simulator has no app tokens) |
-| `block-edit` · `block-edit-on` · `block-night` | Editing Study, editing it while it's on, and editing the night |
+| `blocks` · `blocks-day` · `blocks-many` · `blocks-many-day` | The Blocks tab (the night, Study and Gym), in the evening and on a weekday at 11 am with Study on; `-many`: four other blocks folded into one row (#110), and at 11 am with Study on, open by itself |
+| `block-new` · `block-new-gym` | New block: the kinds, then Gym picked with its default hours and no apps yet. The simulator has no app tokens, so editors of a block with apps draw its fixture's count and plain stand-in tiles for the icons (#110) |
+| `block-edit` · `block-edit-on` · `block-night` · `block-place` · `block-delete` | Editing Study, editing it while it's on, and editing the night; Study's place picker, and its delete sheet (#141) |
 | `sleep-monday` · `sleep-best` | Your sleep at 8:10 am on the latest Monday ("A new week") and Sunday (a personal best) (#103) |
 | `sleep-sky-5` · `sleep-sky-7` · `sleep-sky-30` · `sleep-sky-100` · `home-morning-landmark` · `sky-share` | Your sky (D79) at 8:10 am after 5, 7, 30 and 100 nights, and Tonight's morning on the 30th, a landmark, its row saying the landmark's line; `sky-share`: the picture a landmark shares |
 | `door-choosing` · `door-waiting` · `door-open` · `door-none` | The pause sheet (D67) over a blocked Tonight |
@@ -60,6 +60,8 @@ Defined in `ios/Packages/TollFeatures/Sources/TollFeatures/Demo/` as each screen
 | `home-held-home` · `home-blocked-anywhere` | The night locked with "Use anywhere" chosen during it, held until it ends (B-3, #129); and locked with home not set (#141) |
 | `sleep-after-trial` | Your sleep after the free nights ended, not bought: the free nights' dots, two rows of seven (#129) |
 | `settings-screen-time-off` · `settings-log` | Settings with Screen Time off for Dusk, and the activity log (#141) |
+| `sleep-health-improving` · `sleep-health-flat` · `sleep-health-noisy` · `sleep-dusk` · `sleep-few` | Your sleep's measures (#88) at 8:10 am, after four weeks of a watch's nights falling asleep earlier, staying about the same, and too noisy to say; the same improving weeks from Dusk's own nights alone (Health not chosen: the stand-ins and "Add your sleep from Apple Health"); and three nights with Health (values, no comparisons). Scroll to them: `sleep-health-improving: gesture scroll-down` |
+| `home-morning-asleep` · `home-morning-asleep-open` · `home-morning-ask-open` | Last night's row and open card led by Health's sleep ("Asleep 11:20 pm – 6:55 am · 7 h 35 m"); and the morning after the first night for someone who skipped Health, open on "See how you slept" (#86) |
 | `sleep-sky-names` | Your sky at 30 nights, 8:10 am, with every name and line brought forward, as a tap on the open sky does. A tap reaches it in any light: `sleep-sky-evening: tap -x 340 -y 270` (open sky at 30 nights) |
 
 A screen behind a tap is a scenario plus AXe steps, one per line of the `scenarios` input (or the `SCENARIOS` variable locally):

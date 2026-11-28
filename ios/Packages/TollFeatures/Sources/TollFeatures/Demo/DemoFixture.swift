@@ -8,9 +8,9 @@
       [
         .homeMorning, .homeMorningOpen, .homeMorningGap, .homeMorningAway, .homeMorningCard,
         .homeStripLastNight,
-        .sleepMonday, .sleepBest,
+        .sleepMonday, .sleepBest, .homeMorningAskOpen,
       ]
-      .contains(self) || Self.bandMornings.contains(self)
+      .contains(self) || Self.bandMornings.contains(self) || sleepStory != nil
         || (skyNights != nil && ![.sleepSkyEvening, .sleepSkyNight].contains(self))
     }
 
@@ -99,6 +99,14 @@
         gym.appCount = 2
         state.blocks.append(gym)
       }
+      if [.blocksMany, .blocksManyDay].contains(scenario) {
+        for (kind, apps) in [(Block.Kind.work, 5), (.other, 1)] {
+          var block = BlockDraft.new(kind)
+          block.id = BlockID(Copy.Blocks.kindName(kind).lowercased())
+          block.appCount = apps
+          state.blocks.append(block)
+        }
+      }
       if scenario.isDay, let end = calendar.date(bySettingHour: 17, minute: 0, second: 0, of: now) {
         state.presence[library.id] = Presence(isInside: true, at: now)
         state.runtime.active[BlockID("study")] = end
@@ -115,7 +123,8 @@
         scenario == .homeAnywhere || scenario.setHomePath != nil
         ? 0
         : firstWeek
-          || [.homeCard, .homeMorningCard, .homeMorningCardOpen, .homeHeadsUp].contains(scenario)
+          || [.homeCard, .homeMorningCard, .homeMorningCardOpen, .homeHeadsUp, .homeMorningAskOpen]
+            .contains(scenario)
           ? 1
           : scenario == .homeLastNight
             ? 13
@@ -124,10 +133,13 @@
               : paused
                 ? (scenario == .sleepAfterTrial ? 15 : 8)
                 : scenario == .sleepBest
-                  ? 6 : scenario.skyNights.map { min($0, 5) } ?? (morning ? 9 : 4)
+                  ? 6
+                  : scenario.skyNights.map { min($0, 5) } ?? scenario.sleepNights.map { min($0, 9) }
+                    ?? (morning ? 9 : 4)
       // A personal best and a long sky need nights before these, which only the night log holds.
       let setupAgo =
-        scenario == .sleepBest ? 27 : scenario.skyNights.map { $0 + 1 } ?? nightsAgo
+        scenario == .sleepBest
+        ? 27 : scenario.skyNights.map { $0 + 1 } ?? scenario.sleepNights ?? nightsAgo
       state.setupFinishedAt =
         setupAgo == 0
         ? now.addingTimeInterval(-3600)
@@ -262,6 +274,7 @@
       }
       polish(scenario)
       log.sort { $0.at < $1.at }
+      addSleep(scenario, now: now)
     }
 
     /// A night the night log kept, `back` nights before `now`: 10:30 pm to 7 am, with a tap or two.

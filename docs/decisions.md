@@ -606,3 +606,37 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
   - "No pauses left" draws the week (rather than dropping it).
 - **Left:** #160, #161, #162.
 
+**D103. Blocks, round two** (2026-11-27, #78, #110, #129, #141; details of D73).
+- **A block's line is facts, each led by its glyph** (`FactLine`): house, pin or globe for where; an hourglass while waiting for Always; the clock for hours, with the days riding on it; the grid for apps; the calendar when weekends differ. VoiceOver's text is unchanged.
+- **Held changes (B-3).** A held change is amber with its clock ("Changes apply at 5:00 pm"); a held delete is `warn` with the trash.
+- **App icons.** The editor's Apps row shows up to three of the apps' own icons. New ones arrive as from the picker (D73's motion); those already there don't move.
+- **Folding.** Past `blocks.foldAbove` (3) other blocks, they fold into one row: "N other blocks" with the kinds' glyphs, or the one on now with its lock. It opens on a tap, and by itself while one is on; a tap isn't kept. The chevron turns half a turn (§2.5).
+- **Lengths.** The hours show their length; the night's says its sleep and the minutes locked before and after it.
+- **Full sets of hours.** New block says what frees one ("Give two blocks the same hours to free one").
+- **Demos** use the fixture's app counts with stand-in tiles.
+- **Assumed, for the founders:** the fold threshold of 3, and no apps-count fact on other blocks' rows.
+
+**D104. Your sleep leads with the person's improvement** (2026-11-27, #85, #86, #87, #88; founder: "sleep is the hero").
+- **The measures** (`SleepTrends`, TollCore): Asleep by, Time asleep, How steady (of falling asleep), and Reaching for your phone (every tap on a locked app after the lock).
+- **Without Health's sleep** on at least 3 of the last 7 nights, Dusk's own stand-ins show instead, named as what they are: Phone down by (the last reach for a locked app), Nights locked, How steady (of the last reach), and Reaching. Under them: "From Dusk's own nights, not measured sleep. A watch adds real sleep times." The stand-in is unvalidated, so it is never called sleep.
+- **The trend rule.** The first 7 nights with a value are compared with the last 7; at least 5 recent nights are needed, all after the first 7. A change is said only past a floor (15 min; 0.5 reaches a night; 2 nights locked) and 2.2 Welch standard errors of the person's own nights. How steady is the average distance from the middle night, first 14 against last 14 (at least 10 recent), floor 10 min. A measure shows from 3 values (7 for How steady); before that nothing is said. In simulation, with no real change and heavy-tailed nights, it claims a change about 4% of the time (1–3% for How steady) and catches a real 30-minute shift about 45% of the time. The thresholds are to be validated against real exports (#165).
+- **Words and shapes.** Facts against the person's own first nights, both ways (founder, 27 Nov: "state it as a fact"): "25 min earlier than your first 7 nights", "40 min later than your first 7 nights". The glyphs are up-right (with `ok`), down-right and equal, never colour alone. Each chart shows 14 nights, the first level dashed and the last week solid.
+- **Layout** (founder: "under the sky"). "Night by night" sits under the sky (D88) and before the week.
+- **Last night's card** leads with Health's sleep when the night's record has the correction ("Asleep 11:20 pm – 6:55 am · 7 h 35 m"; folded, "Asleep 7 h 35 m"), and with the lock otherwise.
+- **The ask (#86).** For someone who skipped Health, the open card offers "See how you slept" once, the morning after the first night that ran. It's worked out from the nights, with nothing stored. Your sleep keeps "Add your sleep from Apple Health" while Health isn't chosen. Health counts as chosen whatever iOS answers, since a refusal reads as no nights.
+- **Not shown yet:** the sleep model's insight beside the measures, which waits for personal timing (#155).
+- **Assumed, for the founders:** without Health, Time asleep becomes Nights locked; the first nights are the first 7 since setup, not Health's history from before Dusk.
+
+**D105. The most important thing on a screen is the first thing seen** (2026-11-28, founder: "what are the most important things on a given screen, are those things highlighted, or is something else dragging the attention away"). A design principle (design.md §1, principle 9) and a check every screen change runs before review (§1.1).
+- **Where it came from.** The wordless pass (#70) put Tonight's state glyph on its own above the eyebrow. It made the states tell apart without words, but the founder felt something was off. The glyph floated detached, it added a tier so the eye landed on the icon before the time, and it pushed the time down.
+- **The rule it settled for state glyphs:** with a time on screen, the glyph stays small and inline beside the eyebrow (as since D75), growing with Dynamic Type. Without a time (off, Screen Time off, no blocks), the glyph stands alone and large in the time's place. This covers evening, locked, away and the pause open.
+- **What it asks of reviews:** name the screen's one or two most important things, check the render shows them first, and demote whatever pulls the eye away, even something useful.
+
+**D106. Every screen passes the wordless test** (2026-11-28, #70, #74, #76, #79, #124; the founder picked per screen, which set D105's glyph rule).
+- **Tonight.** With a time on screen, main's small glyph stays before the eyebrow and the big time keeps its place (founder; checked equal y on every timed state). With no time, the glyph stands alone and large: the 64 pt mark replaces the time when nothing will block (off, Screen Time off), and a 26 pt moon sits over "Your night" when there is none. The read-only note gets its own glyph (`exclamationmark.arrow.triangle.2.circlepath`) and the recovered note the apps grid, instead of borrowing location.slash.
+- **Onboarding.** Welcome draws a moon with a lock above its words (dropped on phones too small for it). Times found in Health carry Health's glyph. Ready's tick is a mark over its eyebrow and its pauses are dots. Set home with location denied says so in a degraded note.
+- **Settings.** "Is everything working?" leads each row with the tile of what it checks; "Turn on" carries the leaves-the-app glyph.
+- **Dynamic Type.** Glyphs beside words grow with the text (`tollGlyph`); a large mark grows up to 2× (1.5× at 64 pt). Glyphs inside fixed geometry (the strip, night dots) and the gear keep their size. The hero's line wraps.
+- **No copy changed.**
+- **Left:** Settings' App and Help cards are still words only; the around sheet's minutes read only as digits; Ready's pinned bar covers much of its content at AX5 (#168).
+

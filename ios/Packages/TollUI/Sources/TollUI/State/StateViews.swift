@@ -29,11 +29,47 @@ public struct StateLine: View {
   public var body: some View {
     HStack(spacing: 6) {
       Image(symbol: symbol).unredacted()
-        .font(.system(size: 13, weight: .semibold))
+        .tollGlyph(13, weight: .semibold, relativeTo: .caption)
         .foregroundStyle(tone.color)
         .accessibilityHidden(true)
       Text(text).tollType(.eyebrow, TollColor.label2)
     }
+  }
+}
+
+/// A state as a shape on its own, centred over its eyebrow (#74): Ready's tick, and Tonight's state
+/// when it shows no time, where the glyph stands alone (64 pt in the time's stead when nothing will
+/// block, design §2.6). No tile behind it: a filled square reads as a button. Hidden from
+/// VoiceOver; the eyebrow and the time say it.
+public struct StateMark: View {
+  let symbol: TollSymbol
+  let tone: StateLine.Tone
+  let large: Bool
+  let spoken: String?
+  /// Grows with the words around it (#124), to twice its size (half again when large): past that
+  /// it would crowd the time.
+  @ScaledMetric(relativeTo: .body) private var scale: CGFloat = 1
+
+  /// `spoken` names the mark to VoiceOver when nothing else on screen says the state.
+  public init(
+    _ symbol: TollSymbol, tone: StateLine.Tone = .neutral, large: Bool = false,
+    spoken: String? = nil
+  ) {
+    self.symbol = symbol
+    self.tone = tone
+    self.large = large
+    self.spoken = spoken
+  }
+
+  public var body: some View {
+    // The 64 pt mark is already the biggest shape on screen; it grows less.
+    let grow = min(scale, large ? 1.5 : 2)
+    Image(symbol: symbol).unredacted()
+      .font(.system(size: (large ? 44 : 26) * grow, weight: large ? .light : .regular))
+      .foregroundStyle(tone.color)
+      .frame(width: (large ? 64 : 40) * grow, height: (large ? 64 : 36) * grow)
+      .accessibilityHidden(spoken == nil)
+      .accessibilityLabel(spoken ?? "")
   }
 }
 
@@ -53,7 +89,7 @@ public struct StatusValue: View {
   public var body: some View {
     HStack(spacing: 4) {
       Image(symbol: symbol).unredacted()
-        .font(.system(size: 12, weight: .semibold))
+        .tollGlyph(12, weight: .semibold)
         .accessibilityHidden(true)
       Text(text)
     }

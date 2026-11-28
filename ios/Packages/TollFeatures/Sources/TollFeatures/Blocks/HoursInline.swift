@@ -10,6 +10,8 @@ struct HoursInline: View {
   let rule: WeeklySchedule.Rule
   /// The night's chips are the days its nights start, and say so.
   var isNight = false
+  /// How long the hours are, under the fields (the audit): "8 h", or the night's sleep and buffers.
+  let length: String
   let set: (WeeklySchedule.Rule) -> Void
   @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -39,6 +41,9 @@ struct HoursInline: View {
           set(next)
         }
       }
+      Text(length)
+        .tollType(.detail, TollColor.label2)
+        .fixedSize(horizontal: false, vertical: true)
       if isNight {
         Text(Copy.Blocks.nightsStarting)
           .tollType(

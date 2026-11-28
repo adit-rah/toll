@@ -205,7 +205,7 @@ struct HeadsUpTests {
     #expect(snapshot(whileUsing, date(2026, 11, 17, 15), notifications: .notAsked).card == nil)
   }
 
-  @Test func noCardOnceTheFreeWeekIsOver() {
+  @Test func noCardOnceTheFreeNightsIsOver() {
     var s = state(purchased: false, finished: date(2026, 11, 1, 21))
     run(&s, date(2026, 11, 17, 15))
     #expect(snapshot(s, date(2026, 11, 17, 15), notifications: .notAsked).card == nil)

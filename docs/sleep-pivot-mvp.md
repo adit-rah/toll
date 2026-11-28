@@ -46,8 +46,8 @@ When the user is at home inside their sleep window, everything on the phone is b
 - D-7. One door at a time. There is no way to end the block for the night.
 
 **Trial and purchase**
-- P-1. The first screen and the store listing state: "Seven nights free. Then $24.99 once, or it switches off. No subscription."
-- P-2. The trial covers the first 7 nights *(config)* after setup, whether or not the user was home.
+- P-1. The first screen and the store listing state the terms: 14 nights free, then $9.99 once, no subscription (amended by D78 and D34; the words are in `Copy`).
+- P-2. The trial covers the first 14 nights *(config)* after setup, whether or not the user was home (amended by D78).
 - P-3. After the trial, without a purchase, the block does not turn on. The status screen shows the week's summary and the purchase.
 - P-4. One non-consumable purchase. Restore is available in Settings and on the purchase screen. Trial start is stored where a reinstall does not reset it.
 - P-5. No price, feature or reminder varies by user. No prompts to buy before the trial ends, other than a quiet "night 5 of 7" line on the status screen.
@@ -82,7 +82,7 @@ Consequences for this product:
 Plain words, facts only, no encouragement. Titles sit at one position on every screen. Light and dark. Visual foundations and motion rules carry over from `toll-design.md` §2.
 
 **Setup (shown once)**
-1. **Welcome.** `[Name]`. "Seven nights free. Then $24.99 once, or it switches off. No subscription." Button: "Start".
+1. **Welcome.** `[Name]`. "14 nights free. Then $9.99 once. No subscription." Button: "Start my 14 free nights" (D78, D34, D97).
 2. **Wake time.** "When do you get up?" A time picker. Beneath: "Your nights: 10:30 pm to 7:00 am" (wake time minus 8 h 30 min *(config)*), editable. Button: "Continue".
 3. **Home.** "Where do you sleep?" A map centred on the current location with the region drawn. Button: "This is home". Precedes the location prompt with one line: "`[Name]` only checks whether you are home. It never records where you go."
 4. **Permissions.** "`[Name]` needs two things": Screen Time, Location. One button, "Allow", runs the system prompts. If denied: the row says so, one line explains, the button becomes "Try again". There is no skip.
@@ -92,7 +92,7 @@ Plain words, facts only, no encouragement. Titles sit at one position on every s
 **Status (the only main screen)**
 - Top: state in one line. "Blocked until 7:00 am" / "Starts at 10:30 pm, if you're home" / "You're away. Nothing is blocked."
 - Beneath: "Unlocks left: 2 of 3". If below the maximum: "One returns after 4 more nights without using any."
-- During the trial: "Night 5 of 7 free."
+- During the trial: "Night 5 of 14 free." (D78)
 - A gear for Settings. Nothing else.
 
 **Block screen (system-rendered)**
@@ -151,7 +151,7 @@ Device protocol, two phones, five nights, read from the transition log: home at 
 7. Trial, purchase, restore, trial-ended screen.
 8. Settings.
 9. Accessibility pass: Dynamic Type, VoiceOver labels, both appearances.
-10. Privacy policy page, store listing text, review notes (personal self-control tool; location used only for home or away; one-time purchase after a stated free week).
+10. Privacy policy page, store listing text, review notes (personal self-control tool; location used only for home or away; one-time purchase after the stated free nights, D78).
 
 One pull request per step. Files small. Comments say why, never what.
 

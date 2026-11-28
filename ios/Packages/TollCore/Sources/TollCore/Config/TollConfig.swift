@@ -42,6 +42,9 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var maxWindows = 8
     /// A block's name fits one line on the block screen's title (#62).
     public var maxNameLength = 24
+    /// More other blocks than this fold into one row on Blocks, so the night still leads with all
+    /// eight (#110; the canvas draws three rows before the list runs long).
+    public var foldAbove = 3
     /// The hours a new block starts with, by kind, so adding one is a kind, the apps and Save (#89).
     /// Study, Work and Other share 9 to 5 on weekdays: blocks with the same hours share one time
     /// window (D40), so the defaults don't use up the eight.
@@ -145,6 +148,38 @@ public struct TollConfig: Codable, Sendable, Equatable {
     public var correctDays = 7
   }
 
+  /// Your sleep's measures and their trends (#87): the person's first nights against their last
+  /// week. Night to night, falling asleep varies by about 30 minutes, so a change is said only when
+  /// it clears both a floor and the person's own noise (a Welch test at `z`); in simulation, with
+  /// heavy-tailed nights of no real change, that claims a change about 4% of the time.
+  public struct Trends: Codable, Sendable, Equatable {
+    public init() {}
+    /// The first nights with a value set where the person started.
+    public var baselineNights = 7
+    /// The nights up to last night that say where they are now.
+    public var recentNights = 7
+    /// A measure shows once the recent nights hold this many values: a person's average time of
+    /// falling asleep is already reliable after three nights.
+    public var minShow = 3
+    /// A change is compared only with this many recent values, apart from the first nights.
+    public var minRecent = 5
+    /// How many standard errors a change must clear.
+    public var z = 2.2
+    /// The smallest change worth saying, for times and minutes asleep.
+    public var floorMinutes = 15.0
+    /// For reaches a night.
+    public var floorReaches = 0.5
+    /// For nights locked out of seven.
+    public var floorNights = 2.0
+    /// How steady a time is takes longer to know (weeks, not days), so it reads two weeks.
+    public var steadyNights = 14
+    public var minSteady = 7
+    public var minSteadyRecent = 10
+    public var floorSteady = 10.0
+    /// Each measure's chart: the last this many nights.
+    public var chartNights = 14
+  }
+
   /// The buffers' targets (`BufferSuggestion`, #145). A new person gets the recommended baseline
   /// (D97): Health can't say how long someone takes to fall asleep. With enough of their own weeks
   /// a side's target is fitted from them, inside the founder's bounds. The numbers are
@@ -241,6 +276,7 @@ public struct TollConfig: Codable, Sendable, Equatable {
   public var gap = Gap()
   public var after = After()
   public var health = Health()
+  public var trends = Trends()
   public var suggestion = Suggestion()
   public var sky = Sky()
   public var helpers = Helpers()
