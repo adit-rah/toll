@@ -17,7 +17,8 @@ Dusk has no server, but it is built like it has one: a domain that knows nothing
       ▲
  Hosts          App, Monitor,     Composition roots: wire adapters into the application layer. One line of logic at most.
                 ShieldAction,
-                ShieldConfig
+                ShieldConfig,
+                Report            Report draws Apple's screen time after bed inside the app; the app never reads it (#65)
 ```
 
 Rules that keep it that way:

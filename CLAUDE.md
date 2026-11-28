@@ -3,7 +3,7 @@
 iPhone app: buy back your sleep. When the user is home inside their sleep window, the apps on their blocklist are blocked; one scarce door lets one app through. Seven nights free, then one purchase. No backend. `docs/sleep-pivot-mvp.md` is the source of truth as amended by `docs/decisions.md` (multiple blocks, D29 onward); `docs/architecture.md` is the layering every change follows; `docs/design.md` carries the visual and motion rules. Decisions, findings and spec conflicts go in `docs/decisions.md`; add yours there. This repo is public, which is deliberate, so anyone can check that nothing leaves the phone. Strategy is not public: the thesis, the evidence and insights ledgers, product and competitor research, and their tickets go in the private repo `adit-rah/docs`, under `dusk/`. Don't put any of them here, in code comments, commits, PRs or issues.
 
 ## Layout
-- `ios/` — Xcode project (`Toll.xcodeproj`) with four targets: `App/`, `ShieldConfig/`, `ShieldAction/`, `Monitor/`. All logic lives in local packages under `ios/Packages/`:
+- `ios/` — Xcode project (`Toll.xcodeproj`) with five targets: `App/`, `ShieldConfig/`, `ShieldAction/`, `Monitor/`, `Report/` (Apple's screen time after bed, drawn inside the app; #65). All logic lives in local packages under `ios/Packages/`:
   - `TollCore` — config, copy, pure logic. Linux-testable. Product `TollScreenTime` = Screen Time glue shared with the extensions.
   - `TollData` — app-only services: Keychain, location, StoreKit. Never imported by extensions.
   - `TollUI` — tokens and components. `TollFeatures` — one folder per screen.
@@ -34,7 +34,7 @@ A build for a phone is a `vX.Y.Z` tag on `main`, and it is made for you: when a 
 
 ## Do not
 - Add files to `project.pbxproj`. Targets use synchronized folders: drop a `.swift` file in the folder and it builds.
-- Import `TollData` or anything large in an extension (the monitor has ~6 MB).
+- Import `TollData` or anything large in an extension, the report included (the monitor has ~6 MB).
 - Write to the App Group from `ShieldConfig` (ignored on device, review risk), use private APIs, or add the App and Website Usage capability.
 - Add networking beyond StoreKit, analytics, crash reporting or any third-party code (spec §9).
 - Store coordinates other than the home point (spec §9).

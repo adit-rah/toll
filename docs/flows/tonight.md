@@ -73,6 +73,7 @@ flowchart TD
   card -->|"OK"| seen[("state.json: lastNightSeen = the night")]
   seen --> strip
   strip -->|"tap"| popover["The same card, open, in a popover<br/>render: home-strip-last-night"]
+  card -.->|"Screen Time on"| afterBed["At the card's foot: Screen time after bed, Last night, from Screen Time,<br/>and Apple's number, drawn by the report extension; Dusk never reads it<br/>render: home-morning-open"]
   card --> landmark{"A landmark?"}
   landmark -->|"yes"| landmarkLine["Inside the card: the completed shape, 30 nights. Orion is in your sky., Share<br/>render: home-morning-landmark-open"]
   landmarkLine -->|"Share"| share{{"iOS share sheet: the sky poster<br/>render: sky-share"}}

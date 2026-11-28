@@ -10,9 +10,10 @@ Everything here needs the Apple Developer account holder. Nothing in the repo ca
 | `com.advan.toll.ShieldConfig` | App ID | Family Controls, App Groups |
 | `com.advan.toll.ShieldAction` | App ID | Family Controls, App Groups |
 | `com.advan.toll.Monitor` | App ID | Family Controls, App Groups |
-| `group.com.advan.toll` | App Group | the four App IDs above |
+| `com.advan.toll.Report` | App ID | Family Controls, App Groups (#65: Apple's screen time after bed, the `TollReport` extension) |
+| `group.com.advan.toll` | App Group | the five App IDs above |
 
-The pivot keeps these ids so their Family Controls (Distribution) approvals carry over. On `com.advan.toll`, Push Notifications, Sign in with Apple and Associated Domains can be switched off; the app no longer asks for them. `com.advan.toll.Report` is no longer built and can be left or removed. Location needs no capability, only the purpose strings in `ios/Config/App-Info.plist`; nor do the breathing tone before sleep (the audio background mode is an Info.plist key), the trial date in iCloud Keychain, or the heads-up (a local notification, so Push Notifications stays off). HealthKit must be ticked on `com.advan.toll` before a build with `com.apple.developer.healthkit` reaches `main`, or Xcode Cloud can't sign it.
+The pivot keeps these ids so their Family Controls (Distribution) approvals carry over. On `com.advan.toll`, Push Notifications, Sign in with Apple and Associated Domains can be switched off; the app no longer asks for them. `com.advan.toll.Report` is built again since #65 (it was Toll's, so its Family Controls (Distribution) approval should carry over): before a build with `TollReport` reaches `main`, check in the developer account that the id still has Family Controls with the Distribution approval, and tick App Groups with `group.com.advan.toll`, or Xcode Cloud can't sign it. Location needs no capability, only the purpose strings in `ios/Config/App-Info.plist`; nor do the breathing tone before sleep (the audio background mode is an Info.plist key), the trial date in iCloud Keychain, or the heads-up (a local notification, so Push Notifications stays off). HealthKit must be ticked on `com.advan.toll` before a build with `com.apple.developer.healthkit` reaches `main`, or Xcode Cloud can't sign it.
 
 If a name must change, change `ios/Config/Base.xcconfig`; nothing else hard-codes it. A new bundle id needs a new Family Controls (Distribution) request (developer.apple.com/contact/request/family-controls-distribution).
 

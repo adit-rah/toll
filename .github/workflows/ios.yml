@@ -23,7 +23,7 @@ jobs:
           sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
           xcodebuild -version
       - name: swift-format
-        run: swift format lint --recursive --parallel ios/Packages ios/App ios/ShieldConfig ios/ShieldAction ios/Monitor
+        run: swift format lint --recursive --parallel ios/Packages ios/App ios/ShieldConfig ios/ShieldAction ios/Monitor ios/Report
       - name: Version not behind the tags
         run: |
           git fetch --tags --quiet origin
@@ -43,6 +43,6 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -skipPackagePluginValidation -skipMacroValidation -disableAutomaticPackageResolution \
             CODE_SIGNING_ALLOWED=NO ARCHS=arm64 COMPILER_INDEX_STORE_ENABLE=NO > build.log 2>&1 && status=0 || status=$?
-          grep -E "(error|warning): " build.log | grep -E "/ios/(App|ShieldConfig|ShieldAction|Monitor|Packages)/" | sort -u | head -200 || true
+          grep -E "(error|warning): " build.log | grep -E "/ios/(App|ShieldConfig|ShieldAction|Monitor|Report|Packages)/" | sort -u | head -200 || true
           tail -5 build.log
           exit $status
