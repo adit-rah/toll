@@ -12,6 +12,15 @@ Carried over from Toll's design doc §2 (MVP spec §7: "Visual foundations and m
 6. **System first.** Apple components, Dynamic Type, semantic colours, standard sheets and bars. No glass in content.
 7. **Both appearances are first-class.** Every token has a light and dark value.
 8. **Facts only, in the UI as in copy.** No celebratory motion, no confetti, no red alarms.
+9. **The most important thing is the first thing seen** (decisions D105). Every screen has one or two things that matter most: on Tonight, the time and what it means. They hold the attention: biggest, highest, nearest the centre, steadiest. Anything else that pulls the eye first (an icon on its own above them, a heavier weight, a brighter colour, motion, a shift in position) is demoted or removed, however useful it is.
+
+### 1.1 The attention check
+
+Run it on every screen a change touches, before review, in the renders (light and wordless):
+1. **Name the screen's one or two most important things.** If you can't, the screen has two jobs.
+2. **Look at the render for a second, then away.** What did the eye land on first? It should be the thing you named.
+3. **Find what drags the eye away,** and demote it: a glyph standing alone, an extra tier above the main thing, a weight or colour that outshouts it, anything that moves the main thing when the state changes.
+4. **The worked rule for state glyphs** (D105): when a screen shows a time, the state's glyph stays small and inline, beside the words that say what the time means; when there is no time, the glyph stands alone and large in its place. The glyph never adds a tier above the time.
 
 ## 2. Foundations
 
