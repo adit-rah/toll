@@ -12,9 +12,13 @@ on:
         required: false
         default: ""
       variants:
-        description: "Any of: light dark ax5 dark-ax5"
+        description: "Any of: light dark ax5 dark-ax5 xxxl wordless dark-wordless"
         required: false
         default: "light"
+      device:
+        description: "A simulator device type, e.g. iPhone SE (3rd generation). Blank: the newest iPhone N."
+        required: false
+        default: ""
   push:
     branches-ignore: ["main", "renders/**"]
     paths: ["ios/**", ".github/workflows/render.yml"]
@@ -44,6 +48,8 @@ jobs:
         run: sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
       # A first boot takes minutes; it runs behind every step up to the screenshots.
       - name: Start booting a simulator
+        env:
+          RENDER_DEVICE: ${{ inputs.device }}
         run: echo "UDID=$(ios/scripts/render-device.sh)" >> "$GITHUB_ENV"
       # Homebrew takes minutes to tap and install; the installed copy is cached and only reinstalled
       # when it will not run.

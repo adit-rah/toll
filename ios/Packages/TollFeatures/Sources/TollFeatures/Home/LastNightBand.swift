@@ -5,7 +5,8 @@ import TollUI
 /// Last night in Tonight's band each morning, folded to one quiet row (founder, 25 Nov; amends D91):
 /// the moon, "Last night", the night's outcome as a glyph and a few words, and a chevron. The whole
 /// row opens the full card, which grows up from it while its bottom edge stays above the strip; the
-/// header folds it again. "OK" lives only in the open card. Nothing is kept: the row is folded each
+/// header folds it again. "OK" lives only in the open card: in its header, or at accessibility sizes
+/// at its end. Nothing is kept: the row is folded each
 /// time Tonight appears.
 struct LastNightBand: View {
   let night: Morning
@@ -15,6 +16,7 @@ struct LastNightBand: View {
   var scrollsInside = false
   let putAway: () -> Void
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.dynamicTypeSize) private var typeSize
   /// Each opening starts at the top of the details, as nothing about the card is kept.
   @State private var scroll = ScrollPosition(edge: .top)
 
@@ -42,9 +44,14 @@ struct LastNightBand: View {
   /// Under the header, which stays put while they scroll, so "OK" and the fold are always in reach.
   /// The scroll view hugs the details when they fit, and nothing bounces.
   @ViewBuilder private var details: some View {
-    let content = LastNightDetails(night: night)
-      .padding(.top, 2)
-      .padding(.bottom, TollSpacing.noteCardVertical)
+    let content = VStack(alignment: .leading, spacing: 0) {
+      LastNightDetails(night: night)
+      // At accessibility sizes "OK" beside "Last night" and the chevron crowded the header
+      // (#162), so it ends the card instead, where the review ends.
+      if typeSize.isAccessibilitySize { ok.padding(.top, 8) }
+    }
+    .padding(.top, 2)
+    .padding(.bottom, TollSpacing.noteCardVertical)
     Group {
       if scrollsInside {
         ScrollView {
@@ -67,7 +74,7 @@ struct LastNightBand: View {
   }
 
   /// The row, and the open card's header: one button that opens or folds, with "OK" over it beside
-  /// the chevron once open. The chevron is one view in both, so it turns with the card instead of
+  /// the chevron once open, below accessibility sizes. The chevron is one view in both, so it turns with the card instead of
   /// being swapped for another.
   private var header: some View {
     Button(action: toggle) {
@@ -85,13 +92,17 @@ struct LastNightBand: View {
     .accessibilityIdentifier("tonight.lastNight")
     // Over the room the row's status leaves; the two are never shown together.
     .overlay(alignment: .trailing) {
-      Button(Copy.Morning.ok, action: putAway)
-        .tollType(.action, TollColor.label2)
-        .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
-        .contentShape(Rectangle())
-        .padding(.trailing, Self.chevronWidth + 8)
-        .shown(open, reduceMotion: reduceMotion)
+      if !typeSize.isAccessibilitySize {
+        ok.padding(.trailing, Self.chevronWidth + 8).shown(open, reduceMotion: reduceMotion)
+      }
     }
+  }
+
+  private var ok: some View {
+    Button(Copy.Morning.ok, action: putAway)
+      .tollType(.action, TollColor.label2)
+      .frame(minWidth: TollSpacing.minTapTarget, minHeight: TollSpacing.minTapTarget)
+      .contentShape(Rectangle())
   }
 
   private static let chevronWidth: CGFloat = 14
