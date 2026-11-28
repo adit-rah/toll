@@ -90,6 +90,28 @@ struct NameRow: View {
   }
 }
 
+/// A block's switch (#161), under its details: the power glyph's tile in amber while on, Apple's
+/// switch, and a line saying when it can change. Inside its hours the switch is off-limits, and
+/// dimmed so it reads as such without the words.
+struct SwitchRow: View {
+  @Binding var isOn: Bool
+  let line: String?
+  let locked: Bool
+
+  var body: some View {
+    Toggle(isOn: $isOn) {
+      HStack(spacing: TollSpacing.rowGap) {
+        IconTile(.off, accent: isOn)
+        RowText(title: Copy.Blocks.on, detail: line)
+      }
+    }
+    .tint(TollColor.accent)
+    .disabled(locked)
+    .padding(.vertical, 8)
+    .frame(minHeight: RowSize.regular.minHeight)
+  }
+}
+
 /// Block · delete: what stops being blocked, and that the other blocks stay.
 struct DeleteBlockSheet: View {
   let model: BlockEditorModel

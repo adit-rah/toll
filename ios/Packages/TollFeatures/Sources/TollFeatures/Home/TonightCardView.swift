@@ -56,22 +56,28 @@ struct TonightCardView: View {
 }
 
 /// A card in Tonight's band: its symbol, its words, one link that opens it and a quiet word that
-/// puts it away. Tonight's offers and the one-time flows (#140) share it.
+/// puts it away. Tonight's offers and the one-time flows (#140) share it. An answer (the heads-up
+/// on, #160) has an amber tile, since what it names is now on, and its title carries the tick, so
+/// it reads apart from the offer it answers without the words.
 struct BandCard: View {
   let symbol: TollSymbol
   let title: String
   let detail: String?
   let action: String?
   let dismiss: String
+  /// The tile in amber, and a tick before the title: what the card names is on (#160).
+  var done = false
+  /// The action leaves for iOS Settings, so it carries that glyph instead of the chevron.
+  var leaves = false
   let open: () -> Void
   let putAway: () -> Void
   @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
     HStack(alignment: .top, spacing: TollSpacing.rowGap) {
-      IconTile(symbol, accent: false)
+      IconTile(symbol, accent: done)
       VStack(alignment: .leading, spacing: 0) {
-        RowText(title: title, detail: detail)
+        words
           .accessibilityElement(children: .combine)
         // Side by side; stacked at accessibility sizes so neither action truncates.
         let actions =
@@ -83,7 +89,7 @@ struct BandCard: View {
             Button(action: open) {
               HStack(spacing: 4) {
                 Text(action)
-                Image(symbol: .forward).unredacted()
+                Image(symbol: leaves ? .openSettings : .forward).unredacted()
                   .tollGlyph(12, weight: .bold)
                   .accessibilityHidden(true)
               }
@@ -103,5 +109,24 @@ struct BandCard: View {
     .padding(.horizontal, TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tollSurface()
+  }
+
+  @ViewBuilder private var words: some View {
+    if done {
+      VStack(alignment: .leading, spacing: 1) {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+          Image(symbol: .done).unredacted()
+            .tollGlyph(13, weight: .bold)
+            .foregroundStyle(TollColor.accent)
+            .accessibilityHidden(true)
+          Text(title).tollType(.rowTitle, TollColor.label)
+        }
+        if let detail { Text(detail).tollType(.detail, TollColor.label2) }
+      }
+      .fixedSize(horizontal: false, vertical: true)
+      .frame(maxWidth: .infinity, alignment: .leading)
+    } else {
+      RowText(title: title, detail: detail)
+    }
   }
 }

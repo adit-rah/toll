@@ -12,11 +12,13 @@ extension AppModel {
   }
 
   /// Tonight's card and Settings' switch. iOS asks only the first time; after a denial Settings
-  /// offers iOS Settings instead.
-  func turnOnHeadsUp() async {
+  /// offers iOS Settings instead. From Tonight's offer, the band then says how it went, once
+  /// (#160).
+  func turnOnHeadsUp(fromOffer: Bool = false) async {
     send(.edit, [.headsUp(true)])
     if notifications == nil { notifications = await NotificationAdapter.permission() }
     if notifications == .notAsked { notifications = await NotificationAdapter.request() }
+    if fromOffer { headsUpTurnedOn = true }
     syncHeadsUp()
   }
 

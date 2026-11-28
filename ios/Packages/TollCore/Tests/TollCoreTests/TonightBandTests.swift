@@ -121,6 +121,31 @@ struct TonightBandTests {
     #expect(TonightBand.nightOwns(facts { $0.nightOn = true }, now: date(2026, 11, 17, 9)))
   }
 
+  /// The heads-up's answer (#160) is a setup offer's: calm times only, and before any new offer
+  /// or flow, since it answers what the person just did. A problem still comes first.
+  @Test func theHeadsUpsAnswerTakesTheOffersPlace() {
+    let on = facts {
+      $0.headsUpAnswer = .allowed
+      $0.setup = .gapOffer
+      $0.flow = "fit"
+    }
+    #expect(band(on, 15) == [.headsUpOn])
+    #expect(band(on, 21) == [])
+    var refused = on
+    refused.headsUpAnswer = .denied
+    #expect(band(refused, 15) == [.headsUpDenied])
+    var asking = on
+    asking.headsUpAnswer = .notAsked
+    #expect(band(asking, 15) == [.flow("fit")])
+    var problem = on
+    problem.location = true
+    #expect(band(problem, 15) == [.location])
+    var morning = on
+    morning.lastNight = true
+    #expect(band(morning, 8, 10) == [.headsUpOn, .lastNight])
+    #expect(TonightBand.Item.headsUpOn.kind == .setup)
+  }
+
   // MARK: Priorities
 
   /// One card: problems first (Screen Time, a build that can't save, a lost night's apps,

@@ -23,7 +23,8 @@
         state: fixture.state, log: fixture.log, now: now, calendar: .current,
         screenTime: scenario != .homeScreenTimeOff,
         notifications: scenario.notifications ?? .allowed, history: fixture.history,
-        readOnly: scenario == .homeReadOnly, flow: scenario.flow)
+        readOnly: scenario == .homeReadOnly, flow: scenario.flow,
+        headsUpTurnedOn: scenario.headsUpAnswered)
       DuskTabs(
         tab: .constant(scenario.tab),
         tonightPath: .constant(scenario.tab == .tonight ? scenario.routes : []),

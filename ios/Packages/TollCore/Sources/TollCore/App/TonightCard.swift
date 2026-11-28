@@ -48,9 +48,13 @@ extension HomeSnapshot {
   /// reason.
   static func bandFacts(
     _ state: DuskState, now: Date, calendar: Calendar, notifications: NotificationPermission,
-    untilBed: Int?
+    untilBed: Int?, headsUpTurnedOn: Bool = false
   ) -> TonightBand.Facts {
     var facts = TonightBand.Facts()
+    // Only once iOS has answered: while its prompt is up, the offer stays as it was.
+    if headsUpTurnedOn, state.headsUp, notifications != .notAsked {
+      facts.headsUpAnswer = notifications
+    }
     facts.entitled = state.trial.entitled
     facts.blocking = state.isBlocking
     facts.nextLock = state.lockSleep?.schedule.nextStart(after: now, calendar: calendar)

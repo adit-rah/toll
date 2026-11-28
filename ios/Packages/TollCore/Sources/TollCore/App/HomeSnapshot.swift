@@ -68,7 +68,8 @@ public struct HomeSnapshot: Equatable, Sendable {
   public var band = TonightBand(items: [])
   /// The band's card, when it's one of Tonight's offers or night cards (#102).
   public var card: TonightCard?
-  /// The first heads-up the night would get, for the card that offers it (#104).
+  /// The first heads-up the night would get, for the card that offers it (#104) and the one that
+  /// says it's on (#160).
   public var headsUp: HeadsUp?
   /// The words of a gap card, Monday's or the offer (D76).
   public var gapCard: GapCard?
@@ -99,7 +100,7 @@ public struct HomeSnapshot: Equatable, Sendable {
     state: DuskState, log: [Transition], now: Date, calendar: Calendar,
     config: TollConfig = .defaults, screenTime: Bool = true,
     notifications: NotificationPermission = .allowed, history: [PastNight] = [],
-    readOnly: Bool = false, flow: String? = nil
+    readOnly: Bool = false, flow: String? = nil, headsUpTurnedOn: Bool = false
   ) {
     let sleep = state.sleepBlock
     screenTimeOff = state.setupFinishedAt != nil && !screenTime
@@ -123,7 +124,8 @@ public struct HomeSnapshot: Equatable, Sendable {
       state.setupFinishedAt != nil && state.location == .scheduleOnly && sleep?.place != nil
     untilBed = Self.untilBed(state, hero: hero, now: now, calendar: calendar)
     var facts = Self.bandFacts(
-      state, now: now, calendar: calendar, notifications: notifications, untilBed: untilBed)
+      state, now: now, calendar: calendar, notifications: notifications, untilBed: untilBed,
+      headsUpTurnedOn: headsUpTurnedOn)
     facts.screenTimeOff = screenTimeOff
     facts.readOnly = readOnly
     facts.recovered = recovered
@@ -164,7 +166,7 @@ public struct HomeSnapshot: Equatable, Sendable {
     }
     band = TonightBand(facts, now: now, calendar: calendar, config: config)
     if case .card(let shown) = band.card { card = shown }
-    if card == .headsUp {
+    if card == .headsUp || band.card == .headsUpOn {
       headsUp =
         HeadsUp.nights(
           state, screenTime: screenTime, now: now, calendar: calendar, config: config

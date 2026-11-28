@@ -83,8 +83,11 @@ struct BufferSheet: View {
   @Bindable var draft: FitDraft
   let side: Gap.Side
   let close: () -> Void
+  /// The rows' width, for the minutes' bars at the night picture's scale (#168).
+  @State private var width: CGFloat = 0
 
   var body: some View {
+    let scale = MinutesBar.scale(width: width)
     let buffer = draft[side]
     let limits = draft.config.limits(side)
     SheetPage(height: 430) {
@@ -92,22 +95,41 @@ struct BufferSheet: View {
       SheetBody(side == .before ? Copy.Fit.beforeSheet : Copy.Fit.afterSheet)
       VStack(spacing: 0) {
         MinutesRow(
-          title: Copy.Fit.tonight, minutes: buffer.start, range: 0...buffer.target, step: 5
+          title: Copy.Fit.tonight, minutes: buffer.start, range: 0...buffer.target, step: 5,
+          scale: scale
         ) { draft.setStart(side, $0) }
         Hairline()
         MinutesRow(
           title: Copy.Fit.growsTo, minutes: buffer.target, range: 0...limits.manualMax,
-          step: limits.manualStep
+          step: limits.manualStep, scale: scale
         ) { draft.setTarget(side, $0) }
         Hairline()
         TickRow(title: Copy.Fit.off, chosen: buffer.off) {
           draft.setStart(side, buffer.off ? min(limits.start, buffer.target) : 0)
         }
       }
+      .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { width = $0 }
       .padding(.top, 16)
     } actions: {
       PrimaryButton(Copy.Fit.done, action: close)
     }
+  }
+}
+
+/// A buffer's minutes as the night picture draws them (#168): striped amber, the picture's height,
+/// as long as those minutes are on the picture behind the sheet. None draws nothing.
+struct MinutesBar: View {
+  let minutes: Int
+  let scale: CGFloat
+
+  /// The picture spans the boards' 6 pm → 10 am, across about the sheet's width.
+  static func scale(width: CGFloat) -> CGFloat { width / (16 * 60) }
+
+  var body: some View {
+    HatchedBar(fill: TollColor.accent, stripes: TollColor.surface, radius: 3)
+      .frame(width: max(0, CGFloat(minutes) * scale), height: NightStrip.height)
+      .opacity(minutes > 0 ? 1 : 0)
+      .accessibilityHidden(true)
   }
 }
 
@@ -136,12 +158,15 @@ struct TickRow: View {
   }
 }
 
-/// A number of minutes with Apple's stepper, its words and value read out together.
+/// A number of minutes with Apple's stepper, its words and value read out together. With a
+/// scale, the minutes are also a striped bar at true scale beside the value (#168), so 30 and 60
+/// read apart without the digits.
 struct MinutesRow: View {
   let title: String
   let minutes: Int
   let range: ClosedRange<Int>
   let step: Int
+  var scale: CGFloat?
   let set: (Int) -> Void
 
   var body: some View {
@@ -151,9 +176,12 @@ struct MinutesRow: View {
       AdaptiveStack(spacing: 4) {
         Text(title).tollType(.rowTitle, TollColor.label)
         Spacer(minLength: 0)
-        Text(Copy.Fit.minutes(minutes))
-          .tollType(.rowTitle, TollColor.label2)
-          .monospacedDigit()
+        HStack(spacing: 8) {
+          if let scale { MinutesBar(minutes: minutes, scale: scale) }
+          Text(Copy.Fit.minutes(minutes))
+            .tollType(.rowTitle, TollColor.label2)
+            .monospacedDigit()
+        }
       }
     }
     .padding(.vertical, 8)

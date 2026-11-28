@@ -7,7 +7,8 @@ public enum Command: Sendable {
   /// `fit` carries the buffers and Health's answer (#144); without it, a new install has D76's gap
   /// and no buffer after.
   case finishSetup(sleep: Block, home: Place?, trialStart: Date, fit: Fit? = nil)
-  /// Add a block, or change one; held while it is active (B-3).
+  /// Add a block, or change one; held while it is active (B-3). Its switch follows `BlockSwitch`:
+  /// never off inside its hours, and on inside them from the next start (#161).
   case saveBlock(Block)
   /// Remove a block; held while it is active. The Sleep block cannot be removed.
   case deleteBlock(BlockID)
@@ -64,6 +65,8 @@ public enum CommandError: Error, Equatable, Sendable {
   case door(DoorRules.Refusal)
   case noSleepBlock
   case sleepBlockCannotBeDeleted
+  /// The night has no switch, and another block can't be turned off inside its hours (#161).
+  case cannotSwitchOff
   case tooManyBlocks
   case tooManyWindows
   case tooManyApps

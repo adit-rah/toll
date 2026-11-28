@@ -118,6 +118,12 @@ extension Copy {
     }
     public static let cancel = "Cancel"
     public static let on = "On"
+    /// The switch of a block other than the night (#161): while its hours run it can't be turned
+    /// off; turned on inside them, it waits for the next start.
+    public static func offAfter(_ time: String) -> String { "Can be turned off after \(time)" }
+    public static func startsAt(_ when: String) -> String { "Starts at its next hours, \(when)" }
+    public static let offLine = "Nothing locks on its hours while it's off"
+    public static let cannotSwitchOff = "It can be turned off once its hours end."
     public static let changesLater = "Changes apply when this block ends."
 
     public static let whereTitle = "Where?"
@@ -189,6 +195,7 @@ extension Copy {
       case .invalidName: "Give it a name of up to \(maxName) characters."
       case .unknownPlace: "Choose the place again."
       case .sleepBlockCannotBeDeleted: sleepStays
+      case .cannotSwitchOff: cannotSwitchOff
       case .noSleepBlock: "Your nights are already set."
       case .readOnly: Home.readOnlyCard
       case .door: ""
