@@ -1,0 +1,337 @@
+{
+ "people": 4000,
+ "profiles": {
+  "gauss-20": {
+   "core": 20.0,
+   "memory": 0.95,
+   "missing": 0.02,
+   "outlier": 0.0,
+   "share": 0.0,
+   "wander": 40.0
+  },
+  "gauss-45": {
+   "core": 45.0,
+   "memory": 0.95,
+   "missing": 0.05,
+   "outlier": 0.0,
+   "share": 0.0,
+   "wander": 40.0
+  },
+  "heavy-40": {
+   "core": 40.0,
+   "memory": 0.3,
+   "missing": 0.05,
+   "outlier": 180.0,
+   "share": 0.2,
+   "wander": 50.0
+  },
+  "heavy-70": {
+   "core": 70.0,
+   "memory": 0.4,
+   "missing": 0.1,
+   "outlier": 240.0,
+   "share": 0.25,
+   "wander": 80.0
+  },
+  "sim": {
+   "core": 30.0,
+   "memory": 0.85,
+   "missing": 0.0,
+   "outlier": 0.0,
+   "share": 0.0,
+   "wander": 15.0
+  }
+ },
+ "rules": {
+  "winsor-m0.02-p2.0": {
+   "gauss-20": {
+    "shuffled": {
+     "level": {
+      "ever_claim_by_12": 0.04325,
+      "ever_claim_by_26": 0.04325,
+      "flips_per_person_12": 0.05975,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.004999666688887408,
+      "wrong_way_by_12": 0.04325
+     },
+     "steady": {
+      "ever_claim_by_12": 0.0185,
+      "ever_claim_by_26": 0.01975,
+      "flips_per_person_12": 0.02525,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.0029245158740613883,
+      "wrong_way_by_12": 0.0185
+     }
+    },
+    "still": {
+     "level": {
+      "ever_claim_by_12": 0.0375,
+      "ever_claim_by_26": 0.03925,
+      "flips_per_person_12": 0.05425,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.0047139394747959884,
+      "wrong_way_by_12": 0.0375
+     },
+     "steady": {
+      "ever_claim_by_12": 0.0125,
+      "ever_claim_by_26": 0.01275,
+      "flips_per_person_12": 0.017,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.001895435160322224,
+      "wrong_way_by_12": 0.0125
+     }
+    }
+   },
+   "gauss-45": {
+    "shuffled": {
+     "level": {
+      "ever_claim_by_12": 0.0375,
+      "ever_claim_by_26": 0.03875,
+      "flips_per_person_12": 0.05475,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.00497702051339536,
+      "wrong_way_by_12": 0.0375
+     },
+     "steady": {
+      "ever_claim_by_12": 0.019,
+      "ever_claim_by_26": 0.01975,
+      "flips_per_person_12": 0.02475,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.0028547035910570407,
+      "wrong_way_by_12": 0.019
+     }
+    },
+    "still": {
+     "level": {
+      "ever_claim_by_12": 0.03825,
+      "ever_claim_by_26": 0.04125,
+      "flips_per_person_12": 0.05175,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.004909323230738192,
+      "wrong_way_by_12": 0.03825
+     },
+     "steady": {
+      "ever_claim_by_12": 0.018,
+      "ever_claim_by_26": 0.01875,
+      "flips_per_person_12": 0.02225,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.0025038623408449204,
+      "wrong_way_by_12": 0.018
+     }
+    }
+   },
+   "heavy-40": {
+    "shuffled": {
+     "level": {
+      "ever_claim_by_12": 0.0315,
+      "ever_claim_by_26": 0.034,
+      "flips_per_person_12": 0.04525,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.003565022421524664,
+      "wrong_way_by_12": 0.0315
+     },
+     "steady": {
+      "ever_claim_by_12": 0.01525,
+      "ever_claim_by_26": 0.01525,
+      "flips_per_person_12": 0.01875,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.0022376132125732553,
+      "wrong_way_by_12": 0.01525
+     }
+    },
+    "still": {
+     "level": {
+      "ever_claim_by_12": 0.0265,
+      "ever_claim_by_26": 0.03175,
+      "flips_per_person_12": 0.03675,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.003025074506464696,
+      "wrong_way_by_12": 0.0265
+     },
+     "steady": {
+      "ever_claim_by_12": 0.01025,
+      "ever_claim_by_26": 0.0105,
+      "flips_per_person_12": 0.01425,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.0015448951868524093,
+      "wrong_way_by_12": 0.01025
+     }
+    }
+   },
+   "heavy-70": {
+    "shuffled": {
+     "level": {
+      "ever_claim_by_12": 0.0275,
+      "ever_claim_by_26": 0.03025,
+      "flips_per_person_12": 0.04175,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.0036020226742709367,
+      "wrong_way_by_12": 0.0275
+     },
+     "steady": {
+      "ever_claim_by_12": 0.01425,
+      "ever_claim_by_26": 0.0145,
+      "flips_per_person_12": 0.01875,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.0021945465518187304,
+      "wrong_way_by_12": 0.01425
+     }
+    },
+    "still": {
+     "level": {
+      "ever_claim_by_12": 0.0265,
+      "ever_claim_by_26": 0.032,
+      "flips_per_person_12": 0.03625,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.003880266075388027,
+      "wrong_way_by_12": 0.0265
+     },
+     "steady": {
+      "ever_claim_by_12": 0.01275,
+      "ever_claim_by_26": 0.0135,
+      "flips_per_person_12": 0.0155,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.001975091896636857,
+      "wrong_way_by_12": 0.01275
+     }
+    }
+   },
+   "rule": {
+    "baseline": 7,
+    "floor_minutes": 15.0,
+    "floor_nights": 2.0,
+    "floor_reaches": 0.5,
+    "floor_steady": 10.0,
+    "min_recent": 5,
+    "min_show": 3,
+    "min_steady": 7,
+    "min_steady_recent": 10,
+    "miss": 0.02,
+    "power": 2.0,
+    "recent": 7,
+    "spread": "winsor",
+    "steady": 14,
+    "trim": 0.2
+   },
+   "sim": {
+    "shuffled": {
+     "level": {
+      "ever_claim_by_12": 0.035,
+      "ever_claim_by_26": 0.0355,
+      "flips_per_person_12": 0.0465,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.004345416250969959,
+      "wrong_way_by_12": 0.035
+     },
+     "steady": {
+      "ever_claim_by_12": 0.01475,
+      "ever_claim_by_26": 0.015,
+      "flips_per_person_12": 0.01775,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.0019626314963102527,
+      "wrong_way_by_12": 0.01475
+     }
+    },
+    "still": {
+     "level": {
+      "ever_claim_by_12": 0.0345,
+      "ever_claim_by_26": 0.03475,
+      "flips_per_person_12": 0.0525,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.0044722917174043,
+      "wrong_way_by_12": 0.0345
+     },
+     "steady": {
+      "ever_claim_by_12": 0.01775,
+      "ever_claim_by_26": 0.01875,
+      "flips_per_person_12": 0.02325,
+      "overstated_by_12": 0.0,
+      "right_by_12": 0.0,
+      "right_by_26": 0.0,
+      "right_by_4": 0.0,
+      "right_by_8": 0.0,
+      "share_of_weeks_claimed_12": 0.003005357376192343,
+      "wrong_way_by_12": 0.01775
+     }
+    }
+   }
+  }
+ },
+ "seed": 101
+}

@@ -2,9 +2,9 @@
 
 **What it's for:** the second tab. It opens onto the person's sky, where each night the lock ran is one star, in a fixed order that completes real constellations. Under it, how the person's nights are changing (#88): when they fell asleep, how long, how steady, and how often they reached for a locked app, each against their own first nights, from Health's sleep or, without it, Dusk's own nights. Then this week as seven dots, a personal best when there is one, and the hours locked over 7 days, 30 days or all time. At 7, 30, 100 and 365 nights a landmark morning offers the sky as a picture to share; nothing leaves the phone otherwise.
 
-**Implements:** D63 (the tab), D65 (true numbers, no shortfall), D69 (the week, "A new week", personal bests), D79 and D81 (the sky, landmarks, sharing only at landmarks), D82 (the free nights frozen after the trial), D84 (every range reads the night records), D88 (the full-bleed sky, its light by the phone's hour, a star's night in a popover, the newest star's arrival), #87 and #88 (the measures and their trends).
+**Implements:** D63 (the tab), D65 (true numbers, no shortfall), D69 (the week, "A new week", personal bests), D79 and D81 (the sky, landmarks, sharing only at landmarks), D82 (the free nights frozen after the trial), D84 (every range reads the night records), D88 (the full-bleed sky, its light by the phone's hour, a star's night in a popover, the newest star's arrival), #87 and #88 (the measures and their trends), #165 (the change lines judged weekly, robust, spent over the looks).
 
-**Code:** `TollCore/App/YourSleep.swift`, `SleepTrends.swift` (the measures, `TollConfig.trends`), `PastNight.swift` (`merged`, `NightsRan`), `InsightsSnapshot.swift`, `Sky.swift`, `SkyCatalogue.swift`, `SkyStars.swift`, `SkyLayout.swift`, `SkyArt.swift`; `TollFeatures/Insights/` (`InsightsView`, `TrendCards`, `TrendChart`, `SkyHeader`, `SkyScene`, `SkyStarsLayer`, `SkyBackdrop`, `SkyPoster`, `SleepCards`); `Home/LandmarkLine.swift`; `AppModel.recordNights`.
+**Code:** `TollCore/App/YourSleep.swift`, `SleepTrends.swift` (the measures, `TollConfig.trends`), `TrendWeeks.swift` (the weekly judgement; its reference is `datascience/trends/`), `PastNight.swift` (`merged`, `NightsRan`), `InsightsSnapshot.swift`, `Sky.swift`, `SkyCatalogue.swift`, `SkyStars.swift`, `SkyLayout.swift`, `SkyArt.swift`; `TollFeatures/Insights/` (`InsightsView`, `TrendCards`, `TrendChart`, `SkyHeader`, `SkyScene`, `SkyStarsLayer`, `SkyBackdrop`, `SkyPoster`, `SleepCards`); `Home/LandmarkLine.swift`; `AppModel.recordNights`.
 
 > **Being reworked:** the sky's names are being changed on another branch at the time of writing. The chart is `main`'s; the flow should not change, only the words.
 
@@ -40,13 +40,14 @@ flowchart TD
   healthEmpty --> enough
   duskMeasures --> enough
   enough -->|"no measure has"| noMeasures["How your nights change shows here after a few nights."]
-  enough -->|"yes"| measureCard["Its value, the last 14 nights as dots or bars"]
-  measureCard --> compare{"7 first nights (14 for How steady) and 5 recent ones after them?"}
+  enough -->|"yes"| measureCard["Its value (a trimmed mean, moving each night), the last 14 nights as dots or bars"]
+  measureCard --> compare{"The week judged at the latest Monday noon: 7 first nights (14 for How steady)<br/>and 5 of that week's nights after them (10 of its two weeks)?"}
   compare -->|"no"| noCompare(["No comparison: render: sleep-few"])
-  compare -->|"yes"| clears{"The change clears the floor and 2.2 standard errors?"}
+  compare -->|"yes"| clears{"The change clears the floor and this look's test<br/>(spent over the weekly looks; a change said last week keeps the first look's)?"}
   clears -->|"yes, the way it improves"| toward["arrow.up.right: 25 min earlier than your first 7 nights"]
   clears -->|"yes, the other way"| awayWay["arrow.down.right: 20 min later than your first 7 nights"]
   clears -->|"no"| same["equal: About the same as your first 7 nights"]
+  toward -.->|"held until the next Monday noon"| measureCard
   merge --> week{"Where in the week?"}
   week -->|"Monday night to Sunday night"| thisWeek["This week: seven dots<br/>render: insights"]
   week -->|"Sunday's night ended, Monday's not started"| newWeek["A new week: N nights last week over seven empty dots<br/>render: sleep-monday"]
