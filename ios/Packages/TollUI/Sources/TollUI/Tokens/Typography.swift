@@ -40,7 +40,7 @@ public struct TollType: Sendable, Equatable {
   /// Sheet titles: 24/28 semibold.
   public static let sheetTitle = TollType(
     size: 24, lineHeight: 28, weight: .semibold, style: .title2)
-  /// The numbers in This week and Your free week: 22/28 semibold.
+  /// The numbers in This week and Your free nights: 22/28 semibold.
   public static let stat = TollType(
     size: 22, lineHeight: 28, weight: .semibold, style: .title2, tabular: true)
   /// Welcome's line under the title: 18/26.

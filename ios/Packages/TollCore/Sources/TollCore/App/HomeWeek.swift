@@ -1,7 +1,7 @@
 import Foundation
 
 extension HomeSnapshot {
-  /// One night of a week: a dot on the morning card and on Your sleep (#103), a bar in the free week.
+  /// One night of a week: a dot on the morning card and on Your sleep (#103), a bar in the free nights.
   public struct Bar: Equatable, Sendable {
     public enum Night: Equatable, Sendable {
       /// Sleep ran; "Never mind" was tapped this many times (0 is drawn as 0).
@@ -14,7 +14,7 @@ extension HomeSnapshot {
       /// After the trial, nothing blocks: named, and not counted.
       case off
       /// Screen Time was off for Dusk, so nothing could block: named "off", spoken as what it was,
-      /// counted toward the free week (P-2) but not in "N of M" (#60).
+      /// counted toward the free nights (P-2) but not in "N of M" (#60).
       case noScreenTime
       /// No Sleep that night, or before setup: a dash, not counted.
       case noBlock
@@ -102,7 +102,7 @@ struct Week {
   /// the regret time (D-4).
   var unlocks = 0
 
-  /// `slots` replaces the rolling week with given nights, such as the free week's.
+  /// `slots` replaces the rolling week with given nights, such as the free nights'.
   init(
     log: [Transition], now: Date, calendar: Calendar, since setup: Date?, sleep: Block?,
     slots given: [Date]? = nil, regret: TimeInterval = 120
@@ -197,7 +197,7 @@ struct Week {
 
 /// The free nights' facts (spec §7, P-2, D78): all of them, counted as This week counts (#44), and
 /// frozen once they've ended, so the purchase sheet on day 20 says what it said on day 8 (#48).
-public struct FreeWeek: Equatable, Sendable {
+public struct FreeNights: Equatable, Sendable {
   public var bars: [HomeSnapshot.Bar]
   public var nightsBlocked: Int
   /// Nights Sleep ran or was due at home; away nights are left out.

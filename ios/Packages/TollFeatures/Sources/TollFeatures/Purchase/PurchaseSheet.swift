@@ -3,7 +3,7 @@ import TollCore
 import TollData
 import TollUI
 
-/// The purchase (the canvas's Purchase sheet and its three outcomes): what the free week did, what
+/// The purchase (the canvas's Purchase sheet and its three outcomes): what the free nights did, what
 /// buying keeps, the price once. Opens only from the last-day pill, Home's Paused card and Settings
 /// (D33). Closing Apple's payment sheet changes nothing here.
 struct PurchaseSheet: View {
@@ -89,7 +89,7 @@ struct PurchaseSheet: View {
     SheetPage(height: Self.height, overhang: Self.linkOverhang) {
       Text(Copy.Purchase.eyebrow).tollType(.eyebrow, TollColor.label2)
       // How much of the free nights is gone, as the pill draws it and says it (#77, the audit).
-      if let free = home.freeWeek {
+      if let free = home.freeNights {
         FreeNights(
           used: free.bars.filter { $0.night != .ahead }.count, total: free.bars.count,
           tonight: home.pill.map { $0.night - 1 }, spoken: home.pill?.text ?? Copy.Purchase.eyebrow
@@ -103,8 +103,8 @@ struct PurchaseSheet: View {
         .padding(.top, 8)
       // The free nights only, frozen once they've ended (#48). Counts, never "5 of 7", and no
       // zeros: a shortfall isn't shown (D65), least of all when asking for money (the audit).
-      let nights = home.freeWeek?.nightsBlocked ?? 0
-      let choseSleep = home.freeWeek?.timesStopped ?? 0
+      let nights = home.freeNights?.nightsBlocked ?? 0
+      let choseSleep = home.freeNights?.timesStopped ?? 0
       if nights > 0 || choseSleep > 0 {
         AdaptiveStack(spacing: 12) {
           if nights > 0 {

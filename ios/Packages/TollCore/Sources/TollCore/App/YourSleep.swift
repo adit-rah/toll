@@ -99,10 +99,10 @@ public struct YourSleep: Equatable, Sendable {
     best = nil
 
     if !state.trial.entitled,
-      let free = FreeWeek(
+      let free = FreeNights(
         state: state, log: log, now: now, calendar: calendar, config: config)
     {
-      // After the trial the free week stands still instead of running down to blanks (#48).
+      // After the trial the free nights stands still instead of running down to blanks (#48).
       weekTitle = Copy.Purchase.eyebrow
       dots = free.bars
       return

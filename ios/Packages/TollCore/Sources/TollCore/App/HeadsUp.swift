@@ -48,7 +48,7 @@ public struct HeadsUp: Hashable, Sendable {
 
   /// The rule: the next `nightsAhead` nights of `schedule` that start after `after` (or now), each
   /// with its heads-up the lead before it. A night whose heads-up time has passed gets none rather
-  /// than a late one. None while Screen Time is off, and none for a night after the free week
+  /// than a late one. None while Screen Time is off, and none for a night after the free nights
   /// unless it's bought (P-2), since nothing would block then.
   public static func nights(
     _ schedule: WeeklySchedule, trial: TrialState, screenTime: Bool, now: Date, after: Date? = nil,
@@ -78,7 +78,7 @@ public struct HeadsUp: Hashable, Sendable {
   }
 
   /// Whether a night starting then will block: bought, or one of the free nights (P-2). Nights are
-  /// counted by their ends, so a free night is one that starts before the free week's last end.
+  /// counted by their ends, so a free night is one that starts before the free nights' last end.
   static func entitled(
     _ trial: TrialState, at start: Date, schedule: WeeklySchedule, calendar: Calendar,
     config: TollConfig

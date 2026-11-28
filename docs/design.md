@@ -156,7 +156,7 @@ SF Symbols, monochrome, outline. **One symbol per concept, one concept per symbo
 | The heads-up before the night (the one notification, D68) | `bell` |
 | Before bed's helpers (D80): the capsule and its card (the gap's own glyph) · tomorrow's list on paper · the breathing tone · the word game, eyes closed · the tone playing · stopping it | `moon.haze` · `pencil` · `wind` · `eye.half.closed` · `speaker.wave.2` · `speaker.slash` |
 | Another block | its kind: `book`, `briefcase`, `bolt`, `ellipsis` |
-| **State:** blocked now (also the hours apps were locked, D75) · starts later · away · off (the free week ended, or a block switched off; never a pause glyph, D70) · nothing can block · working with less (While Using) · waiting for Always | `lock` · `clock` · `figure.walk` · `power` · `exclamationmark.triangle` (warn) · `location.slash` · `hourglass.bottomhalf.filled` |
+| **State:** blocked now (also the hours apps were locked, D75) · starts later · away · off (the free nights ended, or a block switched off; never a pause glyph, D70) · nothing can block · working with less (While Using) · waiting for Always | `lock` · `clock` · `figure.walk` · `power` · `exclamationmark.triangle` (warn) · `location.slash` · `hourglass.bottomhalf.filled` |
 | A pause (the code's door and unlock, D67) · its wait | `pause` · `timer` |
 | Apps on a blocklist · a block's hours | `square.grid.2x2` · `clock` |
 | Home · another place · no place (anywhere) | `house` · `mappin` · `globe` |

@@ -92,7 +92,7 @@ public struct DayTimeline: Equatable, Sendable {
   /// Every six hours on the clock (12 am, 6 am, 12 pm, 6 pm), none hard against an edge.
   public var hours: [Hour]
 
-  /// `blocking` is false when nothing can block: the free week over, or Screen Time off (#45).
+  /// `blocking` is false when nothing can block: the free nights over, or Screen Time off (#45).
   public init(state: DuskState, now: Date, calendar: Calendar, blocking: Bool = true) {
     // The night as it runs, from the lock (D76).
     let (start, end) = Self.axis(state.lockSleep, now: now, calendar: calendar)

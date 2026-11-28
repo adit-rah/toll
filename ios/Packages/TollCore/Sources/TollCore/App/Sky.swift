@@ -1,7 +1,7 @@
 import Foundation
 
 /// Your sky (D79): each night the lock ran lights one star, in a fixed order that completes real
-/// constellations. It only adds: a night away, off or after the free week leaves it as it was, and
+/// constellations. It only adds: a night away, off or after the free nights leaves it as it was, and
 /// every night is one equal star. Only lit stars and the lines between them are drawn, never what
 /// is left. Delight, not a lever: nothing here counts what's left or names the next landmark.
 public struct Sky: Equatable, Sendable {

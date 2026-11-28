@@ -87,7 +87,7 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 69 | Weekday-only night, Saturday afternoon | "Apps lock Monday at" | | |
 | 70 | During the night, Pause, wait out the 60 s, swipe the sheet down | Hero "Paused until hh:mm · Then locked until 7:00 am" with Lock again; the sheet closes freely; Lock again locks; after 10 min "Apps locked until" returns with the app closed | | |
 | 71 | Leave home during the night | "Night ends at 7:00 am · Apps lock when you're home"; no pill | | |
-| 72 | In the free week, tap the pill | Purchase sheet; the pill dims on press; VoiceOver reads its hint | | |
+| 72 | In the free nights, tap the pill | Purchase sheet; the pill dims on press; VoiceOver reads its hint | | |
 | 73 | On a weekday, tap the night, Study and Gym on the strip; tap Edit | Each snippet is right; Edit opens that block's editor and Back reads "Tonight" | | |
 | 74 | VoiceOver across the strip | "Now, …", then one element per segment with its snippet and an "Edit …" action | | |
 | 75 | AX5: tap the night | The snippet opens as a sheet and scrolls; the state is above any card | | |

@@ -215,7 +215,7 @@ struct HomeNotSetTests {
     #expect(off.card == nil)
   }
 
-  @Test func noCardOnceTheFreeWeekIsOver() {
+  @Test func noCardOnceTheFreeNightsIsOver() {
     var s = fresh(finished: date(2026, 11, 1, 21))
     run(&s, date(2026, 11, 17, 15))
     #expect(!s.trial.entitled)

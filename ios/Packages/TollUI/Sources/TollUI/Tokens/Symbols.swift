@@ -58,7 +58,7 @@ public struct TollSymbol: Hashable, Sendable {
   public static let blocked = TollSymbol("lock")
   public static let later = TollSymbol("clock")
   public static let away = TollSymbol("figure.walk")
-  /// Off: the free week ended or a block is switched off, so nothing blocks. Never a pause glyph:
+  /// Off: the free nights ended or a block is switched off, so nothing blocks. Never a pause glyph:
   /// those are the pause's (D57, D70).
   public static let off = TollSymbol("power")
   /// Nothing can block (Screen Time off, a refusal).

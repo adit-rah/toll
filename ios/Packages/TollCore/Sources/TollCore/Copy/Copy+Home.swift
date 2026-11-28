@@ -28,7 +28,7 @@ extension Copy {
     /// Away in the night's hours: the big time is the night's end.
     public static let nightEndsAt = "Night ends at"
     public static let locksWhenHome = Strip.whenHome
-    /// After the free week (D70, D74): what's off is the app, said with its name.
+    /// After the free nights (D70, D74): what's off is the app, said with its name.
     public static let isOff = "\(name) is off"
     public static let yourNight = Strip.yourNight
     public static let noBlocks = "Nothing scheduled"
@@ -122,7 +122,7 @@ extension Copy {
     public static let weekdays = "Weekdays"
     public static let weekends = "Weekends"
     public static let everyDay = "Every day"
-    /// After the free week, and a block that's switched off: nothing blocks (D70). Never "Paused",
+    /// After the free nights, and a block that's switched off: nothing blocks (D70). Never "Paused",
     /// which is the pause's word (D57, D67).
     public static let off = "Off"
     public static let weekendsDiffer = "Weekends differ"
