@@ -79,6 +79,66 @@ extension SettingsRow where Trailing == EmptyView {
   }
 }
 
+/// Free nights in Settings' App card (#168): its tile, the title, the nights as segments (two rows
+/// of seven, tonight's ringed, as on Tonight's pill) and which night it is, then the purchase.
+struct FreeNightsRow<Trailing: View>: View {
+  let detail: String?
+  let used: Int
+  let total: Int
+  let tonight: Int?
+  @ViewBuilder let trailing: Trailing
+
+  var body: some View {
+    HStack(spacing: TollSpacing.rowGap) {
+      IconTile(.freeNights, accent: false)
+      AdaptiveStack(spacing: TollSpacing.rowGap) {
+        VStack(alignment: .leading, spacing: 6) {
+          RowText(title: Copy.Settings.freeNights, detail: detail)
+          FreeNights(used: used, total: total, tonight: tonight, spoken: detail ?? "")
+            .accessibilityHidden(true)
+        }
+        trailing
+      }
+    }
+    .padding(.vertical, 10)
+    .frame(minHeight: 60)
+    .contentShape(Rectangle())
+    .accessibilityElement(children: .combine)
+  }
+}
+
+/// Appearance with its tile (#168): the picker beside the title while both fit on one line, else
+/// under it, so the title never breaks mid-word.
+struct AppearanceRow: View {
+  @Binding var selection: Appearance
+
+  var body: some View {
+    HStack(spacing: TollSpacing.rowGap) {
+      IconTile(.appearance, accent: false)
+      ViewThatFits(in: .horizontal) {
+        HStack(spacing: 8) {
+          title.fixedSize()
+          Spacer(minLength: 0)
+          AppearancePicker(selection: $selection)
+        }
+        VStack(alignment: .leading, spacing: 8) {
+          title
+          AppearancePicker(selection: $selection)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+    }
+    .padding(.vertical, 8)
+    .frame(minHeight: 60)
+  }
+
+  private var title: some View {
+    Text(Copy.Settings.appearance)
+      .tollType(.rowTitle, TollColor.label)
+      .fixedSize(horizontal: false, vertical: true)
+  }
+}
+
 /// Dark · Light · Match iPhone as the board draws it: 13 pt segments in a 32 pt track, the chosen
 /// one raised. Apple's segmented control is too wide to sit beside the row's title.
 struct AppearancePicker: View {

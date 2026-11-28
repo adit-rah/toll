@@ -210,4 +210,40 @@ struct HeadsUpTests {
     run(&s, date(2026, 11, 17, 15))
     #expect(snapshot(s, date(2026, 11, 17, 15), notifications: .notAsked).card == nil)
   }
+
+  // MARK: After "Turn on" (#160)
+
+  /// The offer's answer shows once in its place: on, with when the first one comes, or the way to
+  /// iOS Settings when iOS's prompt was refused. Nothing shows while iOS is still asking.
+  @Test func turnOnSaysItsOnAndWhen() {
+    let s = state()
+    let at = date(2026, 11, 17, 8)
+    let on = HomeSnapshot(
+      state: s, log: [], now: at, calendar: london, notifications: .allowed,
+      headsUpTurnedOn: true)
+    #expect(on.band.items == [.headsUpOn])
+    #expect(on.card == nil)
+    #expect(on.headsUp?.at == date(2026, 11, 17, 22, 10))
+    let refused = HomeSnapshot(
+      state: s, log: [], now: at, calendar: london, notifications: .denied,
+      headsUpTurnedOn: true)
+    #expect(refused.band.items == [.headsUpDenied])
+    #expect(refused.headsUp == nil)
+    let asking = HomeSnapshot(
+      state: s, log: [], now: at, calendar: london, notifications: .notAsked,
+      headsUpTurnedOn: true)
+    #expect(asking.card == .headsUp)
+    // Shown once: without the fact (after "OK", or back from the background) nothing is left.
+    #expect(snapshot(s, at, notifications: .allowed).band.isEmpty)
+  }
+
+  /// Switched off again in Settings before "OK", it no longer says it's on.
+  @Test func theAnswerFollowsTheSwitch() {
+    var s = state()
+    #expect(apply(.headsUp(false), &s, date(2026, 11, 17, 8)) == nil)
+    let off = HomeSnapshot(
+      state: s, log: [], now: date(2026, 11, 17, 8), calendar: london, notifications: .allowed,
+      headsUpTurnedOn: true)
+    #expect(off.band.isEmpty)
+  }
 }

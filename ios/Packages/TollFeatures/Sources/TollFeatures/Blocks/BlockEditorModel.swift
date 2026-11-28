@@ -56,6 +56,32 @@ final class BlockEditorModel {
       ? Copy.Blocks.nightActiveNote(until: end) : Copy.Blocks.activeNote(title, until: end)
   }
 
+  /// The switch as saved (#161): nil for a new block, which is on, and for the night, which has
+  /// none.
+  var savedSwitch: BlockSwitch? {
+    guard !isNew, let saved = app.state.block(block.id) else { return nil }
+    return BlockSwitch(saved, now: app.now, calendar: .current)
+  }
+
+  /// Inside its hours a block that's on can't be switched off; the line says when it can.
+  var switchLocked: Bool { savedSwitch?.canTurnOff == false }
+
+  /// Under the switch: when it can be turned off, when a block turned on inside its hours first
+  /// locks, or what off means.
+  var switchLine: String? {
+    guard let saved = savedSwitch else { return nil }
+    if let after = saved.offAfter { return Copy.Blocks.offAfter(Copy.time(after)) }
+    guard block.isOn else { return Copy.Blocks.offLine }
+    guard !saved.isOn else { return nil }
+    var off = block
+    off.isOn = false
+    guard let start = BlockSwitch(off, now: app.now, calendar: .current)?.startsAt else {
+      return nil
+    }
+    return Copy.Blocks.startsAt(
+      "\(Copy.shortWeekday(start)) \(Copy.time(start, short: true))")
+  }
+
   /// With a place but no Always, the block runs on its hours wherever the user is (D37); the editor
   /// says so under Place (#49).
   var placeIgnored: String? {

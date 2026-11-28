@@ -13,6 +13,12 @@ flowchart TD
   cardCheck -->|"no"| noCard(["No card; Settings still has the switch"])
   card -->|"Not now"| putAway[("state.json: dismissedCards gets headsUp")]
   card -->|"Turn on"| switchOn[("state.json: headsUp on")]
+  card -.->|"Turn on, once iOS has answered"| answer{"iOS allows it?"}
+  answer -->|"yes"| answerOn["In the card's place, once: Heads-up on, the time it comes, OK<br/>render: home-heads-up-on"]
+  answer -->|"no"| answerOff["In the card's place, once: Notifications are off for Dusk, Open Settings, OK<br/>render: home-heads-up-denied"]
+  answerOff -->|"Open Settings"| iosSettings
+  answerOn -->|"OK, or the app goes to the background"| gone(["Gone for good: it's held in memory only"])
+  answerOff -->|"OK, or the app goes to the background"| gone
 
   settingsRow["Settings: Heads-up switch<br/>render: settings"]
   settingsRow -->|"switch on"| switchOn

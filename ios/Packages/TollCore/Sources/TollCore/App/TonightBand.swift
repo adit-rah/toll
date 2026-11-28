@@ -26,6 +26,9 @@ public struct TonightBand: Equatable, Sendable {
   public enum Item: Hashable, Sendable {
     case screenTimeOff, readOnly, recovered, location
     case card(TonightCard)
+    /// The answer to the heads-up offer's "Turn on" (#160), once: it's on and when it comes, or
+    /// iOS's prompt was refused and only iOS Settings can allow it.
+    case headsUpOn, headsUpDenied
     /// A one-time flow, by its id in `Flows.registry`.
     case flow(String)
     case lastNight
@@ -34,6 +37,7 @@ public struct TonightBand: Equatable, Sendable {
       switch self {
       case .screenTimeOff, .readOnly, .recovered, .location: .problem
       case .card(let card): card.kind
+      case .headsUpOn, .headsUpDenied: .setup
       case .flow: .flow
       case .lastNight: .review
       }
@@ -62,6 +66,9 @@ public struct TonightBand: Equatable, Sendable {
     public var gapWeek = false
     /// The first setup offer due by its own facts: home, the heads-up, then the gap offer (D72).
     public var setup: TonightCard?
+    /// iOS's answer just after the offer's "Turn on" (#160), held in memory until "OK" or the app
+    /// goes to the background, so it shows once; nil at any other time.
+    public var headsUpAnswer: NotificationPermission?
     /// The one-time flow due today, if any (`Flows.due`).
     public var flow: String?
     /// Last night can be reviewed (it ran, was away, or had Screen Time off) and the next night
@@ -99,6 +106,12 @@ public struct TonightBand: Equatable, Sendable {
     if facts.nightOn, facts.beforeBed { return .card(.beforeBed) }
     if facts.gapWeek, !facts.blocking, facts.nightEnded { return .card(.gapWeek) }
     guard calm else { return nil }
+    // What the person just did is answered before anything new is offered.
+    switch facts.headsUpAnswer {
+    case .allowed?: return .headsUpOn
+    case .denied?: return .headsUpDenied
+    case .notAsked?, nil: break
+    }
     if let flow = facts.flow { return .flow(flow) }
     if facts.nightEnded, let setup = facts.setup { return .card(setup) }
     return nil

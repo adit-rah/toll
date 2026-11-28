@@ -19,6 +19,8 @@ public struct RootView: View {
       .preferredColorScheme(scheme)
       .onChange(of: scenePhase, initial: true) { _, phase in
         if phase == .active { model.foreground() }
+        // The heads-up's answer shows once (#160).
+        if phase == .background { model.headsUpTurnedOn = false }
       }
   }
 
@@ -96,7 +98,7 @@ struct LiveHome: View {
           openCard: { card in
             switch card {
             case .home: settingHome = true
-            case .headsUp: Task { await model.turnOnHeadsUp() }
+            case .headsUp: Task { await model.turnOnHeadsUp(fromOffer: true) }
             case .gapWeek, .gapOffer: model.openGapCard(card)
             // Shown once: opening it answers it.
             case .beforeBed:
@@ -115,7 +117,9 @@ struct LiveHome: View {
           openBlock: { path.append(.block($0)) },
           openFlow: { fitting = true },
           notNowFlow: { if let id = dueFlow(Date()) { model.flow(id, .notNow) } },
-          flowShown: { if let id = dueFlow(Date()) { model.flow(id, .shown) } }
+          flowShown: { if let id = dueFlow(Date()) { model.flow(id, .shown) } },
+          headsUpSeen: { model.headsUpTurnedOn = false },
+          openNotificationSettings: openSystemSettings
         )
         .sheet(isPresented: $settingHome) { SetHomeFlow(app: model) { settingHome = false } }
         .sheet(isPresented: $fitting) { FitFlowSheet(app: model) { fitting = false } }
@@ -150,7 +154,7 @@ struct LiveHome: View {
       screenTime: model.screenTime == .approved,
       // Not read yet: no offer, rather than one that vanishes a moment later.
       notifications: model.notifications ?? .allowed, history: model.history,
-      readOnly: model.readOnly, flow: dueFlow(now))
+      readOnly: model.readOnly, flow: dueFlow(now), headsUpTurnedOn: model.headsUpTurnedOn)
   }
 
   /// The one-time flow due now (`Flows.due`), read with the clock so the band follows the day:

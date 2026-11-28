@@ -30,6 +30,9 @@
       }
     }
 
+    /// The heads-up offer answered with "Turn on" a moment ago (#160).
+    var headsUpAnswered: Bool { [.homeHeadsUpOn, .homeHeadsUpDenied].contains(self) }
+
     /// The one-time flow the band shows (D92): #1, "Fit Dusk to your sleep" (#144).
     var flow: String? { fitOffered ? Flows.fitSleep.id : nil }
   }

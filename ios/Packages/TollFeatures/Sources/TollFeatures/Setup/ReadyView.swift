@@ -7,9 +7,11 @@ import TollUI
 /// Ready (D68, #76, #144): tonight as pictures. A tick before the eyebrow, when apps lock, tonight
 /// drawn lock · sleep · open, the same three as lines, then one short line of the rest: where it
 /// runs (anywhere until home is set), the apps' count and the week's pauses. Short enough to read
-/// whole at the default size; it scrolls at accessibility sizes. No back button: onboarding is done.
+/// whole at the default size; it scrolls at accessibility sizes, where the free nights' footnote
+/// scrolls with it and only Done stays pinned (#168). No back button: onboarding is done.
 struct ReadyView: View {
   let model: SetupModel
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   var body: some View {
     SetupPage(
@@ -64,25 +66,35 @@ struct ReadyView: View {
       .tollSurface()
       .accessibilityElement(children: .combine)
       .padding(.top, 12)
+      if typeSize.isAccessibilitySize {
+        trial.padding(.top, 24)
+      }
     } actions: {
-      if let footnote {
-        // The free nights as segments, none used yet (#77), over the words; on a fresh start,
-        // tonight's ringed as on the pill: tonight is the first (#66).
+      if !typeSize.isAccessibilitySize {
+        trial.padding(.bottom, TollSpacing.aboveButton)
+      }
+      PrimaryButton(Copy.Setup.done) { model.finish() }
+    }
+    .navigationBarBackButtonHidden()
+  }
+
+  /// The free nights as segments, none used yet (#77), over the words; on a fresh start, tonight's
+  /// ringed as on the pill: tonight is the first (#66).
+  @ViewBuilder private var trial: some View {
+    if let footnote {
+      VStack(spacing: 8) {
         if model.offer(now: Date()).isFree {
           FreeNights(
             used: 0, total: model.app.config.trial.nights, tonight: freshStart ? 0 : nil,
             spoken: footnote
           )
           .accessibilityHidden(true)
-          .padding(.bottom, 8)
         }
         Footnote(footnote, alignment: .center)
           .padding(.horizontal, 12)
-          .padding(.bottom, TollSpacing.aboveButton)
       }
-      PrimaryButton(Copy.Setup.done) { model.finish() }
+      .frame(maxWidth: .infinity)
     }
-    .navigationBarBackButtonHidden()
   }
 
   private var unlocks: Int { model.app.config.unlocks.max }

@@ -18,6 +18,12 @@ extension Copy {
     }
     public static let turnOn = Home.turnOn
     public static let notNow = Home.notNow
+    /// Once, after "Turn on" (#160), over the same detail as the card: when the first one comes.
+    public static let isOn = "Heads-up on"
+    /// After "Turn on", when iOS's prompt was refused: only iOS Settings can allow it now.
+    public static let refused = "Notifications are off for Dusk"
+    public static let refusedDetail = "Allow them in iOS Settings to get the heads-up."
+    public static let ok = Morning.ok
 
     public static let row = "Heads-up"
     public static func rowDetail(minutes: Int) -> String { "\(minutes) min before apps lock" }
