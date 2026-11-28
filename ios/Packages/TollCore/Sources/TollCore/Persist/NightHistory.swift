@@ -64,8 +64,11 @@ extension NightRecordLine {
     let late = time(record["sleep_onset"]).flatMap { onset in
       bed.map { Int((onset.timeIntervalSince($0) / 60).rounded()) }
     }
+    // The buffer the night ran with: personal timing's start moves it (D99).
+    let before = max(
+      0, (record["gap_min"] as? Int ?? 0) - (record["action_offset_min"] as? Int ?? 0))
     return BufferNight(
-      night: past.night, ran: past.ran, before: record["gap_min"] as? Int ?? 0,
+      night: past.night, ran: past.ran, before: before,
       after: record["after_min"] as? Int ?? 0, pausesBefore: dusk?["pauses_before"] as? Int,
       pausesAfter: dusk?["pauses_after"] as? Int,
       screenTimeOff: dusk?["screen_time_off"] as? Bool ?? false, late: late)

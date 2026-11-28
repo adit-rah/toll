@@ -11,7 +11,8 @@ public struct ModelStamp: Sendable, Equatable {
     self.policy = policy
   }
 
-  /// No model chooses the start yet: the block runs on its plan (D62).
+  /// The block runs on its plan (D62). A night personal timing held a start for says "held"
+  /// instead, whatever the stamp (D99).
   public static func fixed(_ version: String) -> ModelStamp {
     ModelStamp(version: version, policy: "fixed")
   }
@@ -25,6 +26,8 @@ public enum NightRecordLine {
   /// waking, `after_min`, and Health's sleep in a correction (#144). A line without them is format
   /// 1, revision 1.
   public static let format = 3
+  /// `policy` on a night personal timing held a start for (D66, D99), as both model readers read it.
+  public static let held = "held"
 
   /// Who wrote a line, under `dusk.by`: the monitor at the night's sweep, or the app on opening.
   public enum Writer: String, Sendable {
@@ -38,12 +41,12 @@ public enum NightRecordLine {
     iso.timeZone = calendar.timeZone
     iso.formatOptions = [.withInternetDateTime]
     func time(_ date: Date?) -> Any { date.map(iso.string(from:)) ?? NSNull() }
-    let record: [String: Any] = [
+    var record: [String: Any] = [
       "record": format,
       "rev": rev,
       "night": key(facts.night, calendar: calendar),
       // Planned sleep, bed to wake, never the lock: sleep is measured from bed (D76). The lock is
-      // bed minus `gap_min` to wake plus `after_min` (#144).
+      // bed minus `gap_min` plus `action_offset_min` to wake plus `after_min` (#144, D99).
       "planned_bedtime": time(facts.bed),
       "bed": time(facts.bed),
       "gap_min": facts.gap,
@@ -51,10 +54,10 @@ public enum NightRecordLine {
       "planned_wake": time(facts.wake),
       "block_start": time(facts.blockStart),
       "block_end": time(facts.blockStart == nil ? nil : facts.blockEnd ?? facts.plannedEnd),
-      "action_offset_min": 0,
-      "action_prob": 1.0,
+      "action_offset_min": facts.hold?.offset ?? 0,
+      "action_prob": facts.hold?.prob ?? 1.0,
       "model_version": model.version,
-      "policy": model.policy,
+      "policy": facts.hold == nil ? model.policy : held,
       "home_arrival": time(facts.homeArrival),
       "away_all_night": facts.away,
       "weekend": facts.weekend,
@@ -85,6 +88,12 @@ public enum NightRecordLine {
         "waits_cancelled": facts.waitsCancelled,
       ] as [String: Any],
     ]
+    // Personal timing's week (D99), on every night of it, the lock's or not: the model reads the
+    // hold back from the latest line after a rebuild (`SleepModel.Hold.latest`).
+    if let hold = facts.hold {
+      record["hold_start"] = hold.start
+      record["settled"] = hold.settled
+    }
     return try? JSONSerialization.data(withJSONObject: record, options: [.sortedKeys])
   }
 

@@ -91,7 +91,9 @@ extension Migration {
     let run: @Sendable ([String: Any]) -> [String: Any]
   }
 
-  static let steps: [Step] = [Step(from: 2, run: v2to3), Step(from: 3, run: v3to4)]
+  static let steps: [Step] = [
+    Step(from: 2, run: v2to3), Step(from: 3, run: v3to4), Step(from: 4, run: v4to5),
+  ]
 
   /// Every step from `schema` to the current one, in order.
   static func upgrade(_ object: [String: Any], from schema: Int) -> [String: Any] {
@@ -128,6 +130,15 @@ extension Migration {
     if new["health"] == nil { new["health"] = false }
     new["schema"] = 4
     new["minReader"] = 4
+    return new
+  }
+
+  /// 4 to 5 (#155): personal timing. Nobody had chosen it, so it's off, with no start held.
+  @Sendable static func v4to5(_ old: [String: Any]) -> [String: Any] {
+    var new = old
+    if new["timing"] == nil { new["timing"] = ["on": false] }
+    new["schema"] = 5
+    new["minReader"] = DuskState.minReader
     return new
   }
 }
