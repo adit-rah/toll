@@ -3,7 +3,7 @@ import TollCore
 import TollUI
 
 /// Your sleep, the second tab (D63): it opens onto Your sky (D79), then how the person's nights
-/// are changing (#88), then this week as dots and a personal best when there is one (#103), then
+/// are changing (#88), Apple's screen time after bed (#65), then this week as dots and a personal best when there is one (#103), then
 /// everything from the log on this phone.
 struct InsightsView: View {
   let sleep: YourSleep
@@ -26,12 +26,13 @@ struct InsightsView: View {
           VStack(alignment: .leading, spacing: 0) {
             // The person's improvement leads (#85, #88); what Dusk did follows as context.
             SleepTrendsSection(trends: sleep.trends).padding(.top, 28)
+            // Apple's own count, after the measures it must never outshout (#65).
+            AfterBedRow().padding(.top, 12)
             SectionHeader(sleep.weekTitle).padding(.top, 28)
             WeekDotsCard(sleep: sleep).padding(.top, TollSpacing.headerToCard)
             if let best = sleep.best {
               BestCard(best: best).padding(.top, 12)
             }
-            AfterBedRow().padding(.top, 12)
             // The night as it's planned, three parts: before sleep, sleep, after waking (#144).
             if let plan = sleep.plan {
               SectionHeader(Copy.Fit.aroundTitle).padding(.top, 28)
