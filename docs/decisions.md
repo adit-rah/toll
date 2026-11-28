@@ -671,3 +671,18 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **How it looks.** A raised tile with 12 pt corners (Apple's look), Screen Time's hourglass growing with the text, "Screen time after bed" and "Last night, from Screen Time", with the number at the end (or under the words at accessibility sizes). Body weight for the words and the number, so it never outshouts the card's headline or the measures (D105).
 - **Assumed, for the founders:** last night only, not the week; the row hides without Screen Time rather than offering to turn it on.
 
+**D110. The heads-up's answer, a switch for other blocks, and the last wordless rows** (2026-11-28, #160, #161, #162, #168).
+- **The heads-up's answer (#160).** After the offer's "Turn on", Tonight's band shows the answer once, in the setup slot (D94): "Heads-up on" with tonight's time and OK, or, if refused in iOS's prompt, "Notifications are off for Dusk" with Open Settings. It is held in memory until OK or the app goes to the background, and comes before a flow or the next offer. It is `TonightBand`'s rule, tested.
+- **A switch for other blocks (#161; founder: "yes, but not during the block").**
+  - Other blocks have an on/off switch in their editor, applied on Save.
+  - Off is refused inside the block's hours (`CommandError.cannotSwitchOff`), even away from its place, so leaving, switching off and coming back is never a way out. The switch is dimmed then, with "Can be turned off after 5:00 pm".
+  - Turned on inside its hours, the hours it's in count as ended (B-4), so it first locks at its next start.
+  - The night has no switch.
+  - On Blocks, an off row has a dashed tile, a grey title, and the power glyph with "Off".
+  - The rule is `BlockSwitch`, tested.
+  - The editor over the Blocks row, by the attention check (D105): a column of switches would outshout the night's card.
+- **The activity log (#162)** uses the page and `tollSurface` cards (D95), no white.
+- **Wordless (#168).** Every Settings row leads with its tile, and the free nights show their segments. The buffer sheets' minutes are striped bars at the night picture's scale. Ready's footnote scrolls at accessibility sizes, with only Done pinned.
+- **Assumed, for the founders:** off is refused inside the hours even when the block isn't locking (away, after the free nights, Screen Time off); the heads-up's answer shows once.
+- **Left:** the open landmark card under the tab bar (#162, narrowed).
+

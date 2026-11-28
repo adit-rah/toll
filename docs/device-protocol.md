@@ -265,6 +265,14 @@ Pass (spec §11): every expected transition within two minutes of the real event
 | 247 | Compare with iOS Settings › Screen Time for those hours (iPhone only) | About the same; note any gap, and whether it counts the buffers (it shouldn't) | | |
 | 248 | Screen Time off for Dusk; or the evening after setup, before a first night has ended | No row on either screen | | |
 | 249 | VoiceOver on the row, and AX5 | "Screen time after bed, last night, from Screen Time", then the number as "N hours N minutes"; at AX5 the number sits under the words, the hourglass grows, nothing is cut off | | |
+| 250 | Tonight's heads-up offer, iOS not asked yet: tap Turn on, then Allow | The card fades to "Heads-up on" with tonight's time; OK removes it; it doesn't return | | |
+| 251 | Same, but tap Don't Allow | "Notifications are off for Dusk" with Open Settings; it opens Dusk's page in iOS Settings; coming back, the card is gone | | |
+| 252 | Turn on, Allow, then lock the phone and reopen without tapping OK | The answer is gone (shown once) | | |
+| 253 | Edit Study during its hours | The switch is on, dimmed, "Can be turned off after 5:00 pm"; it can't be moved | | |
+| 254 | Study off; during its hours switch it on and Save | Its apps stay open now; Blocks shows the next start; at the next start the shield comes on | | |
+| 255 | Study on, outside its hours: switch it off and Save | Its row shows the dashed tile, grey title and "Off"; nothing locks at its next hours | | |
+| 256 | Settings › Activity log, in light | No white card; the page and cards match Settings | | |
+| 257 | Ready at AX5 | Only Done stays pinned; the free nights' segments and footnote scroll with the content | | |
 
 ## Unknowns (spec §5)
 | # | Check | Result |
