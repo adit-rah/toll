@@ -686,3 +686,15 @@ Radius: Apple says regions below 100–500 m are unreliable. `home.radiusMeters`
 - **Assumed, for the founders:** off is refused inside the hours even when the block isn't locking (away, after the free nights, Screen Time off); the heads-up's answer shows once.
 - **Left:** the open landmark card under the tab bar (#162, narrowed).
 
+**D111. Last night's open card keeps to its room** (2026-11-28, #162; amends D93 and D96; details of D86 and D87).
+- **Capped, not moved.** Below accessibility sizes, the open card is never taller than the room between the state and the strip (20 pt from each). Past that, its header stays with "OK" and the fold, and the details scroll inside the card. The band and the strip stay where the folded row had them, so nothing runs under the tab bar and the state never moves (D86). Only when even the folded band can't fit there does it go under the state, as before.
+- **The cut edge fades** over 28 pt while more is below. The fade has no motion.
+- **One surface (D96):** the details keep one frame in both states, so opening changes only the card's height. Each opening starts at the top.
+- **A landmark follows the night.** In last night's details the landmark comes after the sentence and bar, before the taps and the week, on Tonight's card and in the strip's popover alike (D105).
+- **Chosen over** dropping the week's dots on landmark mornings, or folding "Screen time after bed" to one line. On iPhone 17 the open landmark card needs about 400 pt against about 250 of room, so neither fits alone; the cap fits every phone and size.
+- **At accessibility sizes,** "OK" leaves the open card's header, where it crowded "Last night" and the chevron, and ends the card.
+- **The block editor at accessibility sizes** pins only Save. Delete block and the note for a block that's on end the scrolling page, the note last, so its coming moves nothing (D87).
+- **Renders** gain an `xxxl` variant and a `device` choice (`docs/renders.md`).
+- **Assumed, for the founders:** the landmark's move up; OK at the card's end at accessibility sizes; the cut edge's fade.
+- **Resolves** D96's "Left open" about the band moving under the state (device row 179).
+- **Left:** the smallest phone at xxxL with a card above, where the folded band already can't fit and the open card still runs under the tab bar until the page scrolls; and the block editor's pinned note, Delete and Save at xxxL on the smallest phone (about 28% of the screen); both in #178.

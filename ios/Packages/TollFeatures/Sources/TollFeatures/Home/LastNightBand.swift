@@ -6,8 +6,7 @@ import TollUI
 /// the moon, "Last night", the night's outcome as a glyph and a few words, and a chevron. The whole
 /// row opens the full card, which grows up from it while its bottom edge stays above the strip; the
 /// header folds it again. "OK" lives only in the open card: in its header, or at accessibility sizes
-/// at its end. Nothing is kept: the row is folded each
-/// time Tonight appears.
+/// at its end. Nothing is kept: the row is folded each time Tonight appears.
 struct LastNightBand: View {
   let night: Morning
   @Binding var open: Bool
@@ -90,8 +89,8 @@ struct LastNightBand: View {
   }
 
   /// The row, and the open card's header: one button that opens or folds, with "OK" over it beside
-  /// the chevron once open, below accessibility sizes. The chevron is one view in both, so it turns with the card instead of
-  /// being swapped for another.
+  /// the chevron once open, below accessibility sizes. The chevron is one view in both, so it turns
+  /// with the card instead of being swapped for another.
   private var header: some View {
     Button(action: toggle) {
       HStack(spacing: 8) {
