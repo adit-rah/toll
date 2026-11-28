@@ -191,8 +191,8 @@ def looks(
 ) -> tuple[list[Look], list[float]]:
     """Every weekly judgement up to the one in force at `now`, oldest first, and the first values.
 
-    `center` maps a block's values to what is compared (the identity for a level; the distances from
-    the median for How steady); `window` is how many nights each look reads back from its Monday."""
+    `center` maps a block's (night, value) pairs to what is compared (the values for a level; the
+    distances, `centred`, for How steady); `window` is how many nights each look reads back from its Monday."""
     center = center or (lambda pairs: [v for _, v in pairs])
     window = window or 7
     size = rule.baseline if window == 7 else rule.steady
@@ -301,7 +301,8 @@ def centred(pairs: Sequence[tuple[int, float]], how: str, around: int = 3) -> li
 
 
 def spread_measure(series: Series, now: int, rule: Rule = Rule()) -> dict | None:
-    """How steady: the trimmed mean distance from the middle night, the last `steady` nights."""
+    """How steady: the trimmed mean distance from the middle of the days around each night, the last
+    `steady` nights."""
     values = recent(series, now, rule.steady)
     if len(values) < rule.min_steady:
         return None
