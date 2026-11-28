@@ -77,7 +77,8 @@ struct TimingRecordTests {
 
   @Test func withoutTimingTheRecordIsAsItWas() throws {
     let records = try Self.records(TimingTests.timed())
-    #expect(records.allSatisfy { $0.policy == "fixed" && $0.hold == nil && $0.actionOffsetMin == 0 })
+    #expect(
+      records.allSatisfy { $0.policy == "fixed" && $0.hold == nil && $0.actionOffsetMin == 0 })
   }
 
   /// The app's part, as `ModelStore.choose` does it: ask, draw with the model, answer.
@@ -120,7 +121,8 @@ struct TimingRecordTests {
     // Later in the week there's nothing to draw; next Monday there is, from where it left off.
     #expect(Self.draw(&a, now: date(2026, 11, 27, 9)) == nil)
     run(&a, date(2026, 11, 30, 13))
-    #expect(TimingRules.ask(a, now: date(2026, 11, 30, 13), calendar: london)?.generator == rng.state)
+    #expect(
+      TimingRules.ask(a, now: date(2026, 11, 30, 13), calendar: london)?.generator == rng.state)
   }
 
   /// D92, D99: the state lost its timing (an older build wrote it, or it couldn't be read), and

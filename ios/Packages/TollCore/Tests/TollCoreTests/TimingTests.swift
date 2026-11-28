@@ -81,7 +81,8 @@ struct TimingTests {
     #expect(TimingRules.ask(state, now: date(2026, 11, 23, 20, 31), calendar: london) == nil)
     #expect(TimingRules.ask(state, now: date(2026, 11, 23, 23), calendar: london) == nil)
     // The morning after: the next night is that evening's.
-    #expect(TimingRules.ask(state, now: date(2026, 11, 24, 8), calendar: london)?.night == "2026-11-24")
+    #expect(
+      TimingRules.ask(state, now: date(2026, 11, 24, 8), calendar: london)?.night == "2026-11-24")
   }
 
   @Test func theWeeksStartMovesTheLockAndNeverWake() {
@@ -90,7 +91,8 @@ struct TimingTests {
     #expect(Self.lockStart(plan) == time(22))
     #expect(Self.lockStart(state) == time(21, 30))
     #expect(state.lead == 60)
-    #expect(state.lockSleep?.schedule.windows.first?.end == plan.lockSleep?.schedule.windows.first?.end)
+    #expect(
+      state.lockSleep?.schedule.windows.first?.end == plan.lockSleep?.schedule.windows.first?.end)
     #expect(Self.lockStart(Self.held(Self.later)) == time(22, 30))
     #expect(state.timing.generator == "42")
     // Nothing more to draw this week.
@@ -118,7 +120,8 @@ struct TimingTests {
     // Once it ends, the next night is Monday's, the next week's: the plan, until the app draws.
     run(&state, date(2026, 11, 30, 9))
     #expect(Self.lockStart(state) == time(22))
-    #expect(TimingRules.ask(state, now: date(2026, 11, 30, 9), calendar: london)?.night == "2026-11-30")
+    #expect(
+      TimingRules.ask(state, now: date(2026, 11, 30, 9), calendar: london)?.night == "2026-11-30")
     #expect(state.timing.hold(forNight: date(2026, 11, 29, 0)) == Self.earlier)
     #expect(state.timing.hold(forNight: date(2026, 11, 30, 0)) == nil)
   }

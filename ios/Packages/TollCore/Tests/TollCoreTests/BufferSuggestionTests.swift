@@ -215,8 +215,10 @@ struct BufferSuggestionTests {
         forResource: "past", withExtension: "jsonl", subdirectory: "Fixtures/nights"))
     let nights = NightLog(url: url).buffers(calendar: london)
     #expect(nights.count == NightLog(url: url).current().count)
-    #expect(nights.dropLast().allSatisfy { $0.pausesBefore == nil && $0.pausesAfter == nil })
-    #expect(nights.last?.pausesBefore == 1)
+    #expect(nights.dropLast(2).allSatisfy { $0.pausesBefore == nil && $0.pausesAfter == nil })
+    #expect(nights.dropLast().last?.pausesBefore == 1)
+    // A night personal timing started 30 minutes earlier ran an hour's buffer, not its gap's 30.
+    #expect(nights.last?.before == 60)
   }
 
   // MARK: Offered
