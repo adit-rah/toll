@@ -10,8 +10,13 @@ import TollUI
 struct LastNightBand: View {
   let night: Morning
   @Binding var open: Bool
+  /// Below accessibility sizes the open card keeps to the room above the strip and its details
+  /// scroll inside it (#162); at accessibility sizes the page scrolls instead.
+  var scrollsInside = false
   let putAway: () -> Void
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  /// Each opening starts at the top of the details, as nothing about the card is kept.
+  @State private var scroll = ScrollPosition(edge: .top)
 
   private var shape: RoundedRectangle {
     RoundedRectangle(cornerRadius: TollRadius.card, style: .continuous)
@@ -25,16 +30,40 @@ struct LastNightBand: View {
   var body: some View {
     FoldLayout(open: open) {
       header
-      LastNightDetails(night: night)
-        .padding(.top, 2)
-        .padding(.bottom, TollSpacing.noteCardVertical)
-        .shown(open, reduceMotion: reduceMotion)
+      details
     }
     .padding(.horizontal, TollSpacing.cardPadding)
     .frame(maxWidth: .infinity, alignment: .leading)
     // The one surface, its hairline with it, sized by the layout's animated height.
     .tollSurface(shape)
     .clipShape(shape)
+  }
+
+  /// Under the header, which stays put while they scroll, so "OK" and the fold are always in reach.
+  /// The scroll view hugs the details when they fit, and nothing bounces.
+  @ViewBuilder private var details: some View {
+    let content = LastNightDetails(night: night)
+      .padding(.top, 2)
+      .padding(.bottom, TollSpacing.noteCardVertical)
+    Group {
+      if scrollsInside {
+        ScrollView {
+          content
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollPosition($scroll)
+      } else {
+        content
+      }
+    }
+    .shown(open, reduceMotion: reduceMotion)
+    .onChange(of: open) { _, open in
+      // Folded, the details have already faded out at once, so this jump is never seen.
+      guard !open else { return }
+      var instant = Transaction()
+      instant.disablesAnimations = true
+      withTransaction(instant) { scroll.scrollTo(edge: .top) }
+    }
   }
 
   /// The row, and the open card's header: one button that opens or folds, with "OK" over it beside
@@ -166,13 +195,15 @@ extension View {
 
 /// The header over the details, at the size of the header alone while folded: the details keep
 /// their place under it, past the card's clipped bottom edge, so opening only changes the height.
-/// A layout rather than a measured height, so the first frame is already right.
+/// Offered less height than the open card needs, the details get what's left under the header, in
+/// both states, so they keep one frame (#162). A layout rather than a measured height, so the first
+/// frame is already right.
 private struct FoldLayout: Layout {
   let open: Bool
 
   func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
     let fit = ProposedViewSize(width: proposal.width, height: nil)
-    let heights = subviews.map { $0.sizeThatFits(fit).height }
+    let heights = Self.heights(subviews, width: proposal.width, room: proposal.height)
     let width = proposal.width ?? subviews.map { $0.sizeThatFits(fit).width }.max() ?? 0
     return CGSize(width: width, height: open ? heights.reduce(0, +) : heights.first ?? 0)
   }
@@ -181,12 +212,24 @@ private struct FoldLayout: Layout {
     in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()
   ) {
     var y = bounds.minY
-    for subview in subviews {
-      let height = subview.sizeThatFits(ProposedViewSize(width: bounds.width, height: nil)).height
+    let heights = Self.heights(subviews, width: bounds.width, room: proposal.height)
+    for (subview, height) in zip(subviews, heights) {
       subview.place(
         at: CGPoint(x: bounds.minX, y: y), anchor: .topLeading,
         proposal: ProposedViewSize(width: bounds.width, height: height))
       y += height
+    }
+  }
+
+  /// The header's own height, then the details' up to the room left under it.
+  private static func heights(_ subviews: Subviews, width: CGFloat?, room: CGFloat?) -> [CGFloat] {
+    let fit = ProposedViewSize(width: width, height: nil)
+    var left = room ?? .infinity
+    return subviews.enumerated().map { index, subview in
+      let natural = subview.sizeThatFits(fit).height
+      let height = index == 0 ? natural : min(natural, max(0, left))
+      left -= height
+      return height
     }
   }
 }

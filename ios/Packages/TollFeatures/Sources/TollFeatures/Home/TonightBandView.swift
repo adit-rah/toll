@@ -23,7 +23,8 @@ struct TonightBandView: View {
     Group {
       if growsUp {
         // The card sits over a hidden copy of the folded row and the row lies over both, so the
-        // card keeps its place while hidden and the open card grows over its room.
+        // card keeps its place while hidden and the open card grows over its room. Offered less
+        // room than it would like (#162), only the open card gives way: it scrolls inside.
         ZStack(alignment: .bottom) {
           VStack(spacing: Self.between) {
             card(hidden: lastNightOpen && night != nil)
@@ -31,6 +32,7 @@ struct TonightBandView: View {
               LastNightBand(night: night, open: .constant(false), putAway: {}).hidden()
             }
           }
+          .fixedSize(horizontal: false, vertical: true)
           lastNight
         }
       } else {
@@ -56,7 +58,7 @@ struct TonightBandView: View {
 
   @ViewBuilder private var lastNight: some View {
     if let night {
-      LastNightBand(night: night, open: $lastNightOpen) {
+      LastNightBand(night: night, open: $lastNightOpen, scrollsInside: growsUp) {
         lastNightOpen = false
         actions.putAwayLastNight(night.night)
       }
